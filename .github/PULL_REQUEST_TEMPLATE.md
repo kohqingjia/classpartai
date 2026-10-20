@@ -2,7 +2,7 @@
 
 <!-- Briefly describe the purpose and context of this change. What problem does it solve? -->
 
-Closes # <!-- or Fixes #, Resolves # -->
+Implements CPA- <!-- Linear work item, for example Implements CPA-12. -->
 
 ## Key Changes
 
