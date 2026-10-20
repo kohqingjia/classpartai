@@ -4,10 +4,13 @@
 
 Before opening a pull request, ensure your local environment is configured and working. Follow the instructions in the [Development Guide](./DEVELOPMENT.md) for prerequisites, local service orchestration (Docker Compose), and the complete scripts catalog.
 
+New to the project? Set up GitHub, Linear and the local build with [TEAMMATE-SETUP.md](./TEAMMATE-SETUP.md).
+
 ## Branches
 
 - Base all work off `main`.
-- Use short, lowercase, hyphen-separated names: `feat/notes-crud`, `fix/auth-redirect`, `chore/ci-cache`.
+- Name a branch for a Linear issue with Linear's "Copy git branch name" button, for example `kohqingjia/cpa-12`. The issue ID in the name links the branch, its commits and its pull request to the issue.
+- For work without an issue, use short, lowercase, hyphen-separated names: `feat/notes-crud`, `fix/auth-redirect`, `chore/ci-cache`.
 
 ## Commits
 
