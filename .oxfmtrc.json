@@ -1,0 +1,20 @@
+{
+  "$schema": "./node_modules/oxfmt/configuration_schema.json",
+  "ignorePatterns": [
+    ".output/**",
+    ".nitro/**",
+    "node_modules/**",
+    "src/routeTree.gen.ts",
+    "bun.lock",
+    "coverage/**",
+    "playwright-report/**"
+  ],
+  "tabWidth": 2,
+  "printWidth": 100,
+  "semi": true,
+  "singleQuote": false,
+  "trailingComma": "es5",
+  "bracketSpacing": true,
+  "arrowParens": "avoid",
+  "endOfLine": "lf"
+}

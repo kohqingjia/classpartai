@@ -1,0 +1,96 @@
+name: tanstack-start-template
+
+services:
+  redis:
+    image: redis:7-alpine
+    container_name: redis
+    ports:
+      - 6379:6379
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  mailpit:
+    image: axllent/mailpit:v1.31.1
+    container_name: mailpit
+    ports:
+      - 1025:1025
+      - 8025:8025
+    healthcheck:
+      test: ["CMD", "wget", "-q", "-O", "/dev/null", "http://localhost:8025/api/v1/info"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  postgres:
+    image: postgres:18-alpine
+    container_name: postgres
+    ports:
+      - 5432:5432
+    volumes:
+      # postgres:18 keeps PGDATA under /var/lib/postgresql; mounting the old /data path loses it.
+      - ./data/postgres:/var/lib/postgresql
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=app
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+  minio:
+    image: quay.io/minio/minio
+    container_name: minio
+    ports:
+      - 9000:9000
+      - 9001:9001
+    volumes:
+      - ./data/minio/data:/data
+    environment:
+      - MINIO_ROOT_USER=admin
+      - MINIO_ROOT_PASSWORD=password
+    command: server /data --console-address ":9001"
+    healthcheck:
+      test: ["CMD", "sh", "-c", ": < /dev/tcp/localhost/9000"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  minio_init:
+    image: minio/mc
+    container_name: minio_init
+    depends_on:
+      - minio
+    environment:
+      - MC_USER=admin
+      - MC_PASS=password
+      - MC_BUCKET=app
+    entrypoint: >
+      /bin/sh -c "
+        until (mc alias set minio http://minio:9000 $$MC_USER $$MC_PASS 2>/dev/null) do echo '...' && sleep 1; done;
+        echo 'Creating bucket $$MC_BUCKET';
+        mc mb --ignore-existing minio/$$MC_BUCKET;
+        exit 0;
+      "
+  tanstack-start-template:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: tanstack-start-template
+    ports:
+      - 3000:3000
+    env_file:
+      - .env.example
+    depends_on:
+      postgres:
+        condition: service_healthy
+      minio:
+        condition: service_healthy
+      minio_init:
+        condition: service_completed_successfully
+      redis:
+        condition: service_healthy

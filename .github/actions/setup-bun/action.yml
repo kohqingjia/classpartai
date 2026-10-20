@@ -1,0 +1,42 @@
+name: Setup Bun
+description: Setup Bun, cache, and install dependencies
+
+runs:
+  using: "composite"
+  steps:
+    - name: Ensure unzip is available
+      shell: bash
+      run: |
+        if ! command -v unzip &> /dev/null; then
+          if command -v apt-get &> /dev/null; then
+            apt-get update && apt-get install -y --no-install-recommends unzip
+          fi
+        fi
+    - name: Setup Bun
+      uses: oven-sh/setup-bun@v2
+      with:
+        bun-version: 1.4.2
+    - name: Ensure Bun is in /usr/local/bin
+      shell: bash
+      run: |
+        if command -v bun &> /dev/null; then
+          BUN_PATH=$(command -v bun)
+          if [ "$BUN_PATH" != "/usr/local/bin/bun" ] && [ -w /usr/local/bin ]; then
+            ln -sf "$BUN_PATH" /usr/local/bin/bun || true
+          fi
+        fi
+    - name: Cache dependencies
+      uses: actions/cache@v6
+      with:
+        path: ~/.bun/install/cache
+        key: ${{ runner.os }}-bun-${{ hashFiles('bun.lock') }}
+        restore-keys: |
+          ${{ runner.os }}-bun-
+    - name: Configure Git safe directory
+      shell: bash
+      run: git config --global --add safe.directory "$GITHUB_WORKSPACE"
+    - name: Install dependencies
+      shell: bash
+      env:
+        LEFTHOOK: "0"
+      run: bun install --frozen-lockfile

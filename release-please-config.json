@@ -1,0 +1,8 @@
+{
+  "release-type": "node",
+  "skip-changelog": true,
+  "initial-version": "1.0.0",
+  "packages": {
+    ".": {}
+  }
+}
