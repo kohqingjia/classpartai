@@ -22,3 +22,12 @@ scratch
 .claude
 # Git worktrees for parallel sub-issue work
 .worktrees/
+# Python audio service
+**/.venv/
+__pycache__/
+*.pyc
+
+# Local audio recordings
+*.m4a
+*.wav
+*.mp3
