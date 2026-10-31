@@ -1,5 +1,5 @@
-from pathlib import Path
 from collections import defaultdict
+from pathlib import Path
 
 import torch
 import torchaudio
@@ -38,7 +38,6 @@ def extract_speaker_audio(audio_path, speaker_segments):
     speaker_files = {}
 
     for speaker, segments in grouped_segments.items():
-
         clips = []
 
         for segment in segments:

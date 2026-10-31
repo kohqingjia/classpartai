@@ -1,7 +1,6 @@
 from diarization import diarize_audio
 from speaker_extraction import extract_speaker_audio
 
-
 audio_path = "audio-service/enrollments/seminar_test.m4a"
 
 print("Running diarization...")

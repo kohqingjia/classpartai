@@ -5,7 +5,6 @@ from pathlib import Path
 from dotenv import load_dotenv
 from speechbrain.inference.speaker import SpeakerRecognition
 
-
 BASE_DIR = Path(__file__).resolve().parent
 ROOT_DIR = BASE_DIR.parent
 
@@ -28,7 +27,7 @@ speaker_model = SpeakerRecognition.from_hparams(
 
 
 def load_registry():
-    with open(REGISTRY_PATH, "r") as file:
+    with open(REGISTRY_PATH) as file:
         return json.load(file)
 
 
@@ -61,12 +60,14 @@ def identify_speaker(test_file):
             test_file,
         )
 
-        results.append({
-            "person_id": person_id,
-            "name": person["name"],
-            "score": comparison["score"],
-            "same_speaker": comparison["same_speaker"],
-        })
+        results.append(
+            {
+                "person_id": person_id,
+                "name": person["name"],
+                "score": comparison["score"],
+                "same_speaker": comparison["same_speaker"],
+            }
+        )
 
     # Highest similarity first
     results.sort(
@@ -89,11 +90,7 @@ def resolve_speaker_identity(test_file):
 
     results = identify_speaker(test_file)
 
-    accepted_matches = [
-        result
-        for result in results
-        if result["same_speaker"]
-    ]
+    accepted_matches = [result for result in results if result["same_speaker"]]
 
     if len(accepted_matches) == 0:
         return {

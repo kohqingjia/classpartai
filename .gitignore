@@ -1,31 +1,31 @@
-node_modules
-.DS_Store
-dist
-dist-ssr
-*.local
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+.pytest_cache/
+.ruff_cache/
+*.egg-info/
+build/
+dist/
+
+# Notebooks
+.ipynb_checkpoints/
+
+# Environment and secrets
 .env
 .env.local
-.nitro
-.tanstack
-.wrangler
-.output
-.vinxi
-__unconfig*
-todos.json
-bun.lockb
-playwright-report
-test-results
-coverage
-data
+
+# Large or licensed data (document sources in data/README.md)
+data/raw/
+
+# Local
+.DS_Store
 scratch
-.gstack/
 .claude
-# Git worktrees for parallel sub-issue work
 .worktrees/
-# Python audio service
+
+# Nested virtualenvs (e.g. audio-service/.venv)
 **/.venv/
-__pycache__/
-*.pyc
 
 # Local audio recordings
 *.m4a

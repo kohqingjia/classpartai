@@ -13,15 +13,18 @@ def replace_speaker_labels(aligned_segments, speaker_identities):
             "UNKNOWN",
         )
 
-        identified_segments.append({
-            "start": segment["start"],
-            "end": segment["end"],
-            "speaker": name,
-            "original_speaker": speaker_label,
-            "text": segment["text"],
-        })
+        identified_segments.append(
+            {
+                "start": segment["start"],
+                "end": segment["end"],
+                "speaker": name,
+                "original_speaker": speaker_label,
+                "text": segment["text"],
+            }
+        )
 
     return identified_segments
+
 
 def merge_consecutive_speaker_segments(segments):
     """
@@ -30,7 +33,7 @@ def merge_consecutive_speaker_segments(segments):
     Example:
         Tina: "Hello, I think..."
         Tina: "this could be useful."
-    
+
     becomes:
         Tina: "Hello, I think... this could be useful."
     """
@@ -43,16 +46,12 @@ def merge_consecutive_speaker_segments(segments):
     current_segment = segments[0].copy()
 
     for segment in segments[1:]:
-
         # Same speaker -> combine the text
         if segment["speaker"] == current_segment["speaker"]:
-
             current_segment["end"] = segment["end"]
 
             current_segment["text"] = (
-                current_segment["text"].rstrip()
-                + " "
-                + segment["text"].lstrip()
+                current_segment["text"].rstrip() + " " + segment["text"].lstrip()
             )
 
         # Different speaker -> finish current turn

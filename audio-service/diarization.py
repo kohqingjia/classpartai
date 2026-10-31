@@ -5,7 +5,6 @@ import torch
 from dotenv import load_dotenv
 from pyannote.audio import Pipeline
 
-
 ENV_PATH = Path(__file__).resolve().parent.parent / ".env"
 load_dotenv(ENV_PATH)
 
@@ -44,14 +43,15 @@ def diarize_audio(audio_path: str):
     speaker_segments = []
 
     for turn, speaker in output.speaker_diarization:
-
         if turn.end - turn.start < 0.3:
             continue
 
-        speaker_segments.append({
-            "start": turn.start,
-            "end": turn.end,
-            "speaker": speaker,
-        })
+        speaker_segments.append(
+            {
+                "start": turn.start,
+                "end": turn.end,
+                "speaker": speaker,
+            }
+        )
 
     return speaker_segments
