@@ -1,0 +1,14 @@
+.git
+.github
+**/.venv
+**/__pycache__
+.pytest_cache
+.ruff_cache
+.env
+data/raw
+audio-service/enrollments
+audio-service/models
+audio-service/speaker_clips
+*.wav
+*.mp3
+*.m4a
