@@ -31,13 +31,13 @@ PROJECT
   The first run opens a browser to sign in.
 - Verify: list the Linear teams and confirm a team with key CPA appears, then list the issues assigned to me. If CPA is missing, I'm signed into the wrong workspace or haven't been added to the team. Tell me which.
 
-3. CLONE AND BUILD
+3. CLONE AND SET UP
 - Clone into a folder I choose (ask me where): `gh repo clone kohqingjia/classpartai`.
-- Read AGENTS.md, CLAUDE.md, docs/DEVELOPMENT.md and docs/CONTRIBUTING.md first. Follow the setup steps in docs/DEVELOPMENT.md exactly instead of guessing commands.
-- Install the prerequisites they name. The project uses Bun (check the version pinned in package.json's "packageManager" and match it), Docker Desktop for the local database (it must be running), and Node if the docs ask for it.
-- Typical sequence (confirm against the docs): copy .env.example to .env and fill only what the docs say is required locally; `bun install --frozen-lockfile`; start the database with docker compose; run the migration and seed scripts from package.json; `bun run dev`, then open the printed URL.
-- Make sure lefthook's git hooks are installed (the docs or `bun install` may already do it).
-- Verify the build: run the format check, lint, type check and unit tests from package.json's scripts. All must pass on a fresh main. If one fails, show me the error rather than changing code.
+- Read AGENTS.md, README.md and docs/CONTRIBUTING.md first. Follow the setup steps in README.md exactly instead of guessing commands.
+- The project uses Python 3.12 managed by uv. Check `uv --version`; if missing, install it (on macOS: `brew install uv`). uv installs the right Python itself.
+- Run `uv sync`, then copy .env.example to .env. Ask me for any API key it needs; never invent one.
+- Verify the setup: `uv run ruff check .`, `uv run ruff format --check .` and `uv run pytest` must all pass on a fresh main. If one fails, show me the error rather than changing code.
+- Start the demo with `uv run streamlit run app.py` and confirm it opens in the browser.
 
 4. PROVE I CAN PUSH (then clean up)
 - Create a throwaway branch `chore/setup-check-<my-github-username>`, push it, confirm it appears on GitHub, then delete it locally and remotely. Don't open a PR and don't push to main (main is protected).
@@ -47,7 +47,7 @@ PROJECT
 - Conventional Commits (feat:, fix:, chore:, docs:, test:, refactor:).
 - Open a PR to main using the repo's template, with "Implements CPA-<n>" in the body. Linear then moves the issue automatically: opened → In Progress, review → In Review, merged → Done.
 - Copilot reviews every PR automatically. Address its comments. Squash merge only.
-- Run format, lint, type check and tests before every push.
+- Run ruff check, ruff format and pytest before every push.
 - Never push to main directly, never force-push shared branches, never commit .env or secrets.
 
 When done, give me a short checklist of what's set up, what passed, and anything I still need to do.
