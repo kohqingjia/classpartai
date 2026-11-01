@@ -167,7 +167,10 @@ TOOL_DEFINITIONS = [
     tool(
         "finish_evidence",
         "Finish with sufficient cited evidence or explicit unresolved gaps. Exact quotes and IDs "
-        "are checked, not factual support. No participation scores.",
+        "are checked, not factual support. No participation scores. Rules: status 'sufficient' "
+        "needs at least one citation and an empty gaps list; status 'gap' needs at least one "
+        "gap; any conflict needs a citation with relationship 'conflicts'. Excerpts must be "
+        "copied exactly from a returned passage.",
         FinishArgs,
     ),
 ]
@@ -413,6 +416,19 @@ def investigate(
                 or progress.tokens + driver.estimate_tokens(history) > BUDGET["tokens"]
             ):
                 return stop("needs_review", "context_or_token_budget")
+            if (
+                progress.modelCalls == BUDGET["modelCalls"] - 1
+                and history[-1].get("role") != "user"
+            ):
+                # Not in the original: without a warning the agent can search until the budget
+                # ends and never record what it found.
+                history.append(
+                    {
+                        "role": "user",
+                        "content": "Last call: call finish_evidence now with what you have, "
+                        "using status 'gap' if the evidence is not sufficient.",
+                    }
+                )
             progress.modelCalls += 1
             checkpoint(progress)
             turn = driver.next(history)
