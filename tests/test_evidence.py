@@ -114,3 +114,10 @@ def test_empty_filter_is_invalid_not_an_empty_search(inputs):
     summary = outcome.progress.actions[0]["summary"]
     assert summary.startswith("Invalid search arguments (documentId")
     assert "latency" not in summary  # the reason names the field, never echoes input
+
+
+def test_natural_language_query_ignores_stopwords(inputs):
+    index = CourseIndex(inputs)
+    query = "Is there a cost to the extra retrieval rounds in agentic RAG?"
+    hits = index.search(SearchArgs(query=query, documentId=None, version=None, limit=3))
+    assert hits and hits[0].passageId == "w10-agentic-rag:1:p3"

@@ -80,3 +80,33 @@ def test_totals_only_when_every_criterion_is_scored(inputs):
     marcus = totals(proposal, inputs, "marcus-lee")
     assert marcus["total"] is None and "unknown scores are not zero" in marcus["limitation"]
     assert SILENT.startswith("No observed contribution")
+
+
+def test_reraised_model_issues_are_not_duplicated(inputs):
+    from classpartai.participation.schema import ModelAudit
+    from classpartai.participation.validation import compose_draft
+
+    proposal = Proposal.model_validate(full_proposal())
+    issue = {"studentId": None, "criterionId": None, "detail": "d", "kind": "support"}
+    first = compose_draft(
+        proposal,
+        inputs,
+        "a",
+        model_audit=ModelAudit(
+            issues=[{**issue, "id": "x"}], resolvedIssueIds=[], resolutionReason="n/a", notes="n"
+        ),
+    )
+    second = compose_draft(
+        proposal,
+        inputs,
+        "b",
+        first,
+        ModelAudit(
+            issues=[{**issue, "id": "model:x"}],
+            resolvedIssueIds=[],
+            resolutionReason="n/a",
+            notes="n",
+        ),
+    )
+    assert [i.id for i in second.audit.issues].count("model:x") == 1
+    assert not any(i.id.startswith("model:model:") for i in second.audit.issues)

@@ -174,6 +174,18 @@ TOOL_DEFINITIONS = [
 
 # --- Retrieval --------------------------------------------------------------------------------
 
+# Postgres's 'english' text search (used by the original) drops these; FTS5 doesn't, and an
+# AND of every word in a natural-language query would otherwise match almost nothing.
+STOPWORDS = frozenset(
+    "a about above after again against all am an and any are as at be because been before being "
+    "below between both but by can could did do does doing down during each few for from further "
+    "had has have having he her here hers him his how i if in into is it its itself just me more "
+    "most my no nor not now of off on once only or other our ours out over own same she should so "
+    "some such than that the their them then there these they this those through to too under "
+    "until up very was we were what when where which while who whom why will with would you "
+    "your".split()
+)
+
 
 class CourseIndex:
     """Full-text index over one session's documents (the original re-checked scope per query;
@@ -212,6 +224,8 @@ class CourseIndex:
                 parts.append("OR")
                 continue
             terms = re.findall(r"[\w']+", phrase or word.lstrip("-"))
+            if not phrase:
+                terms = [t for t in terms if t.lower() not in STOPWORDS]
             if terms:
                 parts.append('"' + " ".join(t.replace('"', "") for t in terms) + '"')
         while parts and parts[-1] == "OR":

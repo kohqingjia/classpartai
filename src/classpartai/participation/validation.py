@@ -231,6 +231,10 @@ def compose_draft(
         roster = {s.id for s in inputs.roster}
         criteria = {c.id for c in inputs.rubric.criteria}
         for issue in model_audit.issues:
+            # The auditor sees earlier "model:" IDs and may re-raise them; keep one copy.
+            issue_id = "model:" + issue.id.removeprefix("model:").removeprefix("model:")
+            if any(i.id == issue_id for i in issues):
+                continue
             if issue.studentId is not None and issue.studentId not in roster:
                 raise Unprocessable("Auditor referenced an unknown student")
             if issue.criterionId is not None and issue.criterionId not in criteria:
@@ -238,7 +242,7 @@ def compose_draft(
             issues.append(
                 AuditIssue(
                     **issue.model_dump(exclude={"id"}),
-                    id=f"model:{issue.id}",
+                    id=issue_id,
                     severity="review",
                     disposition="open",
                     resolution=None,
