@@ -104,7 +104,7 @@ def role_result[T: BaseModel](
                     "output": json.dumps({"error": reason}),
                 },
             ]
-    raise RuntimeError("Role did not produce a valid structured result")
+    raise Unprocessable(f"Role did not produce a valid structured result. Last problem: {reason}")
 
 
 def judge(

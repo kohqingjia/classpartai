@@ -130,13 +130,14 @@ def configured_driver(instructions: str, tools: list[ToolDefinition]) -> Driver 
 
 # --- Shared budget ----------------------------------------------------------------------------
 
-# Original limits were 100k tokens / 120 s for a local model. OpenAI reasoning models count
-# hidden reasoning tokens and add network latency, so tokens and time are raised here.
+# Original limits were 24 model calls, 36 tool calls, 100k tokens and 120 s for a local model.
+# A real run needs a feedback call per student plus judge, audit and evidence calls, and OpenAI
+# reasoning models count hidden reasoning tokens and add latency, so all four are raised here.
 WORKFLOW_LIMITS = {
-    "modelCalls": 24,
-    "toolCalls": 36,
-    "tokens": 150000,
-    "seconds": 300,
+    "modelCalls": 48,
+    "toolCalls": 72,
+    "tokens": 300000,
+    "seconds": 420,
     "historyBytes": 100000,
 }
 

@@ -111,4 +111,6 @@ def test_empty_filter_is_invalid_not_an_empty_search(inputs):
         ]
     )
     outcome = investigate(request(), inputs, driver, CourseIndex(inputs))
-    assert outcome.progress.actions[0]["summary"] == "Invalid search arguments"
+    summary = outcome.progress.actions[0]["summary"]
+    assert summary.startswith("Invalid search arguments (documentId")
+    assert "latency" not in summary  # the reason names the field, never echoes input

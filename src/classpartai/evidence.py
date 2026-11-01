@@ -23,6 +23,13 @@ from classpartai.models import Driver, HistoryItem, tool
 Key = Field(min_length=1, max_length=80)
 
 
+def reason(error: ValidationError) -> str:
+    """Field and rule only: never echo the model's input back (it may hold source text)."""
+    first = error.errors()[0]
+    where = ".".join(str(p) for p in first["loc"]) or "arguments"
+    return f"{where}: {first['msg']}"
+
+
 class Strict(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
@@ -422,8 +429,10 @@ def investigate(
                 if call.name == "finish_evidence":
                     try:
                         args = FinishArgs.model_validate(raw)
-                    except ValidationError:
-                        raise ValueError("Invalid completion arguments") from None
+                    except ValidationError as error:
+                        raise ValueError(
+                            f"Invalid completion arguments ({reason(error)})"
+                        ) from None
                     action["arguments"] = args.model_dump_json()
                     progress.bundle = validate_completion(args, seen, request, inputs)
                     action["resultReferences"] = [c.passageId for c in progress.bundle.citations]
@@ -440,15 +449,17 @@ def investigate(
                 if call.name == "search_course_passages":
                     try:
                         search = SearchArgs.model_validate(raw)
-                    except ValidationError:
-                        raise ValueError("Invalid search arguments") from None
+                    except ValidationError as error:
+                        raise ValueError(f"Invalid search arguments ({reason(error)})") from None
                     action["arguments"] = search.model_dump_json()
                     passages = index.search(search)
                 elif call.name == "get_source_passage":
                     try:
                         fetch = FetchArgs.model_validate(raw)
-                    except ValidationError:
-                        raise ValueError("Invalid passage fetch arguments") from None
+                    except ValidationError as error:
+                        raise ValueError(
+                            f"Invalid passage fetch arguments ({reason(error)})"
+                        ) from None
                     action["arguments"] = fetch.model_dump_json()
                     passages = [index.fetch(fetch)]
                 else:
@@ -471,7 +482,7 @@ def investigate(
                 message = str(error)
                 action["summary"] = (
                     message
-                    if message in KNOWN_ERRORS
+                    if any(message.startswith(known) for known in KNOWN_ERRORS)
                     else "Tool failed or referenced an unavailable passage"
                 )
                 output = {
