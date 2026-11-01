@@ -31,3 +31,6 @@ scratch
 *.m4a
 *.wav
 *.mp3
+
+# App data (class list, emails, audit log) when run locally
+var/

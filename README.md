@@ -100,13 +100,18 @@ Plain Python functions the agents call. Signatures are a starting point.
 
 ### ⑤ Action
 
-| Tool | Permission |
+The agent's tools (`src/classpartai/action/agent.py`). Every effect goes through the harness (`action/harness.py`), which enforces the rules in code.
+
+| Tool | Does |
 |---|---|
-| `save_score(student_id, session_id, scores, rationale, status)` | automatic |
-| `flag_for_review(contribution_id, reason)` | automatic |
-| `draft_email(recipient, template, data)` | automatic |
-| `send_email(to, subject, body)` | **guarded**: the prof's address is automatic; a student's needs an approval ID |
-| `request_approval(item_ids)` | shows items in the Streamlit page for the prof to approve or reject |
+| `list_students()` | everyone on the class list with this session's participation, plus unidentified speakers |
+| `get_student_contributions(person_id)` | that student's contributions, scores and audit (transcript marked as student data) |
+| `get_student_history(person_id)` | their earlier sessions |
+| `draft_student_email(person_id, kind, subject, body)` | a `commend` / `encourage` draft, **pending** until the prof approves it in the webapp |
+| `flag_for_review(reason, person_id?, contribution_id?)` | adds to the prof's review list |
+| `send_prof_summary(subject, body)` | the one email sent without separate approval |
+
+Harness rules: student emails only after approval in the **Feedback emails** tab; recipients only from the class list; unidentified speakers never emailed; no other student named in an email (re-checked after the prof edits); one email per student, kind and session; a daily cap; test mode (on by default) redirects everything to one inbox. Sent through AgentMail with an idempotency key.
 
 ## Evaluation
 
@@ -142,13 +147,38 @@ Plus latency and cost per session, and qualitative review of real outputs.
 ## Project layout
 
 ```
-src/classpartai/   the system: shared code that notebooks, eval and the app import
-app.py             Streamlit demo
-notebooks/         exploration and experiments
-eval/              evaluation scripts and results
-data/              small datasets; sources documented in data/README.md
-tests/             pytest tests
+src/classpartai/
+  contracts.py        the data each stage hands to the next (agree changes with both neighbours)
+  orchestrator.py     runs Research -> Judge -> Auditor over a session
+  agents/
+    listener.py       ① adapter over audio-service/ (Tina)
+    research.py       ② PLACEHOLDER: returns no evidence
+    judge.py          ③ PLACEHOLDER: neutral 3/5 on every criterion
+    auditor.py        ④ PLACEHOLDER: approves everything
+  action/             ⑤ Action agent (LLM + tools) and the harness that enforces the rules
+  classlist.py        names and emails, keyed by person_id
+  config.py           paths, env vars, seed
+audio-service/        Listener pipeline: Whisper, pyannote, SpeechBrain
+app.py                Streamlit demo: Analyse / Feedback emails / Class list
+data/                 sample session + class list for demoing without audio
+eval/  notebooks/     evaluation scripts and experiments
+tests/                pytest
+deploy/               Docker deploy for the VPS
 ```
+
+### Building your stage
+
+Each stage is one function in `src/classpartai/agents/`. Replace the placeholder body, keep the signature and return type from `contracts.py`, and set `IS_PLACEHOLDER = False`. The app labels results as "not real" until every stage is built.
+
+| Stage | Function | Returns |
+|---|---|---|
+| ① Listener | `to_contributions(result, session_id, ids_by_name)` | `list[Contribution]` |
+| ② Research | `research(contribution, topic)` | `Research` |
+| ③ Judge | `judge(contribution, research)` | `Judgement` |
+| ④ Auditor | `audit(contribution, judgement)` | `Audit` |
+| ⑤ Action | `ActionAgent(harness).run(session)` | drafts, flags, prof summary |
+
+`data/sample_session.json` is a complete `SessionResults` you can test against without running the stages before yours.
 
 ## Setup
 
@@ -158,7 +188,7 @@ Prerequisite: [uv](https://docs.astral.sh/uv/) (`brew install uv`, or `curl -LsS
 gh repo clone kohqingjia/classpartai
 cd classpartai
 uv sync                  # creates .venv and installs everything from uv.lock
-cp .env.example .env     # then fill in your API key
+cp .env.example .env     # then fill in the keys you need (see comments in the file)
 ```
 
 ## Running

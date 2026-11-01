@@ -12,3 +12,4 @@ audio-service/speaker_clips
 *.wav
 *.mp3
 *.m4a
+var/
