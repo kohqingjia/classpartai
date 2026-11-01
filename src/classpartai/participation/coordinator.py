@@ -280,7 +280,9 @@ def coordinate(
                 elif call.name == "propose_rubric_assessment":
                     args = Revise.model_validate(raw)
                     action["arguments"] = args.model_dump_json()
-                    judged = judge(inputs, records.evidence_for(session_id), budget, factory)
+                    judged = judge(
+                        inputs, records.evidence_for(session_id), budget, factory, session_id
+                    )
                     judged.feedback = draft.content.feedback if draft else []
                     nxt = records.append_draft(
                         session_id, judged, "model", args.note, draft.version if draft else 0
@@ -316,6 +318,7 @@ def coordinate(
                         records.evidence_for(session_id),
                         budget,
                         factory,
+                        session_id,
                     )
                     if result.status == "needs_evidence":
                         output = result.model_dump()

@@ -29,8 +29,8 @@ class Strict(BaseModel):
 
 class SearchArgs(Strict):
     query: str = Field(min_length=1, max_length=240)
-    documentId: str | None = Field(max_length=80)
-    version: str | None = Field(max_length=80)
+    documentId: str | None = Field(min_length=1, max_length=80)
+    version: str | None = Field(min_length=1, max_length=80)
     limit: int = Field(ge=1, le=5)
 
 

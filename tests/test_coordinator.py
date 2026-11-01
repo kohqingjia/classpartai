@@ -77,18 +77,35 @@ def test_invalid_role_output_is_refused_and_reported(records, session_id):
         ]
     )
     bad = {"findings": [{**full_proposal()["findings"][0], "score": 99}]}
+    judge = ScriptedDriver([("finish_rubric_judgement", bad)] * 2)
     roles = factory_for(
-        {
-            "inspect_transcript_context": coordinator,
-            "finish_rubric_judgement": ScriptedDriver([("finish_rubric_judgement", bad)]),
-        }
+        {"inspect_transcript_context": coordinator, "finish_rubric_judgement": judge}
     )
     coordinate(records, session_id, roles)
     actions = records.runs(session_id)[0]["progress"]["actions"]
     assert actions[0]["outcome"] == "invalid"
     assert records.latest_draft(session_id) is None
-    # The refusal text went back to the model so it can choose what to do next.
-    assert "rubric range" in coordinator.histories[1][-1]["output"]
+    # The judge was told which rule it broke before its one correction attempt.
+    assert "outside the pinned rubric range" in judge.histories[1][-1]["output"]
+
+
+def test_judge_corrects_itself_after_rule_feedback(records, session_id):
+    coordinator = ScriptedDriver([("propose_rubric_assessment", {"note": "First pass"})])
+    coordinator.steps.append(("request_professor_review", {"summary": "stop"}))
+    wrong = full_proposal()["findings"]
+    wrong[0] = {**wrong[0], "citations": [{"evidenceRunId": "review-1", "passageId": "turn-002"}]}
+    judge = ScriptedDriver(
+        [
+            ("finish_rubric_judgement", {"findings": wrong}),
+            ("finish_rubric_judgement", {"findings": full_proposal()["findings"]}),
+        ]
+    )
+    roles = factory_for(
+        {"inspect_transcript_context": coordinator, "finish_rubric_judgement": judge}
+    )
+    coordinate(records, session_id, roles)
+    assert "validated evidence" in judge.histories[1][-1]["output"]
+    assert records.latest_draft(session_id).version == 1
 
 
 def test_no_model_configured_blocks_the_run(records, session_id):

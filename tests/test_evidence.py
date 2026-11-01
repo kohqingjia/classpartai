@@ -98,3 +98,17 @@ def test_unknown_tool_is_refused_not_run(inputs):
     outcome = investigate(request(), inputs, driver, CourseIndex(inputs))
     assert outcome.progress.actions[0]["tool"] == "unsupported_tool"
     assert outcome.progress.actions[0]["outcome"] == "invalid"
+
+
+def test_empty_filter_is_invalid_not_an_empty_search(inputs):
+    driver = ScriptedDriver(
+        [
+            (
+                "search_course_passages",
+                {"query": "latency", "documentId": "", "version": None, "limit": 3},
+            ),
+            finish("gap", gaps=["n/a"]),
+        ]
+    )
+    outcome = investigate(request(), inputs, driver, CourseIndex(inputs))
+    assert outcome.progress.actions[0]["summary"] == "Invalid search arguments"
