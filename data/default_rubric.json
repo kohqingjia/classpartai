@@ -1,0 +1,24 @@
+{
+  "id": "is469-cp-rubric",
+  "version": "1",
+  "title": "IS469 class participation rubric",
+  "aggregation": {
+    "method": "sum"
+  },
+  "criteria": [
+    {
+      "id": "reasoning",
+      "title": "Reasoning with evidence",
+      "description": "Explain claims accurately and connect them to course concepts or observable evidence. Record insufficient evidence separately from a low score.",
+      "minScore": 0,
+      "maxScore": 3
+    },
+    {
+      "id": "engagement",
+      "title": "Constructive engagement",
+      "description": "Respond to, question or develop another contribution. Silence alone does not establish understanding or its absence.",
+      "minScore": 0,
+      "maxScore": 3
+    }
+  ]
+}
