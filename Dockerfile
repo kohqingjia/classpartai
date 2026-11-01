@@ -12,20 +12,24 @@ COPY audio-service/requirements.txt audio-service/requirements.txt
 RUN pip install --no-cache-dir \
         --index-url https://download.pytorch.org/whl/cpu \
         --extra-index-url https://pypi.org/simple \
-        -r audio-service/requirements.txt "streamlit>=1.40"
+        -r audio-service/requirements.txt \
+        "streamlit>=1.40" "openai>=1.60" "agentmail>=0.1" "pydantic>=2.8"
 
 COPY app.py ./
 COPY src ./src
+COPY data ./data
 COPY audio-service ./audio-service
 
-# Models, voice samples and per-speaker clips are written at runtime; the volumes in
-# deploy/compose.yaml keep the first two across redeploys.
+# Models, voice samples, per-speaker clips and app data (class list, emails, audit log) are
+# written at runtime; the volumes in deploy/compose.yaml keep all but the clips.
 RUN useradd --uid 10001 --create-home app \
     && mkdir -p /data audio-service/enrollments audio-service/models audio-service/speaker_clips \
     && chown -R app:app /data audio-service
 USER app
 
 ENV HF_HOME=/data/hf \
+    CLASSPARTAI_DATA_DIR=/data/app \
+    PYTHONPATH=/app/src \
     TORCH_HOME=/data/torch \
     PYTHONUNBUFFERED=1
 
