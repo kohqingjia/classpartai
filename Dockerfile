@@ -13,9 +13,10 @@ RUN pip install --no-cache-dir \
         --index-url https://download.pytorch.org/whl/cpu \
         --extra-index-url https://pypi.org/simple \
         -r audio-service/requirements.txt \
-        "streamlit>=1.40" "openai>=1.60" "agentmail>=0.1" "pydantic>=2.8"
+        "streamlit>=1.50" "openai>=1.60" "agentmail>=0.1" "pydantic>=2.8"
 
 COPY app.py ./
+COPY .streamlit ./.streamlit
 COPY src ./src
 COPY data ./data
 COPY audio-service ./audio-service

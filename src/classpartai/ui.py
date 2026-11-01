@@ -26,8 +26,9 @@ TOOL_STAGE = {
 }
 
 _BASE_CSS = """
-:root { --ink:#1f2933; --muted:#6b7785; --line:#d5dbe1; --card:#ffffff; --bg:#f6f8fa;
-        --blue:#2563eb; --green:#15803d; --amber:#b45309; --red:#b91c1c; }
+/* Matches the app's dark, Notion-like theme (.streamlit/config.toml). */
+:root { --ink:#e3e3e3; --muted:#9b9b9b; --line:#373737; --card:#252525; --bg:#202020;
+        --blue:#2383e2; --green:#4dab6f; --amber:#d9a443; --red:#e5605a; }
 * { box-sizing:border-box; }
 body { margin:0; font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
        color:var(--ink); background:transparent; }
@@ -55,8 +56,8 @@ _FLOW_CSS = """
 .node.done .note { color:var(--green); }
 .node.active { border-color:var(--blue); animation:pulse 1.2s ease-in-out infinite; }
 .node.active .num { color:var(--blue); }
-@keyframes pulse { 0%,100% { box-shadow:0 0 0 0 rgba(37,99,235,.45); }
-                   50% { box-shadow:0 0 0 8px rgba(37,99,235,0); } }
+@keyframes pulse { 0%,100% { box-shadow:0 0 0 0 rgba(35,131,226,.5); }
+                   50% { box-shadow:0 0 0 8px rgba(35,131,226,0); } }
 .arrow { flex:0 0 22px; height:2px; background:var(--line); position:relative; }
 .arrow.live { background:repeating-linear-gradient(90deg,var(--blue) 0 6px,transparent 6px 10px);
               background-size:20px 2px; animation:flow .6s linear infinite; }
