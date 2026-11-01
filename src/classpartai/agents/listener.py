@@ -1,57 +1,51 @@
-"""① Listener: turn a recording into contributions (owner: Tina, CPA-18/19/20).
+"""① Listener: turn a recording into a reviewed-transcript draft (owner: Tina, CPA-18/19/20).
 
-Wraps audio-service/pipeline.py. That pipeline loads its models at import time and needs
-HF_TOKEN, so it is imported only when a recording is actually processed.
+Wraps audio-service/pipeline.py and maps its output onto the assessment transcript format.
+Identified speakers become student turns; UNKNOWN / AMBIGUOUS become "uncertain" turns, which
+can never establish a student's score. The professor confirms the transcript before it is used.
 """
 
 import sys
 from collections.abc import Callable
 
+from classpartai.assessment import Transcript
 from classpartai.config import AUDIO_SERVICE_DIR
-from classpartai.contracts import Contribution
 
 IS_PLACEHOLDER = False
 
-# Turns shorter than this are treated as non-substantive ("can you repeat that?").
-# TODO(Listener): replace with an LLM triage step (decision L2 in the README).
-MIN_SUBSTANTIVE_WORDS = 6
-
 
 def load_pipeline() -> Callable[[str], dict]:
+    # The pipeline loads its models at import time and needs HF_TOKEN, so import lazily.
     sys.path.insert(0, str(AUDIO_SERVICE_DIR))
     from pipeline import process_audio
 
     return process_audio
 
 
-def to_contributions(
-    result: dict, session_id: str, ids_by_name: dict[str, str]
-) -> list[Contribution]:
-    """Map the audio pipeline's output onto the shared Contribution contract.
-
-    ``ids_by_name`` maps a registered display name to its class-list person_id.
-    """
-    contributions = []
+def to_transcript(result: dict, ids_by_name: dict[str, str], version: str) -> Transcript:
+    """``ids_by_name`` maps a registered display name to its roster ID."""
+    turns = []
     for n, seg in enumerate(result["segments"], start=1):
-        speaker = seg["speaker"]
-        person_id = ids_by_name.get(speaker)
-        if person_id:
-            status = "identified"
-        elif speaker == "AMBIGUOUS":
-            status = "ambiguous"
+        start = int(seg["start"] * 1000)
+        end = max(int(seg["end"] * 1000), start + 1)
+        student_id = ids_by_name.get(seg["speaker"])
+        if student_id:
+            speaker = {"kind": "student", "studentId": student_id}
         else:
-            status = "unknown"
-        contributions.append(
-            Contribution(
-                id=f"{session_id}-c{n:03d}",
-                session_id=session_id,
-                person_id=person_id,
-                speaker=speaker if person_id else status.upper(),
-                speaker_status=status,
-                start=seg["start"],
-                end=seg["end"],
-                text=seg["text"],
-                substantive=len(seg["text"].split()) >= MIN_SUBSTANTIVE_WORDS,
-            )
+            label = "Ambiguous speaker" if seg["speaker"] == "AMBIGUOUS" else "Unknown speaker"
+            speaker = {
+                "kind": "uncertain",
+                "label": label,
+                "candidateStudentIds": [],
+                "reason": "Voice did not match exactly one registered student",
+            }
+        turns.append(
+            {
+                "id": f"turn-{n:03d}",
+                "startMs": start,
+                "endMs": end,
+                "speaker": speaker,
+                "text": seg["text"] or "(inaudible)",
+            }
         )
-    return contributions
+    return Transcript(version=version, reviewStatus="reviewed", turns=turns)

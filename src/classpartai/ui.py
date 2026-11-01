@@ -1,18 +1,29 @@
-"""Animated views of the pipeline for the Streamlit app (pure HTML/CSS, no JavaScript).
+"""Animated views of the workflow for the Streamlit app (pure HTML/CSS, no JavaScript).
 
-flow_html()  - the five stages, which one is working, which are done, which are placeholders.
-board_html() - one card per student showing what the Action agent decided for them.
+flow_html()  - the stages, the one the coordinator is using now, and the ones it has used.
+board_html() - one card per student showing where their assessment and feedback stand.
 """
 
 from html import escape
 
 STAGES = [
-    ("listener", "①", "Listener", "who said what"),
-    ("research", "②", "Research", "find evidence"),
+    ("listener", "①", "Transcript", "who said what"),
+    ("research", "②", "Evidence", "search the notes"),
     ("judge", "③", "Judge", "score vs rubric"),
     ("auditor", "④", "Auditor", "check the scores"),
-    ("action", "⑤", "Action", "decide & email"),
+    ("feedback", "⑤", "Feedback", "draft per student"),
+    ("review", "⑥", "Professor", "approve & send"),
 ]
+
+# Which stage each coordinator tool works in.
+TOOL_STAGE = {
+    "inspect_transcript_context": "listener",
+    "retrieve_evidence": "research",
+    "propose_rubric_assessment": "judge",
+    "audit_assessment": "auditor",
+    "draft_student_feedback": "feedback",
+    "request_professor_review": "review",
+}
 
 _BASE_CSS = """
 :root { --ink:#1f2933; --muted:#6b7785; --line:#d5dbe1; --card:#ffffff; --bg:#f6f8fa;
@@ -24,6 +35,9 @@ body { margin:0; font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,
 """
 
 _FLOW_CSS = """
+.banner { font-size:13px; margin:0 0 10px; color:var(--muted); min-height:18px; }
+.banner b { color:var(--ink); }
+.banner.live b { color:var(--blue); }
 .flow { display:flex; align-items:center; gap:4px; }
 .node { flex:1 1 0; min-width:0; background:var(--card); border:2px solid var(--line);
         border-radius:10px; padding:10px 6px; text-align:center; position:relative;
@@ -51,7 +65,8 @@ _FLOW_CSS = """
                      transform:translateX(-50%); font-size:14px; line-height:1;
                      color:var(--muted); background:var(--bg); padding:0 1px; }
 @keyframes flow { from { background-position:0 0; } to { background-position:20px 0; } }
-@media (max-width:560px) { .node .what { display:none; } .arrow { flex-basis:10px; } }
+@media (max-width:640px) { .node .what { display:none; } .arrow { flex-basis:8px; }
+                           .node .name { font-size:12px; } }
 """
 
 _BOARD_CSS = """
@@ -80,15 +95,17 @@ def flow_html(
     done: set[str] = frozenset(),
     placeholders: set[str] = frozenset(),
     notes: dict[str, str] | None = None,
+    banner: str = "",
 ) -> str:
-    """The pipeline strip. ``notes`` puts a short progress line under a stage."""
+    """The workflow strip. ``notes`` puts a short line under a stage; ``banner`` says what the
+    coordinator is doing (it may use the stages in any order)."""
     notes = notes or {}
     parts = []
     for i, (key, num, name, what) in enumerate(STAGES):
         if i:
             prev = STAGES[i - 1][0]
             state = "live" if key == active else "done" if key in done and prev in done else ""
-            both = " both" if key == "auditor" else ""
+            both = " both" if key == "auditor" else ""  # judge and auditor revise each other
             parts.append(f'<div class="arrow {state}{both}"></div>')
         classes = ["node"]
         if key in placeholders:
@@ -101,26 +118,19 @@ def flow_html(
             f'<div class="name">{name}</div><div class="what">{what}</div>'
             f'<div class="note">{escape(notes.get(key, ""))}</div></div>'
         )
-    return _page(_FLOW_CSS, f'<div class="wrap"><div class="flow">{"".join(parts)}</div></div>')
+    live = " live" if active else ""
+    head = f'<div class="banner{live}">{banner}</div>' if banner else ""
+    return _page(
+        _FLOW_CSS, f'<div class="wrap">{head}<div class="flow">{"".join(parts)}</div></div>'
+    )
 
 
-STATE_LABELS = {
-    "waiting": "deciding",
-    "commend": "commend email drafted",
-    "encourage": "encourage email drafted",
-    "flagged": "flagged for review",
-    "nothing": "no email needed",
-    "summary": "summary sent to prof",
-}
-
-
-def board_html(cards: list[tuple[str, str]], newest: str | None = None) -> str:
-    """Decision cards: ``cards`` is [(name, states)], states being space-separated
-    STATE_LABELS keys (a student can be emailed and flagged)."""
+def board_html(cards: list[tuple[str, str, str]], newest: str | None = None) -> str:
+    """Student cards: ``cards`` is [(name, state, label)], state being one of waiting /
+    commend (green) / encourage (amber) / flagged (red) / summary (blue)."""
     items = []
-    for name, state in cards:
+    for name, state, label in cards:
         new = " new" if name == newest else ""
-        label = " · ".join(STATE_LABELS.get(s, s) for s in state.split())
         items.append(
             f'<div class="card {state}{new}"><div class="who">{escape(name)}</div>'
             f'<div class="state">{escape(label)}</div></div>'
