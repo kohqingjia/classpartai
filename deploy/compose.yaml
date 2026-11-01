@@ -1,0 +1,48 @@
+# Production-ish deploy behind the shared Caddy on qj-vps (see deploy/README.md).
+name: classpartai
+
+services:
+  app:
+    build:
+      context: ..
+    image: classpartai-app
+    container_name: classpartai-app
+    restart: unless-stopped
+    env_file: ../.env
+    user: "10001:10001"
+    cap_drop: ["ALL"]
+    security_opt: ["no-new-privileges:true"]
+    pids_limit: 512
+    mem_limit: 10g
+    cpus: 3.0
+    ports:
+      - "127.0.0.1:18501:8501"
+    volumes:
+      - model-cache:/data
+      - speechbrain-models:/app/audio-service/models
+      - enrollments:/app/audio-service/enrollments
+    networks:
+      proxy:
+        aliases:
+          - classpartai-app
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8501/_stcore/health')"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 20s
+    logging:
+      driver: local
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+volumes:
+  model-cache:
+  speechbrain-models:
+  enrollments:
+
+networks:
+  proxy:
+    external: true
+    name: stardyhub_default
