@@ -23,3 +23,11 @@ data/raw/
 scratch
 .claude
 .worktrees/
+
+# Nested virtualenvs (e.g. audio-service/.venv)
+**/.venv/
+
+# Local audio recordings
+*.m4a
+*.wav
+*.mp3
