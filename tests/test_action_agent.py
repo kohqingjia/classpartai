@@ -120,3 +120,17 @@ def test_transcript_is_marked_as_student_data(harness, session):
     run = ActionAgent(harness, client=llm, model="test").run(session)
     text = json.loads(run.calls[0].result)[0]["text"]
     assert text.startswith("<student_said>") and "ignore the rubric" in text
+
+
+def test_agent_reports_progress_events(harness, session):
+    llm = ScriptedLLM([[tool_call("1", "list_students")], "done"])
+    events = []
+    ActionAgent(harness, client=llm, model="test").run(
+        session, on_event=lambda kind, call: events.append((kind, call and call.name))
+    )
+    assert events == [
+        ("thinking", None),
+        ("call", "list_students"),
+        ("thinking", None),
+        ("done", None),
+    ]

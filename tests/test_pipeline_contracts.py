@@ -48,3 +48,21 @@ def test_only_identified_substantive_contributions_are_scored():
     assert session.items[0].judgement is not None and session.items[0].audit is not None
     assert session.items[1].judgement is None
     assert session.placeholder_stages == ["research", "judge", "auditor"]
+
+
+def test_progress_reports_each_stage_per_scored_contribution():
+    result = {
+        "segments": [
+            {
+                "start": 0.0,
+                "end": 5.0,
+                "speaker": "Alex Tan",
+                "text": "Agentic RAG rewrites the query before retrieving.",
+            },
+            {"start": 5.0, "end": 6.0, "speaker": "UNKNOWN", "text": "Pardon?"},
+        ]
+    }
+    contributions = listener.to_contributions(result, "s1", {"Alex Tan": "alex-tan"})
+    events = []
+    score_session(contributions, "s1", "IS469", "2026-11-01", progress=lambda *e: events.append(e))
+    assert events == [("research", 1, 2), ("judge", 1, 2), ("auditor", 1, 2)]
