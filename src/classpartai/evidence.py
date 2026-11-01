@@ -306,6 +306,12 @@ def context_for(request: Investigation, inputs: AssessmentInputs) -> list[Histor
                             for t in inputs.transcript.turns
                             if t.id in request.turnIds
                         ],
+                        # Not in the original: without this the agent guessed document IDs
+                        # (e.g. the transcript version) and filtered everything out.
+                        "documents": [
+                            {"documentId": d.id, "version": d.version, "title": d.title}
+                            for d in inputs.documents
+                        ],
                         "rubric": {
                             "id": inputs.rubric.id,
                             "version": inputs.rubric.version,
