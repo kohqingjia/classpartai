@@ -47,7 +47,9 @@ STAGE_NAMES = {key: name for key, _, name, _ in STAGES}
 
 @st.cache_resource
 def services() -> tuple[Records, ClassList]:
-    return Records(DATA_DIR / "classpartai.db"), ClassList(DATA_DIR / "classlist.json")
+    # A new file: the earlier Action-harness build left a classpartai.db with an incompatible
+    # `sessions` table.
+    return Records(DATA_DIR / "assessments.db"), ClassList(DATA_DIR / "classlist.json")
 
 
 @st.cache_resource(show_spinner="Loading speech models (the first run downloads them)…")
