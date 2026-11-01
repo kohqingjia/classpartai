@@ -19,7 +19,7 @@ export const Layout = ({ previewText, children }: LayoutProps) => {
           <Section style={content}>{children}</Section>
           <Hr style={hr} />
           <Section style={footer}>
-            <Text style={footerText}>Sent from TanStack Start Template.</Text>
+            <Text style={footerText}>Sent from ClassPart AI.</Text>
           </Section>
         </Container>
       </Body>

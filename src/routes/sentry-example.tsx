@@ -10,7 +10,7 @@ export const Route = createFileRoute("/sentry-example")({
   },
   head: () =>
     createSeoHead({
-      title: "Sentry Test — TanStack Start Template",
+      title: "Sentry Test — ClassPart AI",
       noindex: true,
     }),
   component: SentryExamplePage,

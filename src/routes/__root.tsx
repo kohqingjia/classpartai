@@ -43,7 +43,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         content: "light dark",
       },
       {
-        title: "TanStack Start Template",
+        title: "ClassPart AI",
       },
     ],
     links: [

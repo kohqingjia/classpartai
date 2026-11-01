@@ -59,9 +59,9 @@ export function DashboardPage() {
 
   return (
     <Page
-      eyebrow="Dashboard"
+      eyebrow="Professor workspace"
       title={`Welcome, ${user.name?.trim() || user.email}`}
-      description="A protected route exercising the full loop: session, server functions, database, uploads."
+      description="Keep personal notes and upload materials while ClassPart AI is in early development."
     >
       <section className="flex flex-col">
         <dl className="mt-10 grid gap-6 border-y border-border py-6 sm:grid-cols-3">
@@ -197,9 +197,9 @@ export function DashboardPage() {
 export function DashboardPageSkeleton() {
   return (
     <Page
-      eyebrow="Dashboard"
+      eyebrow="Professor workspace"
       title={<Skeleton className="h-9 w-72 md:h-10 md:w-80" />}
-      description="A protected route exercising the full loop: session, server functions, database, uploads."
+      description="Keep personal notes and upload materials while ClassPart AI is in early development."
     >
       <section className="flex flex-col" aria-busy="true">
         <output className="sr-only">Loading dashboard</output>
@@ -272,7 +272,7 @@ function FileUploadCard() {
     <section className="mt-12" aria-label="File upload">
       <h2 className="font-heading text-lg font-semibold tracking-tight">File upload</h2>
       <p className="mt-2 max-w-xl text-sm text-muted-foreground">
-        Presigned PUT upload via MinIO. Images and PDFs up to 10 MB.
+        Upload images, PDFs, or text files up to 10 MB.
       </p>
 
       {upload.status === "success" ? (

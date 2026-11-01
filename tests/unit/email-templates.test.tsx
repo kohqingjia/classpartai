@@ -16,7 +16,7 @@ describe("Email templates rendering", () => {
     expect(html).toContain("TanStack Start");
     expect(html).toContain("Custom email body content");
     expect(html).toContain("Test Preview Text");
-    expect(html).toContain("Sent from TanStack Start Template.");
+    expect(html).toContain("Sent from ClassPart AI.");
   });
 
   it("renders VerificationEmail with verification link", async () => {

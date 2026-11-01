@@ -3,7 +3,7 @@ import { useMutation } from "@tanstack/react-query";
 import { toast } from "sonner";
 
 import { authClient } from "#/lib/auth-client";
-import { Button } from "#/components/ui/button";
+import { Button, buttonVariants } from "#/components/ui/button";
 import { ThemeToggle } from "#/components/ui/theme-toggle";
 
 export function Header() {
@@ -30,24 +30,22 @@ export function Header() {
           to="/"
           className="font-mono text-sm font-medium tracking-tight transition-opacity hover:opacity-60"
         >
-          tanstack-start
+          ClassPart AI
         </Link>
 
-        <nav className="flex items-center gap-1">
-          <Button
-            variant="ghost"
-            size="sm"
-            render={
-              <a
-                href="https://github.com/zek01svg/tanstack-start-template"
-                target="_blank"
-                rel="noopener noreferrer"
-                aria-label="GitHub repository"
-              />
-            }
-          >
-            GitHub
-          </Button>
+        <nav aria-label="Main navigation" className="flex items-center gap-1">
+          <Link to="/dashboard" className={buttonVariants({ variant: "ghost", size: "sm" })}>
+            Workspace
+          </Link>
+          {user ? (
+            <Link to="/settings" className={buttonVariants({ variant: "ghost", size: "sm" })}>
+              Settings
+            </Link>
+          ) : (
+            <Link to="/login" className={buttonVariants({ variant: "ghost", size: "sm" })}>
+              Sign in
+            </Link>
+          )}
           {user && (
             <Button
               type="button"

@@ -24,10 +24,8 @@ test.describe("Auth and Notes Lifecycle Loop", () => {
     await fillCredentials();
     await page.getByRole("button", { name: "Create account" }).click();
 
-    // Verify signup confirmation heading
-    await expect(page.getByRole("heading", { name: "Check your email" })).toBeVisible({
-      timeout: 10_000,
-    });
+    await page.waitForURL("/dashboard", { timeout: 10_000 });
+    await expect(page.getByRole("heading", { name: `Welcome, ${testEmail}` })).toBeVisible();
 
     // 2. Sign out so we can verify explicit login flow
     await page.getByRole("button", { name: "Sign out" }).click();

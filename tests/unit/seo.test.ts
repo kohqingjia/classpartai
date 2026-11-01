@@ -28,7 +28,7 @@ describe("SEO utilities", () => {
   describe("createSeoHead", () => {
     it("creates full metadata for public pages", () => {
       const head = createSeoHead({
-        title: "Test Page — TanStack Start Template",
+        title: "Test Page — ClassPart AI",
         description: "A test page description",
         path: "/",
         baseUrl: "https://example.com",
@@ -36,15 +36,15 @@ describe("SEO utilities", () => {
 
       expect(head.meta).toEqual(
         expect.arrayContaining([
-          { title: "Test Page — TanStack Start Template" },
+          { title: "Test Page — ClassPart AI" },
           { name: "description", content: "A test page description" },
-          { property: "og:title", content: "Test Page — TanStack Start Template" },
+          { property: "og:title", content: "Test Page — ClassPart AI" },
           { property: "og:description", content: "A test page description" },
           { property: "og:url", content: "https://example.com/" },
           { property: "og:type", content: "website" },
           { property: "og:image", content: "https://example.com/og-image.png" },
           { name: "twitter:card", content: "summary_large_image" },
-          { name: "twitter:title", content: "Test Page — TanStack Start Template" },
+          { name: "twitter:title", content: "Test Page — ClassPart AI" },
           { name: "twitter:description", content: "A test page description" },
           { name: "twitter:image", content: "https://example.com/og-image.png" },
         ])
@@ -57,13 +57,13 @@ describe("SEO utilities", () => {
 
     it("creates noindex metadata for private pages", () => {
       const head = createSeoHead({
-        title: "Dashboard — TanStack Start Template",
+        title: "Dashboard — ClassPart AI",
         noindex: true,
       });
 
       expect(head.meta).toEqual(
         expect.arrayContaining([
-          { title: "Dashboard — TanStack Start Template" },
+          { title: "Dashboard — ClassPart AI" },
           { name: "robots", content: "noindex, nofollow" },
         ])
       );

@@ -1,7 +1,7 @@
 {
-  "name": "TanStack Start Template",
-  "short_name": "TanStack Start",
-  "description": "Production-ready template for full-stack React applications with TanStack Start, Nitro, React 19, Better Auth, Drizzle ORM, and Tailwind CSS v4.",
+  "name": "ClassPart AI",
+  "short_name": "ClassPart AI",
+  "description": "A foundation for classroom discussions, with secure accounts, personal notes, and file uploads.",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#09090b",

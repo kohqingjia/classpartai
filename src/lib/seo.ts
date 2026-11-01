@@ -159,9 +159,9 @@ export function getStructuredData(explicitBaseUrl?: string) {
         "@type": "WebSite",
         "@id": `${baseUrl}/#website`,
         url: baseUrl,
-        name: "TanStack Start Template",
+        name: "ClassPart AI",
         description:
-          "Full-stack React template with TanStack Start, Nitro, React 19, Better Auth, Drizzle ORM, and Tailwind CSS v4.",
+          "A foundation for classroom discussions, with secure accounts, personal notes, and file uploads.",
         publisher: {
           "@id": `${baseUrl}/#organization`,
         },
@@ -169,7 +169,7 @@ export function getStructuredData(explicitBaseUrl?: string) {
       {
         "@type": "Organization",
         "@id": `${baseUrl}/#organization`,
-        name: "TanStack Start Template",
+        name: "ClassPart AI",
         url: baseUrl,
         logo: {
           "@type": "ImageObject",
@@ -179,12 +179,11 @@ export function getStructuredData(explicitBaseUrl?: string) {
       {
         "@type": "SoftwareSourceCode",
         "@id": `${baseUrl}/#software`,
-        name: "TanStack Start Template",
+        name: "ClassPart AI",
         programmingLanguage: "TypeScript",
         runtimePlatform: "Bun / Node.js",
-        codeRepository: "https://github.com/zek01svg/tanstack-start-template",
-        description:
-          "Production-ready template for full-stack React applications with TanStack Start, Better Auth, Drizzle ORM, and Tailwind CSS.",
+        codeRepository: "https://github.com/kohqingjia/classpartai",
+        description: "ClassPart AI application for classroom discussions.",
       },
     ],
   };

@@ -10,7 +10,7 @@ export const Route = createFileRoute("/_authenticated/settings")({
   },
   head: () =>
     createSeoHead({
-      title: "Settings — TanStack Start Template",
+      title: "Settings — ClassPart AI",
       noindex: true,
     }),
   pendingComponent: SettingsPageSkeleton,

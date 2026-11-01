@@ -21,6 +21,11 @@ const config = defineConfig(({ mode }) => {
   return {
     customLogger: logger,
     optimizeDeps: {
+      // React Form's store reaches a nested CommonJS shim. Prebundle it so the dev browser
+      // receives ESM exports and auth forms can hydrate, as they already do in production.
+      include: [
+        "@tanstack/react-form > @tanstack/react-store > use-sync-external-store/shim/with-selector",
+      ],
       exclude: ["bun"],
     },
     ssr: {

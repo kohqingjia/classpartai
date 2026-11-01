@@ -60,45 +60,15 @@ describe("sendEmail", () => {
     mockEnv.SMTP_URL = undefined;
   });
 
-  test("throws when RESEND_API_KEY is not set", async () => {
+  test("refuses paid fallback whether or not a Resend key is configured", async () => {
+    await expect(sendEmail("to@example.com", "Subject", element)).rejects.toThrow(
+      "Paid email providers are disabled"
+    );
     mockEnv.RESEND_API_KEY = undefined;
     await expect(sendEmail("to@example.com", "Subject", element)).rejects.toThrow(
-      "RESEND_API_KEY is not configured"
+      "Paid email providers are disabled"
     );
-  });
-
-  test("sends email with correct params and returns data", async () => {
-    const data = { id: "email_123" };
-    mockEmailsSend.mockResolvedValue({ data, error: null });
-
-    const result = await sendEmail("to@example.com", "Hello", element);
-
-    expect(mockEmailsSend).toHaveBeenCalledWith({
-      from: "Sender <from@example.com>",
-      to: "to@example.com",
-      subject: "Hello",
-      react: element,
-    });
-    expect(result).toEqual(data);
-  });
-
-  test("uses default from address when EMAIL_FROM is not set", async () => {
-    mockEnv.EMAIL_FROM = undefined;
-    mockEmailsSend.mockResolvedValue({ data: { id: "x" }, error: null });
-
-    await sendEmail("to@example.com", "Hello", element);
-
-    expect(mockEmailsSend).toHaveBeenCalledWith(
-      expect.objectContaining({ from: "TanStack Start <onboarding@resend.dev>" })
-    );
-  });
-
-  test("throws when Resend returns an error", async () => {
-    mockEmailsSend.mockResolvedValue({ data: null, error: { message: "Invalid API key" } });
-
-    await expect(sendEmail("to@example.com", "Subject", element)).rejects.toThrow(
-      "Failed to send email"
-    );
+    expect(mockEmailsSend).not.toHaveBeenCalled();
   });
 
   test("relays over SMTP and bypasses Resend when SMTP_URL is set", async () => {

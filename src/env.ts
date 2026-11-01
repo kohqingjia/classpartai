@@ -3,6 +3,11 @@ import { z } from "zod";
 
 export const env = createEnv({
   server: {
+    LOCAL_MODEL: z.string().min(1).optional(),
+    LOCAL_MODEL_URL: z.url().default("http://127.0.0.1:11434/v1"),
+    FEEDBACK_DELIVERY: z.enum(["disabled", "mailpit"]).default("disabled"),
+    OPENAI_API_KEY: z.string().min(1).optional(),
+    EVIDENCE_MODEL: z.string().min(1).default("gpt-5.4-mini-2026-03-17"),
     SERVER_URL: z.url().optional(),
     DATABASE_URL: z.url(),
     BETTER_AUTH_URL: z.url().default("http://localhost:3000"),
@@ -27,6 +32,11 @@ export const env = createEnv({
     VITE_SENTRY_PROJECT: z.string().optional(),
   },
   runtimeEnv: {
+    LOCAL_MODEL: process.env.LOCAL_MODEL,
+    LOCAL_MODEL_URL: process.env.LOCAL_MODEL_URL,
+    FEEDBACK_DELIVERY: process.env.FEEDBACK_DELIVERY,
+    OPENAI_API_KEY: process.env.OPENAI_API_KEY,
+    EVIDENCE_MODEL: process.env.EVIDENCE_MODEL,
     SERVER_URL: process.env.SERVER_URL,
     DATABASE_URL: process.env.DATABASE_URL,
     BETTER_AUTH_URL: process.env.BETTER_AUTH_URL,

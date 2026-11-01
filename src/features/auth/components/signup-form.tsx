@@ -16,7 +16,6 @@ import { authClient } from "#/lib/auth-client";
 import { PasswordSchema } from "#/features/auth/schema/password";
 import { FormError } from "#/components/custom/form-error";
 import { useMutation } from "@tanstack/react-query";
-import { useState } from "react";
 
 const schema = z.object({
   email: z.email("Enter a valid email address"),
@@ -26,7 +25,6 @@ const schema = z.object({
 export function SignupForm({ className, ...props }: React.ComponentProps<"div">) {
   const navigate = useNavigate();
   const router = useRouter();
-  const [verifyEmail, setVerifyEmail] = useState<string | null>(null);
 
   const form = useForm({
     defaultValues: { email: "", password: "" },
@@ -47,9 +45,9 @@ export function SignupForm({ className, ...props }: React.ComponentProps<"div">)
         });
         return;
       }
-      // Re-runs the root's beforeLoad so the header picks up the session the sign-up created.
+      // Refresh the session context before entering the protected workspace.
       await router.invalidate();
-      setVerifyEmail(value.email);
+      await navigate({ to: "/dashboard" });
     },
   });
 
@@ -67,28 +65,6 @@ export function SignupForm({ className, ...props }: React.ComponentProps<"div">)
   });
 
   const handleOtpSignUp = () => sendSignupCode.mutate(form.getFieldValue("email"));
-
-  if (verifyEmail) {
-    return (
-      <div className={cn("flex flex-col gap-5", className)} {...props}>
-        <FieldGroup>
-          <div className="flex flex-col items-center gap-1.5 text-center">
-            <h1 className="font-heading text-2xl font-semibold tracking-tight">Check your email</h1>
-            <FieldDescription>
-              We sent a verification link to <strong>{verifyEmail}</strong>. Verify your address to
-              keep the password you just set — signing in with an email code before you verify
-              clears it.
-            </FieldDescription>
-          </div>
-          <Field>
-            <Button type="button" onClick={() => void navigate({ to: "/" })}>
-              Continue
-            </Button>
-          </Field>
-        </FieldGroup>
-      </div>
-    );
-  }
 
   return (
     <div className={cn("flex flex-col gap-5", className)} {...props}>

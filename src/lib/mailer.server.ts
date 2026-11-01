@@ -45,29 +45,50 @@ export async function sendEmail(to: string, subject: string, react: React.ReactE
     }
   }
 
-  const client = getMailer();
+  throw new Error("Paid email providers are disabled; configure local SMTP capture");
+}
 
-  if (!client) {
-    throw new Error(
-      "RESEND_API_KEY is not configured. Set it in your environment to enable email sending."
-    );
-  }
-
-  const { data, error } = await client.emails.send({
-    from,
-    to,
-    subject,
-    react,
+// Feedback transport is deliberately separate from drafting and never falls back to Resend.
+export async function sendFeedbackToCapture(
+  to: string,
+  subject: string,
+  text: string,
+  messageId: string
+) {
+  if (env.FEEDBACK_DELIVERY !== "mailpit" || !env.SMTP_URL)
+    throw new Error("Local capture delivery is disabled");
+  const endpoint = new URL(env.SMTP_URL);
+  if (
+    endpoint.protocol !== "smtp:" ||
+    !["127.0.0.1", "localhost", "[::1]"].includes(endpoint.hostname) ||
+    endpoint.port !== "1025" ||
+    endpoint.username ||
+    endpoint.password
+  )
+    throw new Error("Feedback requires loopback Mailpit SMTP on port 1025");
+  if (!/^[a-z0-9][a-z0-9._+-]{0,100}@example\.invalid$/i.test(to))
+    throw new Error("Only example.invalid development recipients are permitted");
+  const { createTransport } = await import("nodemailer");
+  const transport = createTransport({
+    host: endpoint.hostname,
+    port: 1025,
+    secure: false,
+    connectionTimeout: 3000,
+    greetingTimeout: 3000,
+    socketTimeout: 7000,
   });
-
-  if (error) {
-    // Resend's message can echo the recipient address, so only the error's
-    // stable identifiers are logged; the thrown error keeps the full payload
-    // for Sentry.
-    logger.error("Failed to send email", { to: maskedTo, name: error.name });
-    throw new Error(`Failed to send email: ${JSON.stringify(error)}`);
+  try {
+    const result = await transport.sendMail({
+      from: "ClassPart AI <professor@example.invalid>",
+      to,
+      subject,
+      text,
+      messageId,
+    });
+    if (!result.accepted.some(address => address.toLowerCase() === to.toLowerCase()))
+      throw Object.assign(new Error("SMTP recipient rejected"), { responseCode: 550 });
+    return { messageId: result.messageId };
+  } finally {
+    transport.close();
   }
-
-  logger.info("Successfully sent email", { to: maskedTo, id: data.id });
-  return data;
 }

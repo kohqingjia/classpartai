@@ -10,7 +10,7 @@ export const Route = createFileRoute("/verify-otp")({
   }),
   head: () =>
     createSeoHead({
-      title: "Verify Code — TanStack Start Template",
+      title: "Verify Code — ClassPart AI",
       noindex: true,
     }),
   component: VerifyOtpPage,

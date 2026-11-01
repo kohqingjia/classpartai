@@ -31,7 +31,7 @@ export const seedUsers: SeedUser[] = [
 
 export const seedNotes: SeedNote[] = [
   {
-    title: "Welcome to TanStack Start Template",
+    title: "Welcome to ClassPart AI",
     userId: "user-demo-1",
   },
   {

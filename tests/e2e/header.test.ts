@@ -66,5 +66,9 @@ test.describe("Header session", () => {
 
     await expect(page.getByRole("button", { name: "Sign out" })).toBeVisible();
     expect(mismatches).toEqual([]);
+    await page.getByRole("link", { name: "Settings", exact: true }).click();
+    await expect(page).toHaveURL(/\/settings$/);
+    await page.getByRole("link", { name: "Workspace", exact: true }).click();
+    await expect(page).toHaveURL(/\/dashboard$/);
   });
 });

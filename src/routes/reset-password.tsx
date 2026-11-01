@@ -10,7 +10,7 @@ export const Route = createFileRoute("/reset-password")({
   }),
   head: () =>
     createSeoHead({
-      title: "Reset Password — TanStack Start Template",
+      title: "Reset Password — ClassPart AI",
       noindex: true,
     }),
   component: ResetPasswordPage,

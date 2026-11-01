@@ -139,7 +139,7 @@ Dark: background oklch(0.155 0 0), foreground oklch(0.96 0 0), card oklch(0.185 
 
 Two faces. Schibsted Grotesk Variable carries voice; JetBrains Mono Variable carries structure.
 
-- **Display / H1 / H2:** Schibsted Grotesk Variable, 600, tight tracking (-0.02em → -0.015em), leading 1.02–1.1. The hero “Start from done.” is set at 48–72px (text-5xl → text-7xl, tight) to make the typesetting itself the memorable move.
+- **Display / H1 / H2:** Schibsted Grotesk Variable, 600, tight tracking (-0.02em → -0.015em), leading 1.02–1.1. The hero “Make every discussion count.” is set at 48–72px (text-5xl → text-7xl, tight) to make the typesetting itself the memorable move.
 - **Body-md / Body-sm:** Schibsted Grotesk Variable, 400, 16px/14px, leading 1.6/1.5 for readable paragraphs and table copy.
 - **Label-caps:** JetBrains Mono Variable, 500, 12px, tracking 0.2em, uppercase, muted-foreground — used for eyebrows (“TANSTACK START TEMPLATE”, “QUICKSTART”, section labels) and table headers.
 - **Mono-code / Mono-sm:** JetBrains Mono Variable, 400, 14px/12px — the quickstart block, tree glyphs, and upload keys. The `$` prompt glyph stays muted-foreground.

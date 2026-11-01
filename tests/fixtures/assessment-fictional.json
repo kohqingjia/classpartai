@@ -1,0 +1,96 @@
+{
+  "formatVersion": 1,
+  "provenance": "fictional-development",
+  "courseTitle": "FICTIONAL DEVELOPMENT — Thinking about evidence",
+  "sessionTitle": "FICTIONAL DEVELOPMENT — Discussion 1",
+  "roster": [
+    { "id": "student-a", "displayName": "Fictional Student A" },
+    { "id": "student-b", "displayName": "Fictional Student B" },
+    { "id": "student-c", "displayName": "Fictional Student C" }
+  ],
+  "transcript": {
+    "version": "review-1",
+    "reviewStatus": "reviewed",
+    "turns": [
+      {
+        "id": "turn-001",
+        "startMs": 0,
+        "endMs": 4000,
+        "speaker": { "kind": "professor", "label": "Fictional Professor" },
+        "text": "Student A, what makes an observation different from an interpretation?"
+      },
+      {
+        "id": "turn-002",
+        "startMs": 4500,
+        "endMs": 12000,
+        "speaker": { "kind": "student", "studentId": "student-a" },
+        "text": "An observation records what happened. Saying a quiet student did not understand adds an interpretation we have not checked."
+      },
+      {
+        "id": "turn-003",
+        "startMs": 12500,
+        "endMs": 17000,
+        "speaker": { "kind": "professor", "label": "Fictional Professor" },
+        "text": "Student B, how could we check that interpretation?"
+      },
+      {
+        "id": "turn-004",
+        "startMs": 17500,
+        "endMs": 26000,
+        "speaker": { "kind": "student", "studentId": "student-b" },
+        "text": "Ask for a written explanation too. I would compare that with the discussion before deciding. That builds on A's distinction."
+      }
+    ]
+  },
+  "rubric": {
+    "id": "discussion-rubric",
+    "version": "1",
+    "title": "Fictional participation rubric",
+    "criteria": [
+      {
+        "id": "reasoning",
+        "title": "Reasoning with evidence",
+        "description": "Explain claims and connect them to observable evidence. Record insufficient evidence separately from a low score.",
+        "minScore": 0,
+        "maxScore": 3
+      },
+      {
+        "id": "engagement",
+        "title": "Constructive engagement",
+        "description": "Respond to or develop another contribution. Silence alone does not establish understanding or its absence.",
+        "minScore": 0,
+        "maxScore": 3
+      }
+    ]
+  },
+  "documents": [
+    {
+      "id": "fictional-reading-a",
+      "version": "1",
+      "title": "Fictional notes: observation and interpretation",
+      "source": "Fictional course handout A (authored for development)",
+      "authorisedForCourse": true,
+      "passages": [
+        {
+          "id": "a-p1",
+          "page": 1,
+          "text": "An observation describes an event. An interpretation proposes what that event means. A claim about understanding requires more evidence than the absence of speech."
+        }
+      ]
+    },
+    {
+      "id": "fictional-reading-b",
+      "version": "1",
+      "title": "Fictional notes: checking a claim",
+      "source": "Fictional course handout B (authored for development)",
+      "authorisedForCourse": true,
+      "passages": [
+        {
+          "id": "b-p2",
+          "page": 2,
+          "text": "Check a proposed explanation against another source of evidence. A short written response can complement a discussion, but differences should be investigated rather than assumed to indicate weakness."
+        }
+      ]
+    }
+  ]
+}

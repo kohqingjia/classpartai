@@ -32,6 +32,10 @@ export default async function globalSetup(): Promise<() => Promise<void>> {
   process.env.BETTER_AUTH_URL ??= "http://localhost:3000";
   // The password-reset journey reads its token out of the captured email; `docker compose up -d
   // mailpit` (or the CI service) is what serves this. Other specs do not need it.
+  // Automated browser tests must never incur live provider requests.
+  process.env.OPENAI_API_KEY = "";
+  process.env.LOCAL_MODEL = "";
+  process.env.FEEDBACK_DELIVERY = "mailpit";
   process.env.SMTP_URL ??= "smtp://127.0.0.1:1025";
   process.env.MAILPIT_URL ??= "http://localhost:8025";
 

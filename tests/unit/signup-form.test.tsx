@@ -122,22 +122,17 @@ describe("SignupForm component", () => {
     });
   });
 
-  it("tells the new user to verify their email instead of navigating away", async () => {
+  it("opens the workspace immediately without requesting email verification", async () => {
+    mockNavigate.mockClear();
     const user = userEvent.setup();
     renderForm();
-
     await user.type(screen.getByLabelText(/email/i), "newuser@example.com");
     await user.type(screen.getByLabelText(/password/i), "long-enough-pass1!");
     await user.click(screen.getByRole("button", { name: /create account/i }));
-
     await waitFor(() => {
-      expect(screen.getByText("Check your email")).toBeTruthy();
-      expect(
-        screen.getByText(/signing in with an email code before you verify clears it/i)
-      ).toBeTruthy();
+      expect(mockNavigate).toHaveBeenCalledWith({ to: "/dashboard" });
     });
-    expect(mockNavigate).not.toHaveBeenCalled();
-    // The header reads the session from route context, so the in-place sign-up must re-resolve it.
+    expect(screen.queryByText("Check your email")).toBeNull();
     expect(mockInvalidate).toHaveBeenCalled();
   });
 

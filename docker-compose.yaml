@@ -1,4 +1,4 @@
-name: tanstack-start-template
+name: classpart-ai
 
 services:
   redis:
@@ -76,11 +76,11 @@ services:
         mc mb --ignore-existing minio/$$MC_BUCKET;
         exit 0;
       "
-  tanstack-start-template:
+  classpart-ai:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: tanstack-start-template
+    container_name: classpart-ai
     ports:
       - 3000:3000
     env_file:

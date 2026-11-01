@@ -4,7 +4,8 @@ This guide covers the local development environment, scripts catalog, database m
 
 ## Prerequisites
 
-- **[Bun](https://bun.sh/)** v1.4.2 or later
+- **[Bun](https://bun.sh/)** v1.4.2 (match `package.json` → `packageManager` exactly)
+- Node.js 22.12+ (22 LTS) for Vitest/jsdom workers and tooling; Bun remains the application runtime.
 - **[Docker](https://www.docker.com/)** and Docker Compose: local PostgreSQL, MinIO, Redis, and Mailpit, plus the Testcontainers the integration and E2E suites start
 
 ## Local Setup
@@ -12,7 +13,7 @@ This guide covers the local development environment, scripts catalog, database m
 1. **Clone the repository and install dependencies**:
 
    ```bash
-   bun install
+   bun install --frozen-lockfile
    ```
 
 2. **Configure environment variables**:
@@ -21,19 +22,20 @@ This guide covers the local development environment, scripts catalog, database m
    cp .env.example .env
    ```
 
-   Inspect `.env` and fill in any optional credentials needed for your feature work (e.g. `GOOGLE_CLIENT_ID`, `RESEND_API_KEY`). Defaults for local services work out of the box.
+   Replace `BETTER_AUTH_SECRET` with a unique secret of at least 32 characters. Defaults use local services and Mailpit for email; optional Google OAuth, Resend, and Sentry credentials are commented out until needed. See the pinned Bun fallback and local verification steps in [README.md](../README.md).
 
 3. **Start local infrastructure services**:
 
    ```bash
-   docker compose up -d
+   docker compose up -d postgres redis minio minio_init mailpit
    ```
 
-   This provisions:
+   This starts infrastructure only, leaving port 3000 free for the dev server. This provisions:
    - **PostgreSQL 18** on `localhost:5432` (`app` database, user/password: `postgres`/`postgres`)
    - **MinIO S3** on `localhost:9000` (API) and `localhost:9001` (web console: `admin` / `password`)
    - **MinIO Init** bucket provisioner (`app` bucket created automatically)
    - **Redis 7** on `localhost:6379`
+   - **Mailpit** on `localhost:1025` (SMTP) and `localhost:8025` (mail inbox)
 
 4. **Prepare the database**:
 
@@ -272,3 +274,85 @@ When adding a new environment variable:
 1. Declare and validate it in `src/env.ts` using `@t3-oss/env-core`. Keep it optional unless strictly required for bootstrap.
 2. Add a commented entry with description and defaults in `.env.example`.
 3. If it changes setup or prerequisites, document it in `README.md` and this guide.
+
+## Trying the assessment input foundation
+
+1. Use the pinned Bun 1.4.2 and the existing database setup, then run `bun run db:migrate`.
+2. Start `bun run dev`, sign in normally, and open <http://localhost:3000/assessments> directly.
+   Existing branding/navigation and authentication are unchanged.
+3. Choose **Create a course from this file**, select
+   `tests/fixtures/assessment-fictional.json`, and click **Import inputs**.
+4. Inspect the combined roster, reviewed turns, rubric ranges, and source/page passages.
+   The three students and professor are fictional; Student C has no observed contribution.
+   The page generates no assessment. Imports persist across reloads; select a saved session
+   to view it again. To add a session to a course, select that course before importing.
+5. Real reviewed input follows the same documented fixture structure with provenance `reviewed`.
+   The importing professor declares document authorisation. Roster IDs are not login IDs.
+   For corrections, import a new snapshot; change rubric/document versions when their contents
+   change. This first slice accepts reviewed JSON only, not raw audio or PDFs.
+
+Development fixtures are neither seeded automatically nor available in production import/view
+handlers. Keep development databases separate from production. No email or object storage is
+needed for this foundation; their existing configuration is not verified by input imports.
+
+## Course retrieval and evidence-agent setup
+
+Use Bun 1.4.2 and Node 22 for the existing test workers. With PostgreSQL running:
+
+```bash
+bun run db:migrate
+bun run dev
+```
+
+Sign in, open <http://localhost:3000/assessments>, import or select an existing session, and use
+**Course evidence investigation** below the input viewer. JSON import remains the development
+input path. Fictional fixture imports still require the dev server; production hides/rejects them.
+Manual **Search passages** and **Fetch passage** work without a provider key.
+
+To enable real model tool calls, edit the ignored local `.env` privately and set `OPENAI_API_KEY`
+to your own OpenAI API credential with billing/model access. Never use a `VITE_` variable for it,
+put it into JSON inputs, commit it, or paste it into logs/chat. Optional `EVIDENCE_MODEL` defaults
+to `gpt-5.4-mini-2026-03-17`; the adapter uses strict Responses tools with reasoning effort `none`.
+Restart the dev server after configuration changes. Provider/model access is not established by
+having a ChatGPT subscription. Before investigation, confirm you may send the selected transcript,
+rubric context and retrieved course text to this provider; the interface states what is sent.
+
+Enter a question, select reviewed turns and rubric criteria, then click **Investigate evidence**.
+With no key, a persisted failed run reports `provider_not_configured`; no canned evidence or
+simulated model decision is substituted. With a key, inspect the run's actual tool activity,
+validated arguments, references, budget usage, completion/gap reason and quotations. Check the
+quotations' relevance and support yourself; a valid quotation does not establish a sound claim.
+The HTTP request performs the work. Closing/restarting can interrupt it; stale runs are marked
+failed on later inspection after 90 seconds. Retry by starting a new run, not by assuming a queued
+row will run in the background. Provider failures may have unreported token usage.
+
+Focused verification (Docker is required for integration and the normal production E2E harness):
+
+```bash
+bun run type:check
+bun run lint:check
+bun run format:check
+bun run test:unit
+bun run test:integration
+bun run playwright test tests/e2e/assessments.test.ts tests/e2e/email-password-flow.test.ts
+```
+
+If the shell still has Node 20, prefix a test command with `npm exec --yes --package=node@22 --`.
+Automated browser tests explicitly disable live provider calls. Agent-loop unit tests and the Bun
+runtime harness use clearly labelled scripted/HTTP doubles, not evidence of live model agency.
+The runtime harness verifies a completed run and JSONB object persistence using actual Bun SQL.
+
+### Small live evaluation after configuring credentials
+
+Use only the fictional development course. Select the relevant reviewed turn(s) and reasoning
+criterion. Investigate each independently; do not force query counts or source order:
+
+| Question                                                                             | What a professor should check                                                                                                                                    |
+| ------------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| What distinguishes an observation from an interpretation?                            | An exact, relevant citation to fictional handout A, page 1.                                                                                                      |
+| How could a professor check an interpretation about a quiet student's understanding? | Whether context from handouts A and B supports the distinction and proposed check. A weak initial query may need reformulation; no specific trace is guaranteed. |
+| What exact attendance penalty applies after three missed weeks?                      | The course sources do not supply that rule; a defensible result reports a gap rather than inventing a policy.                                                    |
+
+Record actual tool names/queries, relevant quotations, conflicts, missing context, stop reason and
+budget usage. Judge support/relevance as well as citation validity. Do not count a scripted test
+trace as a live evaluation. Without credentials, all three live evaluations remain blocked.

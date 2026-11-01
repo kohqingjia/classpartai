@@ -40,12 +40,12 @@ jobs:
           context: .
           push: false
           load: true
-          tags: tanstack-start-template:latest
+          tags: classpart-ai:latest
           cache-from: type=gha
           cache-to: type=gha,mode=max
       - name: Check image size
         run: |
-          SIZE=$(docker image inspect --format '{{.Size}}' tanstack-start-template:latest)
+          SIZE=$(docker image inspect --format '{{.Size}}' classpart-ai:latest)
           echo "Image size: $SIZE bytes"
           if [ "$SIZE" -gt 419430400 ]; then
             echo "::error::Image size $SIZE bytes exceeds the 400MB (419430400 bytes) budget"

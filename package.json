@@ -1,5 +1,5 @@
 {
-  "name": "tanstack-start-template",
+  "name": "classpart-ai",
   "version": "1.0.0",
   "private": true,
   "type": "module",
@@ -10,7 +10,7 @@
     "clean": "bunx rimraf .output .vite node_modules .tanstack src/routeTree.gen.ts coverage test-results playwright-report",
     "dev": "bun --bun --import ./instrument.server.mjs vite dev --port 3000",
     "build": "bun --bun vite build && cp instrument.server.mjs .output/server/",
-    "build:docker": "docker build -t tanstack-start-template .",
+    "build:docker": "docker build -t classpart-ai .",
     "preview": "vite preview",
     "start": "bun --bun --import ./.output/server/instrument.server.mjs .output/server/index.mjs",
     "type:check": "tsc --noEmit",

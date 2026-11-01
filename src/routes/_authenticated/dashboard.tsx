@@ -10,7 +10,7 @@ export const Route = createFileRoute("/_authenticated/dashboard")({
   },
   head: () =>
     createSeoHead({
-      title: "Dashboard — TanStack Start Template",
+      title: "Dashboard — ClassPart AI",
       noindex: true,
     }),
   pendingComponent: DashboardPageSkeleton,
