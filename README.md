@@ -89,7 +89,7 @@ src/classpartai/
   classlist.py          names and emails, keyed by student ID
   ui.py                 the animated workflow strip and student cards
 audio-service/          Listener pipeline: Whisper, pyannote, SpeechBrain (Tina)
-app.py                  Streamlit app: Session / Evidence / Assessment / Approve & send / Class list
+app.py                  Streamlit app: one page per class session (record, transcript, AI summary, review & send)
 data/                   sample IS469 session, Le Yong's fictional fixture, rubric, course notes
 tests/                  pytest (scripted fake models; no API calls)
 deploy/                 Docker deploy for the VPS

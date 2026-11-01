@@ -1,0 +1,13 @@
+# A dark, Notion-like theme.
+[theme]
+base = "dark"
+primaryColor = "#2383e2"
+backgroundColor = "#191919"
+secondaryBackgroundColor = "#202020"
+textColor = "#e3e3e3"
+borderColor = "#2f2f2f"
+baseRadius = "0.6rem"
+showSidebarBorder = true
+
+[client]
+toolbarMode = "minimal"
