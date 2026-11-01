@@ -10,6 +10,7 @@ import os
 import subprocess
 import tempfile
 import threading
+import time
 from datetime import date
 from pathlib import Path
 
@@ -23,7 +24,8 @@ from classpartai.agents import listener
 from classpartai.classlist import ClassList, person_id_for
 from classpartai.config import DATA_DIR, ENROLLMENT_DIR, REPO_ROOT
 from classpartai.contracts import SessionResults
-from classpartai.orchestrator import score_session
+from classpartai.orchestrator import STAGES, score_session
+from classpartai.ui import board_html, flow_html
 
 REGISTRY_PATH = ENROLLMENT_DIR / "registry.json"
 SAMPLE_SESSION = REPO_ROOT / "data" / "sample_session.json"
@@ -76,6 +78,29 @@ analyse_tab, emails_tab, class_tab = st.tabs(["Analyse", "Feedback emails", "Cla
 
 # --- Analyse ---------------------------------------------------------------------------------
 
+REPLAY_DELAY = 0.25  # seconds per stage step when replaying the pre-scored sample session
+
+
+def placeholder_stages() -> set[str]:
+    return {name for name, mod in STAGES.items() if mod.IS_PLACEHOLDER}
+
+
+def show_flow(slot, flow: dict) -> None:
+    """Redraw the pipeline strip from ``flow`` = {active, done, notes}."""
+    with slot.container():
+        # Names are escaped in classpartai.ui, so this HTML holds no untrusted markup.
+        st.iframe(
+            flow_html(flow["active"], flow["done"], placeholder_stages(), flow["notes"]), height=118
+        )
+
+
+def show_board(slot, board: dict, newest: str | None = None) -> None:
+    with slot.container():
+        cards = [(name, " ".join(sorted(states))) for name, states in board.items()]
+        rows = -(-len(cards) // 4)  # ceil: roughly four cards per row
+        st.iframe(board_html(cards, newest), height=40 + 70 * max(rows, 1))
+
+
 with analyse_tab:
     col_course, col_date, col_topic = st.columns([2, 1, 2])
     course = col_course.text_input("Course", "IS469 Gen AI with LLMs")
@@ -84,26 +109,71 @@ with analyse_tab:
 
     recording = st.file_uploader("Class recording", type=AUDIO_TYPES)
     col_run, col_sample = st.columns(2)
+    run_recording = recording and col_run.button("Analyse recording", type="primary")
+    run_sample = col_sample.button("Use the sample session")
 
-    if recording and col_run.button("Analyse recording", type="primary"):
+    flow = st.session_state.setdefault("flow", {"active": None, "done": set(), "notes": {}})
+    flow_slot = st.empty()
+    show_flow(flow_slot, flow)
+
+    def step(stage: str, note: str = "", finished: str | None = None, pause: float = 0) -> None:
+        """Mark ``stage`` active (with a note), optionally mark ``finished`` done, then redraw."""
+        if finished:
+            flow["done"].add(finished)
+        flow["active"] = stage
+        if note:
+            flow["notes"][stage] = note
+        show_flow(flow_slot, flow)
+        if pause:
+            time.sleep(pause)
+
+    def reset_flow() -> None:
+        flow.update(active=None, done=set(), notes={})
+        st.session_state.pop("agent_run", None)
+        st.session_state.pop("board", None)
+
+    if run_recording:
+        reset_flow()
+        step("listener", "transcribing…")
         if not REGISTRY_PATH.exists():
             save_registry({})
         process_audio, lock = load_listener()
         with tempfile.TemporaryDirectory() as tmp, lock:
-            with st.spinner("Transcribing, diarising and identifying speakers…"):
-                result = process_audio(str(to_wav(recording, Path(tmp) / "recording.wav")))
+            result = process_audio(str(to_wav(recording, Path(tmp) / "recording.wav")))
         session_id = f"{session_date.isoformat()}-{person_id_for(topic or 'class')}"
         ids_by_name = {p["name"]: pid for pid, p in load_registry().items()}
         contributions = listener.to_contributions(result, session_id, ids_by_name)
-        st.session_state.session = score_session(
-            contributions, session_id, course, session_date.isoformat(), topic
-        )
+        flow["notes"]["listener"] = f"{len(contributions)} turns"
+        flow["done"].add("listener")
 
-    if col_sample.button("Use the sample session"):
+        def on_progress(stage: str, n: int, total: int) -> None:
+            step(stage, f"{n}/{total}")
+
+        session = score_session(
+            contributions, session_id, course, session_date.isoformat(), topic, on_progress
+        )
+        flow["done"].update({"research", "judge", "auditor"})
+        flow["active"] = None
+        show_flow(flow_slot, flow)
+        st.session_state.session = session
+
+    if run_sample:
+        reset_flow()
         for pid, entry in json.loads(SAMPLE_CLASSLIST.read_text()).items():
             if classlist.get(pid) is None:
                 classlist.upsert(entry["name"], entry["email"])
-        st.session_state.session = SessionResults.model_validate_json(SAMPLE_SESSION.read_text())
+        session = SessionResults.model_validate_json(SAMPLE_SESSION.read_text())
+        step("listener", "loading sample…", pause=REPLAY_DELAY * 2)
+        flow["notes"]["listener"] = f"{len(session.items)} turns (sample)"
+        flow["done"].add("listener")
+        scored = [i for i in session.items if i.judgement]
+        for n, _ in enumerate(scored, start=1):
+            for stage in ("research", "judge", "auditor"):
+                step(stage, f"{n}/{len(scored)}", pause=REPLAY_DELAY)
+        flow["done"].update({"research", "judge", "auditor"})
+        flow["active"] = None
+        show_flow(flow_slot, flow)
+        st.session_state.session = session
 
     session: SessionResults | None = st.session_state.get("session")
     if session:
@@ -125,19 +195,74 @@ with analyse_tab:
             )
         st.dataframe(rows, hide_index=True, width="stretch")
 
+        st.subheader("Action agent")
+        board_slot = st.empty()
+        names = {s.person_id: s.name for s in classlist.all().values()}
+
         if not os.getenv("OPENAI_API_KEY"):
             st.error("Set OPENAI_API_KEY to run the Action agent.")
         elif st.button("Run Action agent", type="primary"):
-            with st.spinner("The Action agent is deciding who to email…"):
-                run = ActionAgent(harness).run(session)
+            board = {name: {"waiting"} for name in sorted(names.values())}
+            show_board(board_slot, board)
+            status = st.status("The Action agent is working…", expanded=True)
+            counter = {"calls": 0}
+
+            def on_event(kind: str, call) -> None:
+                if kind == "thinking":
+                    step("action", f"thinking… ({counter['calls']} calls)", finished="auditor")
+                    return
+                if kind == "done":
+                    for states in board.values():
+                        if states == {"waiting"}:
+                            states.clear()
+                            states.add("nothing")
+                    flow["done"].add("action")
+                    flow["active"] = None
+                    flow["notes"]["action"] = f"{counter['calls']} tool calls"
+                    show_flow(flow_slot, flow)
+                    show_board(board_slot, board)
+                    return
+                counter["calls"] += 1
+                args = call.arguments
+                status.write(
+                    f"{'✅' if call.ok else '⛔'} `{call.name}` "
+                    + (
+                        f"→ {names.get(args.get('person_id'), args.get('person_id'))}"
+                        if args.get("person_id")
+                        else ""
+                    )
+                )
+                if not call.ok:
+                    status.caption(json.loads(call.result).get("refused", call.result))
+                    return
+                who = names.get(args.get("person_id"))
+                if call.name == "draft_student_email" and who:
+                    board[who].discard("waiting")
+                    board[who].add(args["kind"])
+                elif call.name == "flag_for_review":
+                    who = who or "Unidentified speaker"
+                    board.setdefault(who, set()).discard("waiting")
+                    board[who].add("flagged")
+                elif call.name == "send_prof_summary":
+                    who = "Prof summary"
+                    board[who] = {"summary"}
+                else:
+                    return
+                show_board(board_slot, board, newest=who)
+
+            run = ActionAgent(harness).run(session, on_event)
+            status.update(label="The Action agent finished", state="complete", expanded=False)
             st.session_state.agent_run = run
+            st.session_state.board = board
 
         run = st.session_state.get("agent_run")
         if run:
-            st.subheader("What the Action agent did")
-            for call in run.calls:
-                icon = "✅" if call.ok else "⛔"
-                with st.expander(f"{icon} {call.name}({', '.join(call.arguments)})"):
+            if "board" in st.session_state:
+                show_board(board_slot, st.session_state.board)
+            with st.expander(f"Tool calls ({len(run.calls)})"):
+                for call in run.calls:
+                    icon = "✅" if call.ok else "⛔"
+                    st.markdown(f"{icon} **{call.name}**")
                     st.json({"arguments": call.arguments, "result": json.loads(call.result)})
             st.info(run.final_message or "The agent finished without a summary.")
             st.write("Review the drafts on the **Feedback emails** tab.")

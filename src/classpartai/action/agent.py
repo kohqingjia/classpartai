@@ -7,6 +7,7 @@ bad decision becomes a refused tool call rather than a sent email.
 
 import json
 import os
+from collections.abc import Callable
 from dataclasses import dataclass, field
 from statistics import mean
 
@@ -147,7 +148,17 @@ class ActionAgent:
         self.model = model or os.getenv("OPENAI_MODEL", "gpt-5-mini")
         self.harness = harness
 
-    def run(self, session: SessionResults) -> AgentRun:
+    def run(
+        self,
+        session: SessionResults,
+        on_event: Callable[[str, "ToolCall | None"], None] | None = None,
+    ) -> AgentRun:
+        """Run the agent on one session.
+
+        ``on_event(kind, call)`` lets a UI follow along: "thinking" before each model request,
+        "call" after each tool call (with the ToolCall), "done" at the end.
+        """
+        notify = on_event or (lambda kind, call: None)
         self.session = session
         self.harness.store.save_session(session)
         messages = [
@@ -161,6 +172,7 @@ class ActionAgent:
         ]
         run = AgentRun()
         for _ in range(MAX_STEPS):
+            notify("thinking", None)
             reply = (
                 self.client.chat.completions.create(
                     model=self.model, messages=messages, tools=TOOLS
@@ -176,7 +188,9 @@ class ActionAgent:
                 args = json.loads(call.function.arguments or "{}")
                 ok, result = self._call(call.function.name, args)
                 run.calls.append(ToolCall(call.function.name, args, ok, result))
+                notify("call", run.calls[-1])
                 messages.append({"role": "tool", "tool_call_id": call.id, "content": result})
+        notify("done", None)
         self.harness.store.log(
             "agent_run",
             session_id=session.session_id,
