@@ -5,8 +5,10 @@ description = "ClassPart AI: IS469 Gen AI with LLMs group project"
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
+    "agentmail>=0.1",
     "numpy>=2.5.4",
     "openai>=3.42.0",
+    "pydantic>=2.8",
     "pypdf>=6.21.4",
     "python-dotenv>=1.0",
     "python-pptx>=1.0.2",

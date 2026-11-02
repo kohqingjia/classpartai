@@ -11,6 +11,23 @@ resolution-markers = [
 ]
 
 [[package]]
+name = "agentmail"
+version = "2.0.22"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "anyio" },
+    { name = "httpx" },
+    { name = "pydantic" },
+    { name = "pydantic-core" },
+    { name = "typing-extensions" },
+    { name = "websockets" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/f4/0d/ecc16fa4c399efc60e000cc263a83ab9881cde08148ca4173fc82bdc9430/agentmail-2.0.22.tar.gz", hash = "sha256:7c083ccb840dd07616c8779cb12e1c7e7c98c7ba6ad085a0da061dacd11563ea", size = 245644, upload-time = "2026-10-29T02:43:38.414Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/f7/af/bc5355fe35b0018406f9d25022127bb50dd864dc527bd3c08690ccea881e/agentmail-2.0.22-py3-none-any.whl", hash = "sha256:891dd65016d9bb0369894effb888fe268f61955ce1c72978136900dca1d2b21a", size = 507856, upload-time = "2026-10-29T02:43:36.877Z" },
+]
+
+[[package]]
 name = "altair"
 version = "6.3.0"
 source = { registry = "https://pypi.org/simple" }
@@ -202,8 +219,10 @@ name = "classpartai"
 version = "0.1.0"
 source = { editable = "." }
 dependencies = [
+    { name = "agentmail" },
     { name = "numpy" },
     { name = "openai" },
+    { name = "pydantic" },
     { name = "pypdf" },
     { name = "python-dotenv" },
     { name = "python-pptx" },
@@ -220,8 +239,10 @@ dev = [
 
 [package.metadata]
 requires-dist = [
+    { name = "agentmail", specifier = ">=0.1" },
     { name = "numpy", specifier = ">=2.5.4" },
     { name = "openai", specifier = ">=3.42.0" },
+    { name = "pydantic", specifier = ">=2.8" },
     { name = "pypdf", specifier = ">=6.21.4" },
     { name = "python-dotenv", specifier = ">=1.0" },
     { name = "python-pptx", specifier = ">=1.0.2" },

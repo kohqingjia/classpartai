@@ -1,0 +1,18 @@
+{
+  "alex-tan": {
+    "name": "Alex Tan",
+    "email": "alex.tan@example.edu"
+  },
+  "priya-nair": {
+    "name": "Priya Nair",
+    "email": "priya.nair@example.edu"
+  },
+  "jordan-wong": {
+    "name": "Jordan Wong",
+    "email": "jordan.wong@example.edu"
+  },
+  "marcus-lee": {
+    "name": "Marcus Lee",
+    "email": "marcus.lee@example.edu"
+  }
+}

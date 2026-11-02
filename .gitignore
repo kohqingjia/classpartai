@@ -25,3 +25,14 @@ data/index/
 scratch
 .claude
 .worktrees/
+
+# Nested virtualenvs (e.g. audio-service/.venv)
+**/.venv/
+
+# Local audio recordings
+*.m4a
+*.wav
+*.mp3
+
+# App data (class list, emails, audit log) when run locally
+var/

@@ -1,18 +1,27 @@
-"""Shared settings: environment variables and the random seed every experiment uses."""
+"""Shared settings: paths, environment variables and the random seed every experiment uses."""
 
 import os
 import random
+from pathlib import Path
 
 from dotenv import load_dotenv
 
-load_dotenv()
+REPO_ROOT = Path(__file__).resolve().parents[2]
+load_dotenv(REPO_ROOT / ".env")
 
 SEED = int(os.getenv("SEED", "42"))
+
+# Runtime state (class list, emails, audit log). A Docker volume on the VPS.
+DATA_DIR = Path(os.getenv("CLASSPARTAI_DATA_DIR", REPO_ROOT / "var"))
+
+# Voice samples live where audio-service/speaker_identification.py reads them.
+AUDIO_SERVICE_DIR = REPO_ROOT / "audio-service"
+ENROLLMENT_DIR = AUDIO_SERVICE_DIR / "enrollments"
 
 # Which models the agents use. "openai" (needs OPENAI_API_KEY) or "ollama" (free, runs locally;
 # needs the Ollama app running with OLLAMA_MODEL and OLLAMA_EMBEDDING_MODEL pulled).
 LLM_PROVIDER = os.getenv("LLM_PROVIDER", "openai").strip().lower()
-OPENAI_MODEL = os.getenv("OPENAI_MODEL", "gpt-5.4-mini")
+OPENAI_MODEL = os.getenv("OPENAI_MODEL", "gpt-5-mini")  # same default as models.py
 OPENAI_EMBEDDING_MODEL = os.getenv("OPENAI_EMBEDDING_MODEL", "text-embedding-3-small")
 OLLAMA_BASE_URL = os.getenv("OLLAMA_BASE_URL", "http://localhost:11434/v1")
 OLLAMA_MODEL = os.getenv("OLLAMA_MODEL", "qwen3:8b")
@@ -29,6 +38,18 @@ RESEARCH_MAX_STEPS = int(os.getenv("RESEARCH_MAX_STEPS", "12"))
 RESEARCH_MAX_COURSE_SEARCHES = int(os.getenv("RESEARCH_MAX_COURSE_SEARCHES", "6"))
 RESEARCH_MAX_WEB_SEARCHES = int(os.getenv("RESEARCH_MAX_WEB_SEARCHES", "3"))
 RESEARCH_MAX_GRADES = int(os.getenv("RESEARCH_MAX_GRADES", "8"))
+
+# Which agent answers the coordinator's retrieve_evidence: "course" (evidence.py, the default) or
+# "research" (the Research agent through research/bridge.py). Inside a session, Research uses
+# lighter budgets, since every call counts against the workflow's shared budget, and no web.
+EVIDENCE_AGENT = os.getenv("EVIDENCE_AGENT", "course").strip().lower()
+RESEARCH_BRIDGE_MAX_STEPS = int(os.getenv("RESEARCH_BRIDGE_MAX_STEPS", "8"))
+RESEARCH_BRIDGE_MAX_COURSE_SEARCHES = int(os.getenv("RESEARCH_BRIDGE_MAX_COURSE_SEARCHES", "4"))
+RESEARCH_BRIDGE_MAX_GRADES = int(os.getenv("RESEARCH_BRIDGE_MAX_GRADES", "5"))
+# The documents a session made from a new recording searches. The default is the demo notes;
+# point it at the file `python -m classpartai.research export-documents` writes to use the
+# IS469 lecture files (licensed: keep it under var/, which git ignores).
+COURSE_DOCUMENTS = Path(os.getenv("COURSE_DOCUMENTS", REPO_ROOT / "data" / "course_materials.json"))
 
 
 def set_seed(seed: int = SEED) -> None:

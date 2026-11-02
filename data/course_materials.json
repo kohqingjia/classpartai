@@ -1,0 +1,45 @@
+[
+  {
+    "id": "w10-agentic-rag",
+    "version": "1",
+    "title": "Week 10 notes: Agentic RAG",
+    "source": "IS469 demo course notes (authored for the ClassPart AI demo)",
+    "authorisedForCourse": true,
+    "passages": [
+      {
+        "id": "p1",
+        "page": 1,
+        "text": "Single-pass retrieval-augmented generation retrieves once using the user's question and then generates an answer. It struggles when the question is vague or when the answer needs facts from more than one document."
+      },
+      {
+        "id": "p2",
+        "page": 2,
+        "text": "Agentic RAG lets the model decide when and what to retrieve. Typical strategies are query rewriting, where a vague question is reformulated before retrieval, multi-hop retrieval, where a second search uses facts found in the first, and self-checking of retrieved evidence."
+      },
+      {
+        "id": "p3",
+        "page": 3,
+        "text": "Each extra retrieval round adds a model call, so agentic RAG increases latency and cost. Systems usually cap the number of retrieval rounds or tool calls with a budget."
+      },
+      {
+        "id": "p4",
+        "page": 4,
+        "text": "Self-RAG trains the model to grade its own retrieved passages for relevance and to critique whether its answer is supported by them."
+      }
+    ]
+  },
+  {
+    "id": "w5-finetuning",
+    "version": "1",
+    "title": "Week 5 notes: Fine-tuning versus retrieval",
+    "source": "IS469 demo course notes (authored for the ClassPart AI demo)",
+    "authorisedForCourse": true,
+    "passages": [
+      {
+        "id": "p1",
+        "page": 1,
+        "text": "Fine-tuning changes a model's weights using training examples. Retrieval-augmented generation leaves the weights unchanged and supplies documents in the prompt at inference time, so knowledge can be updated without retraining."
+      }
+    ]
+  }
+]
