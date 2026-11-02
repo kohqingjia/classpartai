@@ -39,10 +39,11 @@ RESEARCH_MAX_COURSE_SEARCHES = int(os.getenv("RESEARCH_MAX_COURSE_SEARCHES", "6"
 RESEARCH_MAX_WEB_SEARCHES = int(os.getenv("RESEARCH_MAX_WEB_SEARCHES", "3"))
 RESEARCH_MAX_GRADES = int(os.getenv("RESEARCH_MAX_GRADES", "8"))
 
-# Which agent answers the coordinator's retrieve_evidence: "course" (evidence.py, the default) or
-# "research" (the Research agent through research/bridge.py). Inside a session, Research uses
-# lighter budgets, since every call counts against the workflow's shared budget, and no web.
-EVIDENCE_AGENT = os.getenv("EVIDENCE_AGENT", "course").strip().lower()
+# Which agent answers the coordinator's retrieve_evidence: "research" (the Research agent through
+# research/bridge.py, the default) or "course" (Le Yong's evidence agent in evidence.py). Inside a
+# session, Research uses lighter budgets, since every call counts against the workflow's shared
+# budget, and no web.
+EVIDENCE_AGENT = os.getenv("EVIDENCE_AGENT", "research").strip().lower()
 RESEARCH_BRIDGE_MAX_STEPS = int(os.getenv("RESEARCH_BRIDGE_MAX_STEPS", "8"))
 RESEARCH_BRIDGE_MAX_COURSE_SEARCHES = int(os.getenv("RESEARCH_BRIDGE_MAX_COURSE_SEARCHES", "4"))
 RESEARCH_BRIDGE_MAX_GRADES = int(os.getenv("RESEARCH_BRIDGE_MAX_GRADES", "5"))

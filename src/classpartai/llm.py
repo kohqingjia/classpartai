@@ -27,6 +27,7 @@ class ToolCall:
 class AssistantTurn:
     content: str = ""
     tool_calls: list[ToolCall] = field(default_factory=list)
+    tokens: int | None = None  # total tokens the provider reported for the call, if it did
 
     def as_message(self) -> dict:
         """The turn in plain OpenAI form, to append to the message history."""
@@ -118,12 +119,19 @@ class OpenAIChat:
             kwargs["tools"] = tools
         if json_mode:
             kwargs["response_format"] = {"type": "json_object"}
-        message = self.client.chat.completions.create(**kwargs).choices[0].message
+        response = self.client.chat.completions.create(**kwargs)
+        message = response.choices[0].message
         calls = [
             ToolCall(id=c.id, name=c.function.name, arguments=c.function.arguments or "{}")
             for c in (message.tool_calls or [])
         ]
-        return AssistantTurn(content=message.content or "", tool_calls=calls)
+        usage = getattr(response, "usage", None)
+        tokens = getattr(usage, "total_tokens", None)
+        return AssistantTurn(
+            content=message.content or "",
+            tool_calls=calls,
+            tokens=tokens if isinstance(tokens, int) else None,
+        )
 
 
 def normalise(vectors) -> np.ndarray:

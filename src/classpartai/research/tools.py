@@ -23,7 +23,8 @@ MAX_ATTEMPTS_PER_SOURCE = 3  # R2: the first search plus at most 2 rewrites, per
 
 # Retrieved text is untrusted (Topic 8 §8): flag text that reads like instructions to the grader.
 _INJECTION = re.compile(
-    r"ignore (all |any )?(previous|prior|above|the) (instructions|rules)"
+    r"ignore (all |any )?(previous|prior|above|the|your) (instructions|rules|rubric)"
+    r"|note to the (grading system|grader|marker)"
     r"|disregard (the|your|all) (rules|instructions)|you are now|system prompt"
     r"|give (me|them|everyone|this student) (full|top|maximum) (marks|score)",
     re.IGNORECASE,
@@ -42,6 +43,7 @@ class Evidence:
     url: str | None = None
     retrieval_score: float | None = None
     flagged_injection: bool = False
+    chunk_id: str | None = None  # the course chunk it came from, so a citation can be traced
 
     @property
     def origin(self) -> str:
@@ -452,6 +454,13 @@ class ResearchTools:
             week_patterns=week_materials(self.schedule, week) if week is not None else None,
             k=self._k(args),
         )
+        widened = ""
+        if week is not None and not hits:
+            # Nothing is filed under that week (a guessed week, or a session outside the
+            # schedule): search every week rather than report the course as silent.
+            hits = self.store.search(str(args["query"]), k=self._k(args))
+            widened = f"Nothing is filed under week {week}, so this searched all weeks. "
+            week = None
         items = [
             self._register(
                 f"chunk:{h.chunk.id}",
@@ -464,12 +473,15 @@ class ResearchTools:
                     week=h.chunk.week,
                     page=h.chunk.page,
                     retrieval_score=round(h.score, 3),
+                    chunk_id=h.chunk.id,
                 ),
             )
             for h in hits
         ]
         scope = f"week {week}" if week is not None else "all weeks"
-        header = f"Course materials ({scope}): {len(items)} chunks. Grade the promising ones."
+        header = (
+            f"{widened}Course materials ({scope}): {len(items)} chunks. Grade the promising ones."
+        )
         return (
             self._format(header, items, self.course_searches, self.max_course_searches),
             True,

@@ -12,6 +12,7 @@ import argparse
 import json
 import sys
 from collections import Counter
+from pathlib import Path
 
 from classpartai import config
 
@@ -146,6 +147,33 @@ def run(
             print(f"  {s['step']:>2} {s['tool']}({json.dumps(s['args'])}) -> {s['result']}")
 
 
+def export_documents(materials_dir: str, out: str) -> None:
+    from classpartai.research.bridge import documents_from_materials
+
+    documents = documents_from_materials(materials_dir)
+    path = Path(out)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(documents, indent=1, ensure_ascii=False), encoding="utf-8")
+    passages = sum(len(d["passages"]) for d in documents)
+    print(f"{len(documents)} documents, {passages} passages -> {path}")
+    print(f'Use them for new recordings: COURSE_DOCUMENTS="{path}" in .env. Don\'t commit it.')
+
+
+def session(path: str, date: str, as_json: bool) -> None:
+    """Research every student answer in a session file, on that session's own documents."""
+    from classpartai.assessment import parse_inputs
+    from classpartai.research.bridge import answer_pairs, default_agent_factory
+
+    inputs = parse_inputs(Path(path).read_text(encoding="utf-8"))
+    pairs = answer_pairs(inputs.transcript)
+    print(f"{len(pairs)} student answers in {inputs.sessionTitle}; indexing its documents...")
+    make = default_agent_factory(light=False)(inputs)  # no workflow budget here
+    for pair in pairs:
+        pack = make(lambda model: model).research_contribution(pair.contribution(), date)
+        print(f"\n=== {', '.join(pair.turn_ids)} · {pair.student_id}")
+        print(pack.to_json() if as_json else pack.brief())
+
+
 def main(argv: list[str] | None = None) -> None:
     parser = argparse.ArgumentParser(prog="python -m classpartai.research")
     sub = parser.add_subparsers(dest="command", required=True)
@@ -153,6 +181,13 @@ def main(argv: list[str] | None = None) -> None:
     p = sub.add_parser("ingest", help="chunk and embed the course's slides, readings and labs")
     p.add_argument("--materials", default=config.MATERIALS_DIR, help="folder of lecture files")
     p.add_argument("--course", default=config.COURSE_DIR, help="folder with schedule.json")
+    p = sub.add_parser("export-documents", help="lecture files as session documents (JSON)")
+    p.add_argument("--materials", default=config.MATERIALS_DIR, help="folder of lecture files")
+    p.add_argument("--out", default=str(config.DATA_DIR / "is469_documents.json"))
+    p = sub.add_parser("session", help="research every student answer in a session file")
+    p.add_argument("path", help="a session JSON, e.g. data/sample_assessment.json")
+    p.add_argument("--date", required=True, help="session date, YYYY-MM-DD")
+    p.add_argument("--json", action="store_true", help="print the full EvidencePacks")
     p = sub.add_parser("run", help="research a student's answer to a professor's question")
     p.add_argument("text", help="the student's answer (or an unprompted comment)")
     p.add_argument("--question", help="the professor's question the student was answering")
@@ -166,6 +201,10 @@ def main(argv: list[str] | None = None) -> None:
             sys.exit(0 if check() else 1)
         elif args.command == "ingest":
             ingest(args.materials, args.course)
+        elif args.command == "export-documents":
+            export_documents(args.materials, args.out)
+        elif args.command == "session":
+            session(args.path, args.date, args.json)
         else:
             run(args.text, args.date, args.question, args.judge, args.json, args.trajectory)
     except (FileNotFoundError, ValueError, RuntimeError) as exc:

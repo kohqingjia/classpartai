@@ -78,7 +78,7 @@ src/classpartai/
   assessment.py         session inputs: roster, reviewed transcript, rubric, documents (+ validation)
   evidence.py           evidence agent: course search index, citation checks, investigation loop
   research/             ② Research: agentic RAG over the IS469 files (and web) that also judges the
-                        answer; bridge.py plugs it into the coordinator (EVIDENCE_AGENT=research)
+                        answer; bridge.py makes it the coordinator's evidence agent (default)
   llm.py                Research's chat/embedding wrappers (OpenAI or Ollama)
   models.py             OpenAI-compatible driver, tool schemas, shared budget
   participation/
@@ -157,12 +157,12 @@ questions (J1) go to `answer_question(question, date)`.
 
 #### Inside the assessment workflow
 
-`research/bridge.py` links Research to the coordinator without changing any contract:
+`research/bridge.py` makes Research the workflow's evidence agent without changing any contract:
 
 | Link | What it does |
 |---|---|
 | ① Listener → ② | `answer_pairs(transcript)` pairs each student's answer with the professor question before it (uncertain speakers are skipped) |
-| ② → coordinator | with `EVIDENCE_AGENT="research"` in `.env`, `retrieve_evidence` (and the app's *Investigate* button) runs Research instead of `evidence.py` and returns the same `EvidenceBundle`: exact excerpts of the session's passages as citations, conflicts and gaps |
+| ② → coordinator | `retrieve_evidence` (and the app's *Investigate* button) runs Research and returns the same `EvidenceBundle` as `evidence.py` (set `EVIDENCE_AGENT="course"` to use that agent instead): exact excerpts of the session's passages as citations, conflicts and gaps |
 | ② → ③ Judge | the bundle's `explanation` carries the answer assessment (correctness, answers the question, reasoning, kind of mistake, missed points); the full `EvidencePack` is saved with the evidence run |
 | Budget | every Research model and tool call counts against the workflow's shared budget; inside a session Research uses lighter budgets (`RESEARCH_BRIDGE_*`) and no web, so evidence stays within the session's authorised documents |
 | IS469 files → sessions | `export-documents` turns the lecture files into session documents, so either evidence agent can search the real slides instead of the demo notes |
