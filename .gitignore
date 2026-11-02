@@ -17,6 +17,8 @@ dist/
 
 # Large or licensed data (document sources in data/README.md)
 data/raw/
+# Built by `python -m classpartai.research ingest`; rebuild rather than commit
+data/index/
 
 # Local
 .DS_Store

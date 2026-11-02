@@ -75,7 +75,8 @@ Plain Python functions the agents call. Signatures are a starting point.
 | `get_lesson_context(date)` | that week's topic, so the agent knows what is on-topic |
 | `search_course_materials(query, week=None, k=5)` | chunks and sources (deck, page) from a vector store of slides and readings |
 | `search_web(query, k=5)` | snippets and URLs |
-| `grade_evidence(claim, chunks)` | relevant / partial / irrelevant, and whether it supports or contradicts the claim |
+| `grade_evidence(claim, chunks)` | relevant / partial / irrelevant, and whether it supports or contradicts the claim (`chunks` are ids a search returned) |
+| `submit_findings(...)` | ends the run; the harness turns the grades into a verdict per claim |
 
 ### ③ Judge
 
@@ -167,6 +168,42 @@ cp .env.example .env     # then fill in your API key
 uv run streamlit run app.py      # demo at http://localhost:8501
 uv run jupyter lab               # notebooks (add jupyter first: uv add --dev jupyterlab)
 ```
+
+### ② Research agent
+
+Needs `OPENAI_API_KEY` in `.env`, or `LLM_PROVIDER="ollama"` to run free on a local model (setup
+in `.env.example`); `TAVILY_API_KEY` adds the web source. Its course data is IS469:
+copy the Topic 1–8 decks and labs into `data/raw/is469/` (git-ignored; see `data/README.md`).
+
+```bash
+uv run python -m classpartai.research check        # are the models, lecture files and index ready?
+uv run python -m classpartai.research ingest       # embed the decks and labs (rerun when they change)
+uv run python -m classpartai.research run "LoRA only trains two small matrices." \
+    --question "Why does LoRA fit on one GPU when full fine-tuning does not?" \
+    --date 2026-09-08 --trajectory                 # one answer: verdicts, quotes, every tool call
+uv run python eval/research_eval.py                # single-pass vs agentic RAG on labelled Q&A pairs
+```
+
+Research takes a professor's question and a student's answer from the transcript, and works out two
+things with evidence from the course materials (or the web):
+
+- **Is the answer correct?** Each of the student's claims gets a verdict (`supported`,
+  `contradicted`, `mixed`, `partially_supported`, `unverified`), combined into `correctness`:
+  `correct`, `partially_correct`, `incorrect` or `unverified`.
+- **Does it answer the question?** Research finds what the course says a good answer contains
+  (`expected_points`), and reports `answers_question` (`yes`, `partly`, `no`) and the
+  `missed_points`. A true statement about something else is correct but does not answer it.
+
+- **How good is the attempt?** `reasoning` (`explained`, `asserted`, `none`) and, when the answer is
+  wrong, `mistake` (`reasonable_guess`, `misconception`, `unsupported`), so the Judge can give
+  credit for an educated guess. Research reports these signals; the Judge decides the marks.
+
+Every verdict comes from graded evidence with verbatim quotes and sources (deck and slide, lab and
+cell, or URL). In code, the pipeline calls
+`ResearchAgent.from_config().research_contribution({"id", "student", "question", "text"}, date)`
+and passes the returned `EvidencePack` (`.brief()` for a prompt) to the Judge, which does the
+scoring. Without a `question` it treats the text as an unprompted comment. The Judge's follow-up
+questions (J1) go to `answer_question(question, date)`.
 
 ## Checks
 

@@ -5,8 +5,14 @@ description = "ClassPart AI: IS469 Gen AI with LLMs group project"
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
+    "numpy>=2.5.4",
+    "openai>=3.42.0",
+    "pypdf>=6.21.4",
     "python-dotenv>=1.0",
+    "python-pptx>=1.0.2",
+    "rank-bm25>=0.2.2",
     "streamlit>=1.40",
+    "tavily-python>=0.8.5",
 ]
 
 [dependency-groups]

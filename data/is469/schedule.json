@@ -1,0 +1,71 @@
+{
+  "course_id": "IS469",
+  "course_title": "Generative and Agentic AI (Gen AI with LLMs), SMU, AY2026-27",
+  "note": "Week numbers follow the topic numbers of the lecture decks. The dates are PLACEHOLDERS: replace each with the real seminar date, or with the date you give a mock recording. 'materials' are filename patterns matched against the files in MATERIALS_DIR.",
+  "weeks": [
+    {
+      "week": 1,
+      "date": "2026-08-18",
+      "topic": "Text processing fundamentals",
+      "key_concepts": ["normalisation and tokenisation", "subword tokenisation and out-of-vocabulary words", "n-gram language models", "bag-of-words", "TF-IDF", "cosine similarity", "Word2Vec (CBOW and skip-gram)", "static vs contextual embeddings"],
+      "discussion_prompts": ["Why does TF-IDF rank documents better than raw word counts?", "What can Word2Vec capture that bag-of-words cannot, and what can it still not capture?"],
+      "materials": ["*Topic1*"]
+    },
+    {
+      "week": 2,
+      "date": "2026-08-25",
+      "topic": "Transformers and LLMs",
+      "key_concepts": ["attention vs RNNs and LSTMs", "query, key and value", "multi-head attention", "transformer block: FFN, residuals, layer norm", "positional encoding and RoPE", "encoder vs decoder", "BERT and masked language modelling", "[CLS] vs mean pooling"],
+      "discussion_prompts": ["Why did transformers replace RNNs?", "When would you still choose a BERT-style encoder over a decoder LLM?"],
+      "materials": ["*Topic2*"]
+    },
+    {
+      "week": 3,
+      "date": "2026-09-01",
+      "topic": "Training and customising LLMs",
+      "key_concepts": ["self-supervised pre-training", "scaling laws and over-training", "MLM vs CLM", "extended pre-training vs supervised fine-tuning", "forward and backward pass", "cross-entropy loss", "overfitting and validation loss", "dropout and gradient accumulation", "RLHF and RLVR", "reasoning models and test-time compute"],
+      "discussion_prompts": ["How do you tell from the loss curves when fine-tuning starts to overfit?", "When is RLVR a better fit than RLHF?"],
+      "materials": ["*Topic3*"]
+    },
+    {
+      "week": 4,
+      "date": "2026-09-08",
+      "topic": "Efficient fine-tuning",
+      "key_concepts": ["the customisation ladder", "knowledge gap vs behaviour gap", "SFT and train-on-completions", "DPO and GRPO", "gradient clipping", "LoRA", "mixed precision and BF16", "quantisation", "QLoRA", "distillation"],
+      "discussion_prompts": ["Your model gives outdated prices. Should you fine-tune? Why or why not?", "Why does LoRA fit on one GPU when full fine-tuning does not?"],
+      "materials": ["*Topic4*"]
+    },
+    {
+      "week": 5,
+      "date": "2026-09-15",
+      "topic": "Deploying LLMs for inference",
+      "key_concepts": ["stopping: EOS and max tokens", "greedy, top-k, top-p and beam search", "temperature", "prefill vs decode", "KV cache", "continuous batching", "quantisation for inference", "serving engines (vLLM, SGLang, ollama)", "GGUF", "deployment options and cost"],
+      "discussion_prompts": ["What does temperature do to the next-token distribution?", "Why is decoding memory-bound, and how does batching help?"],
+      "materials": ["*Topic5*"]
+    },
+    {
+      "week": 6,
+      "date": "2026-09-22",
+      "topic": "Evaluating LLMs",
+      "key_concepts": ["intrinsic vs extrinsic evaluation", "BLEU, ROUGE and BERTScore", "perplexity", "benchmarks and saturation", "data contamination", "pass@k", "programmatic checks first", "LLM-as-judge and its biases"],
+      "discussion_prompts": ["Why are BLEU and ROUGE poor metrics for a chatbot?", "How would you make an LLM judge trustworthy?"],
+      "materials": ["*Topic5-6*", "*Topic6*"]
+    },
+    {
+      "week": 7,
+      "date": "2026-09-29",
+      "topic": "Agentic AI",
+      "key_concepts": ["tool calling and tool schemas", "the agent loop and the harness", "ReAct", "MCP and stateless servers", "reasoning models and plan-and-execute", "reflexion", "agent memory tiers", "multi-agent supervisor and LangGraph", "agent skills", "evaluating trajectories", "guardrails and permissions"],
+      "discussion_prompts": ["What makes a system agentic rather than one LLM call behind a UI?", "What should the harness enforce, rather than the LLM?"],
+      "materials": ["*Topic7*"]
+    },
+    {
+      "week": 8,
+      "date": "2026-10-06",
+      "topic": "Agentic retrieval-augmented generation",
+      "key_concepts": ["the RAG pipeline", "long context vs RAG", "embedding models and vector stores", "RAG failure modes", "re-ranking with a cross-encoder", "hybrid BM25 and rank fusion", "contextual RAG", "query rewriting and HyDE", "evaluating RAG", "agentic RAG patterns", "cost and prompt injection"],
+      "discussion_prompts": ["When is long-context prompting a better choice than RAG?", "When is agentic RAG worth its extra cost over a fixed pipeline?"],
+      "materials": ["*Topic8*"]
+    }
+  ]
+}

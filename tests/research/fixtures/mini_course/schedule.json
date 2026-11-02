@@ -1,0 +1,30 @@
+{
+  "course_id": "STRAT210",
+  "course_title": "Platform Strategy (invented sample course for ClassPart AI)",
+  "weeks": [
+    {
+      "week": 2,
+      "date": "2026-08-25",
+      "topic": "Network effects",
+      "key_concepts": ["direct network effects", "indirect (cross-side) network effects", "economies of scale vs network effects", "chicken-and-egg problem"],
+      "discussion_prompts": ["Is a food-delivery app's advantage mainly scale or network effects?"],
+      "materials": ["slides/week02-network-effects.md", "readings/week02-why-networks-matter.md"]
+    },
+    {
+      "week": 3,
+      "date": "2026-09-01",
+      "topic": "Platform competition and market tipping",
+      "key_concepts": ["tipping", "multi-homing", "local network effects", "differentiation"],
+      "discussion_prompts": ["Using the reading, argue whether ride-hailing in Southeast Asia is a winner-take-all market."],
+      "materials": ["slides/week03-platform-competition.md", "readings/week03-when-markets-tip.md"]
+    },
+    {
+      "week": 4,
+      "date": "2026-09-08",
+      "topic": "Pricing a two-sided platform",
+      "key_concepts": ["subsidy side", "money side", "price sensitivity", "withdrawing subsidies"],
+      "discussion_prompts": ["A food-delivery platform gives diners free-delivery vouchers and charges restaurants a commission. Is it subsidising the right side?"],
+      "materials": ["slides/week04-platform-pricing.md", "readings/week04-pricing-two-sides.md"]
+    }
+  ]
+}
