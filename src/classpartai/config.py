@@ -42,11 +42,15 @@ RESEARCH_MAX_GRADES = int(os.getenv("RESEARCH_MAX_GRADES", "8"))
 # Which agent answers the coordinator's retrieve_evidence: "research" (the Research agent through
 # research/bridge.py, the default) or "course" (Le Yong's evidence agent in evidence.py). Inside a
 # session, Research uses lighter budgets, since every call counts against the workflow's shared
-# budget, and no web.
+# budget.
 EVIDENCE_AGENT = os.getenv("EVIDENCE_AGENT", "research").strip().lower()
 RESEARCH_BRIDGE_MAX_STEPS = int(os.getenv("RESEARCH_BRIDGE_MAX_STEPS", "8"))
 RESEARCH_BRIDGE_MAX_COURSE_SEARCHES = int(os.getenv("RESEARCH_BRIDGE_MAX_COURSE_SEARCHES", "4"))
 RESEARCH_BRIDGE_MAX_GRADES = int(os.getenv("RESEARCH_BRIDGE_MAX_GRADES", "5"))
+# Web search inside a session (needs TAVILY_API_KEY). Web findings go to the Judge as labelled
+# context, never as citations, which must be the session's own course passages.
+RESEARCH_BRIDGE_WEB = os.getenv("RESEARCH_BRIDGE_WEB", "true").strip().lower() in ("1", "true")
+RESEARCH_BRIDGE_MAX_WEB_SEARCHES = int(os.getenv("RESEARCH_BRIDGE_MAX_WEB_SEARCHES", "2"))
 # The documents a session made from a new recording searches. The default is the demo notes;
 # point it at the file `python -m classpartai.research export-documents` writes to use the
 # IS469 lecture files (licensed: keep it under var/, which git ignores).

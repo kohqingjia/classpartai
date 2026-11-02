@@ -13,11 +13,16 @@ RUN pip install --no-cache-dir \
         --index-url https://download.pytorch.org/whl/cpu \
         --extra-index-url https://pypi.org/simple \
         -r audio-service/requirements.txt \
-        "streamlit>=1.50" "openai>=1.60" "agentmail>=0.1" "pydantic>=2.8"
+        "streamlit>=1.50" "openai>=1.60" "agentmail>=0.1" "pydantic>=2.8" \
+        "pypdf>=6.21.4" "python-pptx>=1.0.2" "rank-bm25>=0.2.2" "tavily-python>=0.8.5"
 
 COPY app.py ./
 COPY .streamlit ./.streamlit
 COPY src ./src
+# Fail the build, not the first evidence run, if a runtime dependency is missing from the list
+# above (the image doesn't install pyproject.toml, so CI's environment can't catch it).
+RUN PYTHONPATH=/app/src python -c "import classpartai.research.bridge, \
+classpartai.participation.coordinator, pypdf, pptx, rank_bm25, tavily"
 COPY data ./data
 COPY audio-service ./audio-service
 

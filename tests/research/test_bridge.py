@@ -13,11 +13,21 @@ from classpartai.research import bridge
 from classpartai.research.agent import ResearchAgent
 
 from .conftest import SAMPLE
-from .fakes import HashEmbedder, ScriptedLLM, call, ids_in, keyword_grader, last_tool_result, turn
+from .fakes import (
+    HashEmbedder,
+    ScriptedLLM,
+    call,
+    ids_in,
+    keyword_grader,
+    last_tool_result,
+    submit,
+    turn,
+)
 
 QUESTION = "Today we're comparing single-pass RAG with agentic RAG. Why might an agent help?"
 REWRITE = "The agent rewrites a vague question before retrieving."
 EXPECTED = "Agentic RAG can reformulate a vague question before retrieval."
+MULTI_HOP = "For multi-hop questions it pulls the second document."
 
 
 def script():
@@ -297,3 +307,211 @@ def test_a_real_point_survives_when_the_grader_note_is_in_the_same_claim(inputs)
     assert any(
         n.startswith("Left out an instruction aimed at the grader: Also,") for n in pack.notes
     )
+
+
+def test_the_agent_can_choose_the_web_inside_a_session(inputs):
+    """Course notes don't cover Ethernet; the agent switches to the web. The finding reaches the
+    Judge as labelled context with its link, never as a citation."""
+    from .fakes import FakeWeb
+
+    store = bridge.session_store(inputs, HashEmbedder(), None)
+    claim = "Metcalfe's law is named after the co-inventor of Ethernet."
+    llm = ScriptedLLM(
+        [
+            turn(call("search_course_materials", query="Metcalfe Ethernet inventor")),
+            lambda m: turn(call("grade_evidence", claim=claim, chunks=ids_in(last_tool_result(m)))),
+            turn(call("search_web", query="Metcalfe's law named after Ethernet")),
+            lambda m: turn(
+                call("grade_evidence", claim=claim, chunks=ids_in(last_tool_result(m), "W"))
+            ),
+            turn(
+                call(
+                    "submit_findings",
+                    route_reason="not in the course notes",
+                    on_topic=True,
+                    on_topic_reason="x",
+                    claims=[claim],
+                    summary="Supported by the web [W1].",
+                )
+            ),
+        ],
+        grader=keyword_grader({"Metcalfe": ("relevant", "supports")}),
+    )
+
+    def make(wrap):
+        return ResearchAgent(wrap(llm), store, {"weeks": []}, FakeWeb())
+
+    outcome = bridge.investigate(
+        request()
+        .model_copy(update={"turnIds": ["turn-001"]})
+        .model_copy(update={"question": claim}),
+        inputs,
+        agent=make,
+    )
+    bundle = outcome.progress.bundle
+    assert outcome.progress.research[0]["route"] == "course+web"
+    assert "Sources searched: course+web" in bundle.explanation
+    assert "web context (relevant, supports)" in bundle.explanation
+    assert "https://example.com/metcalfe" in bundle.explanation
+    assert all(":" in c.passageId and "example.com" not in c.passageId for c in bundle.citations)
+    assert not bundle.citations and bundle.status == "gap"  # no course passage backs it
+
+
+# --- Pullfrog review on PR #16 -----------------------------------------------------------------
+
+
+def test_the_investigation_question_reaches_the_model(inputs):
+    """Two different follow-ups about the same turn must each reach the agent's prompt."""
+    seen = []
+    for follow_up in (
+        "Is Alex right that agentic RAG helps multi-hop questions?",
+        "Does Alex explain why query rewriting matters?",
+    ):
+        llm = grader()
+        outcome = bridge.investigate(
+            request().model_copy(update={"question": follow_up}),
+            inputs,
+            agent=scripted_agent(inputs, llm),
+        )
+        prompt = llm.agent_calls[0]["messages"][1]["content"]
+        assert f"<investigation_question>\n{follow_up}\n</investigation_question>" in prompt
+        assert QUESTION in prompt  # the professor's question stays as the answer's context
+        assert outcome.progress.research[0]["focus"] == follow_up
+        assert follow_up in outcome.progress.bundle.explanation
+        seen.append(prompt)
+    assert seen[0] != seen[1]
+
+
+def test_a_grade_without_a_verbatim_quote_is_not_decisive(inputs):
+    """An invented quote is dropped, and with it the 'relevant, supports' verdict: the claim is
+    at most partially supported, and the bundle reports a gap even beside a valid citation."""
+    from classpartai.research.tools import grade_with_llm
+
+    class Inventing:
+        name = "test:inventing"
+
+        def complete(self, messages, tools=None, json_mode=False):
+            import json
+
+            from classpartai.llm import AssistantTurn
+
+            rows = [
+                {"id": "C1", "relevance": "relevant", "stance": "supports", "quote": "Made up."},
+                {"id": "C2", "relevance": "relevant", "stance": "contradicts", "quote": ""},
+            ]
+            return AssistantTurn(content=json.dumps({"grades": rows}))
+
+    from classpartai.research.tools import Evidence
+
+    items = [
+        Evidence("C1", "reading", "s", "Real text one."),
+        Evidence("C2", "reading", "s", "Two."),
+    ]
+    grades = grade_with_llm(Inventing(), "A claim.", items)
+    assert [(g.relevance, g.stance, g.quote) for g in grades] == [
+        ("partial", "neither", ""),
+        ("partial", "neither", ""),
+    ]
+    assert grades[0].reason.startswith("(no verbatim quote)")
+
+    # In a bundle: one claim with a valid course quote, one whose only quote was rejected.
+    llm = ScriptedLLM(
+        [
+            turn(call("search_course_materials", query="agentic RAG query rewriting vague")),
+            lambda m: turn(
+                call("grade_evidence", claim=REWRITE, chunks=ids_in(last_tool_result(m))),
+                call("grade_evidence", claim=EXPECTED, chunks=ids_in(last_tool_result(m))),
+                call("grade_evidence", claim=MULTI_HOP, chunks=["C1"]),
+            ),
+            turn(
+                call(
+                    "submit_findings",
+                    route_reason="x",
+                    answers_question="yes",
+                    on_topic=True,
+                    on_topic_reason="x",
+                    claims=[REWRITE, MULTI_HOP],
+                    expected_points=[EXPECTED],
+                    missed_points=[],
+                    summary="See the evidence.",
+                )
+            ),
+        ],
+        grader=lambda claim, passages: [
+            {
+                "id": pid,
+                "relevance": "relevant",
+                "stance": "supports",
+                "quote": next(
+                    (x for x in text.split(". ") if "vague question is reformulated" in x), ""
+                )
+                if "multi-hop" not in claim
+                else "An invented sentence.",
+            }
+            for pid, text in passages
+        ],
+    )
+    outcome = bridge.investigate(request(), inputs, agent=scripted_agent(inputs, llm))
+    bundle = outcome.progress.bundle
+    research = outcome.progress.research[0]
+    statuses = {c["claim"]: c["status"] for c in research["claims"]}
+    assert statuses[MULTI_HOP] == "partially_supported"
+    assert bundle.citations  # the valid one is still cited
+    assert any(MULTI_HOP in g for g in bundle.gaps)
+    assert bundle.status == "gap" and outcome.status == "needs_review"
+
+
+def test_answers_beyond_the_run_cap_are_reported_not_hidden(inputs):
+    """turn-002, turn-005 (both Alex) and turn-006 (Jordan): Jordan isn't crowded out by Alex's
+    second answer, and the turn left out is a gap, so the run needs review."""
+    pairs = bridge.answer_pairs(inputs.transcript, ["turn-002", "turn-005", "turn-006"])
+    chosen, skipped = bridge.choose_pairs(pairs)
+    assert [p.turn_ids for p in chosen] == [["turn-002"], ["turn-006"]]
+    assert [p.turn_ids for p in skipped] == [["turn-005"]]
+
+    def make(wrap):  # each run just submits: this test is about which answers run
+        return ResearchAgent(wrap(ScriptedLLM([turn(submit())])), store, {"weeks": []}, None)
+
+    store = bridge.session_store(inputs, HashEmbedder(), None)
+    outcome = bridge.investigate(request(("turn-002", "turn-005", "turn-006")), inputs, agent=make)
+    gaps = outcome.progress.bundle.gaps
+    assert gaps[0].startswith("Not researched (at most 2 answers per investigation): turn-005")
+    assert outcome.status == "needs_review"
+    assert [r["contribution_id"] for r in outcome.progress.research] == ["turn-002", "turn-006"]
+
+
+def test_tool_calls_are_charged_before_they_run(inputs):
+    """With the workflow's tool allowance already spent, Research stops before its first tool
+    runs: no search, no grading, and the shared counter isn't pushed past the cap."""
+    from classpartai.models import WORKFLOW_LIMITS, SharedBudget, WorkflowProgress
+
+    shared = WorkflowProgress(toolCalls=WORKFLOW_LIMITS["toolCalls"])
+    budget = SharedBudget(shared, deadline=float("inf"))
+    before = 0
+
+    def count_tools(p):  # what the coordinator passes as checkpoint
+        nonlocal before
+        if p.toolCalls > before:
+            budget.tool(p.toolCalls - before)
+            before = p.toolCalls
+
+    llm = grader()
+    outcome = bridge.investigate(
+        request(), inputs, budget, count_tools, agent=scripted_agent(inputs, llm)
+    )
+    assert outcome.stopReason == "shared_budget" and outcome.status == "needs_review"
+    assert len(llm.agent_calls) == 1 and not llm.grader_prompts  # nothing ran after the turn
+    assert shared.toolCalls == WORKFLOW_LIMITS["toolCalls"]
+
+
+def test_budget_exhaustion_during_grading_is_not_a_grading_failure(inputs):
+    """The grader's model call hits the shared cap: Research stops as out of budget instead of
+    telling the agent 'grade_evidence failed' and carrying on."""
+    from classpartai.models import WORKFLOW_LIMITS, SharedBudget, WorkflowProgress
+
+    shared = WorkflowProgress(modelCalls=WORKFLOW_LIMITS["modelCalls"] - 2)  # 2 agent turns left
+    budget = SharedBudget(shared, deadline=float("inf"))
+    llm = grader()
+    outcome = bridge.investigate(request(), inputs, budget, agent=scripted_agent(inputs, llm))
+    assert outcome.stopReason == "shared_budget"
+    assert not llm.grader_prompts and len(llm.agent_calls) == 2

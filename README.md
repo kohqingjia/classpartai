@@ -18,8 +18,10 @@ The assessment workflow was designed and first built by Le Yong in TypeScript (`
                          │
                    COORDINATOR AGENT ── picks its next action from tool results, not a fixed order
                     ├─ inspect_transcript_context   look at turns before searching
-                    ├─ retrieve_evidence ─────────► ② EVIDENCE AGENT (agentic RAG)
-                    │                                 search → reformulate → fetch → cite exact excerpts
+                    ├─ retrieve_evidence ─────────► ② RESEARCH AGENT (agentic RAG)
+                    │                                 pair question + answer → course notes or web →
+                    │                                 grade → rewrite → verdict: correct? answers it?
+                    │                                 reasoned? guess or misconception?
                     ├─ propose_rubric_assessment ─► ③ JUDGE: one finding per student × criterion,
                     │                                 or "insufficient evidence" (never counted as zero)
                     ├─ audit_assessment ──────────► ④ AUDITOR: deterministic checks + model review
@@ -37,7 +39,7 @@ Every tool call and role output is schema-checked; a refused call goes back to t
 |---|---|---|
 | Listener | transcribe → diarise → identify | — (the professor resolves uncertain speakers) |
 | Coordinator | budget, tool validation, refusal of unsafe actions | which tool next, when to retrieve more, revise, or finish |
-| Evidence agent | scoped search index, exact-excerpt citation check | queries, reformulation, which passages to fetch, sufficient vs gap |
+| Research agent (②) | session index, budgets, retry limits, verbatim-quote and exact-excerpt checks | course notes or web, queries and rewrites, which passages to grade, the answer's claims and expected points |
 | Judge / Auditor / Feedback | validation rules (ranges, attribution, privacy) | scores and justifications, audit issues, feedback wording |
 | Approval & delivery | everything: digest-matched approval, per-student delivery states | nothing; no model can approve or send |
 
@@ -57,7 +59,7 @@ Every tool call and role output is schema-checked; a refused call goes back to t
 | Part | What we measure |
 |---|---|
 | ① Listener | word error rate; speaker-attribution accuracy |
-| ② Evidence agent | single-pass retrieval vs agentic (reformulate/fetch): citation validity, sufficient-vs-gap accuracy |
+| ② Research agent | single-pass vs agentic RAG on 20 labelled IS469 Q&A pairs (`eval/research_eval.py`): routing, correctness, answers-the-question, context precision, cost |
 | ③ Judge | agreement with human scores on hand-scored sessions (Spearman, Cohen's kappa) |
 | ④ Auditor | judge alone vs judge + auditor: issues caught, injected instructions flagged |
 | Coordinator / harness | tool-call validity, refusals recovered from, budget use; unsafe actions blocked |
@@ -164,7 +166,8 @@ questions (J1) go to `answer_question(question, date)`.
 | ① Listener → ② | `answer_pairs(transcript)` pairs each student's answer with the professor question before it (uncertain speakers are skipped) |
 | ② → coordinator | `retrieve_evidence` (and the app's *Investigate* button) runs Research and returns the same `EvidenceBundle` as `evidence.py` (set `EVIDENCE_AGENT="course"` to use that agent instead): exact excerpts of the session's passages as citations, conflicts and gaps |
 | ② → ③ Judge | the bundle's `explanation` carries the answer assessment (correctness, answers the question, reasoning, kind of mistake, missed points); the full `EvidencePack` is saved with the evidence run |
-| Budget | every Research model and tool call counts against the workflow's shared budget; inside a session Research uses lighter budgets (`RESEARCH_BRIDGE_*`) and no web, so evidence stays within the session's authorised documents |
+| Course or web | Research still decides per answer: the session's course documents, or the web (with `TAVILY_API_KEY`; `RESEARCH_BRIDGE_WEB=false` turns it off). Only course passages become citations, which the validator requires; web findings reach the Judge as labelled context with their links |
+| Budget | every Research model and tool call counts against the workflow's shared budget; inside a session Research uses lighter budgets (`RESEARCH_BRIDGE_*`) |
 | IS469 files → sessions | `export-documents` turns the lecture files into session documents, so either evidence agent can search the real slides instead of the demo notes |
 
 ```bash

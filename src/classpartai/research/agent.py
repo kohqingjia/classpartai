@@ -20,9 +20,11 @@ from __future__ import annotations
 import json
 import re
 import time
+from collections.abc import Callable
 from dataclasses import asdict, dataclass, field
 
 from classpartai.llm import AssistantTurn, ChatModel
+from classpartai.models import BudgetExceeded
 from classpartai.research.store import VectorStore
 from classpartai.research.tools import (
     _INJECTION,
@@ -103,6 +105,7 @@ class EvidencePack:
     notes: list[str] = field(default_factory=list)
     usage: dict = field(default_factory=dict)
     trajectory: list[dict] = field(default_factory=list)
+    focus: str | None = None  # the investigator's question, when one asked for this research
 
     def to_dict(self) -> dict:
         return asdict(self)
@@ -113,6 +116,8 @@ class EvidencePack:
     def brief(self) -> str:
         """Compact text for the Judge's prompt: verdicts, verbatim quotes and their sources."""
         lines = []
+        if self.focus:
+            lines.append(f"Investigation question: {self.focus}")
         if self.question:
             lines.append(f"Question: {self.question}")
         lines.append(f"Answer: {self.text}")
@@ -171,9 +176,13 @@ class ResearchAgent:
         max_course_searches: int = 6,
         max_web_searches: int = 3,
         max_grades: int = 8,
+        on_tool: Callable[[str], None] | None = None,
     ):
         self.llm, self.store, self.schedule, self.web = llm, store, schedule, web
         self.max_steps = max_steps
+        # Called before every tool call the model makes; it may raise (e.g. BudgetExceeded) to
+        # stop the run before the tool does anything.
+        self.on_tool = on_tool
         self.budgets = {
             "max_course_searches": max_course_searches,
             "max_web_searches": max_web_searches,
@@ -209,6 +218,7 @@ class ResearchAgent:
             contribution_id=contribution.get("id"),
             speaker=contribution.get("student"),
             timestamp=contribution.get("timestamp"),
+            focus=contribution.get("focus"),
         )
 
     def answer_question(self, question: str, date: str, contribution_id: str | None = None):
@@ -225,6 +235,7 @@ class ResearchAgent:
         contribution_id: str | None = None,
         speaker: str | None = None,
         timestamp: str | None = None,
+        focus: str | None = None,
     ) -> EvidencePack:
         """Research a student's answer to `question`, or an unprompted contribution when there
         is no question."""
@@ -256,6 +267,14 @@ class ResearchAgent:
                 f"An unprompted seminar contribution{who}{at} (no professor's question):\n"
                 f"<contribution>\n{text}\n</contribution>"
             )
+        if focus and focus.strip() != (text or "").strip():
+            body += (
+                "\n\nThe investigator (the coordinator or the professor) asks specifically:\n"
+                f"<investigation_question>\n{focus}\n</investigation_question>\n"
+                "Make sure your findings answer it: search and grade evidence for what it asks "
+                "(as an expected point, or the student's claim it is about), and address it in "
+                "your summary."
+            )
         messages = [
             {"role": "system", "content": system},
             {"role": "user", "content": f"Session date: {date}\n\n{body}"},
@@ -273,6 +292,8 @@ class ResearchAgent:
                 nudged = True
                 continue
             for call in turn.tool_calls:
+                if self.on_tool is not None:
+                    self.on_tool(call.name)  # charged before the tool runs; may stop the run
                 if call.name == "submit_findings":
                     findings = _parse(call)
                     # Verify before finishing (Topic 7): unfinished work goes back once, while
@@ -316,12 +337,24 @@ class ResearchAgent:
 
         screened: list[str] = []
         if submitted:
-            kept = []
+            kept, invented = [], []
             for claim in submitted.get("claims") or []:
                 clean, note = _screen(str(claim))
                 screened += [note] if note else []
-                kept += [clean] if clean else []
+                if clean and kind != "judge_question" and _ungrounded(clean, text, question):
+                    invented.append(clean)  # accepted only because the send-back was used up
+                elif clean:
+                    kept.append(clean)
+            for claim in invented:
+                screened.append(f"Left out a claim the student did not make: {claim}")
+            if invented and not kept:
+                # The student did say something checkable: check their own words instead.
+                own, _ = _screen(text.strip()[:400])
+                if own:
+                    kept.append(own)
+                    screened.append("Checked the student's own words instead.")
             submitted = {**submitted, "claims": kept}
+            self._grade_leftovers(tools, kept, turns)
         assessment = self._assess(llm, tools, question, text, submitted or {}, turns)
         usage = {
             "turns": turns,
@@ -331,7 +364,7 @@ class ResearchAgent:
             "llm_calls": llm.calls,
             "seconds": round(time.perf_counter() - started, 2),
         }
-        return self._pack(
+        pack = self._pack(
             text,
             date,
             kind,
@@ -344,6 +377,40 @@ class ResearchAgent:
             assessment,
             screened,
         )
+        pack.focus = focus
+        return pack
+
+    def _grade_leftovers(self, tools: ResearchTools, claims: list[str], step: int) -> int:
+        """Verify before finishing: a claim with no useful grade yet (never graded, or only
+        irrelevant passages) is graded once by the harness against passages its searches already
+        returned but it never graded for that claim (the closest five by wording, e.g. web results
+        it fetched and then ran out of turns for), while the grading budget lasts. Returns how
+        many grading calls it made."""
+        made = 0
+        for claim in claims:
+            graded = tools.grades.get(norm_claim(claim), {})
+            if tools.grade_calls >= tools.max_grades or any(
+                g.relevance != "irrelevant" for g in graded.values()
+            ):
+                continue
+            words = _content_words(claim)
+            ranked = sorted(
+                (
+                    e
+                    for e in tools.evidence.values()
+                    if not e.flagged_injection and e.id not in graded
+                ),
+                key=lambda e: -len(words & _content_words(e.text)),
+            )
+            ids = [e.id for e in ranked if words & _content_words(e.text)][:5]
+            if not ids:
+                continue
+            if self.on_tool is not None:
+                self.on_tool("grade_evidence")
+            tools.run("grade_evidence", {"claim": claim, "chunks": ids}, step + made + 1)
+            tools.trajectory[-1].tool = "grade_evidence (harness)"
+            made += 1
+        return made
 
     @staticmethod
     def _assess(llm, tools, question, text, submitted, step) -> dict:
@@ -361,6 +428,8 @@ class ResearchAgent:
             result = assess_answer(
                 llm, question, text, points if question else [], tools.findings(claims)
             )
+        except BudgetExceeded:
+            raise  # the workflow's budget is spent: not an assessment failure
         except Exception as exc:  # fall back to the agent's own missed_points
             tools.trajectory.append(
                 Step(step, "assess_answer", {"points": points}, False, f"failed: {exc}")

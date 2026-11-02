@@ -13,6 +13,7 @@ import time
 from dataclasses import asdict, dataclass
 
 from classpartai.llm import ChatModel, extract_json
+from classpartai.models import BudgetExceeded
 from classpartai.research.materials import lesson_for_date, week_materials
 from classpartai.research.store import VectorStore
 from classpartai.research.web import WebSearch
@@ -124,10 +125,16 @@ def grade_with_llm(llm: ChatModel, claim: str, items: list[Evidence]) -> list[Gr
         if relevance == "irrelevant":
             stance = "neither"
         quote = str(row.get("quote") or "").strip()
+        reason = str(row.get("reason") or "")
         # Keep a quote only if it is really in the passage: the Auditor's citation check needs it.
         if quote and " ".join(quote.split()) not in " ".join(item.text.split()):
             quote = ""
-        grades.append(Grade(item.id, relevance, stance, quote, str(row.get("reason") or "")))
+        if relevance != "irrelevant" and not quote:
+            # No verbatim quote, no decisive verdict: what can't be shown in the passage is at
+            # most partial evidence, and takes no side.
+            relevance, stance = "partial", "neither"
+            reason = f"(no verbatim quote) {reason}".strip()
+        grades.append(Grade(item.id, relevance, stance, quote, reason))
     return grades
 
 
@@ -381,6 +388,8 @@ class ResearchTools:
         else:
             try:
                 out, ok, summary = handler(args)
+            except BudgetExceeded:
+                raise  # the workflow's budget is spent: stop, don't report it as a tool failure
             except Exception as exc:  # report failures to the model so it can recover
                 out = f"ERROR: {name} failed: {exc}. Try another approach or submit what you have."
                 ok, summary = False, str(exc)

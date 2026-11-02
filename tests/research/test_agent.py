@@ -131,7 +131,8 @@ def test_claim_with_no_evidence_is_unverified(store, schedule):
             turn(submit([claim, "A claim never searched."], summary="The slides say so [C1].")),
         ]
     )
-    pack = agent(llm, store, schedule).run("...", date="2026-08-25")
+    said = f"{claim} A claim never searched."
+    pack = agent(llm, store, schedule).run(said, date="2026-08-25")
     assert [c["status"] for c in pack.claims] == ["unverified", "unverified"]
     assert pack.claims[0]["evidence"] == []  # irrelevant chunks are not passed to the Judge
     # citing a chunk that was graded irrelevant is caught
@@ -311,7 +312,7 @@ def test_unfinished_submission_is_sent_back_once_to_finish(store, schedule):
             }
         ),
     )
-    pack = agent(llm, store, schedule).run("...", date="2026-09-01")
+    pack = agent(llm, store, schedule).run(f"{frozen} {matrices}", date="2026-09-01")
     feedback = last_tool_result(llm.agent_calls[3]["messages"])
     assert feedback.startswith("NOT SUBMITTED YET")
     assert matrices in feedback and "C4" in feedback
@@ -572,3 +573,31 @@ def test_mistake_is_dropped_when_the_answer_is_correct(store, schedule):
     pack = agent(llm, store, schedule).run("Multi-homing weakens tipping.", date="2026-09-01")
     assert pack.correctness == "correct" and pack.mistake is None
     assert pack.reasoning == "asserted"
+
+
+def test_invented_claim_is_replaced_by_the_students_words_and_web_results_get_graded(
+    store, schedule
+):
+    """The Metcalfe run on Ollama: the agent swapped in a claim the student never made, kept it
+    after being sent back, and never graded the web results it fetched. The harness drops the
+    invented claim, checks the student's own words, and grades the passages already retrieved."""
+    said = "Metcalfe's law is named after Bob Metcalfe, who co-invented Ethernet."
+    invented = "Metcalfe's law says network value grows with the square of its users."
+    web = FakeWeb()
+    llm = ScriptedLLM(
+        [
+            turn(call("search_course_materials", query="Metcalfe's law origin")),
+            turn(call("search_web", query="Metcalfe's law origin")),
+            turn(submit([invented], route_reason="outside the course")),
+            turn(submit([invented], route_reason="outside the course")),  # accepted as it is
+        ],
+        grader=keyword_grader({"Ethernet": ("relevant", "supports")}),
+    )
+    pack = agent(llm, store, schedule, web).run(
+        said, date="2026-09-01", question="Where does the name Metcalfe's law come from?"
+    )
+    assert [(c["claim"], c["status"]) for c in pack.claims] == [(said, "supported")]
+    assert pack.claims[0]["evidence"][0]["url"] == "https://example.com/metcalfe"
+    assert pack.correctness == "correct"
+    assert any(n == f"Left out a claim the student did not make: {invented}" for n in pack.notes)
+    assert "grade_evidence (harness)" in [s["tool"] for s in pack.trajectory]

@@ -11,12 +11,13 @@ Three links:
 - ``investigate(request, inputs, budget, checkpoint)``: a drop-in for
   ``evidence.investigate``. It runs the Research agent on the session's own documents and hands
   back the same ``AgentOutcome`` and ``EvidenceBundle``, so records, validation, the Judge and the
-  UI work unchanged. The answer assessment (correctness, answers the question, reasoning, kind of
-  mistake, missed points) goes in the bundle's explanation for the Judge and, in full, in the
-  saved run's progress.
+  UI work unchanged. The agent still chooses course documents or the web per answer; only course
+  passages become citations, and web findings are passed on as labelled context. The answer
+  assessment (correctness, answers the question, reasoning, kind of mistake, missed points) goes
+  in the bundle's explanation for the Judge and, in full, in the saved run's progress.
 
-The coordinator and the app use it when ``EVIDENCE_AGENT=research``; the default stays the course
-evidence agent in evidence.py.
+The coordinator and the app use it by default (``EVIDENCE_AGENT=research``);
+``EVIDENCE_AGENT=course`` switches back to the course evidence agent in evidence.py.
 """
 
 from __future__ import annotations
@@ -344,6 +345,8 @@ def explanation_for(packs: list[EvidencePack], students: list[str]) -> str:
         head = f"Research on {student}'s answer"
         if pack.question:
             head += f' to the professor\'s question "{pack.question}"'
+        if pack.focus:
+            head += f', for the investigation question "{pack.focus}"'
         fields = [
             f"correctness: {pack.correctness or 'no claim'}",
             f"answers the question: {pack.answers_question or 'n/a'}",
@@ -353,8 +356,16 @@ def explanation_for(packs: list[EvidencePack], students: list[str]) -> str:
             fields.append(f"mistake: {pack.mistake['type']} ({pack.mistake.get('reason', '')})")
         if pack.on_topic is False:
             fields.append(f"off topic ({pack.on_topic_reason})")
-        lines = [f"{head}: " + "; ".join(fields) + "."]
-        lines += [f"- claim ({c['status']}): {c['claim']}" for c in pack.claims]
+        lines = [f"{head}: " + "; ".join(fields) + f". Sources searched: {pack.route}."]
+        for c in pack.claims:
+            lines.append(f"- claim ({c['status']}): {c['claim']}")
+            # Web evidence can't be a citation (citations are session passages only), so the
+            # Judge sees it here, labelled, with its link.
+            lines += [
+                f'  web context ({e["relevance"]}, {e["stance"]}): "{e["quote"]}" ({e["url"]})'
+                for e in c["evidence"]
+                if e.get("source_type") == "web" and e.get("quote")
+            ]
         if pack.missed_points:
             lines.append("Missed points: " + "; ".join(pack.missed_points))
         if pack.summary:
@@ -362,8 +373,9 @@ def explanation_for(packs: list[EvidencePack], students: list[str]) -> str:
         lines += [f"Note: {n}" for n in pack.notes]
         parts.append("\n".join(lines))
     parts.append(
-        "Signals for the Judge, not scores; a reasonable guess is not a misconception. "
-        "Support interpretations remain for professor review."
+        "Signals for the Judge, not scores; a reasonable guess is not a misconception. Web "
+        "context is not course evidence and cannot be cited. Support interpretations remain for "
+        "professor review."
     )
     return "\n\n".join(parts)
 
@@ -374,22 +386,36 @@ def bundle_for(
     request: Investigation,
     inputs: AssessmentInputs,
     stopped: str | None = None,
+    skipped: list[AnswerPair] = (),
 ) -> EvidenceBundle:
     cited = citations_for(packs, inputs)
     citations = [c for c, _ in cited]
     contradicted = {claim for c, claim in cited if c.relationship == "conflicts"}
+    backed = {claim for c, claim in cited if c.relationship in ("supports", "conflicts")}
     conflicts = [
         f"The course contradicts: {c['claim']}"
         for p in packs
         for c in p.claims
         if c["status"] in ("contradicted", "mixed") and c["claim"] in contradicted
     ][:8]
+    # Turns asked about but not researched come first, so the cap can't hide them.
     gaps = [
-        f"No course passage found for: {c['claim']}"
-        for p in packs
-        for c in p.claims
-        if c["status"] == "unverified"
+        f"Not researched (at most {MAX_RUNS} answers per investigation): "
+        f"{', '.join(p.turn_ids)} ({p.student_id})"
+        for p in skipped
     ]
+    # Every claim without a quoted course passage for or against it stays an open question,
+    # whatever verdict the pack gives it (partial, web-only or unverified evidence).
+    for pack in packs:
+        for c in pack.claims:
+            if c["claim"] in backed:
+                continue
+            if c["status"] == "unverified":
+                gaps.append(f"No course passage found for: {c['claim']}")
+            elif any(e.get("source_type") == "web" for e in c["evidence"]):
+                gaps.append(f"Only web context, no course passage, for: {c['claim']}")
+            else:
+                gaps.append(f"No quoted course passage settles ({c['status']}): {c['claim']}")
     if stopped:
         gaps.append(f"Unresolved investigation: {stopped}")
     if not citations and not gaps:
@@ -410,6 +436,16 @@ def bundle_for(
         conflicts=conflicts,
         gaps=gaps[:8],
     )
+
+
+def choose_pairs(pairs: list[AnswerPair]) -> tuple[list[AnswerPair], list[AnswerPair]]:
+    """(at most MAX_RUNS answers to research, the rest). Each student's first answer comes
+    before anyone's second, so one student can't use up both runs."""
+    seen: set[str] = set()
+    firsts = [p for p in pairs if not (p.student_id in seen or seen.add(p.student_id))]
+    ranked = firsts + [p for p in pairs if all(p is not f for f in firsts)]
+    chosen = {id(p) for p in ranked[:MAX_RUNS]}
+    return [p for p in pairs if id(p) in chosen], [p for p in pairs if id(p) not in chosen]
 
 
 # --- The drop-in for evidence.investigate ------------------------------------------------------
@@ -440,14 +476,18 @@ AgentFactory = Callable[[ChatModel], ResearchAgent]
 
 
 def default_agent_factory(light: bool = True) -> AgentFactory:
-    """Research on the configured models, the course schedule, and no web: a session's evidence
-    stays inside its authorised documents, as the workflow's guardrails require. ``light`` uses
-    the smaller in-workflow budgets (RESEARCH_BRIDGE_*); False uses Research's own (RESEARCH_*)."""
+    """Research on the configured models, the course schedule and, when RESEARCH_BRIDGE_WEB is on
+    and TAVILY_API_KEY is set, the web: the agent decides per answer whether the session's course
+    documents or the web fit. Citations stay course-only (the workflow's validator only accepts
+    session passages); web findings reach the Judge as labelled context. ``light`` uses the
+    smaller in-workflow budgets (RESEARCH_BRIDGE_*); False uses Research's own (RESEARCH_*)."""
     from classpartai import config
     from classpartai.llm import OpenAIChat, OpenAIEmbedder
     from classpartai.research.materials import load_schedule
+    from classpartai.research.web import default_web_search
 
     schedule = load_schedule(config.COURSE_DIR)
+    web = default_web_search() if config.RESEARCH_BRIDGE_WEB else None
     embedder = OpenAIEmbedder()
     chat = OpenAIChat()
     stores: dict[int, VectorStore] = {}
@@ -465,14 +505,18 @@ def default_agent_factory(light: bool = True) -> AgentFactory:
                 wrap(chat),
                 stores[key],
                 schedule,
-                None,
+                web,
                 max_steps=config.RESEARCH_BRIDGE_MAX_STEPS if light else config.RESEARCH_MAX_STEPS,
                 max_course_searches=(
                     config.RESEARCH_BRIDGE_MAX_COURSE_SEARCHES
                     if light
                     else config.RESEARCH_MAX_COURSE_SEARCHES
                 ),
-                max_web_searches=0,
+                max_web_searches=(
+                    config.RESEARCH_BRIDGE_MAX_WEB_SEARCHES
+                    if light
+                    else config.RESEARCH_MAX_WEB_SEARCHES
+                ),
                 max_grades=(
                     config.RESEARCH_BRIDGE_MAX_GRADES if light else config.RESEARCH_MAX_GRADES
                 ),
@@ -512,21 +556,31 @@ def investigate(
         c not in criteria for c in request.criterionIds
     ):
         raise ValueError("Unknown transcript turn or rubric criterion")
-    pairs = answer_pairs(inputs.transcript, request.turnIds)[:MAX_RUNS]
+    pairs, skipped = choose_pairs(answer_pairs(inputs.transcript, request.turnIds))
     packs, students, stopped = [], [], None
+
+    def charge(tool: str) -> None:
+        # Counted before the tool runs: the coordinator's checkpoint charges the shared budget
+        # and raises BudgetExceeded when it is spent, which stops Research there.
+        progress.toolCalls += 1
+        checkpoint(progress)
+
     try:
         for pair in pairs or [None]:
             research = agent(lambda model: BudgetedChat(model, budget, progress))
+            research.on_tool = charge
             if pair is None:  # no student answer among the turns: research the question itself
                 pack = research.answer_question(request.question, day)
                 student = "the investigation"
             else:
-                pack = research.research_contribution(pair.contribution(), day)
+                # The investigator's question goes with the answer: it is what was asked for,
+                # and the professor's question stays as the answer's context.
+                contribution = {**pair.contribution(), "focus": request.question}
+                pack = research.research_contribution(contribution, day)
                 student = pair.student_id
             packs.append(pack)
             students.append(student)
             progress.actions += _actions(pack, len(progress.actions))
-            progress.toolCalls += len(pack.trajectory)
             progress.research.append(pack.to_dict())
             checkpoint(progress)
     except BudgetExceeded:
@@ -536,12 +590,16 @@ def investigate(
             r"Error code: (\d{3})", str(error)
         )
         stopped = f"provider_http_{status[1]}" if status else "provider_failure"
-    progress.bundle = bundle_for(packs, students, request, inputs, stopped)
+    progress.bundle = bundle_for(packs, students, request, inputs, stopped, skipped)
     progress.returnedCharacters = sum(len(c.excerpt) for c in progress.bundle.citations)
     if stopped == "shared_budget":
         return AgentOutcome("needs_review", "shared_budget", progress)
     if stopped:
         return AgentOutcome("failed", stopped, progress)
-    if progress.bundle.status == "sufficient" and not any(p.needs_review for p in packs):
+    if (
+        progress.bundle.status == "sufficient"
+        and not skipped
+        and not any(p.needs_review for p in packs)
+    ):
         return AgentOutcome("completed", "research_sufficient", progress)
     return AgentOutcome("needs_review", "research_gap_or_review", progress)
