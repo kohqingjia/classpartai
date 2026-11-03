@@ -10,7 +10,8 @@ from __future__ import annotations
 import json
 import re
 import time
-from dataclasses import asdict, dataclass
+from collections.abc import Callable
+from dataclasses import asdict, dataclass, field
 
 from classpartai.llm import ChatModel, extract_json
 from classpartai.models import BudgetExceeded
@@ -68,6 +69,8 @@ class Step:
     ok: bool
     result: str = ""  # short summary of what came back
     seconds: float = 0.0
+    # Course chunks a search returned, best first: {"chunk_id", "score"} (for the UI's replay)
+    hits: list[dict] = field(default_factory=list)
 
 
 def norm_claim(claim: str) -> str:
@@ -236,6 +239,8 @@ class ResearchTools:
         self.max_grades = max_grades
         self.evidence: dict[str, Evidence] = {}
         self._key_to_id: dict[str, str] = {}
+        self.on_step: Callable[[Step], None] | None = None  # after each tool, for live views
+        self._hits: list[dict] = []
         self.grades: dict[str, dict[str, Grade]] = {}  # claim -> evidence id -> latest grade
         self.claim_text: dict[str, str] = {}  # normalised claim -> claim as first written
         self.attempts: dict[tuple[str, str], int] = {}  # (claim, "course"/"web") -> grade rounds
@@ -394,7 +399,10 @@ class ResearchTools:
                 out = f"ERROR: {name} failed: {exc}. Try another approach or submit what you have."
                 ok, summary = False, str(exc)
         seconds = round(time.perf_counter() - started, 3)
-        self.trajectory.append(Step(step, name, args, ok, summary, seconds))
+        hits, self._hits = self._hits, []
+        self.trajectory.append(Step(step, name, args, ok, summary, seconds, hits))
+        if self.on_step is not None:
+            self.on_step(self.trajectory[-1])
         return out
 
     def _lesson(self, args: dict) -> tuple[str, bool, str]:
@@ -470,6 +478,7 @@ class ResearchTools:
             hits = self.store.search(str(args["query"]), k=self._k(args))
             widened = f"Nothing is filed under week {week}, so this searched all weeks. "
             week = None
+        self._hits = [{"chunk_id": h.chunk.id, "score": round(h.score, 3)} for h in hits]
         items = [
             self._register(
                 f"chunk:{h.chunk.id}",

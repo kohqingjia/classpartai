@@ -38,6 +38,7 @@ from classpartai.participation.roles import (
 )
 from classpartai.participation.schema import Proposal
 from classpartai.participation.validation import Unprocessable, audit_draft
+from classpartai.retrieval import searches_of
 
 
 class Strict(BaseModel):
@@ -263,11 +264,15 @@ def coordinate(
                             turnIds=args.turnIds,
                             criterionIds=args.criterionIds,
                         )
-                        before = 0
+                        before, searches_seen = 0, 0
 
                         def count_tools(p):
                             # Evidence-agent tool calls count against the shared budget too.
-                            nonlocal before
+                            nonlocal before, searches_seen
+                            searches = searches_of(p)
+                            for search in searches[searches_seen:]:
+                                on_event("retrieval", search)
+                            searches_seen = len(searches)
                             if p.toolCalls > before:
                                 budget.tool(p.toolCalls - before)
                                 before = p.toolCalls
