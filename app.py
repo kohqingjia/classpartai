@@ -40,7 +40,12 @@ from classpartai.participation.delivery import (
 )
 from classpartai.participation.records import Records
 from classpartai.participation.schema import Proposal
-from classpartai.participation.validation import Unprocessable, observed_count, totals
+from classpartai.participation.validation import (
+    Unprocessable,
+    audit_draft,
+    observed_count,
+    totals,
+)
 from classpartai.retrieval import examined_of, searches_of
 from classpartai.ui import STAGES, TOOL_STAGE, board_html, flow_html, vault_html
 
@@ -923,22 +928,55 @@ else:
             note = approval["acknowledgement"] or "no issues"
             st.success(f"Version {latest.version} approved by {approval['approver']}: {note}")
         else:
+            # The same rule records.approve_draft enforces, shown before the click.
+            open_issues = [
+                i
+                for i in [*audit_draft(latest.content, inputs), *latest.content.audit.issues]
+                if i.disposition == "open"
+            ]
+            blocking = [i for i in open_issues if i.severity == "blocking"]
+            if blocking:
+                st.error(
+                    f"Version {latest.version} can't be approved yet: "
+                    + "; ".join(i.detail for i in blocking[:3])
+                    + ". Regenerate, or edit the draft under the summary."
+                )
+            elif open_issues:
+                st.warning(
+                    f"{len(open_issues)} issue(s) are still open (see 'Audit and uncertainty' "
+                    "above). You can approve anyway with a short reason."
+                )
             ack = st.checkbox(
                 f"I reviewed version {latest.version}, its evidence, gaps and unresolved issues.",
                 key=f"ack-{latest.id}",
             )
             col_why, col_who = st.columns([3, 1])
             reason = col_why.text_input(
-                "Acknowledgement / override reason (needed if issues remain)",
+                "Why you're approving with open issues (at least 10 characters)"
+                if open_issues
+                else "Note (optional)",
                 key=f"why-{latest.id}",
+                placeholder="e.g. Checked the auditor's flags; scores are fair for this seminar",
             )
             approver = col_who.text_input("Approving as", "Prof (demo)")
-            if st.button(f"Approve version {latest.version}", type="primary"):
+            short = bool(open_issues) and len(reason.strip()) < 10
+            if st.button(
+                f"Approve version {latest.version}",
+                type="primary",
+                disabled=bool(blocking) or not ack or short,
+            ):
                 try:
                     records.approve_draft(session_id, latest.id, ack, reason, approver)
                     st.rerun()
                 except Unprocessable as exc:
                     st.error(str(exc))
+            if not blocking and (not ack or short):
+                missing = []
+                if not ack:
+                    missing.append("tick the review box")
+                if short:
+                    missing.append(f"write a reason of 10+ characters (now {len(reason.strip())})")
+                st.caption("To approve: " + " and ".join(missing) + ".")
             st.caption("Approval is separate from sending. An auditor pass is not approval.")
 
         if st.button(
