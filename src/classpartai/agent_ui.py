@@ -10,7 +10,6 @@ from classpartai.config import DATA_DIR
 from classpartai.models import WORKFLOW_LIMITS
 from classpartai.participation.coordinator import COORDINATOR_TOOLS
 from classpartai.participation.delivery import DeliverySettings, feedback_email
-from classpartai.participation.validation import observed_count, totals
 from classpartai.retrieval import examined_of, searches_of
 from classpartai.ui import STAGES, flow_html, vault_html
 from classpartai.voices import enrolments, match_rows
@@ -63,9 +62,9 @@ def header(name, status):
     st.caption(TOPICS[name])
     title, state = st.columns([4, 1])
     title.subheader(name)
-    state.badge(status.replace("_", " "), color="blue")
+    label = {"configuration_blocked": "setup needed"}.get(status, status.replace("_", " "))
+    state.badge(label, color="blue")
     st.write(DESCRIPTIONS[name])
-    st.divider()
 
 
 def run_progress(run):
@@ -136,6 +135,8 @@ def role_trajectory(calls):
             st.caption("Exact instructions and input history")
             st.text(call["instructions"])
             st.json(call["history"], expanded=False)
+            st.caption("Allowed response schema")
+            st.json(call.get("schema", {}), expanded=False)
             st.caption("Structured calls returned")
             st.json(call.get("calls", []), expanded=False)
             if "output" in call:
@@ -171,47 +172,21 @@ def overview(records, session_id, inputs, live=None):
     cols[1].metric("Reviewed turns", len(inputs.transcript.turns))
     cols[2].metric("Evidence checks", len(records.evidence_runs(session_id)))
     cols[3].metric("Draft version", latest.version if latest else "—")
-    st.divider()
-    st.markdown("#### Run activity")
-    if live:
-        if live.get("error"):
+    with st.container(border=True):
+        st.caption("CURRENT ACTIVITY")
+        if live and live.get("error"):
             st.error(live["error"])
-        events = list(live.get("events", []))
-        if events:
-            kind, detail = events[-1]
-            detail = detail or {}
-            label = {
-                "thinking": "Coordinator is choosing the next action",
-                "substep": "Research is using a tool",
-                "retrieval": "Research retrieved passages",
-                "action": "Coordinator completed an action",
-                "done": "Run finished",
-            }.get(kind, kind)
-            st.write(label)
-            if detail:
-                st.json(detail, expanded=False)
-    if runs:
-        st.badge(runs[0]["status"].replace("_", " "), color="blue")
-        st.caption(runs[0]["stop_reason"] or "Running in the background; you can browse any tab.")
-        budget_gauges(run_progress(runs[0]))
-    else:
-        empty("Ready when you are. Start an assessment to see the coordinator's live progress.")
+        elif runs:
+            st.write(run_label(runs[0]))
+        else:
+            st.write("Ready to assess this discussion.")
+            st.caption("The agents prepare a draft. You review and approve it.")
+        if live and live.get("events"):
+            kind, _ = list(live["events"])[-1]
+            st.caption(EVENT_LABELS.get(kind, "Assessment in progress"))
     if latest:
-        st.markdown("#### Student coverage")
-        st.dataframe(
-            [
-                {
-                    "Student": s.displayName,
-                    "Observed turns": observed_count(inputs, s.id),
-                    "Criteria assessed": totals(latest.content, inputs, s.id)["assessedCriteria"],
-                    "Feedback": "Drafted"
-                    if any(f.studentId == s.id for f in latest.content.feedback)
-                    else "Pending",
-                }
-                for s in inputs.roster
-            ],
-            hide_index=True,
-            width="stretch",
+        st.caption(
+            f"Version {latest.version} is ready to inspect. Continue to Approve after review."
         )
 
 
@@ -469,27 +444,7 @@ def role_view(records, session_id, inputs, name):
         empty("No draft yet. Generate an assessment or create a professor draft from Overview.")
     elif name == "Judge":
         findings = latest.content.findings
-        matrix = []
-        for student in inputs.roster:
-            row = {"Student": student.displayName}
-            for criterion in inputs.rubric.criteria:
-                f = next(
-                    (
-                        f
-                        for f in findings
-                        if f.studentId == student.id and f.criterionId == criterion.id
-                    ),
-                    None,
-                )
-                row[criterion.title] = (
-                    f"{f.score:g} / {criterion.maxScore:g}"
-                    if f and f.status == "scored"
-                    else "Insufficient evidence"
-                    if f
-                    else "Not assessed"
-                )
-            matrix.append(row)
-        st.dataframe(matrix, hide_index=True, width="stretch")
+        st.dataframe(score_matrix(inputs, findings), hide_index=True, width="stretch")
         for s in inputs.roster:
             with st.expander(s.displayName):
                 for f in findings:
@@ -628,7 +583,7 @@ def delivery_view(records, session_id, inputs):
     )
 
 
-def render_agent(name, records, session_id, inputs, live=None):
+def inspect_agent(name, records, session_id, inputs, live=None):
     if name == "Listener":
         listener_view(records, session_id, inputs)
     elif name == "Coordinator":
@@ -644,3 +599,281 @@ def render_agent(name, records, session_id, inputs, live=None):
         role_view(records, session_id, inputs, name)
     elif name == "Delivery":
         delivery_view(records, session_id, inputs)
+
+
+EVENT_LABELS = {
+    "thinking": "Coordinator is choosing the next action",
+    "substep": "Research is checking a source",
+    "retrieval": "Research retrieved course passages",
+    "action": "Coordinator completed an action",
+    "done": "Run finished",
+}
+HANDOFFS = {
+    "Listener": "Recording → reviewed transcript → Coordinator",
+    "Coordinator": "Reviewed inputs → tool decisions → assessment draft",
+    "Evidence / Research": "Class contributions + course notes → cited evidence → Judge",
+    "Judge": "Transcript + evidence + rubric → provisional findings → Auditor",
+    "Auditor": "Draft + evidence → review issues → professor",
+    "Feedback writer": "Findings + learning goals → personal feedback → professor",
+    "Delivery": "Approved version + roster recipients → individual emails",
+}
+
+
+def run_label(run):
+    if run["stop_reason"] == "model_not_configured":
+        return "Connect an AI model to generate an assessment."
+    if run["status"] == "running":
+        return "Assessment in progress. You can explore each agent as it works."
+    if run["stop_reason"] == "ready_for_professor_review":
+        return "The assessment is ready for your review."
+    return "Run " + run["status"].replace("_", " ") + ". See inspection details for the reason."
+
+
+def result_card(title, text, note=None):
+    with st.container(border=True):
+        st.caption(title.upper())
+        st.write(text)
+        if note:
+            st.caption(note)
+
+
+def score_matrix(inputs, findings):
+    rows = []
+    for student in inputs.roster:
+        row = {"Student": student.displayName}
+        for criterion in inputs.rubric.criteria:
+            finding = next(
+                (
+                    f
+                    for f in findings
+                    if f.studentId == student.id and f.criterionId == criterion.id
+                ),
+                None,
+            )
+            row[criterion.title] = (
+                f"{finding.score:g} / {criterion.maxScore:g}"
+                if finding and finding.status == "scored"
+                else "Insufficient evidence"
+                if finding
+                else "Not assessed"
+            )
+        rows.append(row)
+    return rows
+
+
+def delivery_summary(records, session_id, inputs):
+    latest = records.latest_draft(session_id)
+    approval = records.active_approval(session_id)
+    settings = DeliverySettings.from_env()
+    cols = st.columns(3)
+    cols[0].metric("Version", latest.version if latest else "—")
+    cols[1].metric("Approval", "Approved" if approval else "Pending")
+    cols[2].metric("Mode", "Test" if settings.test_mode else "Live")
+    if latest:
+        result_card(
+            "Exact-version approval",
+            "This version is approved."
+            if approval
+            else "Professor approval is required before sending.",
+            "Editing content or recipients invalidates approval.",
+        )
+        with st.expander("Preview individual emails"):
+            student = st.selectbox(
+                "Student",
+                inputs.roster,
+                format_func=lambda s: s.displayName,
+                key=f"email-preview-{session_id}",
+            )
+            if any(f.studentId == student.id for f in latest.content.feedback):
+                st.text(feedback_email(records, session_id, student.id, latest))
+            else:
+                st.caption("Feedback has not been drafted for this student.")
+    else:
+        result_card("Waiting for a draft", "Generate an assessment from Overview to begin review.")
+    deliveries = records.deliveries(session_id)
+    if deliveries:
+        names = {s.id: s.displayName for s in inputs.roster}
+        st.dataframe(
+            [
+                {"Student": names.get(d["student_id"], d["student_id"]), "State": d["state"]}
+                for d in deliveries
+            ],
+            hide_index=True,
+            width="stretch",
+        )
+    if settings.test_mode:
+        st.caption(
+            "Test emails go to " + (settings.test_recipient or "a test inbox (not configured yet)")
+        )
+    st.caption("Ambiguous sends are never retried automatically.")
+
+
+def presentation_agent(name, records, session_id, inputs, live=None):
+    """A presentation-sized result; the full recorded anatomy is one switch away."""
+    latest = records.latest_draft(session_id)
+    runs = records.runs(session_id)
+    evidence = records.evidence_runs(session_id)
+    status = "draft available" if latest else "waiting"
+    if name == "Listener":
+        status = "transcript available"
+    elif name == "Coordinator":
+        status = runs[0]["status"] if runs else "ready"
+    elif name == "Evidence / Research":
+        status = evidence[0]["status"] if evidence else "ready"
+    elif name == "Delivery":
+        status = "approved" if records.active_approval(session_id) else "awaiting approval"
+    header(name, status)
+    st.caption(HANDOFFS[name])
+    if name == "Listener":
+        turns = inputs.transcript.turns
+        unknown = sum(t.speaker.kind == "uncertain" for t in turns)
+        cols = st.columns(3)
+        cols[0].metric("Transcript turns", len(turns))
+        cols[1].metric("Students", len(inputs.roster))
+        cols[2].metric("Unknown · not scored", unknown)
+        recording = DATA_DIR / "recordings" / f"{session_id}.wav"
+        if recording.is_file():
+            st.audio(str(recording))
+        else:
+            st.caption("Imported transcript · no recording attached")
+        names = {s.id: s.displayName for s in inputs.roster}
+        for t in turns[:2]:
+            speaker = t.speaker
+            who = (
+                names.get(speaker.studentId, speaker.studentId)
+                if speaker.kind == "student"
+                else speaker.label
+            )
+            result_card(who + (" · not scored" if speaker.kind == "uncertain" else ""), t.text)
+        with st.expander(f"Read all {len(turns)} turns"):
+            for t in turns:
+                speaker = t.speaker
+                who = (
+                    names.get(speaker.studentId, speaker.studentId)
+                    if speaker.kind == "student"
+                    else speaker.label
+                )
+                st.caption(who + (" · not scored" if speaker.kind == "uncertain" else ""))
+                st.text(t.text)
+    elif name == "Coordinator":
+        progress = runs[0]["progress"] if runs else {}
+        result_card(
+            "Current state",
+            run_label(runs[0]) if runs else "Ready to plan the assessment.",
+            "Each returned result informs the next tool choice.",
+        )
+        cols = st.columns(3)
+        cols[0].metric("Model calls", progress.get("modelCalls", 0))
+        cols[1].metric("Tool calls", progress.get("toolCalls", 0))
+        cols[2].metric("Draft version", latest.version if latest else "—")
+        actions = progress.get("actions", [])
+        if actions:
+            with st.expander(f"Recent decisions · {len(actions)} actions"):
+                for a in actions[-3:]:
+                    st.caption(a["tool"].replace("_", " ") + " · " + a["outcome"])
+                    st.text(a["summary"])
+        if live and live.get("events"):
+            st.caption(EVENT_LABELS.get(list(live["events"])[-1][0], "Working"))
+    elif name == "Evidence / Research":
+        p = evidence[0]["progress"] if evidence else {}
+        bundle = p.get("bundle") or {}
+        st.iframe(
+            vault_html(
+                inputs.documents,
+                searches_of(p),
+                examined_of(p),
+                bundle.get("citations", []),
+                height=340,
+            ),
+            height=344,
+        )
+        cols = st.columns(3)
+        cols[0].metric("Searches", len(searches_of(p)))
+        cols[1].metric("Citations", len(bundle.get("citations", [])))
+        cols[2].metric("Evidence gaps", len(bundle.get("gaps", [])))
+        if bundle:
+            result_card(
+                "Research finding", bundle.get("explanation") or "Evidence bundle recorded."
+            )
+            if bundle.get("gaps"):
+                with st.expander("Evidence gaps to review"):
+                    for gap in bundle["gaps"]:
+                        st.text(gap)
+        else:
+            st.caption(
+                "Course notes are ready. Retrieved and cited passages appear "
+                "here when research runs."
+            )
+    elif name == "Delivery":
+        delivery_summary(records, session_id, inputs)
+    elif latest is None:
+        result_card(
+            "Waiting for assessment",
+            {
+                "Judge": "Rubric scores will appear here, with evidence behind each decision.",
+                "Auditor": "Open issues and their severity will appear here before you approve.",
+                "Feedback writer": "Each student will receive a strength and a specific next step.",
+            }[name],
+            "Start from Overview → Generate assessment.",
+        )
+    elif name == "Judge":
+        st.caption(f"PROVISIONAL FINDINGS · VERSION {latest.version}")
+        st.dataframe(
+            score_matrix(inputs, latest.content.findings), hide_index=True, width="stretch"
+        )
+        st.caption(
+            "Insufficient evidence is never treated as zero. "
+            "Open inspection details for justifications and citations."
+        )
+    elif name == "Auditor":
+        issues = latest.content.audit.issues
+        cols = st.columns(3)
+        cols[0].metric(
+            "Blocking", sum(i.severity == "blocking" and i.disposition == "open" for i in issues)
+        )
+        cols[1].metric(
+            "For review", sum(i.severity == "review" and i.disposition == "open" for i in issues)
+        )
+        cols[2].metric("Resolved", sum(i.disposition == "revised" for i in issues))
+        open_issues = [i for i in issues if i.disposition == "open"]
+        if open_issues:
+            with st.expander(f"Review {len(open_issues)} open issues"):
+                for issue in open_issues:
+                    st.caption(
+                        issue.severity.upper()
+                        + " · "
+                        + ("Model-raised" if issue.id.startswith("model:") else "Deterministic")
+                    )
+                    st.text(issue.detail)
+        else:
+            result_card(
+                "Audit result",
+                "No open issues in this draft.",
+                "Professor approval is still required.",
+            )
+    elif name == "Feedback writer":
+        student = st.selectbox(
+            "Student",
+            inputs.roster,
+            format_func=lambda s: s.displayName,
+            key=f"feedback-preview-{session_id}",
+        )
+        feedback = next((f for f in latest.content.feedback if f.studentId == student.id), None)
+        if feedback:
+            result_card("Strength", feedback.strengths)
+            result_card("Next step", feedback.nextStep)
+        else:
+            result_card("Feedback pending", "No feedback has been drafted for this student.")
+        st.caption("Private to this student · never names other students")
+
+
+def render_agent(name, records, session_id, inputs, live=None):
+    inspect = st.toggle(
+        "Inspect details",
+        key=f"inspect-{session_id}-{name}",
+        help="Open inputs, tools, complete trajectory, outputs and guardrails.",
+    )
+    if inspect:
+        inspect_agent(name, records, session_id, inputs, live)
+    else:
+        presentation_agent(name, records, session_id, inputs, live)

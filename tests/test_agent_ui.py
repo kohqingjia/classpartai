@@ -79,6 +79,12 @@ def test_every_agent_tab_empty_and_populated(app, populated):
         assert [t.label for t in at.tabs] == TABS
         if agent != "Overview":
             assert any(s.value == agent for s in at.subheader)
+            # Presentation view avoids raw JSON, tool schemas and trace headings.
+            assert not at.json
+            assert not any("Tools it may call" in m.value for m in at.markdown)
+            assert not at.toggle[0].value
+            at.toggle[0].set_value(True).run()
+            assert not at.exception
             headings = [m.value for m in at.markdown]
             assert all(
                 any(title in h for h in headings)
@@ -198,6 +204,8 @@ def test_persisted_role_and_research_trajectories_render(app):
     records.save_evidence_run(session_id, question.question, result)
     for agent in TABS[2:]:
         navigate(at, "AI assessment", agent)
+        assert not at.exception
+        at.toggle[0].set_value(True).run()
         assert not at.exception
     pack = result.progress.research[0]
     assert pack["model_history"][0]["role"] == "system"

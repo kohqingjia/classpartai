@@ -20,7 +20,7 @@ from pathlib import Path
 import streamlit as st
 
 from classpartai import config
-from classpartai.agent_ui import TABS, delivery_view, listener_view, overview, render_agent
+from classpartai.agent_ui import TABS, delivery_summary, overview, render_agent
 from classpartai.agents import listener
 from classpartai.assessment import AssessmentInputs, parse_inputs
 from classpartai.classlist import ClassList
@@ -53,8 +53,8 @@ PAGE_CSS = """<style>
 [data-testid="stAppViewContainer"] { background:#0d1119; }
 [data-testid="stSidebar"] { background:#10151e; }
 [data-testid="stSidebar"] button[data-testid^="stBaseButton"] > div { justify-content:flex-start; }
-[data-testid="stMainBlockContainer"] { max-width:1400px; padding:2.5rem 3rem 5rem; }
-h1 { font-size:2.35rem !important; font-weight:650 !important; letter-spacing:-.04em; }
+[data-testid="stMainBlockContainer"] { max-width:1400px; padding:2rem 3rem 4rem; }
+h1 { font-size:2.1rem !important; font-weight:650 !important; letter-spacing:-.04em; }
 h2,h3 { letter-spacing:-.025em; }
 h4 { font-size:1rem !important; padding-top:1rem !important; }
 [data-testid="stCaptionContainer"] { color:#9ba6b8; font-variant-numeric:tabular-nums; }
@@ -63,6 +63,8 @@ h4 { font-size:1rem !important; padding-top:1rem !important; }
 [data-baseweb="tab-list"] { gap:1.2rem; overflow-x:auto; }
 [data-baseweb="tab"] { font-size:.86rem; white-space:nowrap; }
 [data-testid="stSidebar"] [data-testid="stAlert"] { font-size:.8rem; }
+[data-testid="stHorizontalBlock"] { gap:1rem; }
+hr { margin:1rem 0 !important; }
 button { transition:none; }
 .muted { color:#9ba6b8; }
 @media(max-width:700px) {
@@ -233,6 +235,11 @@ if st.session_state.get("session_id") not in by_id:
 if st.session_state.view == "session" and not sessions:
     st.session_state.view = "new"
 
+linked_session = st.query_params.get("session")
+if linked_session in by_id:
+    st.session_state.view = "session"
+    st.session_state.session_id = linked_session
+
 with st.sidebar:
     st.markdown("### ◈ ClassPart AI")
     st.caption("IS469 · PARTICIPATION STUDIO")
@@ -284,12 +291,8 @@ with st.sidebar:
         recipient = os.getenv("EMAIL_TEST_RECIPIENT", "(not set)")
         st.caption(f"✉️ Test mode: every email goes to {recipient}")
     if not os.getenv("OPENAI_API_KEY"):
-        st.warning("No OPENAI_API_KEY: agent runs will be blocked.")
+        st.caption("○ AI model not connected")
 
-linked_session = st.query_params.get("session")
-if linked_session in by_id:
-    st.session_state.view = "session"
-    st.session_state.session_id = linked_session
 view = st.session_state.view
 session_id = st.session_state.session_id
 
@@ -602,7 +605,7 @@ else:
             )
         st.button("Record a new session", on_click=go, args=("new",))
     elif step == "Who spoke?":
-        listener_view(records, session_id, inputs)
+        render_agent("Listener", records, session_id, inputs)
     elif step == "AI assessment":
         live = live_runs().get(session_id)
         running = bool(live and live["thread"].is_alive())
@@ -744,7 +747,7 @@ else:
 
     elif step in ("Approve", "Send"):
         st.subheader("Review the exact version" if step == "Approve" else "Send reviewed feedback")
-        delivery_view(records, session_id, inputs)
+        delivery_summary(records, session_id, inputs)
         if step == "Approve" and latest:
             with st.expander("Edit: save a new version"):
                 st.caption(

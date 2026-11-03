@@ -1,5 +1,5 @@
 <!doctype html><html><head><meta charset="utf-8"><style>
-:root { --bg:#191919; --ink:#e3e3e3; --muted:#9b9b9b; --line:#2f2f2f; --card:#202020;
+:root { --bg:#10151e; --ink:#e9edf5; --muted:#9ba6b8; --line:#293140; --card:#151c28;
         --blue:#2383e2; --green:#4dab6f; --amber:#d9a443;
         --ease-out:cubic-bezier(0.23,1,0.32,1); }
 * { box-sizing:border-box; }
@@ -7,7 +7,7 @@ html,body { margin:0; height:100%; background:var(--bg); color:var(--ink);
             font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif; }
 #app { position:relative; height:__HEIGHT__px; display:flex; border:1px solid var(--line);
        border-radius:12px; overflow:hidden; background:radial-gradient(ellipse at center,
-       #1f2430 0%, #191919 70%); }
+       #1c2638 0%, #10151e 70%); }
 #stage { position:relative; flex:1 1 auto; min-width:0; }
 canvas { position:absolute; inset:0; width:100%; height:100%; display:block; }
 #hud { position:absolute; left:14px; top:12px; right:14px; pointer-events:none; }
@@ -22,12 +22,12 @@ canvas { position:absolute; inset:0; width:100%; height:100%; display:block; }
 #controls button:active { opacity:.8; }
 @media (hover:hover) and (pointer:fine) { #controls button:hover { border-color:var(--blue); } }
 #step { font-size:12px; color:var(--muted); margin-left:4px; font-variant-numeric:tabular-nums; }
-#panel { flex:0 0 300px; border-left:1px solid var(--line); background:rgba(32,32,32,.92);
+#panel { flex:0 0 300px; border-left:1px solid var(--line); background:rgba(21,28,40,.92);
          display:flex; flex-direction:column; min-height:0; }
 #panel h4 { margin:0; padding:12px 14px 8px; font-size:12px; letter-spacing:.06em;
             text-transform:uppercase; color:var(--muted); font-weight:600; }
 #list { overflow-y:auto; padding:0 10px 10px; flex:1 1 auto; }
-.item { background:#252525; border:1px solid var(--line); border-radius:8px; padding:8px 10px;
+.item { background:#1b2331; border:1px solid var(--line); border-radius:8px; padding:8px 10px;
         margin-bottom:8px; font-size:12px; line-height:1.4;
          }
 .item .src { color:var(--muted); font-size:11px; margin-bottom:3px; display:flex;
@@ -37,7 +37,6 @@ canvas { position:absolute; inset:0; width:100%; height:100%; display:block; }
 .item.cited .src { color:var(--green); }
 .item.file .src { color:var(--ink); font-weight:600; }
 .dot { display:inline-block; width:8px; height:8px; border-radius:50%; margin-right:6px; }
-@keyframes in { from { opacity:0; transform:translateY(6px); } }
 #tip { position:absolute; pointer-events:none; max-width:280px; background:#111;
        border:1px solid #3a3a3a; border-radius:8px; padding:8px 10px; font-size:12px;
        line-height:1.4; z-index:5; box-shadow:0 6px 20px rgba(0,0,0,.5);
@@ -45,12 +44,11 @@ canvas { position:absolute; inset:0; width:100%; height:100%; display:block; }
        transition:opacity 125ms ease-out, transform 125ms var(--ease-out); }
 #tip.show { opacity:1; transform:none; }
 #tip .src { color:var(--muted); font-size:11px; margin-bottom:3px; }
-@media (max-width:700px) { #app { flex-direction:column; height:auto; }
-  #stage { height:__STAGE_MOBILE__px; flex:none; } #panel { flex:none; max-height:220px;
+@media (max-width:700px) { #app { flex-direction:column; }
+  #stage { min-height:0; } #panel { flex:0 0 130px; max-height:130px;
   border-left:none; border-top:1px solid var(--line); } }
 @media (prefers-reduced-motion:reduce) { * { animation:none !important; transition:none !important; }
   #tip { transform:none; } #controls button:active { transform:none; } }
-@keyframes fade { from { opacity:0; } }
 </style></head><body>
 <div id="app"><div id="stage"><canvas id="c"></canvas>
 <div id="hud"><div id="status"></div><div id="query"></div></div>
@@ -94,9 +92,9 @@ function layout() {
   const r = cv.getBoundingClientRect(), dpr = window.devicePixelRatio || 1;
   W = r.width; H = r.height; cv.width = W * dpr; cv.height = H * dpr;
   ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-  cx = W / 2; cy = H / 2 + 8;
+  cx = W / 2; cy = H / 2 - 8;
   const n = D.docs.length;
-  const ax = W * 0.36, ay = H * 0.33;
+  const ax = W * 0.36, ay = H * 0.22;
   D.docs.forEach((d, i) => {
     const m = d.passages.length;
     let ox, oy, r0, R;
@@ -173,7 +171,7 @@ function draw(now) {
     ctx.fillStyle = d.color; ctx.font = "600 11px -apple-system,Segoe UI,sans-serif";
     ctx.textAlign = "center";
     const label = d.title.length > 34 ? d.title.slice(0, 33) + "…" : d.title;
-    const ly = D.docs.length === 1 ? Math.min(H - 40, d.oy + d.R * 0.78 + 18) : d.oy + d.R + 16;
+    const ly = Math.min(H - 38, d.oy + d.R * (D.docs.length === 1 ? 0.78 : 1) + 16);
     ctx.fillText(label, d.ox, ly);
   });
   // Beams: faint for finished searches, travelling light for the current one.
