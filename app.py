@@ -53,10 +53,11 @@ from classpartai.participation.validation import (
     totals,
 )
 from classpartai.retrieval import examined_of, searches_of
-from classpartai.ui import STAGES, TOOL_STAGE, board_html, flow_html, vault_html
+from classpartai.ui import STAGES, TOOL_STAGE, board_html, flow_html, system_html, vault_html
 from classpartai.voices import GOOD_SECONDS, Voices
 
 DATA = REPO_ROOT / "data"
+VIEWS = {"home", "new", "session", "library", "voices", "how"}
 RECORDINGS = DATA_DIR / "recordings"  # class recordings, kept for playback (server volume only)
 DEMO_AUDIO = DATA / "demo_audio"
 # Read aloud for a voice sample: about 20 seconds, with varied sounds.
@@ -289,26 +290,64 @@ def recording_player(path: Path, key: str) -> None:
 
 
 STEPS = ["Record", "Who spoke?", "AI assessment", "Approve", "Send"]
+# The agents (or person) at work in each step, so the step bar doubles as the pipeline.
+STEP_AGENTS = {
+    1: "Listener · Whisper transcribes",
+    2: "Listener · voice match",
+    3: "Coordinator → Research → Judge → Auditor → Feedback writer",
+    4: "Professor · human approval gate",
+    5: "Delivery · AgentMail",
+}
+STEP_PARAMS = {name: n for n, name in enumerate(STEPS, start=1)}  # ?step=<name>
 
 
-def step_bar(current: int, done: set[int]) -> None:
-    """The five steps of a session, the current one highlighted (1-based)."""
-    items = []
-    for n, name in enumerate(STEPS, start=1):
-        state = "now" if n == current else "done" if n in done else ""
-        mark = "✓" if n in done and n != current else str(n)
-        items.append(f'<div class="step {state}"><span>{mark}</span>{name}</div>')
-    st.html(
-        "<style>.steps{display:flex;gap:6px;margin:4px 0 14px;flex-wrap:wrap}"
-        ".step{flex:1 1 0;min-width:110px;padding:8px 10px;border:1px solid #2f2f2f;"
-        "border-radius:10px;color:#9b9b9b;font-size:13px;display:flex;gap:8px;"
-        "align-items:center;background:#1f1f1f}.step span{display:inline-grid;"
-        "place-items:center;width:20px;height:20px;border-radius:50%;background:#2a2a2a;"
-        "font-size:11px;font-variant-numeric:tabular-nums}.step.done{color:#4dab6f}"
-        ".step.done span{background:#1f3a2a}.step.now{color:#e3e3e3;border-color:#2383e2;"
-        "background:#1d2633}.step.now span{background:#2383e2;color:#fff}</style>"
-        f'<div class="steps">{"".join(items)}</div>'
-    )
+def step_bar(view: str, current: int, done: set[int], reachable: set[int]) -> None:
+    """The five steps, each naming its agents; reachable steps are buttons (1-based)."""
+    with st.container(key="stepbar"):
+        for n, col in enumerate(st.columns(len(STEPS)), start=1):
+            mark = "✓" if n in done and n != current else str(n)
+            col.button(
+                f"{mark} · {STEPS[n - 1]}",
+                key=f"stepbar-{n}",
+                width="stretch",
+                type="primary" if n == current else "secondary",
+                disabled=n not in reachable,
+                on_click=go,
+                args=(view, st.session_state.session_id if view == "session" else None, n),
+            )
+            col.caption(STEP_AGENTS[n])
+    if current > 1 and current - 1 in reachable:
+        st.button(
+            f"← Back to {STEPS[current - 2]}",
+            key="step-back",
+            type="tertiary",
+            on_click=go,
+            args=(view, st.session_state.session_id if view == "session" else None, current - 1),
+        )
+
+
+def who_spoke(turns, names: dict[str, str], audio: Path | None, player_key: str) -> None:
+    """Step 2: how many lines each kind of speaker has, the recording and the transcript."""
+    prof_turns = sum(t.speaker.kind == "professor" for t in turns)
+    unknown = sum(t.speaker.kind == "uncertain" for t in turns)
+    per_student = dict.fromkeys(names, 0)
+    for t in turns:
+        if t.speaker.kind == "student" and t.speaker.studentId in per_student:
+            per_student[t.speaker.studentId] += 1
+    cols = st.columns(4)
+    cols[0].metric("Lines", len(turns))
+    cols[1].metric("Professor", prof_turns)
+    cols[2].metric("Students", sum(per_student.values()))
+    cols[3].metric("Unknown (not scored)", unknown)
+    silent = [names[sid] for sid, n in per_student.items() if n == 0]
+    if silent:
+        st.caption(
+            "Not heard in this recording (they'll get 'No observed contribution'): "
+            + ", ".join(silent)
+        )
+    if audio and audio.exists():
+        recording_player(audio, player_key)
+    show_transcript(turns, names, player_key=player_key if audio and audio.exists() else None)
 
 
 def when(iso: str) -> str:
@@ -321,13 +360,17 @@ def default_title() -> str:
     return datetime.now(SGT).strftime("Seminar @%A %-I:%M %p")
 
 
-def go(view: str, session: str | None = None) -> None:
-    for param in ("session", "step", "agent"):  # links from the agent workspace
-        if param in st.query_params:
-            del st.query_params[param]
-    st.session_state.view = view
+def go(view: str, session: str | None = None, step: int | None = None) -> None:
+    """Navigate by changing the address: each change is a browser history entry, so the
+    browser's back and forward buttons walk through pages and steps."""
+    params = {"view": view}
     if session:
+        params["session"] = session
         st.session_state.session_id = session
+    if step:
+        params["step"] = STEPS[step - 1]
+    st.query_params.from_dict(params)  # one change, so one history entry
+    st.session_state.view = view
 
 
 def show_flow(slot, active=None, done=(), notes=None, banner="") -> None:
@@ -443,18 +486,16 @@ st.html(PAGE_CSS)
 
 sessions = records.sessions()
 by_id = {s["id"]: s for s in sessions}
-st.session_state.setdefault("view", "home")
 if st.session_state.get("session_id") not in by_id:
     st.session_state.session_id = next(iter(by_id), None)
-if st.session_state.view == "session" and not sessions:
-    st.session_state.view = "home"
+# The address is the source of truth for where we are (see go()).
 linked = st.query_params.get("session")
 if linked in by_id:
-    st.session_state.view, st.session_state.session_id = "session", linked
-    linked_step = {"AI assessment": 3, "Approve": 4, "Send": 5}.get(st.query_params.get("step"))
-    if linked_step:
-        st.session_state[f"step-{linked}"] = linked_step
-        del st.query_params["step"]
+    st.session_state.session_id = linked
+st.session_state.view = st.query_params.get("view") or ("session" if linked in by_id else "home")
+if st.session_state.view not in VIEWS or (st.session_state.view == "session" and not sessions):
+    st.session_state.view = "home"
+requested_step = STEP_PARAMS.get(st.query_params.get("step", ""))
 
 
 def nav(label: str, view_name: str, session: str | None = None, key: str | None = None) -> None:
@@ -484,6 +525,8 @@ with st.sidebar:
     st.caption("Set up")
     nav("📚 Course library", "library")
     nav("👥 Class & voices", "voices")
+    st.caption("Present")
+    nav("🧭 How it works", "how")
     if os.getenv("EMAIL_TEST_MODE", "true").lower() != "false":
         recipient = os.getenv("EMAIL_TEST_RECIPIENT", "(not set)")
         st.caption(f"✉️ Test mode: every email goes to {recipient}")
@@ -613,14 +656,20 @@ if view == "home":
 
 elif view == "new":
     pending = st.session_state.get("pending")
-    step_bar(2 if pending else 1, {1} if pending else set())
+    new_step = 2 if pending and requested_step != 1 else 1
+    step_bar("new", new_step, {1} if pending else set(), {1, 2} if pending else {1})
     st.session_state.setdefault("new-title", default_title())
     st.title(st.session_state["new-title"] or "Untitled session")
     col_title, col_course = st.columns(2)
     title = col_title.text_input("Title", key="new-title")
     course = col_course.text_input("Course", "IS469 Gen AI with LLMs")
 
-    if not pending:
+    if new_step == 1:
+        if pending:
+            st.info(
+                "An unsaved transcript is waiting in ② Who spoke?. Transcribing a new recording "
+                "replaces it."
+            )
         with st.container(border=True):
             st.markdown("**① Record the seminar**")
             names = [f"🎓 {p.name}" for p in voiced_profs] + [
@@ -664,6 +713,7 @@ elif view == "new":
                         {p.name for p in classlist.professors()},
                         {"title": title, "course": course, "demo": False},
                     )
+                    go("new", step=2)
                     st.rerun()
                 except Exception as exc:
                     st.error(f"Couldn't process the recording ({str(exc).splitlines()[0][:300]}).")
@@ -693,6 +743,7 @@ elif view == "new":
                             "demo": True,
                         },
                     )
+                    go("new", step=2)
                     st.rerun()
                 except Exception as exc:
                     st.error(
@@ -732,26 +783,8 @@ elif view == "new":
             if pending.get("note"):
                 st.info(pending["note"])
             turns = transcript.turns
-            prof_turns = sum(t.speaker.kind == "professor" for t in turns)
-            unknown = sum(t.speaker.kind == "uncertain" for t in turns)
-            per_student = {r["id"]: 0 for r in roster}
-            for t in turns:
-                if t.speaker.kind == "student":
-                    per_student[t.speaker.studentId] += 1
-            cols = st.columns(4)
-            cols[0].metric("Lines", len(turns))
-            cols[1].metric("Professor", prof_turns)
-            cols[2].metric("Students", sum(per_student.values()))
-            cols[3].metric("Unknown (not scored)", unknown)
-            silent = [names[sid] for sid, n in per_student.items() if n == 0]
-            if silent:
-                st.caption(
-                    "Not heard in this recording (they'll get 'No observed contribution'): "
-                    + ", ".join(silent)
-                )
-            if pending.get("audio") and Path(pending["audio"]).exists():
-                recording_player(Path(pending["audio"]), "pending-seek")
-            show_transcript(turns, names, player_key="pending-seek")
+            audio = Path(pending["audio"]) if pending.get("audio") else None
+            who_spoke(turns, names, audio, "pending-seek")
             confirmed = st.checkbox("I've checked who said what (listen with ▶ if unsure)")
             col_go, col_drop, _ = st.columns([1, 1, 2])
             if col_go.button("Create session →", type="primary", disabled=not confirmed):
@@ -788,6 +821,7 @@ elif view == "new":
             if col_drop.button("Discard and record again"):
                 Path(pending["audio"]).unlink(missing_ok=True)
                 del st.session_state["pending"]
+                go("new", step=1)
                 st.rerun()
 
 # --- Course library ---------------------------------------------------------------------------
@@ -933,6 +967,76 @@ elif view == "voices":
                 voices().remove(pid)
             st.rerun()
 
+# --- How it works: the whole system on one page, for the presentation --------------------------
+
+elif view == "how":
+    st.title("How ClassPart AI works")
+    st.markdown(
+        '<p class="muted">A professor records a seminar. Agents turn it into a transcript, check '
+        "what each student said against the course notes, score it against the rubric and "
+        "draft feedback. The professor approves the exact version before any student sees "
+        "it.</p>",
+        unsafe_allow_html=True,
+    )
+    st.iframe(system_html(), height=490)
+
+    st.subheader("The five steps")
+    st.markdown(
+        "| Step | Who does the work | What comes out |\n"
+        "|---|---|---|\n"
+        "| ① Record | **Listener**: Whisper turns speech into timed text | A transcript |\n"
+        "| ② Who spoke? | **Listener**: each line's voice is matched to an enrolled sample; "
+        "a person checks it | Lines attributed to students, the professor or *unknown* |\n"
+        "| ③ AI assessment | **Coordinator** calls Research, Judge, Auditor and Feedback writer "
+        "as tools | Scores with citations, audit issues, draft feedback |\n"
+        "| ④ Approve | **The professor** reviews issues and approves one exact version | "
+        "An approval tied to a fingerprint of that version |\n"
+        "| ⑤ Send | **Delivery** (plain code) emails the approved feedback | One email per "
+        "student, with its delivery state |"
+    )
+
+    st.subheader("Why it's agentic")
+    st.markdown(
+        "- **The Coordinator plans.** No fixed script: it reads each tool's result and picks the "
+        "next call (inspect the transcript, retrieve evidence, propose scores, audit, draft "
+        "feedback, request review). A refused call comes back with the reason, and it adapts.\n"
+        "- **Research is agentic RAG.** It writes its own queries, searches with BM25 and "
+        "vectors fused by Reciprocal Rank Fusion, grades what it finds, searches again if the "
+        "evidence is weak, and only cites exact excerpts from the course notes.\n"
+        "- **Verify first, judge last.** The Judge's scores must pass deterministic validation "
+        "(right students, cited turns that exist), then the Auditor checks support, "
+        "attribution and uncertainty before anything reaches the professor.\n"
+        "- **Bounded.** Every run has a budget (72 model calls, 108 tool calls, 400k tokens, "
+        "600 s) and stops cleanly when it runs out."
+    )
+
+    st.subheader("Guardrails")
+    st.markdown(
+        "- Transcript and slide text is treated as **data, never instructions** "
+        "(prompt-injection defence).\n"
+        "- **Unknown speakers are never scored**, and silent students get *No observed "
+        "contribution* rather than a guess.\n"
+        "- **No model can send email.** The professor approves the exact version (a SHA-256 "
+        "fingerprint of the content and recipients); any edit cancels the approval.\n"
+        "- **Test mode** redirects every email to one inbox, and an email whose outcome is "
+        "unknown is never retried automatically, so no student gets it twice."
+    )
+
+    st.subheader("Mapped to IS469")
+    st.markdown(
+        "| Part | Technique | Topic |\n"
+        "|---|---|---|\n"
+        "| Listener | Whisper (encoder-decoder transformer); voice embeddings + cosine "
+        "similarity | 2 · Transformers, 1/8 · Embeddings |\n"
+        "| Coordinator, Feedback writer | Tool calling, agent harness, budgets | 7 · Agents |\n"
+        "| Evidence / Research | BM25 + vector search, RRF, grading (CRAG-style) | "
+        "8 · Agentic RAG |\n"
+        "| Judge, Auditor | Rubric LLM-as-judge, deterministic checks first | 6 · Evaluation |\n"
+        "| Approval, Delivery | Human in the loop, untrusted data, no autonomous actions | "
+        "9 · Ethics |"
+    )
+    st.button("🎙️ Try it: start a class session", type="primary", on_click=go, args=("new",))
+
 # --- Session page: steps 3 (AI assessment), 4 (Approve) and 5 (Send) ---------------------------
 
 else:
@@ -949,17 +1053,8 @@ else:
         | ({5} if sent else set())
     )
     first_open = 3 if not latest else 4 if not approval else 5
-    step_names = {3: "③ AI assessment", 4: "④ Approve", 5: "⑤ Send"}
-    step_bar(st.session_state.get(f"step-{session_id}") or first_open, done)
-    picked = st.segmented_control(
-        "Step",
-        list(step_names),
-        format_func=lambda n: step_names[n] + (" ✓" if n in done else ""),
-        default=first_open,
-        key=f"step-{session_id}",
-        label_visibility="collapsed",
-    )
-    step = picked or first_open
+    step = requested_step or first_open
+    step_bar("session", step, done, {1, 2, 3, 4, 5})
     st.title(inputs.sessionTitle)
     st.markdown(
         f'<p class="muted">📅 {escape(when(meta["created_at"]))} · {escape(inputs.courseTitle)} · '
@@ -967,7 +1062,38 @@ else:
         unsafe_allow_html=True,
     )
 
-    if step == 3:
+    if step == 1:
+        with st.container(border=True):
+            st.markdown("**① Record** · the class recording this session was made from")
+            audio = recording_of(session_id)
+            if audio:
+                recording_player(audio, f"seek-{session_id}")
+            else:
+                st.caption(
+                    "No recording: this session started from a ready-made transcript or an "
+                    "imported file."
+                )
+        st.button(
+            "Next: ② Who spoke? →", on_click=go, args=("session", session_id, 2), key="next-2"
+        )
+
+    elif step == 2:
+        with st.container(border=True):
+            st.markdown(
+                "**② Who spoke?** · the Listener's attribution, as reviewed when the session "
+                "was created. Voice-match scores are in ③ AI assessment → Listener."
+            )
+            who_spoke(
+                inputs.transcript.turns,
+                {s.id: s.displayName for s in inputs.roster},
+                recording_of(session_id),
+                f"who-{session_id}",
+            )
+        st.button(
+            "Next: ③ AI assessment →", on_click=go, args=("session", session_id, 3), key="next-3"
+        )
+
+    elif step == 3:
         live = live_runs().get(session_id)
         running = bool(live and live["thread"].is_alive())
         tabs = st.tabs(TABS, key="agent", on_change="rerun", bind="query-params")
@@ -1166,7 +1292,8 @@ else:
                                     st.markdown(citation_text(bundles, c))
                     st.button(
                         "Next: ④ Approve →",
-                        on_click=lambda: st.session_state.update({f"step-{session_id}": 4}),
+                        on_click=go,
+                        args=("session", session_id, 4),
                     )
 
     elif step == 4:
@@ -1239,7 +1366,8 @@ else:
                 st.button(
                     "Next: ⑤ Send →",
                     type="primary",
-                    on_click=lambda: st.session_state.update({f"step-{session_id}": 5}),
+                    on_click=go,
+                    args=("session", session_id, 5),
                 )
             else:
                 if blocking:
