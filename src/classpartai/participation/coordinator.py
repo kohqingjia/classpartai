@@ -140,7 +140,10 @@ def coordinate(
         WORKFLOW_LIMITS["seconds"],
     )
 
+    started = time.monotonic()
+
     def checkpoint() -> None:
+        progress.elapsedSeconds = round(time.monotonic() - started, 3)
         records.update_run(run_id, asdict(progress))
 
     try:
@@ -182,6 +185,8 @@ def coordinate(
             ),
         }
     ]
+    progress.coordinatorInput = {"instructions": COORDINATOR_POLICY, "history": history.copy()}
+    checkpoint()
     turns = inputs.transcript.turns
     stop_reason = "shared_budget_exhausted"
     try:
@@ -199,6 +204,7 @@ def coordinate(
                 "id": f"{progress.toolCalls}:{call.call_id}",
                 "tool": call.name if call.name in names else "unsupported_tool",
                 "arguments": "{}",
+                "requestedArguments": call.arguments,
                 "summary": "Action requested",
                 "outcome": "started",
             }
@@ -367,13 +373,20 @@ def coordinate(
                     action["arguments"] = args.model_dump_json()
                     if draft is None:
                         raise Unprocessable("No provisional draft exists")
-                    if (
-                        any(i.severity == "blocking" for i in audit_draft(draft.content, inputs))
-                        or not draft.content.audit.modelReviewed
-                    ):
+                    # Say exactly what is missing: a vague refusal had the model retry this
+                    # call over and over instead of fixing the draft.
+                    blocking = [
+                        i for i in audit_draft(draft.content, inputs) if i.severity == "blocking"
+                    ]
+                    if blocking:
                         raise Unprocessable(
-                            "Complete every roster student's outputs and audit the current draft "
-                            "first"
+                            "Complete every roster student's outputs first. Blocking: "
+                            + "; ".join(i.detail for i in blocking[:5])
+                        )
+                    if not draft.content.audit.modelReviewed:
+                        raise Unprocessable(
+                            f"Draft version {draft.version} changed after its last audit: call "
+                            "audit_assessment on it, then request review"
                         )
                     action["outcome"] = "ok"
                     action["summary"] = (
@@ -398,12 +411,15 @@ def coordinate(
             except (Unprocessable, ValidationError, ValueError, RuntimeError) as error:
                 action["outcome"] = "invalid"
                 action["summary"] = (
-                    "Action refused or role output invalid; revise the request, inspect context "
-                    "or escalate"
+                    f"Refused: {error}"[:300]
+                    if isinstance(error, Unprocessable)
+                    else "Action refused or role output invalid; revise the request, inspect "
+                    "context or escalate"
                 )
                 output = {
                     "error": str(error) if isinstance(error, Unprocessable) else action["summary"]
                 }
+            action["result"] = output
             checkpoint()
             on_event("action", action)
             if finished:
@@ -419,6 +435,7 @@ def coordinate(
         stop_reason = "shared_budget_or_interruption"
     except Exception:
         stop_reason = "provider_failure"
+    progress.elapsedSeconds = round(time.monotonic() - started, 3)
     records.update_run(
         run_id,
         asdict(progress),

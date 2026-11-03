@@ -71,6 +71,7 @@ class Step:
     seconds: float = 0.0
     # Course chunks a search returned, best first: {"chunk_id", "score"} (for the UI's replay)
     hits: list[dict] = field(default_factory=list)
+    output: str | None = None  # exact tool return, diagnostic only
 
 
 def norm_claim(claim: str) -> str:
@@ -400,7 +401,7 @@ class ResearchTools:
                 ok, summary = False, str(exc)
         seconds = round(time.perf_counter() - started, 3)
         hits, self._hits = self._hits, []
-        self.trajectory.append(Step(step, name, args, ok, summary, seconds, hits))
+        self.trajectory.append(Step(step, name, args, ok, summary, seconds, hits, output=out))
         if self.on_step is not None:
             self.on_step(self.trajectory[-1])
         return out
@@ -478,7 +479,17 @@ class ResearchTools:
             hits = self.store.search(str(args["query"]), k=self._k(args))
             widened = f"Nothing is filed under week {week}, so this searched all weeks. "
             week = None
-        self._hits = [{"chunk_id": h.chunk.id, "score": round(h.score, 3)} for h in hits]
+        self._hits = [
+            {
+                "chunk_id": h.chunk.id,
+                "score": round(h.score, 3),
+                "bm25": h.bm25,
+                "rrf": h.rrf,
+                "text": h.chunk.text,
+                "source": h.chunk.source(),
+            }
+            for h in hits
+        ]
         items = [
             self._register(
                 f"chunk:{h.chunk.id}",

@@ -34,6 +34,8 @@ SCHEMA = """
 CREATE TABLE IF NOT EXISTS sessions (
     id TEXT PRIMARY KEY, title TEXT NOT NULL, course_title TEXT NOT NULL,
     inputs TEXT NOT NULL, created_at TEXT NOT NULL);
+CREATE TABLE IF NOT EXISTS listener_runs (
+    session_id TEXT PRIMARY KEY, diagnostics TEXT NOT NULL);
 CREATE TABLE IF NOT EXISTS evidence_runs (
     id TEXT PRIMARY KEY, session_id TEXT NOT NULL, question TEXT NOT NULL, status TEXT NOT NULL,
     stop_reason TEXT, progress TEXT NOT NULL, created_at TEXT NOT NULL);
@@ -140,6 +142,19 @@ class Records:
         if row is None:
             raise Unprocessable("Assessment session not found")
         return AssessmentInputs.model_validate_json(row["inputs"])
+
+    def save_listener_run(self, session_id: str, diagnostics: dict) -> None:
+        """Preserve the actual Listener response separately from reviewed assessment inputs."""
+        self.inputs(session_id)
+        with self.tx():
+            self.db.execute(
+                "INSERT OR REPLACE INTO listener_runs VALUES (?, ?)",
+                (session_id, json.dumps(diagnostics)),
+            )
+
+    def listener_run(self, session_id: str) -> dict | None:
+        row = self._one("SELECT diagnostics FROM listener_runs WHERE session_id = ?", (session_id,))
+        return json.loads(row["diagnostics"]) if row else None
 
     # --- Evidence ---------------------------------------------------------------------------
 

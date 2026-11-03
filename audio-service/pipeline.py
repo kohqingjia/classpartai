@@ -62,11 +62,13 @@ def process_audio(audio_path: str):
     print("Identifying speakers...")
 
     speaker_identities = {}
+    voice_matches = {}
 
     for speaker_label, speaker_file in speaker_files.items():
         identity = resolve_speaker_identity(speaker_file)
 
         speaker_identities[speaker_label] = identity["name"]
+        voice_matches[speaker_label] = identity
 
         print(f"{speaker_label} -> {identity['name']} ({identity['status']})")
 
@@ -82,6 +84,9 @@ def process_audio(audio_path: str):
 
     return {
         "language": transcription["language"],
+        "whisper_segments": transcription["segments"],
+        "aligned_segments": aligned_segments,
+        "voice_matches": voice_matches,
         "speaker_identities": speaker_identities,
         "segments": merged_segments,
     }

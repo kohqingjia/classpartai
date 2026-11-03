@@ -478,9 +478,7 @@ def search_record(step) -> dict:
     """One course search as the UI replays it: the query and the passages that came back."""
     return {
         "query": str(step.args.get("query", ""))[:300],
-        "hits": [
-            {"passageId": h["chunk_id"].rsplit("#", 1)[0], "score": h["score"]} for h in step.hits
-        ],
+        "hits": [{**h, "passageId": h["chunk_id"].rsplit("#", 1)[0]} for h in step.hits],
     }
 
 

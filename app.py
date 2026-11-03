@@ -5,16 +5,20 @@ Session (reviewed transcript + roster + rubric + course documents) -> Evidence -
 (the coordinator agent drafts findings and feedback) -> professor approval of the exact version
 -> delivery through AgentMail. Recordings come in through Tina's Listener pipeline.
 
-The layout borrows from Notion's AI meeting notes: each class session is one page, with the
-recording, transcript and AI summary in a single card and review & send underneath.
+Pages: Home (a setup checklist), Course library, Class & voices (people, roles and voice
+samples), New class session (steps 1-2: record, who spoke?) and the session page (steps 3-5: AI
+assessment, approve, send). Voices must be enrolled before a recording can be processed: the
+Listener can only name speakers it has a sample for, and unnamed speakers are never scored.
 """
 
 import json
 import os
+import shutil
 import subprocess
 import tempfile
 import threading
 import time
+import uuid
 from datetime import datetime, timedelta, timezone
 from html import escape
 from pathlib import Path
@@ -22,6 +26,7 @@ from pathlib import Path
 import streamlit as st
 
 from classpartai import config
+from classpartai.agent_ui import TABS, overview, render_agent
 from classpartai.agents import listener
 from classpartai.assessment import AssessmentInputs, parse_inputs
 from classpartai.classlist import ClassList
@@ -37,15 +42,30 @@ from classpartai.participation.delivery import (
     AgentMailTransport,
     DeliverySettings,
     deliver_approved,
+    feedback_email,
 )
 from classpartai.participation.records import Records
 from classpartai.participation.schema import Proposal
-from classpartai.participation.validation import Unprocessable, observed_count, totals
+from classpartai.participation.validation import (
+    Unprocessable,
+    audit_draft,
+    observed_count,
+    totals,
+)
 from classpartai.retrieval import examined_of, searches_of
 from classpartai.ui import STAGES, TOOL_STAGE, board_html, flow_html, vault_html
+from classpartai.voices import GOOD_SECONDS, Voices
 
 DATA = REPO_ROOT / "data"
-REGISTRY_PATH = ENROLLMENT_DIR / "registry.json"
+RECORDINGS = DATA_DIR / "recordings"  # class recordings, kept for playback (server volume only)
+DEMO_AUDIO = DATA / "demo_audio"
+# Read aloud for a voice sample: about 20 seconds, with varied sounds.
+READING = (
+    "Good morning. My name is on the class list, and this is my voice sample for ClassPart AI. "
+    "Yesterday I read the slides about retrieval, then tested a quick search over six thick "
+    "notebooks. The cheerful zebra jumped over a pile of orange boxes while we argued about "
+    "whether agents should search again or stop. Thank you for listening."
+)
 AUDIO_TYPES = ["wav", "mp3", "m4a", "ogg", "flac", "webm"]
 STAGE_NAMES = {key: name for key, _, name, _ in STAGES}
 SGT = timezone(timedelta(hours=8))
@@ -53,6 +73,7 @@ SGT = timezone(timedelta(hours=8))
 # Notion-style touches Streamlit's theme can't express: left-aligned sidebar rows, a big title.
 PAGE_CSS = """<style>
 [data-testid="stSidebar"] button[data-testid^="stBaseButton"] > div { justify-content:flex-start; }
+[data-testid="stSidebar"] button p { white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
 h1 { font-size:2.6rem !important; font-weight:700 !important; letter-spacing:-.02em; }
 .muted { color:#9b9b9b; font-size:.95rem; }
 /* Pressable things answer the press. */
@@ -71,6 +92,11 @@ def services() -> tuple[Records, ClassList]:
     # A new file: the earlier Action-harness build left a classpartai.db with an incompatible
     # `sessions` table.
     return Records(DATA_DIR / "assessments.db"), ClassList(DATA_DIR / "classlist.json")
+
+
+@st.cache_resource
+def voices() -> Voices:
+    return Voices(ENROLLMENT_DIR)
 
 
 @st.cache_resource
@@ -226,23 +252,63 @@ def run_panel(session_id: str, inputs: AssessmentInputs) -> None:
     st.fragment(run_every=2 if running else None)(panel)()
 
 
-def load_registry() -> dict:
-    return json.loads(REGISTRY_PATH.read_text()) if REGISTRY_PATH.exists() else {}
-
-
-def save_registry(registry: dict) -> None:
-    ENROLLMENT_DIR.mkdir(parents=True, exist_ok=True)
-    REGISTRY_PATH.write_text(json.dumps(registry, indent=2))
+def file_to_wav(src: Path, dest: Path) -> Path:
+    """Any audio file as 16 kHz mono 16-bit WAV, the format the speech models expect."""
+    dest.parent.mkdir(parents=True, exist_ok=True)
+    cmd = ["ffmpeg", "-y", "-loglevel", "error", "-i", str(src)]
+    subprocess.run([*cmd, "-ac", "1", "-ar", "16000", "-sample_fmt", "s16", str(dest)], check=True)
+    return dest
 
 
 def to_wav(upload, dest: Path) -> Path:
-    """Convert any uploaded audio to 16 kHz mono WAV, the format the speech models expect."""
-    with tempfile.NamedTemporaryFile(suffix=Path(upload.name).suffix) as src:
+    """An uploaded or recorded clip (Streamlit UploadedFile) as 16 kHz mono WAV."""
+    suffix = Path(getattr(upload, "name", "") or "clip.wav").suffix or ".wav"
+    with tempfile.NamedTemporaryFile(suffix=suffix) as src:
         src.write(upload.getbuffer())
         src.flush()
-        cmd = ["ffmpeg", "-y", "-loglevel", "error", "-i", src.name]
-        subprocess.run([*cmd, "-ac", "1", "-ar", "16000", dest], check=True)
-    return dest
+        return file_to_wav(Path(src.name), dest)
+
+
+def recording_of(session_id: str) -> Path | None:
+    path = RECORDINGS / f"{session_id}.wav"
+    return path if path.exists() else None
+
+
+def seek(key: str, seconds: float) -> None:
+    st.session_state[key] = seconds
+    st.session_state[f"{key}-play"] = True
+
+
+def recording_player(path: Path, key: str) -> None:
+    """The recording, starting wherever a transcript line's ▶ last pointed."""
+    autoplay = st.session_state.pop(f"{key}-play", False)
+    start = st.session_state.get(key, 0)
+    st.audio(str(path), start_time=start, autoplay=autoplay)
+    if start:
+        st.caption(f"Playing from {int(start) // 60}:{int(start) % 60:02d}")
+
+
+STEPS = ["Record", "Who spoke?", "AI assessment", "Approve", "Send"]
+
+
+def step_bar(current: int, done: set[int]) -> None:
+    """The five steps of a session, the current one highlighted (1-based)."""
+    items = []
+    for n, name in enumerate(STEPS, start=1):
+        state = "now" if n == current else "done" if n in done else ""
+        mark = "✓" if n in done and n != current else str(n)
+        items.append(f'<div class="step {state}"><span>{mark}</span>{name}</div>')
+    st.html(
+        "<style>.steps{display:flex;gap:6px;margin:4px 0 14px;flex-wrap:wrap}"
+        ".step{flex:1 1 0;min-width:110px;padding:8px 10px;border:1px solid #2f2f2f;"
+        "border-radius:10px;color:#9b9b9b;font-size:13px;display:flex;gap:8px;"
+        "align-items:center;background:#1f1f1f}.step span{display:inline-grid;"
+        "place-items:center;width:20px;height:20px;border-radius:50%;background:#2a2a2a;"
+        "font-size:11px;font-variant-numeric:tabular-nums}.step.done{color:#4dab6f}"
+        ".step.done span{background:#1f3a2a}.step.now{color:#e3e3e3;border-color:#2383e2;"
+        "background:#1d2633}.step.now span{background:#2383e2;color:#fff}</style>"
+        f'<div class="steps">{"".join(items)}</div>'
+    )
 
 
 def when(iso: str) -> str:
@@ -256,6 +322,9 @@ def default_title() -> str:
 
 
 def go(view: str, session: str | None = None) -> None:
+    for param in ("session", "step", "agent"):  # links from the agent workspace
+        if param in st.query_params:
+            del st.query_params[param]
     st.session_state.view = view
     if session:
         st.session_state.session_id = session
@@ -311,8 +380,9 @@ def speaker_name(inputs: AssessmentInputs, turn) -> str:
     return f"{sp.label} ({sp.kind})"
 
 
-def show_transcript(turns, names: dict[str, str]) -> None:
-    """The transcript as a conversation. Uncertain turns are greyed out: they are never scored."""
+def show_transcript(turns, names: dict[str, str], player_key: str | None = None) -> None:
+    """The transcript as a conversation. Uncertain turns are greyed out: they are never scored.
+    With ``player_key``, each line has a ▶ that plays the recording from that moment."""
     for t in turns:
         sp = t.speaker
         stamp = f"{t.startMs // 60000}:{t.startMs // 1000 % 60:02d}"
@@ -323,8 +393,23 @@ def show_transcript(turns, names: dict[str, str]) -> None:
         else:
             who, avatar = f"{sp.label} · speaker uncertain", "❔"
         with st.chat_message(who, avatar=avatar):
-            st.caption(f"**{who}** · {stamp} · {t.id}")
-            st.markdown(f":gray[{t.text}]" if sp.kind == "uncertain" else t.text)
+            if player_key:
+                col_who, col_play = st.columns([12, 1])
+                col_who.caption(f"**{who}** · {stamp} · {t.id}")
+                col_play.button(
+                    "▶",
+                    key=f"{player_key}-{t.id}",
+                    help=f"Play from {stamp}",
+                    type="tertiary",
+                    on_click=seek,
+                    args=(player_key, t.startMs / 1000),
+                )
+            else:
+                st.caption(f"**{who}** · {stamp} · {t.id}")
+            if sp.kind == "uncertain":
+                st.markdown(f":gray[{t.text}]  \n:orange[Unknown speaker · won't be scored]")
+            else:
+                st.markdown(t.text)
 
 
 def set_recipients_from_classlist(session_id: str, inputs: AssessmentInputs) -> int:
@@ -354,56 +439,51 @@ records, classlist = services()
 st.set_page_config(page_title="ClassPart AI", page_icon="🎓", layout="wide")
 st.html(PAGE_CSS)
 
-# --- Sidebar: like Notion's meeting list ------------------------------------------------------
+# --- Sidebar ----------------------------------------------------------------------------------
 
 sessions = records.sessions()
 by_id = {s["id"]: s for s in sessions}
-if "view" not in st.session_state:
-    st.session_state.view = "session" if sessions else "new"
+st.session_state.setdefault("view", "home")
 if st.session_state.get("session_id") not in by_id:
     st.session_state.session_id = next(iter(by_id), None)
 if st.session_state.view == "session" and not sessions:
-    st.session_state.view = "new"
+    st.session_state.view = "home"
+linked = st.query_params.get("session")
+if linked in by_id:
+    st.session_state.view, st.session_state.session_id = "session", linked
+    linked_step = {"AI assessment": 3, "Approve": 4, "Send": 5}.get(st.query_params.get("step"))
+    if linked_step:
+        st.session_state[f"step-{linked}"] = linked_step
+        del st.query_params["step"]
+
+
+def nav(label: str, view_name: str, session: str | None = None, key: str | None = None) -> None:
+    selected = st.session_state.view == view_name and (
+        session is None or session == st.session_state.session_id
+    )
+    st.button(
+        label,
+        key=key,
+        width="stretch",
+        type="secondary" if selected else "tertiary",
+        on_click=go,
+        args=(view_name, session),
+    )
+
 
 with st.sidebar:
     st.markdown("### 🎓 ClassPart AI")
-    st.button(
-        "🎙️ New class session",
-        width="stretch",
-        type="secondary" if st.session_state.view == "new" else "tertiary",
-        on_click=go,
-        args=("new",),
-    )
+    nav("🏠 Home", "home")
+    nav("🎙️ New class session", "new")
     st.caption("Class sessions")
     for s in sessions:
-        selected = st.session_state.view == "session" and s["id"] == st.session_state.session_id
-        title = s["title"] if len(s["title"]) <= 30 else s["title"][:29] + "…"
-        st.button(
-            f"📝 {title}",
-            key=f"open-{s['id']}",
-            help=f"{s['course_title']} · {when(s['created_at'])}",
-            width="stretch",
-            type="secondary" if selected else "tertiary",
-            on_click=go,
-            args=("session", s["id"]),
-        )
+        nav(f"📝 {s['title']}", "session", s["id"], key=f"open-{s['id']}")
     if not sessions:
         st.caption("No sessions yet.")
     st.divider()
-    st.button(
-        "📚 Course library",
-        width="stretch",
-        type="secondary" if st.session_state.view == "library" else "tertiary",
-        on_click=go,
-        args=("library",),
-    )
-    st.button(
-        "👥 Class list",
-        width="stretch",
-        type="secondary" if st.session_state.view == "classlist" else "tertiary",
-        on_click=go,
-        args=("classlist",),
-    )
+    st.caption("Set up")
+    nav("📚 Course library", "library")
+    nav("👥 Class & voices", "voices")
     if os.getenv("EMAIL_TEST_MODE", "true").lower() != "false":
         recipient = os.getenv("EMAIL_TEST_RECIPIENT", "(not set)")
         st.caption(f"✉️ Test mode: every email goes to {recipient}")
@@ -412,109 +492,303 @@ with st.sidebar:
 
 view = st.session_state.view
 session_id = st.session_state.session_id
+people = classlist.all()
+registry = voices().registry()
+voiced_profs = [p for p in classlist.professors() if p.person_id in registry]
+voiced_students = [p for p in classlist.students() if p.person_id in registry]
+ready_to_record = bool(voiced_profs and voiced_students)
 
 
-def open_session(new_inputs: AssessmentInputs) -> None:
+def open_session(new_inputs: AssessmentInputs, recipients: dict[str, str] | None = None) -> str:
     new_id = records.create_session(new_inputs)
-    n = set_recipients_from_classlist(new_id, new_inputs)
+    if recipients is None:
+        n = set_recipients_from_classlist(new_id, new_inputs)
+    else:
+        for sid, email in recipients.items():
+            records.set_recipient(new_id, sid, email)
+        n = len(recipients)
     go("session", new_id)
-    st.toast(f"Session created; {n} recipient(s) filled from the class list.")
-    st.rerun()
+    st.toast(f"Session created; {n} recipient(s) set.")
+    return new_id
 
 
-# --- New class session ------------------------------------------------------------------------
+def demo_people() -> list[dict]:
+    return json.loads((DEMO_AUDIO / "manifest.json").read_text())["people"]
 
-if view == "new":
-    roster = list(classlist.all().values())
+
+def enrol_demo_voices() -> None:
+    """The synthetic voices of the demo recording, marked as demo entries."""
+    with tempfile.TemporaryDirectory() as tmp:
+        for person in demo_people():
+            if voices().get(person["personId"]):
+                continue
+            wav = file_to_wav(DEMO_AUDIO / person["file"], Path(tmp) / f"{person['personId']}.wav")
+            voices().enrol(person["personId"], person["name"], wav, demo=True)
+
+
+def transcribe(wav: Path, roster: list[dict], professors: set[str], meta: dict) -> None:
+    """Run the Listener on a 16 kHz WAV and keep the result for step 2 (Who spoke?)."""
+    voices().ensure()
+    process_audio, note, lock = load_listener()
+    with lock, st.spinner("Transcribing and identifying speakers…"):
+        result = process_audio(str(wav))
+    ids = {r["displayName"]: r["id"] for r in roster}
+    st.session_state.pending = {
+        "diagnostics": json.loads(json.dumps({**result, "note": note}, default=str)),
+        "transcript": listener.to_transcript(result, ids, "review-1", professors),
+        "roster": roster,
+        "audio": str(wav),
+        "note": note,
+        **meta,
+    }
+
+
+# --- Home -------------------------------------------------------------------------------------
+
+if view == "home":
+    st.title("ClassPart AI")
+    st.markdown(
+        '<p class="muted">Record a seminar, let the agents check what was said against the '
+        "course notes and score it against the rubric, then approve and send each student "
+        "their feedback.</p>",
+        unsafe_allow_html=True,
+    )
+    entries = course_library().entries()
+    students = classlist.students()
+    with st.container(border=True):
+        st.markdown("**Set up** · do these once per course")
+        rows = [
+            (
+                bool(entries),
+                "📚 Course library",
+                f"{len(entries)} file(s) · "
+                f"{sum(len(e['document']['passages']) for e in entries)} passages"
+                if entries
+                else "Upload the slides the evidence agent should search",
+                "library",
+            ),
+            (
+                ready_to_record,
+                "👥 Class & voices",
+                f"{len(students)} student(s) · voices: {len(voiced_students)}/{len(students)} "
+                f"students, {len(voiced_profs)} professor(s)",
+                "voices",
+            ),
+        ]
+        for ok, name, detail, target in rows:
+            col_state, col_name, col_go = st.columns([6, 1, 1])
+            col_state.markdown(f"{'✅' if ok else '⚠️'} **{name}** · :gray[{detail}]")
+            col_go.button("Open", key=f"home-{target}", on_click=go, args=(target,))
+        mail = os.getenv("EMAIL_TEST_RECIPIENT", "")
+        test_mode = os.getenv("EMAIL_TEST_MODE", "true").lower() != "false"
+        st.markdown(
+            "✅ **✉️ Email** · :gray["
+            + (f"test mode: every email goes to {mail}" if test_mode else "sends to students")
+            + "]"
+        )
+        if not ready_to_record:
+            st.caption(
+                "Recording unlocks once the professor and at least one student have a voice "
+                "sample: the Listener can only name people it has heard before."
+            )
+    col_new, col_demo, _ = st.columns([1, 1, 2])
+    col_new.button(
+        "🎙️ New class session", type="primary", width="stretch", on_click=go, args=("new",)
+    )
+    col_demo.button("▶ Try the demo recording", width="stretch", on_click=go, args=("new",))
+    if sessions:
+        st.markdown("#### Recent sessions")
+        for s in sessions[:6]:
+            col_title, col_when = st.columns([4, 1])
+            col_title.button(
+                f"📝 {s['title']}",
+                key=f"home-open-{s['id']}",
+                type="tertiary",
+                on_click=go,
+                args=("session", s["id"]),
+            )
+            col_when.caption(when(s["created_at"]))
+
+# --- New class session: steps 1 (Record) and 2 (Who spoke?) -----------------------------------
+
+elif view == "new":
+    pending = st.session_state.get("pending")
+    step_bar(2 if pending else 1, {1} if pending else set())
     st.session_state.setdefault("new-title", default_title())
     st.title(st.session_state["new-title"] or "Untitled session")
     col_title, col_course = st.columns(2)
     title = col_title.text_input("Title", key="new-title")
     course = col_course.text_input("Course", "IS469 Gen AI with LLMs")
 
-    with st.container(border=True):
-        st.markdown("**🎙️ Class recording**")
-        if not roster:
-            st.warning("Add students on the Class list first, so the recording has a roster.")
-        col_rec, col_up = st.columns(2)
-        recorded = col_rec.audio_input("Start transcribing", key="mic")
-        uploaded = col_up.file_uploader("…or upload a recording", type=AUDIO_TYPES)
-        audio = recorded or uploaded
-        st.caption(
-            "ClassPart AI transcribes the recording, works out who spoke, then checks, scores and "
-            "drafts feedback once you've reviewed the transcript. By recording, you confirm "
-            "everyone being recorded has agreed to it."
-        )
-        if st.button("Transcribe", type="primary", disabled=not (audio and roster)):
-            if not REGISTRY_PATH.exists():
-                save_registry({})
-            try:
-                process_audio, note, lock = load_listener()
-                with tempfile.TemporaryDirectory() as tmp, lock:
-                    with st.spinner("Transcribing and identifying speakers…"):
-                        result = process_audio(str(to_wav(audio, Path(tmp) / "rec.wav")))
-            except Exception as exc:
-                st.error(
-                    f"Couldn't process the recording ({str(exc).splitlines()[0][:300]}). "
-                    "You can still use the demo seminar below."
+    if not pending:
+        with st.container(border=True):
+            st.markdown("**① Record the seminar**")
+            names = [f"🎓 {p.name}" for p in voiced_profs] + [
+                f"✅ {p.name}" for p in voiced_students
+            ]
+            missing = [p.name for p in classlist.students() if p.person_id not in registry]
+            st.caption(
+                ("Will recognise: " + ", ".join(names) if names else "Nobody is enrolled yet.")
+                + (
+                    f" · No voice sample (won't be recognised): {', '.join(missing)}"
+                    if missing
+                    else ""
                 )
-            else:
-                ids = {p["name"]: pid for pid, p in load_registry().items()}
-                st.session_state.pending_transcript = listener.to_transcript(
-                    result, ids, "review-1"
+            )
+            if not ready_to_record:
+                st.warning(
+                    "Enrol the professor's and at least one student's voice first: the Listener "
+                    "can only name people it has a sample for, and unnamed speakers aren't scored."
                 )
-                st.session_state.pending_meta = (title, course)
-                st.session_state.listener_note = note
-
-        pending = st.session_state.get("pending_transcript")
-        if pending:
-            st.divider()
-            st.markdown("**Transcript: check who said what before it's used**")
-            if st.session_state.get("listener_note"):
-                st.info(st.session_state.listener_note)
-            names = {s.person_id: s.name for s in roster}
-            show_transcript(pending.turns, names)
-            reviewed = st.checkbox("I have reviewed this transcript's attribution")
-            if reviewed and st.button("Create session from transcript", type="primary"):
-                title, course = st.session_state.pop("pending_meta")
-                open_session(
-                    AssessmentInputs(
-                        formatVersion=1,
-                        provenance="reviewed",
-                        courseTitle=course,
-                        sessionTitle=title,
-                        roster=[{"id": s.person_id, "displayName": s.name} for s in roster],
-                        transcript=st.session_state.pop("pending_transcript"),
-                        rubric=json.loads((DATA / "default_rubric.json").read_text()),
-                        documents=course_library().documents()
-                        or json.loads(config.COURSE_DOCUMENTS.read_text()),
+                st.button("👥 Go to Class & voices", on_click=go, args=("voices",))
+            col_rec, col_up = st.columns(2)
+            recorded = col_rec.audio_input(
+                "Record in the browser", key="mic", disabled=not ready_to_record
+            )
+            uploaded = col_up.file_uploader(
+                "…or upload a recording", type=AUDIO_TYPES, disabled=not ready_to_record
+            )
+            audio = recorded or uploaded
+            st.caption(
+                "By recording, you confirm everyone being recorded has agreed to it. The "
+                "recording is kept on this server so you can play it back."
+            )
+            if st.button("Transcribe →", type="primary", disabled=not (audio and ready_to_record)):
+                wav = RECORDINGS / f"pending-{uuid.uuid4().hex}.wav"
+                roster = [{"id": p.person_id, "displayName": p.name} for p in classlist.students()]
+                try:
+                    to_wav(audio, wav)
+                    transcribe(
+                        wav,
+                        roster,
+                        {p.name for p in classlist.professors()},
+                        {"title": title, "course": course, "demo": False},
                     )
-                )
+                    st.rerun()
+                except Exception as exc:
+                    st.error(f"Couldn't process the recording ({str(exc).splitlines()[0][:300]}).")
 
-    st.markdown('<p class="muted">No recording to hand?</p>', unsafe_allow_html=True)
-    col_demo, col_fixture, _ = st.columns([1, 1, 2])
-    if col_demo.button("▶ Use the demo seminar", width="stretch"):
-        for pid, entry in json.loads((DATA / "sample_classlist.json").read_text()).items():
-            if classlist.get(pid) is None:
-                classlist.upsert(entry["name"], entry["email"])
-        demo = parse_inputs((DATA / "sample_assessment.json").read_text())
-        open_session(demo.model_copy(update={"documents": with_library(demo.documents)}))
-    if col_fixture.button("Use Le Yong's fixture", width="stretch"):
-        open_session(parse_inputs((DATA / "fixture-fictional.json").read_text()))
-    files = len(course_library().entries())
-    st.caption(
-        f"New sessions search the {files} file(s) in the 📚 Course library"
-        if files
-        else "📚 The Course library is empty: sessions from recordings use the demo course notes."
-    )
-    with st.expander("Import a session file (JSON)"):
-        st.caption("A reviewed session file: roster, transcript, rubric and course documents.")
-        upload = st.file_uploader("Session JSON", type=["json"])
-        if upload and st.button("Import", type="primary"):
-            try:
-                open_session(parse_inputs(upload.getvalue().decode()))
-            except ValueError as exc:
-                st.error(str(exc))
+        with st.container(border=True):
+            st.markdown("**No recording to hand?**")
+            col_rec_demo, col_seminar, col_fixture = st.columns(3)
+            if col_rec_demo.button(
+                "▶ Use the demo recording",
+                width="stretch",
+                help="A 48-second mock seminar read by synthetic voices, with their voice samples",
+            ):
+                wav = RECORDINGS / f"pending-{uuid.uuid4().hex}.wav"
+                sample = parse_inputs((DATA / "sample_assessment.json").read_text())
+                try:
+                    with st.spinner("Enrolling the demo voices…"):
+                        enrol_demo_voices()
+                    file_to_wav(DEMO_AUDIO / "seminar.ogg", wav)
+                    profs = {p["name"] for p in demo_people() if p["role"] == "professor"}
+                    transcribe(
+                        wav,
+                        [r.model_dump() for r in sample.roster],
+                        profs,
+                        {
+                            "title": sample.sessionTitle.replace("(sample)", "(demo recording)"),
+                            "course": sample.courseTitle,
+                            "demo": True,
+                        },
+                    )
+                    st.rerun()
+                except Exception as exc:
+                    st.error(
+                        f"Couldn't process the demo recording ({str(exc).splitlines()[0][:300]})."
+                    )
+            if col_seminar.button(
+                "Skip to the demo transcript",
+                width="stretch",
+                help="The same seminar as a ready-made transcript: starts at step 3",
+            ):
+                demo = parse_inputs((DATA / "sample_assessment.json").read_text())
+                sample_people = json.loads((DATA / "sample_classlist.json").read_text())
+                open_session(
+                    AssessmentInputs.model_validate(
+                        {**demo.model_dump(), "documents": with_library(demo.documents)}
+                    ),
+                    {pid: e["email"] for pid, e in sample_people.items()},
+                )
+                st.rerun()
+            if col_fixture.button("Le Yong's fixture", width="stretch"):
+                open_session(parse_inputs((DATA / "fixture-fictional.json").read_text()))
+                st.rerun()
+            with st.expander("Import a session file (JSON)"):
+                upload = st.file_uploader("Session JSON", type=["json"])
+                if upload and st.button("Import", type="primary"):
+                    try:
+                        open_session(parse_inputs(upload.getvalue().decode()))
+                        st.rerun()
+                    except ValueError as exc:
+                        st.error(str(exc))
+    else:
+        transcript = pending["transcript"]
+        roster = pending["roster"]
+        names = {r["id"]: r["displayName"] for r in roster}
+        with st.container(border=True):
+            st.markdown("**② Who spoke?** Check the AI's attribution before anything is scored.")
+            if pending.get("note"):
+                st.info(pending["note"])
+            turns = transcript.turns
+            prof_turns = sum(t.speaker.kind == "professor" for t in turns)
+            unknown = sum(t.speaker.kind == "uncertain" for t in turns)
+            per_student = {r["id"]: 0 for r in roster}
+            for t in turns:
+                if t.speaker.kind == "student":
+                    per_student[t.speaker.studentId] += 1
+            cols = st.columns(4)
+            cols[0].metric("Lines", len(turns))
+            cols[1].metric("Professor", prof_turns)
+            cols[2].metric("Students", sum(per_student.values()))
+            cols[3].metric("Unknown (not scored)", unknown)
+            silent = [names[sid] for sid, n in per_student.items() if n == 0]
+            if silent:
+                st.caption(
+                    "Not heard in this recording (they'll get 'No observed contribution'): "
+                    + ", ".join(silent)
+                )
+            if pending.get("audio") and Path(pending["audio"]).exists():
+                recording_player(Path(pending["audio"]), "pending-seek")
+            show_transcript(turns, names, player_key="pending-seek")
+            confirmed = st.checkbox("I've checked who said what (listen with ▶ if unsure)")
+            col_go, col_drop, _ = st.columns([1, 1, 2])
+            if col_go.button("Create session →", type="primary", disabled=not confirmed):
+                demo = pending.get("demo")
+                sample = parse_inputs((DATA / "sample_assessment.json").read_text())
+                documents = (
+                    with_library(sample.documents)
+                    if demo
+                    else course_library().documents()
+                    or json.loads(config.COURSE_DOCUMENTS.read_text())
+                )
+                new_inputs = AssessmentInputs(
+                    formatVersion=1,
+                    provenance="reviewed",
+                    courseTitle=pending["course"] if not demo else sample.courseTitle,
+                    sessionTitle=pending["title"],
+                    roster=roster,
+                    transcript=transcript,
+                    rubric=sample.rubric.model_dump()
+                    if demo
+                    else json.loads((DATA / "default_rubric.json").read_text()),
+                    documents=documents,
+                )
+                recipients = None
+                if demo:
+                    sample_people = json.loads((DATA / "sample_classlist.json").read_text())
+                    recipients = {pid: e["email"] for pid, e in sample_people.items()}
+                new_id = open_session(new_inputs, recipients)
+                RECORDINGS.mkdir(parents=True, exist_ok=True)
+                shutil.move(pending["audio"], RECORDINGS / f"{new_id}.wav")
+                records.save_listener_run(new_id, pending.get("diagnostics") or {})
+                del st.session_state["pending"]
+                st.rerun()
+            if col_drop.button("Discard and record again"):
+                Path(pending["audio"]).unlink(missing_ok=True)
+                del st.session_state["pending"]
+                st.rerun()
 
 # --- Course library ---------------------------------------------------------------------------
 
@@ -552,8 +826,7 @@ elif view == "library":
         )
     entries = library.entries()
     if entries:
-        documents = [e["document"] for e in entries]
-        show_vault(documents, agent="Course library", height=460)
+        show_vault([e["document"] for e in entries], agent="Course library", height=460)
         for entry in entries:
             doc = entry["document"]
             col_name, col_count, col_when, col_remove = st.columns([4, 2, 2, 1])
@@ -570,58 +843,123 @@ elif view == "library":
     else:
         st.info("No files yet. Upload the slides for the topics your seminars cover.")
 
-# --- Class list -------------------------------------------------------------------------------
+# --- Class & voices ---------------------------------------------------------------------------
 
-elif view == "classlist":
-    st.title("Class list")
+elif view == "voices":
+    st.title("Class & voices")
     st.write(
-        "Add each student with their email. A 20–30 second clip of them speaking alone lets the "
-        "Listener recognise them; only add a voice sample for people who have agreed to it."
+        "Everyone who speaks in a seminar needs a voice sample, including the professor: the "
+        "Listener names speakers by comparing them with these samples, and anyone it can't name "
+        "isn't scored. Only enrol people who have agreed to it."
     )
-    with st.form("add-student", clear_on_submit=True):
-        name = st.text_input("Name")
-        email_address = st.text_input("Email")
-        sample = st.file_uploader("Voice sample (optional)", type=AUDIO_TYPES)
-        if st.form_submit_button("Add student"):
+
+    def voice_input(key: str):
+        """Record (reading the paragraph) or upload a voice sample; returns the clip or None."""
+        st.markdown(f"> {READING}")
+        col_rec, col_up = st.columns(2)
+        recorded = col_rec.audio_input("🎙 Read the paragraph above", key=f"{key}-rec")
+        uploaded = col_up.file_uploader(
+            "…or upload a clip of them speaking alone", type=AUDIO_TYPES, key=f"{key}-up"
+        )
+        return recorded or uploaded
+
+    def save_voice(person, clip) -> bool:
+        with tempfile.TemporaryDirectory() as tmp:
+            try:
+                check = voices().enrol(
+                    person.person_id, person.name, to_wav(clip, Path(tmp) / "voice.wav")
+                )
+            except ValueError as exc:
+                st.error(f"{person.name}: {exc}")
+                return False
+        tip = "" if check.seconds >= GOOD_SECONDS else " (20 s or more recognises people better)"
+        st.toast(f"Saved {person.name}'s voice: {check.seconds:.0f} s{tip}")
+        return True
+
+    with st.container(border=True):
+        st.markdown("**Add a person**")
+        st.session_state.setdefault("person-round", 0)
+        round_key = f"person-{st.session_state['person-round']}"
+        col_name, col_mail, col_role = st.columns([2, 3, 1])
+        name = col_name.text_input("Name", key=f"{round_key}-name")
+        email_address = col_mail.text_input("Email", key=f"{round_key}-email")
+        role = col_role.radio("Role", ["student", "professor"], key=f"{round_key}-role")
+        clip = voice_input(round_key)
+        if st.button("Add", type="primary"):
             if not name.strip() or "@" not in email_address:
                 st.error("Enter a name and a valid email.")
             else:
-                student = classlist.upsert(name, email_address)
-                if sample:
-                    ENROLLMENT_DIR.mkdir(parents=True, exist_ok=True)
-                    to_wav(sample, ENROLLMENT_DIR / f"{student.person_id}.wav")
-                    registry = load_registry()
-                    registry[student.person_id] = {
-                        "name": student.name,
-                        "audio_file": f"{student.person_id}.wav",
-                    }
-                    save_registry(registry)
-                st.success(f"Added {student.name}.")
+                person = classlist.upsert(name, email_address, role=role)
+                if clip is None or save_voice(person, clip):
+                    st.session_state["person-round"] += 1
+                    st.rerun()
 
-    registry = load_registry()
-    for student in sorted(classlist.all().values(), key=lambda s: s.name):
-        col_name, col_mail, col_voice, col_remove = st.columns([2, 3, 3, 1])
-        col_name.write(student.name)
-        col_mail.write(student.email)
-        voice = registry.get(student.person_id)
-        if voice:
-            col_voice.audio(str(ENROLLMENT_DIR / voice["audio_file"]))
-        else:
-            col_voice.caption("No voice sample")
-        if col_remove.button("Remove", key=f"rm-{student.person_id}"):
-            classlist.remove(student.person_id)
-            if voice:
-                (ENROLLMENT_DIR / voice["audio_file"]).unlink(missing_ok=True)
-                del registry[student.person_id]
-                save_registry(registry)
+    everyone = sorted(people.values(), key=lambda p: (p.role != "professor", p.name))
+    if everyone:
+        st.markdown(f"#### {len(everyone)} people")
+    for person in everyone:
+        entry = registry.get(person.person_id)
+        with st.container(border=True):
+            col_who, col_voice, col_remove = st.columns([3, 4, 1])
+            badge = "🎓 professor" if person.role == "professor" else "🧑‍🎓 student"
+            col_who.markdown(f"**{person.name}** · {badge}  \n:gray[{person.email}]")
+            if entry:
+                seconds = voices().seconds(person.person_id) or 0
+                col_voice.caption(f"✅ Voice sample · {seconds:.0f} s")
+                col_voice.audio(str(voices().clip_path(person.person_id)))
+            else:
+                col_voice.markdown(":orange[⚠️ No voice sample: won't be recognised]")
+            if col_remove.button("Remove", key=f"rm-{person.person_id}"):
+                classlist.remove(person.person_id)
+                voices().remove(person.person_id)
+                st.rerun()
+            with st.expander("Record a new voice sample" if entry else "Add a voice sample"):
+                clip = voice_input(f"re-{person.person_id}")
+                if st.button("Save voice sample", key=f"save-voice-{person.person_id}"):
+                    if clip is None:
+                        st.error("Record or upload a clip first.")
+                    elif save_voice(person, clip):
+                        st.rerun()
+
+    demo_voices = [pid for pid, e in registry.items() if e.get("demo")]
+    if demo_voices:
+        col_demo, col_clear = st.columns([4, 1])
+        col_demo.caption(
+            f"Also enrolled: {len(demo_voices)} synthetic voices from the demo recording. They "
+            "don't count as class members."
+        )
+        if col_clear.button("Remove demo voices"):
+            for pid in demo_voices:
+                voices().remove(pid)
             st.rerun()
 
-# --- Session page -----------------------------------------------------------------------------
+# --- Session page: steps 3 (AI assessment), 4 (Approve) and 5 (Send) ---------------------------
 
 else:
     inputs = records.inputs(session_id)
     meta = by_id[session_id]
     latest = records.latest_draft(session_id)
+    approval = records.active_approval(session_id) if latest else None
+    deliveries = records.deliveries(session_id)
+    sent = bool(deliveries) and all(d["state"] == "accepted" for d in deliveries)
+    done = (
+        {1, 2}
+        | ({3} if latest else set())
+        | ({4} if approval else set())
+        | ({5} if sent else set())
+    )
+    first_open = 3 if not latest else 4 if not approval else 5
+    step_names = {3: "③ AI assessment", 4: "④ Approve", 5: "⑤ Send"}
+    step_bar(st.session_state.get(f"step-{session_id}") or first_open, done)
+    picked = st.segmented_control(
+        "Step",
+        list(step_names),
+        format_func=lambda n: step_names[n] + (" ✓" if n in done else ""),
+        default=first_open,
+        key=f"step-{session_id}",
+        label_visibility="collapsed",
+    )
+    step = picked or first_open
     st.title(inputs.sessionTitle)
     st.markdown(
         f'<p class="muted">📅 {escape(when(meta["created_at"]))} · {escape(inputs.courseTitle)} · '
@@ -629,95 +967,247 @@ else:
         unsafe_allow_html=True,
     )
 
-    with st.container(border=True):
-        tab_summary, tab_vault, tab_transcript, tab_evidence, tab_details = st.tabs(
-            ["✨ Summary", "🌌 Retrieval", "💬 Transcript", "🔎 Ask the course notes", "⋯ Details"]
-        )
-
-    # Summary: the coordinator's run and its result.
-    with tab_summary:
-        if latest is None:
-            st.markdown(
-                '<p class="muted">ClassPart AI will check what was said against the course '
-                "notes, score each student against the rubric, audit those scores and draft "
-                "feedback for each student. Nothing is sent until you approve it.</p>",
-                unsafe_allow_html=True,
-            )
+    if step == 3:
         live = live_runs().get(session_id)
         running = bool(live and live["thread"].is_alive())
-        run_panel(session_id, inputs)
-        col_run, col_blank, _ = st.columns([1, 1, 2])
-        if col_run.button(
-            "⏳ Working…"
-            if running
-            else "✨ Generate summary"
-            if latest is None
-            else "✨ Regenerate",
-            type="primary",
-            width="stretch",
-            disabled=running,
-        ):
-            start_run(session_id)
-            st.rerun()
-        if latest is None and not running and col_blank.button("Write it myself", width="stretch"):
-            records.create_professor_draft(session_id)
-            st.rerun()
+        tabs = st.tabs(TABS, key="agent", on_change="rerun", bind="query-params")
+        for name, tab in zip(TABS, tabs, strict=True):
+            if not tab.open:
+                continue
+            with tab:
+                if name != "Overview":
 
-        if latest:
-            origin = "AI proposal" if latest.origin == "model" else "professor edit"
-            st.markdown(f"#### Version {latest.version} · {origin}")
-            st.caption(latest.content.revisionNote)
-            bundles = dict(records.evidence_for(session_id))
-            criteria = {c.id: c.title for c in inputs.rubric.criteria}
-            turns = {t.id: t for t in inputs.transcript.turns}
-            for s in inputs.roster:
-                total = totals(latest.content, inputs, s.id)
-                headline = (
-                    f"{total['total']:g}/{total['maximum']}"
-                    if total["total"] is not None
-                    else f"{total['assessedCriteria']}/{total['totalCriteria']} criteria assessed"
-                )
-                with st.expander(f"**{s.displayName}** · {headline}"):
-                    fb = next((x for x in latest.content.feedback if x.studentId == s.id), None)
-                    if fb:
-                        st.markdown(f"{fb.strengths}\n\n**Next step:** {fb.nextStep}")
-                        if fb.limitations:
-                            st.caption("Limitations: " + "; ".join(fb.limitations))
-                    else:
-                        st.warning("No feedback draft yet; every roster student needs one.")
-                    st.caption(
-                        f"Observed attributed contributions: {observed_count(inputs, s.id)} "
-                        f"(counts are separate from judgement). {total['limitation']}."
-                    )
-                    for f in [x for x in latest.content.findings if x.studentId == s.id]:
-                        verdict = (
-                            f"proposed {f.score:g}"
-                            if f.status == "scored"
-                            else "insufficient evidence, no score"
+                    def agent_panel(name=name):
+                        render_agent(name, records, session_id, inputs, live_runs().get(session_id))
+                        entry = live_runs().get(session_id)
+                        if entry and entry["ended"] and not entry.get("reported"):
+                            entry["reported"] = True
+                            st.rerun()
+
+                    st.fragment(run_every=2 if running else None)(agent_panel)()
+                    if name == "Listener" and recording_of(session_id):
+                        with st.expander("Play any line of the recording"):
+                            recording_player(recording_of(session_id), f"seek-{session_id}")
+                            show_transcript(
+                                inputs.transcript.turns,
+                                {s.id: s.displayName for s in inputs.roster},
+                                f"seek-{session_id}",
+                            )
+                    if name == "Evidence / Research":
+                        with st.expander("🔎 Ask the course notes"):
+                            st.write(
+                                "Ask the evidence agent to check something said in class "
+                                "against the course documents. It chooses its own searches "
+                                "and must cite exact excerpts; it never "
+                                "scores."
+                            )
+                            question = st.text_input(
+                                "Question",
+                                placeholder="Is Alex's latency point supported by the notes?",
+                            )
+                            turn_labels = {
+                                t.id: f"{t.id} · {speaker_name(inputs, t)}: {t.text[:60]}"
+                                for t in inputs.transcript.turns
+                            }
+                            turn_ids = st.multiselect(
+                                "Turns (1–8)",
+                                list(turn_labels),
+                                format_func=turn_labels.get,
+                                max_selections=8,
+                            )
+                            crit = {c.id: c.title for c in inputs.rubric.criteria}
+                            criterion_ids = st.multiselect(
+                                "Rubric criteria",
+                                list(crit),
+                                format_func=crit.get,
+                                default=list(crit)[:1],
+                            )
+                            ready = bool(len(question.strip()) >= 5 and turn_ids and criterion_ids)
+                            if st.button("Investigate", type="primary", disabled=not ready):
+                                use_research = config.EVIDENCE_AGENT == "research"
+                                driver = (
+                                    None
+                                    if use_research
+                                    else configured_driver(EVIDENCE_INSTRUCTIONS, EVIDENCE_TOOLS)
+                                )
+                                if driver is None and not use_research:
+                                    st.error("No model configured (set OPENAI_API_KEY).")
+                                else:
+                                    log = st.status(
+                                        "The evidence agent is investigating…", expanded=True
+                                    )
+                                    shown = [0]
+
+                                    def checkpoint(progress, shown=shown, log=log):
+                                        for a in progress.actions[shown[0] :]:
+                                            if a["outcome"] == "started":
+                                                break
+                                            icon = "✅" if a["outcome"] == "ok" else "⛔"
+                                            log.write(f"{icon} `{a['tool']}`: {a['summary']}")
+                                            shown[0] += 1
+
+                                    request = Investigation(
+                                        sessionId=session_id,
+                                        question=question,
+                                        turnIds=turn_ids,
+                                        criterionIds=criterion_ids,
+                                    )
+                                    if (
+                                        use_research
+                                    ):  # ② Research (research/bridge.py), same contract
+                                        from classpartai.research import bridge
+
+                                        outcome = bridge.investigate(
+                                            request, inputs, None, checkpoint
+                                        )
+                                    else:
+                                        outcome = investigate(
+                                            request, inputs, driver, CourseIndex(inputs), checkpoint
+                                        )
+                                    records.save_evidence_run(session_id, question, outcome)
+                                    log.update(
+                                        label=f"Evidence agent: {outcome.status} "
+                                        f"({outcome.stopReason})",
+                                        state="complete",
+                                    )
+                                    # Redraw so the Evidence tab lists this new check.
+                                    st.toast("Evidence check saved: replay it above in this tab")
+                                    st.rerun()
+                            for ev in records.evidence_runs(session_id):
+                                bundle = ev["progress"]["bundle"]
+                                with st.expander(f"{ev['status']} · {ev['question']}"):
+                                    calls = ev["progress"]["modelCalls"]
+                                    st.caption(
+                                        f"Stop reason: {ev['stop_reason']} · model calls {calls}"
+                                    )
+                                    if bundle:
+                                        st.write(bundle["explanation"])
+                                        for c in bundle["citations"]:
+                                            st.markdown(
+                                                f"> {c['excerpt']}\n\n— {c['title']}, "
+                                                f"p. {c['page']} · "
+                                                f"*{c['relationship']}*"
+                                            )
+                                        for g in bundle["gaps"]:
+                                            st.warning(f"Gap: {g}")
+                                        for c in bundle["conflicts"]:
+                                            st.error(f"Conflict: {c}")
+                                    for a in ev["progress"]["actions"]:
+                                        st.caption(f"{a['tool']} ({a['outcome']}): {a['summary']}")
+
+                    continue
+                overview(records, session_id, inputs, live)
+                col_run, col_blank, _ = st.columns([1, 1, 2])
+                if col_run.button(
+                    "⏳ Working…"
+                    if running
+                    else "✨ Generate assessment"
+                    if latest is None
+                    else "✨ Regenerate assessment",
+                    type="primary",
+                    width="stretch",
+                    disabled=running,
+                ):
+                    start_run(session_id)
+                    st.rerun()
+                if (
+                    latest is None
+                    and not running
+                    and col_blank.button("Write it myself", width="stretch")
+                ):
+                    records.create_professor_draft(session_id)
+                    st.rerun()
+                if live:
+                    run_panel(session_id, inputs)
+                if latest:
+                    origin = "AI proposal" if latest.origin == "model" else "professor edit"
+                    st.markdown(f"#### Version {latest.version} · {origin}")
+                    if running:
+                        st.caption("A new run is working; this is the previous version.")
+                    st.caption(latest.content.revisionNote)
+                    bundles = dict(records.evidence_for(session_id))
+                    criteria = {c.id: c.title for c in inputs.rubric.criteria}
+                    turns = {t.id: t for t in inputs.transcript.turns}
+                    for s in inputs.roster:
+                        total = totals(latest.content, inputs, s.id)
+                        headline = (
+                            f"{total['total']:g}/{total['maximum']}"
+                            if total["total"] is not None
+                            else f"{total['assessedCriteria']}/{total['totalCriteria']} assessed"
                         )
-                        st.markdown(f"**{criteria[f.criterionId]}: {verdict}**")
-                        st.write(f.justification)
-                        if f.limitations:
-                            st.caption("Limitations: " + "; ".join(f.limitations))
-                        for tid in f.turnIds:
-                            st.caption(f"{tid}: {turns[tid].text}")
-                        for c in f.citations:
-                            st.markdown(citation_text(bundles, c))
+                        with st.expander(f"**{s.displayName}** · {headline}"):
+                            fb = next(
+                                (x for x in latest.content.feedback if x.studentId == s.id), None
+                            )
+                            if fb:
+                                st.markdown(f"{fb.strengths}\n\n**Next step:** {fb.nextStep}")
+                                if fb.limitations:
+                                    st.caption("Limitations: " + "; ".join(fb.limitations))
+                            else:
+                                st.warning("No feedback draft yet; every roster student needs one.")
+                            st.caption(
+                                "Observed attributed contributions: "
+                                f"{observed_count(inputs, s.id)} "
+                                f"(counts are separate from judgement). {total['limitation']}."
+                            )
+                            for f in [x for x in latest.content.findings if x.studentId == s.id]:
+                                verdict = (
+                                    f"proposed {f.score:g}"
+                                    if f.status == "scored"
+                                    else "insufficient evidence, no score"
+                                )
+                                st.markdown(f"**{criteria[f.criterionId]}: {verdict}**")
+                                st.write(f.justification)
+                                if f.limitations:
+                                    st.caption("Limitations: " + "; ".join(f.limitations))
+                                for tid in f.turnIds:
+                                    st.caption(f"{tid}: {turns[tid].text}")
+                                for c in f.citations:
+                                    st.markdown(citation_text(bundles, c))
+                    st.button(
+                        "Next: ④ Approve →",
+                        on_click=lambda: st.session_state.update({f"step-{session_id}": 4}),
+                    )
 
-            issues = latest.content.audit.issues
-            audited = (
-                "Model audit completed; professor approval still required"
-                if latest.content.audit.modelReviewed
-                else "Model audit pending; explicit professor acknowledgement required"
+    elif step == 4:
+        if latest is None:
+            st.info("Run the agents in ③ AI assessment first (or write the draft yourself).")
+        else:
+            # The saved audit already repeats the deterministic checks: one entry per issue ID.
+            open_issues = list(
+                {
+                    i.id: i
+                    for i in [*audit_draft(latest.content, inputs), *latest.content.audit.issues]
+                    if i.disposition == "open"
+                }.values()
             )
-            with st.expander(f"Audit and uncertainty · {len(issues)} issue(s)"):
-                st.caption(audited)
-                for i in issues:
-                    resolution = f": {i.resolution}" if i.resolution else ""
-                    text = f"**{i.severity}** · {i.detail} ({i.disposition}{resolution})"
-                    (st.error if i.severity == "blocking" else st.warning)(text)
+            blocking = [i for i in open_issues if i.severity == "blocking"]
+            with st.container(border=True):
+                st.markdown(
+                    f"**Version {latest.version}** · "
+                    + (
+                        "the auditor has reviewed it"
+                        if latest.content.audit.modelReviewed
+                        else "not audited by the AI auditor"
+                    )
+                    + f" · {len(open_issues)} open issue(s)"
+                )
 
-            with st.expander("Edit: save a new version"):
+                def issue_text(i) -> str:
+                    resolution = f": {i.resolution}" if i.resolution else ""
+                    who = next((s.displayName for s in inputs.roster if s.id == i.studentId), "")
+                    return (f"**{who}** · " if who else "") + f"{i.detail}{resolution}"
+
+                for i in blocking:
+                    st.error(issue_text(i))
+                review = [i for i in open_issues if i.severity != "blocking"]
+                if review:
+                    with st.expander(f"{len(review)} issue(s) to review", expanded=not blocking):
+                        for i in review:
+                            st.markdown(f"⚠️ {issue_text(i)}")
+                if not open_issues:
+                    st.success("No open issues.")
+            with st.expander("Edit the draft (saves a new version)"):
                 st.caption(
                     "Saving findings or feedback invalidates prior approvals. Invalid scores, "
                     "attribution and citations are refused."
@@ -743,224 +1233,112 @@ else:
                     except (Unprocessable, ValueError) as exc:
                         st.error(str(exc))
 
-    with tab_vault:
-        evidence_runs = records.evidence_runs(session_id)
-        if not evidence_runs:
-            st.caption(
-                "This session's course documents. Once the evidence agent has searched them, "
-                "pick a search here to replay what it retrieved."
-            )
-            show_vault(inputs.documents)
-        else:
-            labels = {
-                i: f"{r['question'][:90]} · {r['status'].replace('_', ' ')}"
-                for i, r in enumerate(evidence_runs)
-            }
-            pick = st.selectbox(
-                "Evidence check", list(labels), format_func=labels.get, key=f"vault-{session_id}"
-            )
-            chosen = evidence_runs[pick]
-            show_vault(inputs.documents, chosen["progress"])
-            if not searches_of(chosen["progress"]):
-                st.caption(
-                    "This check was saved before searches were recorded, so only its quoted "
-                    "evidence is shown. Newer checks replay every search."
+            if approval:
+                note = approval["acknowledgement"] or "no issues"
+                st.success(f"Version {latest.version} approved by {approval['approver']}: {note}")
+                st.button(
+                    "Next: ⑤ Send →",
+                    type="primary",
+                    on_click=lambda: st.session_state.update({f"step-{session_id}": 5}),
                 )
-
-    with tab_transcript:
-        st.caption(
-            f"Reviewed transcript {inputs.transcript.version} · {len(inputs.transcript.turns)} "
-            "turns. Greyed-out turns have an uncertain speaker and are never scored."
-        )
-        show_transcript(inputs.transcript.turns, {s.id: s.displayName for s in inputs.roster})
-
-    with tab_evidence:
-        st.write(
-            "Ask the evidence agent to check something said in class against the course "
-            "documents. It chooses its own searches and must cite exact excerpts; it never scores."
-        )
-        question = st.text_input(
-            "Question", placeholder="Is Alex's latency point supported by the notes?"
-        )
-        turn_labels = {
-            t.id: f"{t.id} · {speaker_name(inputs, t)}: {t.text[:60]}"
-            for t in inputs.transcript.turns
-        }
-        turn_ids = st.multiselect(
-            "Turns (1–8)", list(turn_labels), format_func=turn_labels.get, max_selections=8
-        )
-        crit = {c.id: c.title for c in inputs.rubric.criteria}
-        criterion_ids = st.multiselect(
-            "Rubric criteria", list(crit), format_func=crit.get, default=list(crit)[:1]
-        )
-        ready = bool(len(question.strip()) >= 5 and turn_ids and criterion_ids)
-        if st.button("Investigate", type="primary", disabled=not ready):
-            use_research = config.EVIDENCE_AGENT == "research"
-            driver = (
-                None if use_research else configured_driver(EVIDENCE_INSTRUCTIONS, EVIDENCE_TOOLS)
-            )
-            if driver is None and not use_research:
-                st.error("No model configured (set OPENAI_API_KEY).")
             else:
-                log = st.status("The evidence agent is investigating…", expanded=True)
-                shown = [0]
-
-                def checkpoint(progress):
-                    for a in progress.actions[shown[0] :]:
-                        if a["outcome"] == "started":
-                            break
-                        icon = "✅" if a["outcome"] == "ok" else "⛔"
-                        log.write(f"{icon} `{a['tool']}`: {a['summary']}")
-                        shown[0] += 1
-
-                request = Investigation(
-                    sessionId=session_id,
-                    question=question,
-                    turnIds=turn_ids,
-                    criterionIds=criterion_ids,
+                if blocking:
+                    st.error(
+                        f"Version {latest.version} can't be approved yet: fix the blocking "
+                        "issues above (run the agents again, or edit the draft)."
+                    )
+                ack = st.checkbox(
+                    f"I reviewed version {latest.version}, its evidence, gaps and open issues.",
+                    key=f"ack-{latest.id}",
                 )
-                if use_research:  # ② Research (research/bridge.py), same contract
-                    from classpartai.research import bridge
-
-                    outcome = bridge.investigate(request, inputs, None, checkpoint)
-                else:
-                    outcome = investigate(request, inputs, driver, CourseIndex(inputs), checkpoint)
-                records.save_evidence_run(session_id, question, outcome)
-                log.update(
-                    label=f"Evidence agent: {outcome.status} ({outcome.stopReason})",
-                    state="complete",
+                col_why, col_who = st.columns([3, 1])
+                reason = col_why.text_input(
+                    "Why you're approving with open issues (at least 10 characters)"
+                    if open_issues
+                    else "Note (optional)",
+                    key=f"why-{latest.id}",
+                    placeholder="e.g. Checked the flags; scores are fair for this seminar",
                 )
-                # The Retrieval tab was drawn before this check existed: redraw to list it.
-                st.toast("Evidence check saved: replay it in the 🌌 Retrieval tab")
-                st.rerun()
-        for ev in records.evidence_runs(session_id):
-            bundle = ev["progress"]["bundle"]
-            with st.expander(f"{ev['status']} · {ev['question']}"):
-                calls = ev["progress"]["modelCalls"]
-                st.caption(f"Stop reason: {ev['stop_reason']} · model calls {calls}")
-                if bundle:
-                    st.write(bundle["explanation"])
-                    for c in bundle["citations"]:
-                        st.markdown(
-                            f"> {c['excerpt']}\n\n— {c['title']}, p. {c['page']} · "
-                            f"*{c['relationship']}*"
+                approver = col_who.text_input("Approving as", "Prof (demo)")
+                short = bool(open_issues) and len(reason.strip()) < 10
+                if st.button(
+                    f"Approve version {latest.version}",
+                    type="primary",
+                    disabled=bool(blocking) or not ack or short,
+                ):
+                    try:
+                        records.approve_draft(session_id, latest.id, ack, reason, approver)
+                        st.rerun()
+                    except Unprocessable as exc:
+                        st.error(str(exc))
+                if not blocking and (not ack or short):
+                    missing = []
+                    if not ack:
+                        missing.append("tick the review box")
+                    if short:
+                        missing.append(
+                            f"write a reason of 10+ characters (now {len(reason.strip())})"
                         )
-                    for g in bundle["gaps"]:
-                        st.warning(f"Gap: {g}")
-                    for c in bundle["conflicts"]:
-                        st.error(f"Conflict: {c}")
-                for a in ev["progress"]["actions"]:
-                    st.caption(f"{a['tool']} ({a['outcome']}): {a['summary']}")
+                    st.caption("To approve: " + " and ".join(missing) + ".")
+                st.caption("Approval is separate from sending. An auditor pass is not approval.")
 
-    with tab_details:
-        col_r, col_c = st.columns(2)
-        col_r.markdown("**Roster**")
-        col_r.dataframe(
-            [
-                {"Student": s.displayName, "Observed turns": observed_count(inputs, s.id)}
-                for s in inputs.roster
-            ],
-            hide_index=True,
-            width="stretch",
-        )
-        col_c.markdown(f"**Rubric:** {inputs.rubric.title}")
-        col_c.dataframe(
-            [
-                {"Criterion": c.title, "Range": f"{c.minScore}–{c.maxScore}"}
-                for c in inputs.rubric.criteria
-            ],
-            hide_index=True,
-            width="stretch",
-        )
-        docs = "; ".join(f"{d.title} ({len(d.passages)} passages)" for d in inputs.documents)
-        st.caption(f"Provenance: {inputs.provenance} · Course documents: {docs}")
-        st.markdown("**Version and run history**")
-        for d in records.drafts(session_id):
-            st.caption(f"Version {d.version} · {d.origin} · {d.content.revisionNote}")
-        for r in records.runs(session_id):
-            p = r["progress"]
-            with st.expander(f"Run {r['status']}: {r['stop_reason'] or 'running'}"):
-                st.caption(
-                    f"model calls {p.get('modelCalls', 0)} · tool calls "
-                    f"{p.get('toolCalls', 0)} · tokens {p.get('tokens', 0)} "
-                    f"({p.get('usageKind', 'reported')})"
-                )
-                for a in p.get("actions", []):
-                    st.caption(f"{a['tool']} ({a['outcome']}): {a['summary']}")
-
-    # Review & send, under the card like Notion's follow-ups.
-    st.markdown("### ✉️ Review & send")
-    current = {r["student_id"]: r["email"] for r in records.recipients(session_id)}
-    with st.expander(f"Recipients · {len(current)}/{len(inputs.roster)} set"):
-        st.caption(
-            "Recipients are separate roster records, never chosen by a model. Any change "
-            "invalidates approvals."
-        )
-        if st.button("Fill from class list"):
-            st.toast(f"{set_recipients_from_classlist(session_id, inputs)} recipient(s) set.")
-            st.rerun()
-        for s in inputs.roster:
-            col_name, col_mail, col_save = st.columns([2, 4, 1])
-            col_name.write(s.displayName)
-            email = col_mail.text_input(
-                "Email",
-                current.get(s.id, ""),
-                key=f"rcpt-{session_id}-{s.id}",
-                label_visibility="collapsed",
-            )
-            if col_save.button("Save", key=f"save-{s.id}"):
-                try:
-                    records.set_recipient(session_id, s.id, email)
-                    st.rerun()
-                except Unprocessable as exc:
-                    st.error(str(exc))
-
-    if latest is None:
-        st.info("Generate the summary (or write it yourself) before approving.")
     else:
-        approval = records.active_approval(session_id)
-        if approval:
-            note = approval["acknowledgement"] or "no issues"
-            st.success(f"Version {latest.version} approved by {approval['approver']}: {note}")
+        current = {r["student_id"]: r["email"] for r in records.recipients(session_id)}
+        test_mode = DeliverySettings.from_env()
+        with st.expander(f"Recipients · {len(current)}/{len(inputs.roster)} set"):
+            st.caption(
+                "Recipients are separate roster records, never chosen by a model. Any change "
+                "invalidates approvals."
+            )
+            if st.button("Fill from class list"):
+                st.toast(f"{set_recipients_from_classlist(session_id, inputs)} recipient(s) set.")
+                st.rerun()
+            for s in inputs.roster:
+                col_name, col_mail, col_save = st.columns([2, 4, 1])
+                col_name.write(s.displayName)
+                email = col_mail.text_input(
+                    "Email",
+                    current.get(s.id, ""),
+                    key=f"rcpt-{session_id}-{s.id}",
+                    label_visibility="collapsed",
+                )
+                if col_save.button("Save", key=f"save-{s.id}"):
+                    try:
+                        records.set_recipient(session_id, s.id, email)
+                        st.rerun()
+                    except Unprocessable as exc:
+                        st.error(str(exc))
+        if latest is None or approval is None:
+            st.info("Approve a version in ④ Approve first; only the approved version is sent.")
         else:
-            ack = st.checkbox(
-                f"I reviewed version {latest.version}, its evidence, gaps and unresolved issues.",
-                key=f"ack-{latest.id}",
-            )
-            col_why, col_who = st.columns([3, 1])
-            reason = col_why.text_input(
-                "Acknowledgement / override reason (needed if issues remain)",
-                key=f"why-{latest.id}",
-            )
-            approver = col_who.text_input("Approving as", "Prof (demo)")
-            if st.button(f"Approve version {latest.version}", type="primary"):
+            st.markdown(f"#### Emails for version {latest.version}")
+            if test_mode.test_mode:
+                st.caption(f"Test mode: all of them go to {test_mode.test_recipient}.")
+            for s in inputs.roster:
+                with st.expander(f"✉️ {s.displayName} → {current.get(s.id, '(no recipient)')}"):
+                    try:
+                        st.text(feedback_email(records, session_id, s.id, latest))
+                    except StopIteration:
+                        st.warning("No feedback for this student in the approved version.")
+            if st.button(
+                f"Send {len(inputs.roster)} emails via AgentMail",
+                type="primary",
+            ):
+                transport = AgentMailTransport(
+                    os.getenv("AGENTMAIL_API_KEY", ""), os.getenv("AGENTMAIL_INBOX", "")
+                )
                 try:
-                    records.approve_draft(session_id, latest.id, ack, reason, approver)
+                    results = deliver_approved(
+                        records, session_id, approval["id"], transport, DeliverySettings.from_env()
+                    )
+                    st.toast(", ".join(f"{r['studentId']}: {r['state']}" for r in results))
                     st.rerun()
                 except Unprocessable as exc:
                     st.error(str(exc))
-            st.caption("Approval is separate from sending. An auditor pass is not approval.")
-
-        if st.button(
-            f"Send {len(inputs.roster)} emails via AgentMail",
-            type="primary" if approval else "secondary",
-            disabled=approval is None,
-        ):
-            transport = AgentMailTransport(
-                os.getenv("AGENTMAIL_API_KEY", ""), os.getenv("AGENTMAIL_INBOX", "")
+            st.caption(
+                "Accepted means AgentMail accepted it, not confirmed inbox delivery. Accepted "
+                "messages are never resent; ambiguous outcomes are never retried automatically."
             )
-            try:
-                results = deliver_approved(
-                    records, session_id, approval["id"], transport, DeliverySettings.from_env()
-                )
-                st.toast(", ".join(f"{r['studentId']}: {r['state']}" for r in results))
-            except Unprocessable as exc:
-                st.error(str(exc))
-        st.caption(
-            "Accepted means AgentMail accepted it, not confirmed inbox delivery. Accepted "
-            "messages are never resent; ambiguous outcomes are never retried automatically."
-        )
-        deliveries = records.deliveries(session_id)
         if deliveries:
             names = {s.id: s.displayName for s in inputs.roster}
             st.dataframe(

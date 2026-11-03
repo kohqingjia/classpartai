@@ -32,7 +32,10 @@ scratch
 # Nested virtualenvs (e.g. audio-service/.venv)
 **/.venv/
 
-# Local audio recordings
+# Local audio recordings, voice enrolments and downloaded speech models (never commit: personal
+# voice data, and model files are fetched at run time)
+audio-service/enrollments/
+audio-service/models/
 *.m4a
 *.wav
 *.mp3

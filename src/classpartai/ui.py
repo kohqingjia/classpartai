@@ -1,20 +1,16 @@
-"""Animated views of the workflow for the Streamlit app (pure HTML/CSS, no JavaScript).
-
-flow_html()  - the stages, the one the coordinator is using now, and the ones it has used.
-board_html() - one card per student showing where their assessment and feedback stand.
-"""
+"""Self-contained, text-safe pipeline, student cards and course constellation visuals."""
 
 import json
-from html import escape
 from pathlib import Path
 
 STAGES = [
-    ("listener", "①", "Transcript", "who said what"),
-    ("research", "②", "Evidence", "search the notes"),
-    ("judge", "③", "Judge", "score vs rubric"),
-    ("auditor", "④", "Auditor", "check the scores"),
-    ("feedback", "⑤", "Feedback", "draft per student"),
-    ("review", "⑥", "Professor", "approve & send"),
+    ("listener", "01", "Listener", "recording → transcript"),
+    ("coordinator", "02", "Coordinator", "plan the next action"),
+    ("research", "03", "Evidence / Research", "retrieve & verify"),
+    ("judge", "04", "Judge", "assess the rubric"),
+    ("auditor", "05", "Auditor", "verify first, judge last"),
+    ("feedback", "06", "Feedback writer", "a useful next step"),
+    ("review", "07", "Delivery", "approve → send"),
 ]
 
 # Which stage each coordinator tool works in.
@@ -29,7 +25,7 @@ TOOL_STAGE = {
 
 _BASE_CSS = """
 /* Matches the app's dark, Notion-like theme (.streamlit/config.toml). */
-:root { --ink:#e3e3e3; --muted:#9b9b9b; --line:#373737; --card:#252525; --bg:#202020;
+:root { --ink:#e9edf5; --muted:#9ba6b8; --line:#293140; --card:#151c28; --bg:#10151e;
         --blue:#2383e2; --green:#4dab6f; --amber:#d9a443; --red:#e5605a;
         --ease-out:cubic-bezier(0.23,1,0.32,1); }
 * { box-sizing:border-box; }
@@ -39,61 +35,42 @@ body { margin:0; font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,
 """
 
 _FLOW_CSS = """
-.banner { font-size:13px; margin:0 0 10px; color:var(--muted); min-height:18px; }
-.banner b { color:var(--ink); }
-.banner.live b { color:var(--blue); }
-.flow { display:flex; align-items:center; gap:4px; }
-.node { flex:1 1 0; min-width:0; background:var(--card); border:2px solid var(--line);
-        border-radius:10px; padding:10px 6px; text-align:center; position:relative;
-        transition:border-color 200ms ease, background-color 200ms ease; }
-.node .num { font-size:18px; line-height:1; color:var(--muted); }
-.node .name { font-weight:600; font-size:14px; margin-top:4px; }
-.node .what { font-size:11px; color:var(--muted); margin-top:2px; }
-.node .note { font-size:11px; margin-top:6px; min-height:14px; color:var(--blue); font-weight:600;
-              font-variant-numeric:tabular-nums; }
-.node.placeholder { border-style:dashed; }
-.node.placeholder .tag { position:absolute; top:-9px; left:50%; transform:translateX(-50%);
-        background:var(--bg); color:var(--amber); font-size:9px; font-weight:700;
-        letter-spacing:.04em; text-transform:uppercase; padding:0 4px; }
-.node.done { border-color:var(--green); }
-.node.done .num { color:var(--green); }
-.node.done .note { color:var(--green); }
-.node.active { border-color:var(--blue); animation:pulse 1.2s ease-in-out infinite; }
-.node.active .num { color:var(--blue); }
-@keyframes pulse { 0%,100% { box-shadow:0 0 0 0 rgba(35,131,226,.5); }
-                   50% { box-shadow:0 0 0 8px rgba(35,131,226,0); } }
-.arrow { flex:0 0 22px; height:2px; background:var(--line); position:relative; }
-.arrow.live { background:repeating-linear-gradient(90deg,var(--blue) 0 6px,transparent 6px 10px);
-              background-size:20px 2px; animation:flow .6s linear infinite; }
-.arrow.done { background:var(--green); }
-.arrow.both::after { content:"⇄"; position:absolute; top:-10px; left:50%;
-                     transform:translateX(-50%); font-size:14px; line-height:1;
-                     color:var(--muted); background:var(--bg); padding:0 1px; }
-@keyframes flow { from { background-position:0 0; } to { background-position:20px 0; } }
-@media (prefers-reduced-motion:reduce) { .node.active { animation:none;
-  box-shadow:0 0 0 3px rgba(35,131,226,.35); } .arrow.live { animation:none; } }
-@media (max-width:640px) { .node .what { display:none; } .arrow { flex-basis:8px; }
-                           .node .name { font-size:12px; } }
+.banner { font-size:12px; margin:0 0 16px; color:var(--muted); }
+.flow { display:grid; grid-template-columns:repeat(7,minmax(0,1fr)); gap:8px; }
+.node { display:block; text-decoration:none; color:var(--ink); min-width:0;
+  background:var(--card); border:1px solid var(--line); border-radius:10px; padding:16px 10px; }
+a.node:hover, a.node:focus-visible { outline:2px solid #a5b4fc; outline-offset:2px; }
+.num { color:#a5b4fc; font:12px ui-monospace,monospace; }
+.name { font-weight:600; font-size:12px; margin-top:18px; }
+.what,.note { font-size:10px; color:var(--muted); margin-top:7px; }
+.active { border-color:#a5b4fc; } .done .num { color:#6ee7b7; }
+@media(max-width:700px) { .flow { grid-template-columns:repeat(4,minmax(0,1fr)); }
+  .node { padding:8px; } .name { margin-top:6px; } .what { display:none; } }
+"""
+_BOARD_CSS = """
+.board { display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:10px; }
+.card { background:var(--card); border:1px solid var(--line); border-radius:10px; padding:16px; }
+.who { font-weight:600; font-size:14px; }
+.state { font-size:12px; margin-top:8px; color:var(--muted); }
+.commend .state { color:#6ee7b7; } .encourage .state { color:#fcd68a; }
+.flagged .state { color:#fda4af; }
 """
 
-_BOARD_CSS = """
-.board { display:grid; grid-template-columns:repeat(auto-fill,minmax(150px,1fr)); gap:10px; }
-.card { background:var(--card); border:2px solid var(--line); border-radius:10px; padding:10px; }
-.card .who { font-weight:600; font-size:14px; }
-.card .state { font-size:12px; margin-top:4px; color:var(--muted); }
-.card.waiting .state::after { content:"…"; animation:dots 1.2s steps(3) infinite; }
-.card.commend { border-color:var(--green); } .card.commend .state { color:var(--green); }
-.card.encourage { border-color:var(--amber); } .card.encourage .state { color:var(--amber); }
-.card.flagged { border-color:var(--red); } .card.flagged .state { color:var(--red); }
-.card.summary { border-color:var(--blue); } .card.summary .state { color:var(--blue); }
-.card .state { font-variant-numeric:tabular-nums; }
-.card.new { animation:pop 300ms var(--ease-out); }
-@keyframes pop { from { transform:scale(.95); opacity:0; } to { transform:none; opacity:1; } }
-@media (prefers-reduced-motion:reduce) { .card.new { animation:fade 200ms ease; }
-  .card.waiting .state::after { animation:none; } }
-@keyframes fade { from { opacity:0; } }
-@keyframes dots { 0% { content:""; } 33% { content:"."; } 66% { content:".."; } }
-"""
+
+def escaped_json(value) -> str:
+    """JSON safe inside a same-origin script element, including mixed-case closing tags."""
+    return json.dumps(value).replace("<", "\\u003c").replace(">", "\\u003e").replace("&", "\\u0026")
+
+
+def _data_page(css, data, script):
+    return _page(
+        css,
+        '<div id="root"></div><script type="application/json" id="data">'
+        + escaped_json(data)
+        + "</script><script>"
+        + script
+        + "</script>",
+    )
 
 
 def _page(css: str, body: str) -> str:
@@ -101,51 +78,58 @@ def _page(css: str, body: str) -> str:
 
 
 def flow_html(
-    active: str | None = None,
-    done: set[str] = frozenset(),
-    placeholders: set[str] = frozenset(),
-    notes: dict[str, str] | None = None,
-    banner: str = "",
+    active=None, done=frozenset(), placeholders=frozenset(), notes=None, banner="", *, links=None
 ) -> str:
-    """The workflow strip. ``notes`` puts a short line under a stage; ``banner`` says what the
-    coordinator is doing (it may use the stages in any order)."""
-    notes = notes or {}
-    parts = []
-    for i, (key, num, name, what) in enumerate(STAGES):
-        if i:
-            prev = STAGES[i - 1][0]
-            state = "live" if key == active else "done" if key in done and prev in done else ""
-            both = " both" if key == "auditor" else ""  # judge and auditor revise each other
-            parts.append(f'<div class="arrow {state}{both}"></div>')
-        classes = ["node"]
-        if key in placeholders:
-            classes.append("placeholder")
-        classes.append("active" if key == active else "done" if key in done else "")
-        mark = "✓" if key in done and key != active else num
-        tag = '<span class="tag">placeholder</span>' if key in placeholders else ""
-        parts.append(
-            f'<div class="{" ".join(classes)}">{tag}<div class="num">{mark}</div>'
-            f'<div class="name">{name}</div><div class="what">{what}</div>'
-            f'<div class="note">{escape(notes.get(key, ""))}</div></div>'
-        )
-    live = " live" if active else ""
-    head = f'<div class="banner{live}">{banner}</div>' if banner else ""
-    return _page(
-        _FLOW_CSS, f'<div class="wrap">{head}<div class="flow">{"".join(parts)}</div></div>'
+    """Stable, keyboard-accessible pipeline; links open the corresponding agent tab."""
+    return _data_page(
+        _FLOW_CSS,
+        {
+            "stages": STAGES,
+            "active": active,
+            "done": list(done),
+            "notes": notes or {},
+            "banner": banner,
+            "links": links or {},
+        },
+        """
+const d=JSON.parse(document.getElementById('data').textContent);
+const root=document.getElementById('root');
+const banner=document.createElement('div'); banner.className='banner';
+banner.textContent=d.banner; root.appendChild(banner);
+const flow=document.createElement('div');flow.className='flow';root.appendChild(flow);
+d.stages.forEach(([key,num,name,what])=>{
+ const node=document.createElement(d.links[key]?'a':'div');
+ node.className='node '+(key===d.active?'active':d.done.includes(key)?'done':'');
+ if(d.links[key] && d.links[key].startsWith('?')){
+ node.href=d.links[key];node.setAttribute('aria-label','Open '+name);
+ node.onclick=event=>{
+  const target=Array.from(parent.document.querySelectorAll('[role="tab"]'))
+    .find(tab=>tab.textContent.trim()===name);
+  if(target){event.preventDefault();target.click();}
+ };
+ }
+ [['num',num],['name',name],['what',what],['note',d.notes[key]||'']].forEach(([cls,text])=>{
+  const el=document.createElement('div');el.className=cls;el.textContent=text;node.appendChild(el);
+ });flow.appendChild(node);
+});
+""",
     )
 
 
-def board_html(cards: list[tuple[str, str, str]], newest: str | None = None) -> str:
-    """Student cards: ``cards`` is [(name, state, label)], state being one of waiting /
-    commend (green) / encourage (amber) / flagged (red) / summary (blue)."""
-    items = []
-    for name, state, label in cards:
-        new = " new" if name == newest else ""
-        items.append(
-            f'<div class="card {state}{new}"><div class="who">{escape(name)}</div>'
-            f'<div class="state">{escape(label)}</div></div>'
-        )
-    return _page(_BOARD_CSS, f'<div class="wrap"><div class="board">{"".join(items)}</div></div>')
+def board_html(cards, newest=None) -> str:
+    return _data_page(
+        _BOARD_CSS,
+        cards,
+        """
+const root=document.getElementById('root');root.className='board';
+JSON.parse(document.getElementById('data').textContent).forEach(([name,state,label])=>{
+ const card=document.createElement('div');card.className='card '+state;
+ [['who',name],['state',label]].forEach(([cls,text])=>{
+  const el=document.createElement('div');el.className=cls;el.textContent=text;card.appendChild(el);
+ });root.appendChild(card);
+});
+""",
+    )
 
 
 # --- The vault: course documents as a constellation, and what the evidence agent retrieved ----
@@ -214,7 +198,7 @@ def vault_html(
         "running": running,
         "startAt": start_at,
     }
-    payload = json.dumps(data).replace("</", "<\\/")
+    payload = escaped_json(data)
     return (
         _VAULT_PAGE.replace("__DATA__", payload)
         .replace("__STAGE_MOBILE__", str(max(260, height - 200)))

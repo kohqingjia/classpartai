@@ -23,6 +23,21 @@ from classpartai.config import AUDIO_SERVICE_DIR
 
 IS_PLACEHOLDER = False
 MIN_SEGMENT_SECONDS = 1.0  # shorter clips are too little voice to identify anyone
+# Per-sentence matching (fallback only). Tina's rule ("more than one enrolled voice passes the
+# verifier -> ambiguous") suits whole diarised speakers; single sentences pass for several
+# voices, so here the best match must be good and clearly ahead of the runner-up.
+MATCH_MIN_SCORE = 0.35
+MATCH_MIN_MARGIN = 0.10
+
+
+def best_match(matches: list[dict]) -> str:
+    """A registered name, or UNKNOWN / AMBIGUOUS, from scored matches (best first)."""
+    if not matches or matches[0]["score"] < MATCH_MIN_SCORE:
+        return "UNKNOWN"
+    runner_up = matches[1]["score"] if len(matches) > 1 else -1.0
+    if matches[0]["score"] - runner_up < MATCH_MIN_MARGIN:
+        return "AMBIGUOUS"
+    return matches[0]["name"]
 
 
 def load_pipeline() -> tuple[Callable[[str], dict], str | None]:
@@ -47,7 +62,7 @@ def load_pipeline() -> tuple[Callable[[str], dict], str | None]:
 def process_without_diarization(audio_path: str) -> dict:
     """Tina's pipeline minus diarization: transcribe, then identify each segment's speaker.
     ``audio_path`` must be a WAV file (the app converts uploads to 16 kHz mono first)."""
-    from speaker_identification import resolve_speaker_identity
+    from speaker_identification import identify_speaker
     from speaker_mapping import merge_consecutive_speaker_segments
 
     worker = AUDIO_SERVICE_DIR / "transcription_worker.py"
@@ -60,6 +75,7 @@ def process_without_diarization(audio_path: str) -> dict:
         rate = audio.getframerate()
         for n, seg in enumerate(transcription["segments"]):
             speaker = "UNKNOWN"
+            identity = {"name": "UNKNOWN", "status": "too_short", "matches": []}
             if seg["end"] - seg["start"] >= MIN_SEGMENT_SECONDS:
                 clip = Path(tmp) / f"segment-{n}.wav"
                 audio.setpos(int(seg["start"] * rate))
@@ -67,23 +83,40 @@ def process_without_diarization(audio_path: str) -> dict:
                 with wave.open(str(clip), "wb") as out:
                     out.setparams(audio.getparams())
                     out.writeframes(frames)
-                speaker = resolve_speaker_identity(str(clip))["name"]
-            segments.append({**seg, "speaker": speaker})
+                matches = identify_speaker(str(clip))
+                speaker = best_match(matches)
+                scores = ", ".join(f"{m['name']} {m['score']:.2f}" for m in matches[:3])
+                print(f"segment {n}: {speaker} ({scores})", flush=True)
+                status = {"UNKNOWN": "unknown", "AMBIGUOUS": "ambiguous"}.get(speaker, "identified")
+                identity = {"name": speaker, "status": status, "matches": matches}
+            segments.append({**seg, "speaker": speaker, "voice_match": identity})
     return {
         "language": transcription["language"],
         "speaker_identities": {},
+        # Diagnostics for the Listener inspector; not used by any model.
+        "whisper_segments": transcription["segments"],
+        "aligned_segments": segments,
+        "matching": {"minScore": MATCH_MIN_SCORE, "minMargin": MATCH_MIN_MARGIN},
         "segments": merge_consecutive_speaker_segments(segments),
     }
 
 
-def to_transcript(result: dict, ids_by_name: dict[str, str], version: str) -> Transcript:
-    """``ids_by_name`` maps a registered display name to its roster ID."""
+def to_transcript(
+    result: dict,
+    ids_by_name: dict[str, str],
+    version: str,
+    professor_names: frozenset[str] | set[str] = frozenset(),
+) -> Transcript:
+    """``ids_by_name`` maps a registered student's display name to their roster ID;
+    ``professor_names`` are registered professors' names, whose turns become professor turns."""
     turns = []
     for n, seg in enumerate(result["segments"], start=1):
         start = int(seg["start"] * 1000)
         end = max(int(seg["end"] * 1000), start + 1)
         student_id = ids_by_name.get(seg["speaker"])
-        if student_id:
+        if seg["speaker"] in professor_names:
+            speaker = {"kind": "professor", "label": seg["speaker"]}
+        elif student_id:
             speaker = {"kind": "student", "studentId": student_id}
         else:
             label = "Ambiguous speaker" if seg["speaker"] == "AMBIGUOUS" else "Unknown speaker"

@@ -54,6 +54,12 @@ Every tool call and role output is schema-checked; a refused call goes back to t
 - **Delivery:** recipients come from the roster, never a model; one delivery per student per version; accepted emails are never resent; ambiguous outcomes are never retried automatically; test mode redirects everything to one inbox.
 - **Untrusted text:** transcript, documents and model output are always passed as data, never instructions.
 
+## Agent workspace
+
+Each session has seven inspectable agent tabs inside **AI assessment**, with exact inputs,
+tool trajectories, outputs and guardrails. See [the workspace guide](docs/AGENT-WORKSPACE.md)
+for the data sources, course-topic mapping and diagnostics recorded by new runs.
+
 ## Evaluation
 
 | Part | What we measure |
@@ -97,13 +103,34 @@ src/classpartai/
   ui.py                 the animated workflow strip, student cards and the vault constellation
   assets/vault.html     the vault constellation page (canvas animation)
 audio-service/          Listener pipeline: Whisper, pyannote, SpeechBrain (Tina)
-app.py                  Streamlit app: one page per class session (record, transcript, AI summary, review & send)
+app.py                  Streamlit app: Home checklist, Course library, Class & voices, and a five-step
+                        session (record → who spoke? → AI assessment → approve → send)
 data/                   sample IS469 session, Le Yong's fictional fixture, rubric, course notes;
                         is469/ Research's schedule and labelled Q&A (lecture files: data/raw/, git-ignored)
 eval/                   research_eval.py: single-pass vs agentic RAG
 tests/                  pytest (scripted fake models; no API calls)
 deploy/                 Docker deploy for the VPS
 ```
+
+## Using the app
+
+1. **📚 Course library**: upload the slides, readings and labs the evidence agents may quote.
+2. **👥 Class & voices**: add everyone with their email and role (student or professor), and
+   record a voice sample for each (read the paragraph shown, about 20 s). Recording a seminar is
+   locked until the professor and at least one student have a sample: the Listener can only name
+   people it has heard, and speakers it can't name are never scored. Samples are stored on the
+   server only (`audio-service/enrollments`, git-ignored), never in the repo.
+3. **🎙️ New class session**: ① record or upload the seminar → ② check who spoke (play any line
+   with ▶) → ③ run the agents → ④ approve → ⑤ preview and send the emails. Recordings are kept
+   on the server for playback (`DATA_DIR/recordings`).
+
+No recording to hand? **▶ Use the demo recording** processes `data/demo_audio/seminar.ogg`, a
+48-second mock seminar read by synthetic macOS voices, after enrolling those voices (marked as
+demo voices; remove them on Class & voices). Regenerate it with `python scripts/make_demo_audio.py`.
+
+Without access to the gated pyannote diarisation model, the Listener falls back to matching each
+transcribed sentence against the enrolled voices (`agents/listener.py`): the best match must
+score at least 0.35 and lead the runner-up by 0.10, otherwise the line stays unknown.
 
 ## Setup
 

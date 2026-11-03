@@ -1,10 +1,10 @@
-from fastapi import FastAPI, UploadFile, File, HTTPException
-from pathlib import Path
 import shutil
 import tempfile
+from pathlib import Path
+from typing import Annotated
 
+from fastapi import FastAPI, File, HTTPException, UploadFile
 from pipeline import process_audio
-
 
 app = FastAPI(
     title="ClassPart Audio Service",
@@ -14,14 +14,12 @@ app = FastAPI(
 
 @app.get("/")
 def root():
-    return {
-        "message": "ClassPart Audio Service is running"
-    }
+    return {"message": "ClassPart Audio Service is running"}
 
 
 @app.post("/process-audio")
 async def process_audio_endpoint(
-    audio: UploadFile = File(...)
+    audio: Annotated[UploadFile, File()],
 ):
     # Keep the original extension if possible
     suffix = Path(audio.filename or "recording.wav").suffix
@@ -37,7 +35,6 @@ async def process_audio_endpoint(
             delete=False,
             suffix=suffix,
         ) as temp_file:
-
             temp_path = Path(temp_file.name)
 
             # Copy uploaded audio into temporary file
@@ -61,7 +58,7 @@ async def process_audio_endpoint(
         raise HTTPException(
             status_code=500,
             detail=str(e),
-        )
+        ) from e
 
     finally:
         # Close uploaded file
