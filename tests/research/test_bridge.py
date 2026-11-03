@@ -539,3 +539,14 @@ def test_searches_are_recorded_for_the_vault_view(inputs):
     }
     search = next(a for a in outcome.progress.actions if a["tool"] == "search_course_materials")
     assert search["resultReferences"] == [h["passageId"] for h in hits]
+
+
+def test_retrieval_diagnostics_keep_all_rank_scores_and_passage_text(inputs):
+    outcome = bridge.investigate(request(), inputs, agent=scripted_agent(inputs, grader()))
+    for search in outcome.progress.searches:
+        for hit in search["hits"]:
+            assert isinstance(hit["score"], float)
+            assert isinstance(hit["bm25"], float)
+            assert hit["rrf"] > 0
+            assert hit["text"]
+            assert hit["source"]

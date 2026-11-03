@@ -478,7 +478,17 @@ class ResearchTools:
             hits = self.store.search(str(args["query"]), k=self._k(args))
             widened = f"Nothing is filed under week {week}, so this searched all weeks. "
             week = None
-        self._hits = [{"chunk_id": h.chunk.id, "score": round(h.score, 3)} for h in hits]
+        self._hits = [
+            {
+                "chunk_id": h.chunk.id,
+                "score": round(h.score, 3),
+                "bm25": h.bm25,
+                "rrf": h.rrf,
+                "text": h.chunk.text,
+                "source": h.chunk.source(),
+            }
+            for h in hits
+        ]
         items = [
             self._register(
                 f"chunk:{h.chunk.id}",

@@ -60,6 +60,7 @@ def process_without_diarization(audio_path: str) -> dict:
         rate = audio.getframerate()
         for n, seg in enumerate(transcription["segments"]):
             speaker = "UNKNOWN"
+            identity = {"name": "UNKNOWN", "status": "too_short", "matches": []}
             if seg["end"] - seg["start"] >= MIN_SEGMENT_SECONDS:
                 clip = Path(tmp) / f"segment-{n}.wav"
                 audio.setpos(int(seg["start"] * rate))
@@ -67,11 +68,14 @@ def process_without_diarization(audio_path: str) -> dict:
                 with wave.open(str(clip), "wb") as out:
                     out.setparams(audio.getparams())
                     out.writeframes(frames)
-                speaker = resolve_speaker_identity(str(clip))["name"]
-            segments.append({**seg, "speaker": speaker})
+                identity = resolve_speaker_identity(str(clip))
+                speaker = identity["name"]
+            segments.append({**seg, "speaker": speaker, "voice_match": identity})
     return {
         "language": transcription["language"],
         "speaker_identities": {},
+        "whisper_segments": transcription["segments"],
+        "aligned_segments": segments,
         "segments": merge_consecutive_speaker_segments(segments),
     }
 

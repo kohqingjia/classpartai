@@ -155,6 +155,9 @@ class WorkflowProgress:
     tokens: int = 0
     usageKind: str = "reported"
     actions: list[dict] = field(default_factory=list)
+    roleCalls: list[dict] = field(default_factory=list)
+    coordinatorInput: dict = field(default_factory=dict)
+    elapsedSeconds: float = 0.0
     latestDraftId: str | None = None
     evidenceRunIds: list[str] = field(default_factory=list)
 

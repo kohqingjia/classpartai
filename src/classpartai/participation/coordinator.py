@@ -140,7 +140,10 @@ def coordinate(
         WORKFLOW_LIMITS["seconds"],
     )
 
+    started = time.monotonic()
+
     def checkpoint() -> None:
+        progress.elapsedSeconds = round(time.monotonic() - started, 3)
         records.update_run(run_id, asdict(progress))
 
     try:
@@ -182,6 +185,8 @@ def coordinate(
             ),
         }
     ]
+    progress.coordinatorInput = {"instructions": COORDINATOR_POLICY, "history": history.copy()}
+    checkpoint()
     turns = inputs.transcript.turns
     stop_reason = "shared_budget_exhausted"
     try:
@@ -199,6 +204,7 @@ def coordinate(
                 "id": f"{progress.toolCalls}:{call.call_id}",
                 "tool": call.name if call.name in names else "unsupported_tool",
                 "arguments": "{}",
+                "requestedArguments": call.arguments,
                 "summary": "Action requested",
                 "outcome": "started",
             }
@@ -404,6 +410,7 @@ def coordinate(
                 output = {
                     "error": str(error) if isinstance(error, Unprocessable) else action["summary"]
                 }
+            action["result"] = output
             checkpoint()
             on_event("action", action)
             if finished:
@@ -419,6 +426,7 @@ def coordinate(
         stop_reason = "shared_budget_or_interruption"
     except Exception:
         stop_reason = "provider_failure"
+    progress.elapsedSeconds = round(time.monotonic() - started, 3)
     records.update_run(
         run_id,
         asdict(progress),

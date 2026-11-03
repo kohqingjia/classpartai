@@ -31,6 +31,7 @@ class Hit:
     chunk: Chunk
     score: float  # cosine similarity to the query, -1..1
     rrf: float  # fused rank score, for ordering
+    bm25: float | None = None  # diagnostic only; never changes ranking
 
 
 class VectorStore:
@@ -104,4 +105,4 @@ class VectorStore:
             for rank, i in enumerate(ranked, 1):
                 fused[int(i)] = fused.get(int(i), 0.0) + 1.0 / (rrf_k + rank)
         best = sorted(fused, key=fused.get, reverse=True)[:k]
-        return [Hit(self.chunks[idx[i]], float(cosine[i]), fused[i]) for i in best]
+        return [Hit(self.chunks[idx[i]], float(cosine[i]), fused[i], float(bm25[i])) for i in best]
