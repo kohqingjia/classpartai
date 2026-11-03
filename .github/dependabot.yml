@@ -27,10 +27,11 @@ updates:
         update-types: ["version-update:semver-major", "version-update:semver-minor"]
       - dependency-name: "numpy"
         update-types: ["version-update:semver-major", "version-update:semver-minor"]
+      # OpenTelemetry comes in through the speech libraries (not used by our code), and its
+      # stable and beta packages pin each other exactly; Dependabot's PRs never moved them all
+      # together (#18-#21, #27 all failed to install), so leave them to the libraries' pins.
+      - dependency-name: "opentelemetry-*"
     groups:
-      # OpenTelemetry packages depend on each other's exact versions; split PRs can't install.
-      opentelemetry:
-        patterns: ["opentelemetry-*"]
       # Routine bumps land in one PR; a major stays on its own so it gets read.
       minor-and-patch:
         applies-to: version-updates
