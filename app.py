@@ -55,6 +55,11 @@ PAGE_CSS = """<style>
 [data-testid="stSidebar"] button[data-testid^="stBaseButton"] > div { justify-content:flex-start; }
 h1 { font-size:2.6rem !important; font-weight:700 !important; letter-spacing:-.02em; }
 .muted { color:#9b9b9b; font-size:.95rem; }
+/* Pressable things answer the press. */
+button { transition:transform 160ms cubic-bezier(0.23,1,0.32,1); }
+button:active:not(:disabled) { transform:scale(0.97); }
+[data-testid="stCaptionContainer"] { font-variant-numeric:tabular-nums; }
+@media (prefers-reduced-motion:reduce) { button:active:not(:disabled) { transform:none; } }
 </style>"""
 
 
@@ -186,8 +191,9 @@ def run_panel(session_id: str, inputs: AssessmentInputs) -> None:
             return
         view = fold_events(list(entry["events"]), inputs)
         elapsed = int((entry["ended"] or time.monotonic()) - entry["started"])
-        banner = f"{view['banner']} · {elapsed // 60}:{elapsed % 60:02d}"
-        show_flow(st.empty(), view["active"], view["done"], view["notes"], banner)
+        # No timer in the banner: changing the iframe's HTML every tick would reload it and
+        # restart its animation. The clock is in the caption below.
+        show_flow(st.empty(), view["active"], view["done"], view["notes"], view["banner"])
         show_board(st.empty(), cards, view["newest"])
         if alive and (view["searches"] or view["active"] == "research"):
             st.caption("🌌 Live retrieval from the course documents")

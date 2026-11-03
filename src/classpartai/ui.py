@@ -30,7 +30,8 @@ TOOL_STAGE = {
 _BASE_CSS = """
 /* Matches the app's dark, Notion-like theme (.streamlit/config.toml). */
 :root { --ink:#e3e3e3; --muted:#9b9b9b; --line:#373737; --card:#252525; --bg:#202020;
-        --blue:#2383e2; --green:#4dab6f; --amber:#d9a443; --red:#e5605a; }
+        --blue:#2383e2; --green:#4dab6f; --amber:#d9a443; --red:#e5605a;
+        --ease-out:cubic-bezier(0.23,1,0.32,1); }
 * { box-sizing:border-box; }
 body { margin:0; font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
        color:var(--ink); background:transparent; }
@@ -44,11 +45,12 @@ _FLOW_CSS = """
 .flow { display:flex; align-items:center; gap:4px; }
 .node { flex:1 1 0; min-width:0; background:var(--card); border:2px solid var(--line);
         border-radius:10px; padding:10px 6px; text-align:center; position:relative;
-        transition:border-color .3s, box-shadow .3s; }
+        transition:border-color 200ms ease, background-color 200ms ease; }
 .node .num { font-size:18px; line-height:1; color:var(--muted); }
 .node .name { font-weight:600; font-size:14px; margin-top:4px; }
 .node .what { font-size:11px; color:var(--muted); margin-top:2px; }
-.node .note { font-size:11px; margin-top:6px; min-height:14px; color:var(--blue); font-weight:600; }
+.node .note { font-size:11px; margin-top:6px; min-height:14px; color:var(--blue); font-weight:600;
+              font-variant-numeric:tabular-nums; }
 .node.placeholder { border-style:dashed; }
 .node.placeholder .tag { position:absolute; top:-9px; left:50%; transform:translateX(-50%);
         background:var(--bg); color:var(--amber); font-size:9px; font-weight:700;
@@ -68,6 +70,8 @@ _FLOW_CSS = """
                      transform:translateX(-50%); font-size:14px; line-height:1;
                      color:var(--muted); background:var(--bg); padding:0 1px; }
 @keyframes flow { from { background-position:0 0; } to { background-position:20px 0; } }
+@media (prefers-reduced-motion:reduce) { .node.active { animation:none;
+  box-shadow:0 0 0 3px rgba(35,131,226,.35); } .arrow.live { animation:none; } }
 @media (max-width:640px) { .node .what { display:none; } .arrow { flex-basis:8px; }
                            .node .name { font-size:12px; } }
 """
@@ -82,9 +86,12 @@ _BOARD_CSS = """
 .card.encourage { border-color:var(--amber); } .card.encourage .state { color:var(--amber); }
 .card.flagged { border-color:var(--red); } .card.flagged .state { color:var(--red); }
 .card.summary { border-color:var(--blue); } .card.summary .state { color:var(--blue); }
-.card.new { animation:pop .45s ease-out; }
-@keyframes pop { 0% { transform:scale(.85); opacity:.3; } 70% { transform:scale(1.04); }
-                 100% { transform:scale(1); opacity:1; } }
+.card .state { font-variant-numeric:tabular-nums; }
+.card.new { animation:pop 300ms var(--ease-out); }
+@keyframes pop { from { transform:scale(.95); opacity:0; } to { transform:none; opacity:1; } }
+@media (prefers-reduced-motion:reduce) { .card.new { animation:fade 200ms ease; }
+  .card.waiting .state::after { animation:none; } }
+@keyframes fade { from { opacity:0; } }
 @keyframes dots { 0% { content:""; } 33% { content:"."; } 66% { content:".."; } }
 """
 
