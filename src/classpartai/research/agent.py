@@ -105,6 +105,7 @@ class EvidencePack:
     notes: list[str] = field(default_factory=list)
     usage: dict = field(default_factory=dict)
     trajectory: list[dict] = field(default_factory=list)
+    model_history: list[dict] = field(default_factory=list)  # public messages, diagnostic only
     focus: str | None = None  # the investigator's question, when one asked for this research
 
     def to_dict(self) -> dict:
@@ -307,6 +308,9 @@ class ResearchAgent:
                         else _unfinished(findings, tools, self.budgets, text, question)
                     )
                     if not problems:
+                        tools.trajectory.append(
+                            Step(step, "submit_findings", findings, True, "submitted")
+                        )
                         submitted, stop_reason = findings, "submitted"
                         break
                     sent_back = True
@@ -316,7 +320,14 @@ class ResearchAgent:
                         + "\nDo that, then call submit_findings again."
                     )
                     tools.trajectory.append(
-                        Step(step, "submit_findings", findings, False, "sent back: unfinished")
+                        Step(
+                            step,
+                            "submit_findings",
+                            findings,
+                            False,
+                            "sent back: unfinished",
+                            output=result,
+                        )
                     )
                 else:
                     try:
@@ -337,6 +348,9 @@ class ResearchAgent:
             submit = next((c for c in turn.tool_calls if c.name == "submit_findings"), None)
             if submit is not None:
                 submitted, stop_reason = _parse(submit), "submitted_after_budget"
+                tools.trajectory.append(
+                    Step(turns, "submit_findings", submitted, True, "submitted after budget")
+                )
 
         screened: list[str] = []
         if submitted:
@@ -380,6 +394,7 @@ class ResearchAgent:
             assessment,
             screened,
         )
+        pack.model_history = messages
         pack.focus = focus
         return pack
 
@@ -443,7 +458,14 @@ class ResearchAgent:
         if result["mistake"]:
             summary.append(f"mistake {result['mistake']['type']}")
         tools.trajectory.append(
-            Step(step, "assess_answer", {"points": points}, True, "; ".join(summary))
+            Step(
+                step,
+                "assess_answer",
+                {"points": points},
+                True,
+                "; ".join(summary),
+                output=json.dumps(result),
+            )
         )
         return result
 

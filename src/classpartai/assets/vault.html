@@ -1,5 +1,5 @@
 <!doctype html><html><head><meta charset="utf-8"><style>
-:root { --bg:#191919; --ink:#e3e3e3; --muted:#9b9b9b; --line:#2f2f2f; --card:#202020;
+:root { --bg:#10151e; --ink:#e9edf5; --muted:#9ba6b8; --line:#293140; --card:#151c28;
         --blue:#2383e2; --green:#4dab6f; --amber:#d9a443;
         --ease-out:cubic-bezier(0.23,1,0.32,1); }
 * { box-sizing:border-box; }
@@ -7,7 +7,7 @@ html,body { margin:0; height:100%; background:var(--bg); color:var(--ink);
             font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif; }
 #app { position:relative; height:__HEIGHT__px; display:flex; border:1px solid var(--line);
        border-radius:12px; overflow:hidden; background:radial-gradient(ellipse at center,
-       #1f2430 0%, #191919 70%); }
+       #1c2638 0%, #10151e 70%); }
 #stage { position:relative; flex:1 1 auto; min-width:0; }
 canvas { position:absolute; inset:0; width:100%; height:100%; display:block; }
 #hud { position:absolute; left:14px; top:12px; right:14px; pointer-events:none; }
@@ -18,18 +18,18 @@ canvas { position:absolute; inset:0; width:100%; height:100%; display:block; }
 #controls { position:absolute; left:12px; bottom:10px; display:flex; gap:6px; align-items:center; }
 #controls button { background:#262626; color:var(--ink); border:1px solid var(--line);
        border-radius:8px; padding:4px 10px; font-size:12px; cursor:pointer;
-       transition:transform 160ms var(--ease-out), border-color 150ms ease; }
-#controls button:active { transform:scale(0.97); }
+       transition:none; }
+#controls button:active { opacity:.8; }
 @media (hover:hover) and (pointer:fine) { #controls button:hover { border-color:var(--blue); } }
 #step { font-size:12px; color:var(--muted); margin-left:4px; font-variant-numeric:tabular-nums; }
-#panel { flex:0 0 300px; border-left:1px solid var(--line); background:rgba(32,32,32,.92);
+#panel { flex:0 0 300px; border-left:1px solid var(--line); background:rgba(21,28,40,.92);
          display:flex; flex-direction:column; min-height:0; }
 #panel h4 { margin:0; padding:12px 14px 8px; font-size:12px; letter-spacing:.06em;
             text-transform:uppercase; color:var(--muted); font-weight:600; }
 #list { overflow-y:auto; padding:0 10px 10px; flex:1 1 auto; }
-.item { background:#252525; border:1px solid var(--line); border-radius:8px; padding:8px 10px;
+.item { background:#1b2331; border:1px solid var(--line); border-radius:8px; padding:8px 10px;
         margin-bottom:8px; font-size:12px; line-height:1.4;
-        animation:in 250ms var(--ease-out) backwards; }
+         }
 .item .src { color:var(--muted); font-size:11px; margin-bottom:3px; display:flex;
              justify-content:space-between; gap:6px; }
 .item .score { color:#8fc3ff; font-variant-numeric:tabular-nums; }
@@ -37,7 +37,6 @@ canvas { position:absolute; inset:0; width:100%; height:100%; display:block; }
 .item.cited .src { color:var(--green); }
 .item.file .src { color:var(--ink); font-weight:600; }
 .dot { display:inline-block; width:8px; height:8px; border-radius:50%; margin-right:6px; }
-@keyframes in { from { opacity:0; transform:translateY(6px); } }
 #tip { position:absolute; pointer-events:none; max-width:280px; background:#111;
        border:1px solid #3a3a3a; border-radius:8px; padding:8px 10px; font-size:12px;
        line-height:1.4; z-index:5; box-shadow:0 6px 20px rgba(0,0,0,.5);
@@ -45,16 +44,15 @@ canvas { position:absolute; inset:0; width:100%; height:100%; display:block; }
        transition:opacity 125ms ease-out, transform 125ms var(--ease-out); }
 #tip.show { opacity:1; transform:none; }
 #tip .src { color:var(--muted); font-size:11px; margin-bottom:3px; }
-@media (max-width:700px) { #app { flex-direction:column; height:auto; }
-  #stage { height:__STAGE_MOBILE__px; flex:none; } #panel { flex:none; max-height:220px;
+@media (max-width:700px) { #app { flex-direction:column; }
+  #stage { min-height:0; } #panel { flex:0 0 130px; max-height:130px;
   border-left:none; border-top:1px solid var(--line); } }
-@media (prefers-reduced-motion:reduce) { .item { animation:fade 150ms ease; }
+@media (prefers-reduced-motion:reduce) { * { animation:none !important; transition:none !important; }
   #tip { transform:none; } #controls button:active { transform:none; } }
-@keyframes fade { from { opacity:0; } }
 </style></head><body>
 <div id="app"><div id="stage"><canvas id="c"></canvas>
 <div id="hud"><div id="status"></div><div id="query"></div></div>
-<div id="controls"><button id="play">⏸ Pause</button><button id="replay">⟲ Replay</button>
+<div id="controls"><button id="play">Next search →</button><button id="replay">↺ First search</button>
 <span id="step"></span></div><div id="tip"></div></div>
 <div id="panel"><h4 id="ph">Retrieved</h4><div id="list"></div></div></div>
 <script type="application/json" id="data">__DATA__</script>
@@ -72,12 +70,12 @@ let W = 0, H = 0, cx = 0, cy = 0;
 D.docs.forEach((d, i) => {
   d.color = PAL[i % PAL.length];
   d.passages.forEach((p, j) => {
-    const s = {doc: d, p, j, x: 0, y: 0, tw: Math.random() * 6.28};
+    const s = {doc: d, p, j, x: 0, y: 0, tw: 0};
     stars.push(s); byPid.set(p.pid, s);
   });
 });
-for (let i = 0; i < 140; i++) dust.push({x: Math.random(), y: Math.random(),
-  r: Math.random() * 1.1 + .2, tw: Math.random() * 6.28});
+for (let i = 0; i < 140; i++) dust.push({x: ((i * 73) % 139) / 139, y: ((i * 31) % 137) / 137,
+  r: .6, tw: 0});
 const total = stars.length;
 
 // Searches, with only the passages that exist in this vault; ranked best first.
@@ -94,9 +92,9 @@ function layout() {
   const r = cv.getBoundingClientRect(), dpr = window.devicePixelRatio || 1;
   W = r.width; H = r.height; cv.width = W * dpr; cv.height = H * dpr;
   ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-  cx = W / 2; cy = H / 2 + 8;
+  cx = W / 2; cy = H / 2 - 8;
   const n = D.docs.length;
-  const ax = W * 0.36, ay = H * 0.33;
+  const ax = W * 0.36, ay = H * 0.22;
   D.docs.forEach((d, i) => {
     const m = d.passages.length;
     let ox, oy, r0, R;
@@ -120,7 +118,9 @@ function layout() {
 }
 
 // Everything on screen is a function of the clock t, so replay and live updates are trivial.
-let t = D.startAt * PER, playing = true, last = performance.now(), shownSearch = -2, shownCite = -1;
+let selected = Math.min(D.startAt, searches.length);
+let t = searches.length ? (selected + 1) * PER - HOLD : end;
+let shownSearch = -2, shownCite = -1;
 
 const easeOut = p => 1 - Math.pow(1 - p, 3);
 
@@ -143,25 +143,21 @@ function state(s) {
 }
 
 function drawStar(s, now) {
-  const st = state(s), tw = reduce ? 1 : 0.65 + 0.35 * Math.sin(now / 900 + s.tw);
+  const st = state(s), tw = 1;
   let r = 2.2, col = s.doc.color, a = 0.5 * tw, glow = 0;
   if (st.ret) { r = 3.4; a = 0.95; glow = st.current ? 16 : 8; col = st.current ? "#ffffff" : s.doc.color; }
   if (st.ex) { r = 3.8; col = "#d9a443"; glow = 12 * st.ex; a = 1; }
   if (st.cit) { r = 4.8; col = "#4dab6f"; glow = 18; a = 1; }
-  if (st.flare && !reduce) { r += 4 * st.flare; glow += 14 * st.flare; }
+
   ctx.save(); ctx.globalAlpha = a; ctx.fillStyle = col;
   if (glow) { ctx.shadowColor = col; ctx.shadowBlur = glow; }
   ctx.beginPath(); ctx.arc(s.x, s.y, r, 0, 6.283); ctx.fill(); ctx.restore();
-  if (st.cit && !reduce) {
-    const ph = ((now / 1200) % 1);
-    ctx.save(); ctx.strokeStyle = "#4dab6f"; ctx.globalAlpha = 0.6 * (1 - ph);
-    ctx.beginPath(); ctx.arc(s.x, s.y, 5 + ph * 12, 0, 6.283); ctx.stroke(); ctx.restore();
-  }
+
 }
 
 function draw(now) {
   ctx.clearRect(0, 0, W, H);
-  dust.forEach(d => { ctx.globalAlpha = 0.15 + 0.15 * Math.sin(now / 1500 + d.tw);
+  dust.forEach(d => { ctx.globalAlpha = 0.18;
     ctx.fillStyle = "#9fb4d0"; ctx.beginPath(); ctx.arc(d.x * W, d.y * H, d.r, 0, 6.283); ctx.fill(); });
   ctx.globalAlpha = 1;
   D.docs.forEach(d => {
@@ -175,7 +171,7 @@ function draw(now) {
     ctx.fillStyle = d.color; ctx.font = "600 11px -apple-system,Segoe UI,sans-serif";
     ctx.textAlign = "center";
     const label = d.title.length > 34 ? d.title.slice(0, 33) + "…" : d.title;
-    const ly = D.docs.length === 1 ? Math.min(H - 40, d.oy + d.R * 0.78 + 18) : d.oy + d.R + 16;
+    const ly = Math.min(H - 38, d.oy + d.R * (D.docs.length === 1 ? 0.78 : 1) + 16);
     ctx.fillText(label, d.ox, ly);
   });
   // Beams: faint for finished searches, travelling light for the current one.
@@ -201,11 +197,6 @@ function draw(now) {
   });
   stars.forEach(s => drawStar(s, now));
   // The agent at the centre.
-  const searching = t < searchEnd || (!D.finished && D.running);
-  const pulse = reduce ? 0 : (now / 1400) % 1;
-  if (searching) { ctx.save(); ctx.strokeStyle = "#2383e2"; ctx.globalAlpha = 0.5 * (1 - pulse);
-    ctx.lineWidth = 2; ctx.beginPath(); ctx.arc(cx, cy, 18 + pulse * 26, 0, 6.283); ctx.stroke();
-    ctx.restore(); }
   const g = ctx.createRadialGradient(cx - 4, cy - 4, 2, cx, cy, 18);
   g.addColorStop(0, "#9fd0ff"); g.addColorStop(1, "#1b5fae");
   ctx.save(); ctx.shadowColor = "#2383e2"; ctx.shadowBlur = 22; ctx.fillStyle = g;
@@ -245,7 +236,7 @@ function hud() {
     (D.finished && t >= examEnd && cited.length ? " · " + cited.length + " quoted" : ""));
   let q = "";
   if (searches.length && t < searchEnd) {
-    const s = searches[cur], k = Math.min(1, (t - cur * PER) / QUERY);
+    const s = searches[cur], k = 1;
     q = "🔎 “" + s.query.slice(0, Math.ceil(s.query.length * k)) + (k < 1 ? "▍" : "”");
   } else if (!D.finished && D.running) q = "🔎 searching…";
   else if (searches.length && D.finished) q = cited.length ? "✓ Evidence quoted from the vault" : "✓ Search finished — no passage quoted";
@@ -273,18 +264,15 @@ function hud() {
   }
 }
 
-function frame(now) {
-  // rAF's timestamp can be earlier than the performance.now() taken at start-up: never step back.
-  const dt = Math.max(0, Math.min(100, now - last)); last = now;
-  if (playing) t = Math.min(end, t + dt);
-  draw(now); hud();
-  requestAnimationFrame(frame);
-}
-
-$("play").onclick = () => { playing = !playing; $("play").textContent = playing ? "⏸ Pause" : "▶ Play";
-  if (playing && t >= end) t = 0; };
-$("replay").onclick = () => { t = 0; playing = true; shownSearch = -2; shownCite = -1;
-  $("play").textContent = "⏸ Pause"; };
+function render() { draw(0); hud(); }
+$("play").onclick = () => {
+ selected = (selected + 1) % (searches.length + 1);
+ t = selected === searches.length ? end : (selected + 1) * PER - HOLD;
+ shownSearch = -2; shownCite = -1; render();
+};
+$("replay").onclick = () => {
+ selected = 0; t = PER - HOLD; shownSearch = -2; shownCite = -1; render();
+};
 if (!searches.length) $("controls").style.display = "none";
 
 const tip = $("tip");
@@ -297,10 +285,10 @@ cv.addEventListener("mousemove", e => {
   src.textContent = where(best); tip.appendChild(src);
   tip.appendChild(document.createTextNode(best.p.text));
   tip.classList.add("show");
-  tip.style.left = Math.min(x + 14, r.width - 290) + "px"; tip.style.top = Math.min(y + 14, r.height - 120) + "px";
+  tip.style.left = Math.max(4, Math.min(x + 14, r.width - 290)) + "px"; tip.style.top = Math.min(y + 14, r.height - 120) + "px";
 });
 cv.addEventListener("mouseleave", () => { tip.classList.remove("show"); });
-new ResizeObserver(layout).observe(cv);
-layout(); requestAnimationFrame(frame);
+new ResizeObserver(() => { layout(); render(); }).observe(cv);
+layout(); render();
 })();
 </script></body></html>

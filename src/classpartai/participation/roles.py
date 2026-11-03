@@ -74,16 +74,48 @@ def role_result[T: BaseModel](
     history: list[HistoryItem] = [
         {"role": "user", "content": json.dumps({"untrustedData": data}, default=str)}
     ]
-    for _ in range(2):
-        response = budget.call(driver, history)
-        budget.tool()
+    for attempt in range(2):
+        # Diagnostics only: never fed back to a model, and never alter the shared budget.
+        trace = {
+            "role": name,
+            "attempt": attempt + 1,
+            "instructions": (
+                f"{ROLE_POLICY}\n{instruction}\nCall {name} with your structured result."
+            ),
+            "inputs": json.loads(json.dumps(data, default=str)),
+            "history": json.loads(json.dumps(history, default=str)),
+            "schema": schema.model_json_schema(),
+            "outcome": "started",
+            "validation": "pending",
+        }
+        budget.progress.roleCalls.append(trace)
+        budget.checkpoint()
+        try:
+            response = budget.call(driver, history)
+            trace["calls"] = [
+                {"name": c.name, "arguments": c.arguments, "callId": c.call_id}
+                for c in response.calls
+            ]
+            budget.tool()
+        except Exception as error:
+            trace["outcome"] = "interrupted"
+            trace["reason"] = type(error).__name__
+            budget.checkpoint()
+            raise
         call = response.calls[0] if len(response.calls) == 1 else None
         if call is None or call.name != name:
+            trace.update(outcome="refused", reason="Role returned an unsupported tool")
+            budget.checkpoint()
             raise RuntimeError("Role returned an unsupported tool")
         try:
             result = schema.model_validate_json(call.arguments)
-            if check:
-                check(result)
+            checked = check(result) if check else False
+            trace.update(
+                outcome="ok",
+                output=result.model_dump(),
+                validation="validate_proposal passed" if checked is not False else "schema passed",
+            )
+            budget.checkpoint()
             return result
         except (ValidationError, Unprocessable) as error:
             reason = (
@@ -91,6 +123,8 @@ def role_result[T: BaseModel](
                 if isinstance(error, Unprocessable)
                 else "Malformed role result; correct schema and preserve IDs"
             )
+            trace.update(outcome="refused", reason=reason, validation="failed")
+            budget.checkpoint()
             history += [
                 {
                     "type": "function_call",

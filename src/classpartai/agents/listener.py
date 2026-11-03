@@ -75,6 +75,7 @@ def process_without_diarization(audio_path: str) -> dict:
         rate = audio.getframerate()
         for n, seg in enumerate(transcription["segments"]):
             speaker = "UNKNOWN"
+            identity = {"name": "UNKNOWN", "status": "too_short", "matches": []}
             if seg["end"] - seg["start"] >= MIN_SEGMENT_SECONDS:
                 clip = Path(tmp) / f"segment-{n}.wav"
                 audio.setpos(int(seg["start"] * rate))
@@ -86,10 +87,16 @@ def process_without_diarization(audio_path: str) -> dict:
                 speaker = best_match(matches)
                 scores = ", ".join(f"{m['name']} {m['score']:.2f}" for m in matches[:3])
                 print(f"segment {n}: {speaker} ({scores})", flush=True)
-            segments.append({**seg, "speaker": speaker})
+                status = {"UNKNOWN": "unknown", "AMBIGUOUS": "ambiguous"}.get(speaker, "identified")
+                identity = {"name": speaker, "status": status, "matches": matches}
+            segments.append({**seg, "speaker": speaker, "voice_match": identity})
     return {
         "language": transcription["language"],
         "speaker_identities": {},
+        # Diagnostics for the Listener inspector; not used by any model.
+        "whisper_segments": transcription["segments"],
+        "aligned_segments": segments,
+        "matching": {"minScore": MATCH_MIN_SCORE, "minMargin": MATCH_MIN_MARGIN},
         "segments": merge_consecutive_speaker_segments(segments),
     }
 

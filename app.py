@@ -26,6 +26,7 @@ from pathlib import Path
 import streamlit as st
 
 from classpartai import config
+from classpartai.agent_ui import TABS, overview, render_agent
 from classpartai.agents import listener
 from classpartai.assessment import AssessmentInputs, parse_inputs
 from classpartai.classlist import ClassList
@@ -321,6 +322,9 @@ def default_title() -> str:
 
 
 def go(view: str, session: str | None = None) -> None:
+    for param in ("session", "step", "agent"):  # links from the agent workspace
+        if param in st.query_params:
+            del st.query_params[param]
     st.session_state.view = view
     if session:
         st.session_state.session_id = session
@@ -444,6 +448,13 @@ if st.session_state.get("session_id") not in by_id:
     st.session_state.session_id = next(iter(by_id), None)
 if st.session_state.view == "session" and not sessions:
     st.session_state.view = "home"
+linked = st.query_params.get("session")
+if linked in by_id:
+    st.session_state.view, st.session_state.session_id = "session", linked
+    linked_step = {"AI assessment": 3, "Approve": 4, "Send": 5}.get(st.query_params.get("step"))
+    if linked_step:
+        st.session_state[f"step-{linked}"] = linked_step
+        del st.query_params["step"]
 
 
 def nav(label: str, view_name: str, session: str | None = None, key: str | None = None) -> None:
@@ -523,6 +534,7 @@ def transcribe(wav: Path, roster: list[dict], professors: set[str], meta: dict) 
         result = process_audio(str(wav))
     ids = {r["displayName"]: r["id"] for r in roster}
     st.session_state.pending = {
+        "diagnostics": json.loads(json.dumps({**result, "note": note}, default=str)),
         "transcript": listener.to_transcript(result, ids, "review-1", professors),
         "roster": roster,
         "audio": str(wav),
@@ -770,6 +782,7 @@ elif view == "new":
                 new_id = open_session(new_inputs, recipients)
                 RECORDINGS.mkdir(parents=True, exist_ok=True)
                 shutil.move(pending["audio"], RECORDINGS / f"{new_id}.wav")
+                records.save_listener_run(new_id, pending.get("diagnostics") or {})
                 del st.session_state["pending"]
                 st.rerun()
             if col_drop.button("Discard and record again"):
@@ -955,255 +968,206 @@ else:
     )
 
     if step == 3:
-        with st.container(border=True):
-            tab_summary, tab_vault, tab_transcript, tab_evidence, tab_details = st.tabs(
-                [
-                    "✨ Summary",
-                    "🌌 Retrieval",
-                    "💬 Transcript",
-                    "🔎 Ask the course notes",
-                    "⋯ Details",
-                ]
-            )
+        live = live_runs().get(session_id)
+        running = bool(live and live["thread"].is_alive())
+        tabs = st.tabs(TABS, key="agent", on_change="rerun", bind="query-params")
+        for name, tab in zip(TABS, tabs, strict=True):
+            if not tab.open:
+                continue
+            with tab:
+                if name != "Overview":
 
-        with tab_summary:
-            live = live_runs().get(session_id)
-            running = bool(live and live["thread"].is_alive())
-            if latest is None and not running:
-                st.markdown(
-                    '<p class="muted">The agents will check what was said against the course '
-                    "notes, score each student against the rubric, audit those scores and draft "
-                    "feedback for each student. Nothing is sent until you approve it.</p>",
-                    unsafe_allow_html=True,
-                )
-            run_panel(session_id, inputs)
-            col_run, col_blank, _ = st.columns([1, 1, 2])
-            if col_run.button(
-                "⏳ Working…"
-                if running
-                else "✨ Run the agents"
-                if latest is None
-                else "✨ Run again",
-                type="primary",
-                width="stretch",
-                disabled=running,
-            ):
-                start_run(session_id)
-                st.rerun()
-            if (
-                latest is None
-                and not running
-                and col_blank.button("Write it myself", width="stretch")
-            ):
-                records.create_professor_draft(session_id)
-                st.rerun()
+                    def agent_panel(name=name):
+                        render_agent(name, records, session_id, inputs, live_runs().get(session_id))
+                        entry = live_runs().get(session_id)
+                        if entry and entry["ended"] and not entry.get("reported"):
+                            entry["reported"] = True
+                            st.rerun()
 
-            if latest:
-                origin = "AI proposal" if latest.origin == "model" else "professor edit"
-                st.markdown(f"#### Version {latest.version} · {origin}")
-                if running:
-                    st.caption("A new run is working; this is the previous version.")
-                st.caption(latest.content.revisionNote)
-                bundles = dict(records.evidence_for(session_id))
-                criteria = {c.id: c.title for c in inputs.rubric.criteria}
-                turns = {t.id: t for t in inputs.transcript.turns}
-                for s in inputs.roster:
-                    total = totals(latest.content, inputs, s.id)
-                    headline = (
-                        f"{total['total']:g}/{total['maximum']}"
-                        if total["total"] is not None
-                        else f"{total['assessedCriteria']}/{total['totalCriteria']} assessed"
-                    )
-                    with st.expander(f"**{s.displayName}** · {headline}"):
-                        fb = next((x for x in latest.content.feedback if x.studentId == s.id), None)
-                        if fb:
-                            st.markdown(f"{fb.strengths}\n\n**Next step:** {fb.nextStep}")
-                            if fb.limitations:
-                                st.caption("Limitations: " + "; ".join(fb.limitations))
-                        else:
-                            st.warning("No feedback draft yet; every roster student needs one.")
-                        st.caption(
-                            f"Observed attributed contributions: {observed_count(inputs, s.id)} "
-                            f"(counts are separate from judgement). {total['limitation']}."
-                        )
-                        for f in [x for x in latest.content.findings if x.studentId == s.id]:
-                            verdict = (
-                                f"proposed {f.score:g}"
-                                if f.status == "scored"
-                                else "insufficient evidence, no score"
+                    st.fragment(run_every=2 if running else None)(agent_panel)()
+                    if name == "Listener" and recording_of(session_id):
+                        with st.expander("Play any line of the recording"):
+                            recording_player(recording_of(session_id), f"seek-{session_id}")
+                            show_transcript(
+                                inputs.transcript.turns,
+                                {s.id: s.displayName for s in inputs.roster},
+                                f"seek-{session_id}",
                             )
-                            st.markdown(f"**{criteria[f.criterionId]}: {verdict}**")
-                            st.write(f.justification)
-                            if f.limitations:
-                                st.caption("Limitations: " + "; ".join(f.limitations))
-                            for tid in f.turnIds:
-                                st.caption(f"{tid}: {turns[tid].text}")
-                            for c in f.citations:
-                                st.markdown(citation_text(bundles, c))
-                st.button(
-                    "Next: ④ Approve →",
-                    on_click=lambda: st.session_state.update({f"step-{session_id}": 4}),
-                )
+                    if name == "Evidence / Research":
+                        with st.expander("🔎 Ask the course notes"):
+                            st.write(
+                                "Ask the evidence agent to check something said in class "
+                                "against the course documents. It chooses its own searches "
+                                "and must cite exact excerpts; it never "
+                                "scores."
+                            )
+                            question = st.text_input(
+                                "Question",
+                                placeholder="Is Alex's latency point supported by the notes?",
+                            )
+                            turn_labels = {
+                                t.id: f"{t.id} · {speaker_name(inputs, t)}: {t.text[:60]}"
+                                for t in inputs.transcript.turns
+                            }
+                            turn_ids = st.multiselect(
+                                "Turns (1–8)",
+                                list(turn_labels),
+                                format_func=turn_labels.get,
+                                max_selections=8,
+                            )
+                            crit = {c.id: c.title for c in inputs.rubric.criteria}
+                            criterion_ids = st.multiselect(
+                                "Rubric criteria",
+                                list(crit),
+                                format_func=crit.get,
+                                default=list(crit)[:1],
+                            )
+                            ready = bool(len(question.strip()) >= 5 and turn_ids and criterion_ids)
+                            if st.button("Investigate", type="primary", disabled=not ready):
+                                use_research = config.EVIDENCE_AGENT == "research"
+                                driver = (
+                                    None
+                                    if use_research
+                                    else configured_driver(EVIDENCE_INSTRUCTIONS, EVIDENCE_TOOLS)
+                                )
+                                if driver is None and not use_research:
+                                    st.error("No model configured (set OPENAI_API_KEY).")
+                                else:
+                                    log = st.status(
+                                        "The evidence agent is investigating…", expanded=True
+                                    )
+                                    shown = [0]
 
-        with tab_vault:
-            evidence_runs = records.evidence_runs(session_id)
-            if not evidence_runs:
-                st.caption(
-                    "This session's course documents. Once the evidence agent has searched "
-                    "them, pick a search here to replay what it retrieved."
-                )
-                show_vault(inputs.documents)
-            else:
-                labels = {
-                    i: f"{r['question'][:90]} · {r['status'].replace('_', ' ')}"
-                    for i, r in enumerate(evidence_runs)
-                }
-                pick = st.selectbox(
-                    "Evidence check",
-                    list(labels),
-                    format_func=labels.get,
-                    key=f"vault-{session_id}",
-                )
-                chosen = evidence_runs[pick]
-                show_vault(inputs.documents, chosen["progress"])
-                if not searches_of(chosen["progress"]):
-                    st.caption(
-                        "This check was saved before searches were recorded, so only its quoted "
-                        "evidence is shown. Newer checks replay every search."
-                    )
+                                    def checkpoint(progress, shown=shown, log=log):
+                                        for a in progress.actions[shown[0] :]:
+                                            if a["outcome"] == "started":
+                                                break
+                                            icon = "✅" if a["outcome"] == "ok" else "⛔"
+                                            log.write(f"{icon} `{a['tool']}`: {a['summary']}")
+                                            shown[0] += 1
 
-        with tab_transcript:
-            st.caption(
-                f"Reviewed transcript {inputs.transcript.version} · "
-                f"{len(inputs.transcript.turns)} lines. Greyed-out lines have an unknown speaker "
-                "and are never scored."
-            )
-            audio_file = recording_of(session_id)
-            key = f"seek-{session_id}" if audio_file else None
-            if audio_file:
-                recording_player(audio_file, key)
-            show_transcript(
-                inputs.transcript.turns, {s.id: s.displayName for s in inputs.roster}, key
-            )
+                                    request = Investigation(
+                                        sessionId=session_id,
+                                        question=question,
+                                        turnIds=turn_ids,
+                                        criterionIds=criterion_ids,
+                                    )
+                                    if (
+                                        use_research
+                                    ):  # ② Research (research/bridge.py), same contract
+                                        from classpartai.research import bridge
 
-        with tab_evidence:
-            st.write(
-                "Ask the evidence agent to check something said in class against the course "
-                "documents. It chooses its own searches and must cite exact excerpts; it never "
-                "scores."
-            )
-            question = st.text_input(
-                "Question", placeholder="Is Alex's latency point supported by the notes?"
-            )
-            turn_labels = {
-                t.id: f"{t.id} · {speaker_name(inputs, t)}: {t.text[:60]}"
-                for t in inputs.transcript.turns
-            }
-            turn_ids = st.multiselect(
-                "Turns (1–8)", list(turn_labels), format_func=turn_labels.get, max_selections=8
-            )
-            crit = {c.id: c.title for c in inputs.rubric.criteria}
-            criterion_ids = st.multiselect(
-                "Rubric criteria", list(crit), format_func=crit.get, default=list(crit)[:1]
-            )
-            ready = bool(len(question.strip()) >= 5 and turn_ids and criterion_ids)
-            if st.button("Investigate", type="primary", disabled=not ready):
-                use_research = config.EVIDENCE_AGENT == "research"
-                driver = (
-                    None
-                    if use_research
-                    else configured_driver(EVIDENCE_INSTRUCTIONS, EVIDENCE_TOOLS)
-                )
-                if driver is None and not use_research:
-                    st.error("No model configured (set OPENAI_API_KEY).")
-                else:
-                    log = st.status("The evidence agent is investigating…", expanded=True)
-                    shown = [0]
+                                        outcome = bridge.investigate(
+                                            request, inputs, None, checkpoint
+                                        )
+                                    else:
+                                        outcome = investigate(
+                                            request, inputs, driver, CourseIndex(inputs), checkpoint
+                                        )
+                                    records.save_evidence_run(session_id, question, outcome)
+                                    log.update(
+                                        label=f"Evidence agent: {outcome.status} "
+                                        f"({outcome.stopReason})",
+                                        state="complete",
+                                    )
+                                    # Redraw so the Evidence tab lists this new check.
+                                    st.toast("Evidence check saved: replay it above in this tab")
+                                    st.rerun()
+                            for ev in records.evidence_runs(session_id):
+                                bundle = ev["progress"]["bundle"]
+                                with st.expander(f"{ev['status']} · {ev['question']}"):
+                                    calls = ev["progress"]["modelCalls"]
+                                    st.caption(
+                                        f"Stop reason: {ev['stop_reason']} · model calls {calls}"
+                                    )
+                                    if bundle:
+                                        st.write(bundle["explanation"])
+                                        for c in bundle["citations"]:
+                                            st.markdown(
+                                                f"> {c['excerpt']}\n\n— {c['title']}, "
+                                                f"p. {c['page']} · "
+                                                f"*{c['relationship']}*"
+                                            )
+                                        for g in bundle["gaps"]:
+                                            st.warning(f"Gap: {g}")
+                                        for c in bundle["conflicts"]:
+                                            st.error(f"Conflict: {c}")
+                                    for a in ev["progress"]["actions"]:
+                                        st.caption(f"{a['tool']} ({a['outcome']}): {a['summary']}")
 
-                    def checkpoint(progress):
-                        for a in progress.actions[shown[0] :]:
-                            if a["outcome"] == "started":
-                                break
-                            icon = "✅" if a["outcome"] == "ok" else "⛔"
-                            log.write(f"{icon} `{a['tool']}`: {a['summary']}")
-                            shown[0] += 1
-
-                    request = Investigation(
-                        sessionId=session_id,
-                        question=question,
-                        turnIds=turn_ids,
-                        criterionIds=criterion_ids,
-                    )
-                    if use_research:  # ② Research (research/bridge.py), same contract
-                        from classpartai.research import bridge
-
-                        outcome = bridge.investigate(request, inputs, None, checkpoint)
-                    else:
-                        outcome = investigate(
-                            request, inputs, driver, CourseIndex(inputs), checkpoint
-                        )
-                    records.save_evidence_run(session_id, question, outcome)
-                    log.update(
-                        label=f"Evidence agent: {outcome.status} ({outcome.stopReason})",
-                        state="complete",
-                    )
-                    # The Retrieval tab was drawn before this check existed: redraw to list it.
-                    st.toast("Evidence check saved: replay it in the 🌌 Retrieval tab")
+                    continue
+                overview(records, session_id, inputs, live)
+                col_run, col_blank, _ = st.columns([1, 1, 2])
+                if col_run.button(
+                    "⏳ Working…"
+                    if running
+                    else "✨ Generate assessment"
+                    if latest is None
+                    else "✨ Regenerate assessment",
+                    type="primary",
+                    width="stretch",
+                    disabled=running,
+                ):
+                    start_run(session_id)
                     st.rerun()
-            for ev in records.evidence_runs(session_id):
-                bundle = ev["progress"]["bundle"]
-                with st.expander(f"{ev['status']} · {ev['question']}"):
-                    calls = ev["progress"]["modelCalls"]
-                    st.caption(f"Stop reason: {ev['stop_reason']} · model calls {calls}")
-                    if bundle:
-                        st.write(bundle["explanation"])
-                        for c in bundle["citations"]:
-                            st.markdown(
-                                f"> {c['excerpt']}\n\n— {c['title']}, p. {c['page']} · "
-                                f"*{c['relationship']}*"
+                if (
+                    latest is None
+                    and not running
+                    and col_blank.button("Write it myself", width="stretch")
+                ):
+                    records.create_professor_draft(session_id)
+                    st.rerun()
+                if live:
+                    run_panel(session_id, inputs)
+                if latest:
+                    origin = "AI proposal" if latest.origin == "model" else "professor edit"
+                    st.markdown(f"#### Version {latest.version} · {origin}")
+                    if running:
+                        st.caption("A new run is working; this is the previous version.")
+                    st.caption(latest.content.revisionNote)
+                    bundles = dict(records.evidence_for(session_id))
+                    criteria = {c.id: c.title for c in inputs.rubric.criteria}
+                    turns = {t.id: t for t in inputs.transcript.turns}
+                    for s in inputs.roster:
+                        total = totals(latest.content, inputs, s.id)
+                        headline = (
+                            f"{total['total']:g}/{total['maximum']}"
+                            if total["total"] is not None
+                            else f"{total['assessedCriteria']}/{total['totalCriteria']} assessed"
+                        )
+                        with st.expander(f"**{s.displayName}** · {headline}"):
+                            fb = next(
+                                (x for x in latest.content.feedback if x.studentId == s.id), None
                             )
-                        for g in bundle["gaps"]:
-                            st.warning(f"Gap: {g}")
-                        for c in bundle["conflicts"]:
-                            st.error(f"Conflict: {c}")
-                    for a in ev["progress"]["actions"]:
-                        st.caption(f"{a['tool']} ({a['outcome']}): {a['summary']}")
-
-        with tab_details:
-            col_r, col_c = st.columns(2)
-            col_r.markdown("**Roster**")
-            col_r.dataframe(
-                [
-                    {"Student": s.displayName, "Observed turns": observed_count(inputs, s.id)}
-                    for s in inputs.roster
-                ],
-                hide_index=True,
-                width="stretch",
-            )
-            col_c.markdown(f"**Rubric:** {inputs.rubric.title}")
-            col_c.dataframe(
-                [
-                    {"Criterion": c.title, "Range": f"{c.minScore}–{c.maxScore}"}
-                    for c in inputs.rubric.criteria
-                ],
-                hide_index=True,
-                width="stretch",
-            )
-            docs = "; ".join(f"{d.title} ({len(d.passages)} passages)" for d in inputs.documents)
-            st.caption(f"Provenance: {inputs.provenance} · Course documents: {docs}")
-            st.markdown("**Version and run history**")
-            for d in records.drafts(session_id):
-                st.caption(f"Version {d.version} · {d.origin} · {d.content.revisionNote}")
-            for r in records.runs(session_id):
-                p = r["progress"]
-                with st.expander(f"Run {r['status']}: {r['stop_reason'] or 'running'}"):
-                    st.caption(
-                        f"model calls {p.get('modelCalls', 0)} · tool calls "
-                        f"{p.get('toolCalls', 0)} · tokens {p.get('tokens', 0)} "
-                        f"({p.get('usageKind', 'reported')})"
+                            if fb:
+                                st.markdown(f"{fb.strengths}\n\n**Next step:** {fb.nextStep}")
+                                if fb.limitations:
+                                    st.caption("Limitations: " + "; ".join(fb.limitations))
+                            else:
+                                st.warning("No feedback draft yet; every roster student needs one.")
+                            st.caption(
+                                "Observed attributed contributions: "
+                                f"{observed_count(inputs, s.id)} "
+                                f"(counts are separate from judgement). {total['limitation']}."
+                            )
+                            for f in [x for x in latest.content.findings if x.studentId == s.id]:
+                                verdict = (
+                                    f"proposed {f.score:g}"
+                                    if f.status == "scored"
+                                    else "insufficient evidence, no score"
+                                )
+                                st.markdown(f"**{criteria[f.criterionId]}: {verdict}**")
+                                st.write(f.justification)
+                                if f.limitations:
+                                    st.caption("Limitations: " + "; ".join(f.limitations))
+                                for tid in f.turnIds:
+                                    st.caption(f"{tid}: {turns[tid].text}")
+                                for c in f.citations:
+                                    st.markdown(citation_text(bundles, c))
+                    st.button(
+                        "Next: ④ Approve →",
+                        on_click=lambda: st.session_state.update({f"step-{session_id}": 4}),
                     )
-                    for a in p.get("actions", []):
-                        st.caption(f"{a['tool']} ({a['outcome']}): {a['summary']}")
 
     elif step == 4:
         if latest is None:

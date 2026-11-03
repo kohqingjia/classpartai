@@ -112,3 +112,31 @@ def test_no_model_configured_blocks_the_run(records, session_id):
     coordinate(records, session_id, lambda instructions, tools: None)
     run = records.runs(session_id)[0]
     assert (run["status"], run["stop_reason"]) == ("configuration_blocked", "model_not_configured")
+
+
+def test_role_trace_retains_exact_inputs_outputs_and_refusal_without_extra_calls(
+    records, session_id
+):
+    test_coordinator_runs_the_whole_workflow(records, session_id)
+    p = records.runs(session_id)[0]["progress"]
+    assert (p["modelCalls"], p["toolCalls"], p["tokens"]) == (15, 15, 150)
+    assert p["elapsedSeconds"] >= 0
+    calls = p["roleCalls"]
+    assert len(calls) == 6
+    judge = calls[0]
+    assert judge["inputs"]["transcript"] == records.inputs(session_id).transcript.model_dump()
+    assert judge["output"]["findings"] == full_proposal()["findings"]
+    assert judge["validation"] == "validate_proposal passed"
+    assert all(c["outcome"] == "ok" for c in calls)
+    assert p["actions"][0]["result"]["reviewedTurns"]
+    assert "No provisional draft" in p["actions"][1]["result"]["error"]
+    assert "untrustedData" in p["coordinatorInput"]["history"][0]["content"]
+
+
+def test_trace_keeps_both_correction_attempts(records, session_id):
+    test_judge_corrects_itself_after_rule_feedback(records, session_id)
+    calls = records.runs(session_id)[0]["progress"]["roleCalls"]
+    assert [c["outcome"] for c in calls] == ["refused", "ok"]
+    assert "validated evidence" in calls[0]["reason"]
+    assert len(calls[0]["history"]) == 1
+    assert len(calls[1]["history"]) == 3

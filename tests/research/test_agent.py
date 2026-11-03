@@ -60,6 +60,7 @@ def test_course_claim_is_supported_with_a_verbatim_quote_and_source(store, sched
         "get_lesson_context",
         "search_course_materials",
         "grade_evidence",
+        "submit_findings",
         "assess_answer",
     ]
     assert "<contribution>" in llm.agent_calls[0]["messages"][1]["content"]
@@ -318,7 +319,7 @@ def test_unfinished_submission_is_sent_back_once_to_finish(store, schedule):
     assert matrices in feedback and "C4" in feedback
     assert [c["status"] for c in pack.claims] == ["supported", "supported"]
     assert pack.stop_reason == "submitted" and not pack.needs_review
-    assert [s["tool"] for s in pack.trajectory].count("submit_findings") == 1  # the sent-back one
+    assert [s["ok"] for s in pack.trajectory if s["tool"] == "submit_findings"] == [False, True]
 
 
 def submit_answer(claims, expected, missed, answers, summary="See the evidence."):
