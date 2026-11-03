@@ -14,6 +14,7 @@ import os
 import subprocess
 import tempfile
 import threading
+import time
 from datetime import datetime, timedelta, timezone
 from html import escape
 from pathlib import Path
@@ -28,7 +29,7 @@ from classpartai.config import DATA_DIR, ENROLLMENT_DIR, REPO_ROOT
 from classpartai.evidence import INSTRUCTIONS as EVIDENCE_INSTRUCTIONS
 from classpartai.evidence import TOOL_DEFINITIONS as EVIDENCE_TOOLS
 from classpartai.evidence import CourseIndex, Investigation, investigate
-from classpartai.models import configured_driver
+from classpartai.models import WORKFLOW_LIMITS, configured_driver
 from classpartai.participation.coordinator import coordinate
 from classpartai.participation.delivery import (
     AgentMailTransport,
@@ -67,7 +68,108 @@ def services() -> tuple[Records, ClassList]:
 @st.cache_resource(show_spinner="Loading speech models (the first run downloads them)…")
 def load_listener():
     # The pipeline writes per-speaker clips to a shared folder, so run one recording at a time.
-    return listener.load_pipeline(), threading.Lock()
+    process_audio, note = listener.load_pipeline()
+    return process_audio, note, threading.Lock()
+
+
+@st.cache_resource
+def live_runs() -> dict[str, dict]:
+    """Coordinator runs, shared by every browser tab. Each runs in its own thread, so clicking
+    around (which restarts this script) or closing the tab doesn't stop it."""
+    return {}
+
+
+def start_run(session_id: str) -> None:
+    events: list[tuple[str, dict | None]] = []
+    entry = {"events": events, "started": time.monotonic(), "ended": None, "error": None}
+
+    def work() -> None:
+        try:
+            coordinate(records, session_id, on_event=lambda kind, d: events.append((kind, d)))
+        except Exception as exc:  # shown on the page; the run record keeps its stop reason
+            entry["error"] = str(exc).splitlines()[0][:300]
+        finally:
+            entry["ended"] = time.monotonic()
+
+    entry["thread"] = threading.Thread(target=work, name=f"run-{session_id}", daemon=True)
+    live_runs()[session_id] = entry
+    entry["thread"].start()
+
+
+def fold_events(events, inputs: AssessmentInputs) -> dict:
+    """Where a run has got to, from its events: for the animation and the agent log."""
+    view = {"active": None, "done": set(), "notes": {}, "newest": None, "lines": []}
+    view["banner"] = "<b>Coordinator</b> starting…"
+    counts, refused = {}, {}
+    for kind, detail in events:
+        if kind == "thinking":
+            view["active"] = None
+            view["banner"] = "<b>Coordinator</b> deciding what to do next…"
+        elif kind == "substep":
+            view["active"] = "research"
+            tool = escape(detail["tool"].replace("_", " "))
+            view["banner"] = f"<b>Evidence agent</b> step {detail['step']}: {tool}"
+            view["lines"].append(f"&emsp;↳ evidence agent: `{detail['tool']}`")
+        elif kind == "done":
+            view["active"] = None
+            view["banner"] = f"<b>Finished</b>: {escape(detail['stopReason'].replace('_', ' '))}"
+        else:
+            stage, ok = TOOL_STAGE.get(detail["tool"]), detail["outcome"] == "ok"
+            view["lines"].append(f"{'✅' if ok else '⛔'} `{detail['tool']}`: {detail['summary']}")
+            if stage:
+                counts[stage] = counts.get(stage, 0) + 1
+                refused[stage] = refused.get(stage, 0) + (not ok)
+                note = f"{counts[stage]}×" + (
+                    f" ({refused[stage]} refused)" if refused[stage] else ""
+                )
+                view["notes"][stage] = note
+                if ok:
+                    view["done"].add(stage)
+                view["active"] = stage
+                view["banner"] = f"<b>Coordinator</b> chose {escape(STAGE_NAMES[stage])}"
+            if detail["tool"] == "draft_student_feedback" and ok:
+                sid = json.loads(detail["arguments"]).get("studentId")
+                view["newest"] = next((s.displayName for s in inputs.roster if s.id == sid), None)
+    return view
+
+
+def run_panel(session_id: str, inputs: AssessmentInputs) -> None:
+    """The animation, student cards and agent log; refreshes itself while a run is going."""
+    entry = live_runs().get(session_id)
+    running = bool(entry and entry["thread"].is_alive())
+
+    def panel() -> None:
+        entry = live_runs().get(session_id)
+        alive = bool(entry and entry["thread"].is_alive())
+        cards = student_cards(inputs, records.latest_draft(session_id))
+        if entry is None:
+            show_flow(st.empty(), banner="<b>Coordinator</b> idle")
+            show_board(st.empty(), cards)
+            return
+        view = fold_events(list(entry["events"]), inputs)
+        elapsed = int((entry["ended"] or time.monotonic()) - entry["started"])
+        banner = f"{view['banner']} · {elapsed // 60}:{elapsed % 60:02d}"
+        show_flow(st.empty(), view["active"], view["done"], view["notes"], banner)
+        show_board(st.empty(), cards, view["newest"])
+        runs = records.runs(session_id)
+        if runs:
+            p, limits = runs[0]["progress"], WORKFLOW_LIMITS
+            st.caption(
+                f"⏱ {elapsed} s of {limits['seconds']} · {p.get('modelCalls', 0)} of "
+                f"{limits['modelCalls']} model calls · {p.get('tokens', 0) // 1000}k of "
+                f"{limits['tokens'] // 1000}k tokens"
+                + (" · keeps running if you leave this page" if alive else "")
+            )
+        with st.expander("Agent log", expanded=alive):
+            with st.container(height=240, border=False):
+                st.markdown("  \n".join(view["lines"]) or "Starting…")
+        if entry["error"]:
+            st.error(entry["error"])
+        if not alive and not entry.get("reported"):
+            entry["reported"] = True
+            st.rerun()  # the whole page, to show the new draft
+
+    st.fragment(run_every=2 if running else None)(panel)()
 
 
 def load_registry() -> dict:
@@ -285,18 +387,30 @@ if view == "new":
         if st.button("Transcribe", type="primary", disabled=not (audio and roster)):
             if not REGISTRY_PATH.exists():
                 save_registry({})
-            process_audio, lock = load_listener()
-            with tempfile.TemporaryDirectory() as tmp, lock:
-                with st.spinner("Transcribing, diarising and identifying speakers…"):
-                    result = process_audio(str(to_wav(audio, Path(tmp) / "rec.wav")))
-            ids = {p["name"]: pid for pid, p in load_registry().items()}
-            st.session_state.pending_transcript = listener.to_transcript(result, ids, "review-1")
-            st.session_state.pending_meta = (title, course)
+            try:
+                process_audio, note, lock = load_listener()
+                with tempfile.TemporaryDirectory() as tmp, lock:
+                    with st.spinner("Transcribing and identifying speakers…"):
+                        result = process_audio(str(to_wav(audio, Path(tmp) / "rec.wav")))
+            except Exception as exc:
+                st.error(
+                    f"Couldn't process the recording ({str(exc).splitlines()[0][:300]}). "
+                    "You can still use the demo seminar below."
+                )
+            else:
+                ids = {p["name"]: pid for pid, p in load_registry().items()}
+                st.session_state.pending_transcript = listener.to_transcript(
+                    result, ids, "review-1"
+                )
+                st.session_state.pending_meta = (title, course)
+                st.session_state.listener_note = note
 
         pending = st.session_state.get("pending_transcript")
         if pending:
             st.divider()
             st.markdown("**Transcript: check who said what before it's used**")
+            if st.session_state.get("listener_note"):
+                st.info(st.session_state.listener_note)
             names = {s.person_id: s.name for s in roster}
             show_transcript(pending.turns, names)
             reviewed = st.checkbox("I have reviewed this transcript's attribution")
@@ -399,7 +513,6 @@ else:
 
     # Summary: the coordinator's run and its result.
     with tab_summary:
-        flow_slot, board_slot = st.empty(), st.empty()
         if latest is None:
             st.markdown(
                 '<p class="muted">ClassPart AI will check what was said against the course '
@@ -407,65 +520,23 @@ else:
                 "feedback for each student. Nothing is sent until you approve it.</p>",
                 unsafe_allow_html=True,
             )
-        show_flow(flow_slot, banner="<b>Coordinator</b> idle")
-        show_board(board_slot, student_cards(inputs, latest))
+        live = live_runs().get(session_id)
+        running = bool(live and live["thread"].is_alive())
+        run_panel(session_id, inputs)
         col_run, col_blank, _ = st.columns([1, 1, 2])
-        run = col_run.button(
-            "✨ Generate summary" if latest is None else "✨ Regenerate",
+        if col_run.button(
+            "⏳ Working…"
+            if running
+            else "✨ Generate summary"
+            if latest is None
+            else "✨ Regenerate",
             type="primary",
             width="stretch",
-        )
-        if run:
-            log = st.status("The coordinator is working…", expanded=True)
-            state = {"done": set(), "notes": {}, "counts": {}, "refused": {}}
-
-            def on_event(kind, detail):
-                if kind == "thinking":
-                    show_flow(
-                        flow_slot,
-                        None,
-                        state["done"],
-                        state["notes"],
-                        "<b>Coordinator</b> thinking…",
-                    )
-                    return
-                if kind == "done":
-                    reason = escape(detail["stopReason"].replace("_", " "))
-                    show_flow(
-                        flow_slot, None, state["done"], state["notes"], f"<b>Finished</b>: {reason}"
-                    )
-                    show_board(board_slot, student_cards(inputs, records.latest_draft(session_id)))
-                    return
-                stage = TOOL_STAGE.get(detail["tool"])
-                ok = detail["outcome"] == "ok"
-                log.write(f"{'✅' if ok else '⛔'} `{detail['tool']}`: {detail['summary']}")
-                if stage:
-                    state["counts"][stage] = state["counts"].get(stage, 0) + 1
-                    if not ok:
-                        state["refused"][stage] = state["refused"].get(stage, 0) + 1
-                    note = f"{state['counts'][stage]}×"
-                    if state["refused"].get(stage):
-                        note += f" ({state['refused'][stage]} refused)"
-                    state["notes"][stage] = note
-                    if ok:
-                        state["done"].add(stage)
-                    banner = f"<b>Coordinator</b> chose {escape(STAGE_NAMES[stage])}"
-                    show_flow(flow_slot, stage, state["done"], state["notes"], banner)
-                newest = None
-                if detail["tool"] == "draft_student_feedback" and ok:
-                    sid = json.loads(detail["arguments"]).get("studentId")
-                    newest = next((s.displayName for s in inputs.roster if s.id == sid), None)
-                show_board(
-                    board_slot, student_cards(inputs, records.latest_draft(session_id)), newest
-                )
-
-            try:
-                coordinate(records, session_id, on_event=on_event)
-                log.update(label="The coordinator finished", state="complete", expanded=False)
-            except Unprocessable as exc:
-                log.update(label=str(exc), state="error")
-            latest = records.latest_draft(session_id)
-        if latest is None and col_blank.button("Write it myself", width="stretch"):
+            disabled=running,
+        ):
+            start_run(session_id)
+            st.rerun()
+        if latest is None and not running and col_blank.button("Write it myself", width="stretch"):
             records.create_professor_draft(session_id)
             st.rerun()
 
