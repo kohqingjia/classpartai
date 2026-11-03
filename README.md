@@ -18,8 +18,10 @@ The assessment workflow was designed and first built by Le Yong in TypeScript (`
                          │
                    COORDINATOR AGENT ── picks its next action from tool results, not a fixed order
                     ├─ inspect_transcript_context   look at turns before searching
-                    ├─ retrieve_evidence ─────────► ② EVIDENCE AGENT (agentic RAG)
-                    │                                 search → reformulate → fetch → cite exact excerpts
+                    ├─ retrieve_evidence ─────────► ② RESEARCH AGENT (agentic RAG)
+                    │                                 pair question + answer → course notes or web →
+                    │                                 grade → rewrite → verdict: correct? answers it?
+                    │                                 reasoned? guess or misconception?
                     ├─ propose_rubric_assessment ─► ③ JUDGE: one finding per student × criterion,
                     │                                 or "insufficient evidence" (never counted as zero)
                     ├─ audit_assessment ──────────► ④ AUDITOR: deterministic checks + model review
@@ -37,7 +39,7 @@ Every tool call and role output is schema-checked; a refused call goes back to t
 |---|---|---|
 | Listener | transcribe → diarise → identify | — (the professor resolves uncertain speakers) |
 | Coordinator | budget, tool validation, refusal of unsafe actions | which tool next, when to retrieve more, revise, or finish |
-| Evidence agent | scoped search index, exact-excerpt citation check | queries, reformulation, which passages to fetch, sufficient vs gap |
+| Research agent (②) | session index, budgets, retry limits, verbatim-quote and exact-excerpt checks | course notes or web, queries and rewrites, which passages to grade, the answer's claims and expected points |
 | Judge / Auditor / Feedback | validation rules (ranges, attribution, privacy) | scores and justifications, audit issues, feedback wording |
 | Approval & delivery | everything: digest-matched approval, per-student delivery states | nothing; no model can approve or send |
 
@@ -57,7 +59,7 @@ Every tool call and role output is schema-checked; a refused call goes back to t
 | Part | What we measure |
 |---|---|
 | ① Listener | word error rate; speaker-attribution accuracy |
-| ② Evidence agent | single-pass retrieval vs agentic (reformulate/fetch): citation validity, sufficient-vs-gap accuracy |
+| ② Research agent | single-pass vs agentic RAG on 20 labelled IS469 Q&A pairs (`eval/research_eval.py`): routing, correctness, answers-the-question, context precision, cost |
 | ③ Judge | agreement with human scores on hand-scored sessions (Spearman, Cohen's kappa) |
 | ④ Auditor | judge alone vs judge + auditor: issues caught, injected instructions flagged |
 | Coordinator / harness | tool-call validity, refusals recovered from, budget use; unsafe actions blocked |
@@ -77,6 +79,9 @@ Plus latency, tokens and cost per session, and qualitative review of the drafts.
 src/classpartai/
   assessment.py         session inputs: roster, reviewed transcript, rubric, documents (+ validation)
   evidence.py           evidence agent: course search index, citation checks, investigation loop
+  research/             ② Research: agentic RAG over the IS469 files (and web) that also judges the
+                        answer; bridge.py makes it the coordinator's evidence agent (default)
+  llm.py                Research's chat/embedding wrappers (OpenAI or Ollama)
   models.py             OpenAI-compatible driver, tool schemas, shared budget
   participation/
     schema.py           findings, feedback, audits, drafts
@@ -90,7 +95,9 @@ src/classpartai/
   ui.py                 the animated workflow strip and student cards
 audio-service/          Listener pipeline: Whisper, pyannote, SpeechBrain (Tina)
 app.py                  Streamlit app: one page per class session (record, transcript, AI summary, review & send)
-data/                   sample IS469 session, Le Yong's fictional fixture, rubric, course notes
+data/                   sample IS469 session, Le Yong's fictional fixture, rubric, course notes;
+                        is469/ Research's schedule and labelled Q&A (lecture files: data/raw/, git-ignored)
+eval/                   research_eval.py: single-pass vs agentic RAG
 tests/                  pytest (scripted fake models; no API calls)
 deploy/                 Docker deploy for the VPS
 ```
@@ -111,6 +118,63 @@ cp .env.example .env     # then fill in the keys you need (see comments in the f
 ```bash
 uv run streamlit run app.py      # demo at http://localhost:8501
 uv run jupyter lab               # notebooks (add jupyter first: uv add --dev jupyterlab)
+```
+
+### ② Research agent
+
+Needs `OPENAI_API_KEY` in `.env`, or `LLM_PROVIDER="ollama"` to run free on a local model (setup
+in `.env.example`); `TAVILY_API_KEY` adds the web source. Its course data is IS469:
+copy the Topic 1–8 decks and labs into `data/raw/is469/` (git-ignored; see `data/README.md`).
+
+```bash
+uv run python -m classpartai.research check        # are the models, lecture files and index ready?
+uv run python -m classpartai.research ingest       # embed the decks and labs (rerun when they change)
+uv run python -m classpartai.research run "LoRA only trains two small matrices." \
+    --question "Why does LoRA fit on one GPU when full fine-tuning does not?" \
+    --date 2026-09-08 --trajectory                 # one answer: verdicts, quotes, every tool call
+uv run python eval/research_eval.py                # single-pass vs agentic RAG on labelled Q&A pairs
+```
+
+Research takes a professor's question and a student's answer from the transcript, and works out two
+things with evidence from the course materials (or the web):
+
+- **Is the answer correct?** Each of the student's claims gets a verdict (`supported`,
+  `contradicted`, `mixed`, `partially_supported`, `unverified`), combined into `correctness`:
+  `correct`, `partially_correct`, `incorrect` or `unverified`.
+- **Does it answer the question?** Research finds what the course says a good answer contains
+  (`expected_points`), and reports `answers_question` (`yes`, `partly`, `no`) and the
+  `missed_points`. A true statement about something else is correct but does not answer it.
+
+- **How good is the attempt?** `reasoning` (`explained`, `asserted`, `none`) and, when the answer is
+  wrong, `mistake` (`reasonable_guess`, `misconception`, `unsupported`), so the Judge can give
+  credit for an educated guess. Research reports these signals; the Judge decides the marks.
+
+Every verdict comes from graded evidence with verbatim quotes and sources (deck and slide, lab and
+cell, or URL). On its own (the commands above), Research searches the IS469 index and the web. In
+code, call
+`ResearchAgent.from_config().research_contribution({"id", "student", "question", "text"}, date)`
+and passes the returned `EvidencePack` (`.brief()` for a prompt) to the Judge, which does the
+scoring. Without a `question` it treats the text as an unprompted comment. The Judge's follow-up
+questions (J1) go to `answer_question(question, date)`.
+
+#### Inside the assessment workflow
+
+`research/bridge.py` makes Research the workflow's evidence agent without changing any contract:
+
+| Link | What it does |
+|---|---|
+| ① Listener → ② | `answer_pairs(transcript)` pairs each student's answer with the professor question before it (uncertain speakers are skipped) |
+| ② → coordinator | `retrieve_evidence` (and the app's *Investigate* button) runs Research and returns the same `EvidenceBundle` as `evidence.py` (set `EVIDENCE_AGENT="course"` to use that agent instead): exact excerpts of the session's passages as citations, conflicts and gaps |
+| ② → ③ Judge | the bundle's `explanation` carries the answer assessment (correctness, answers the question, reasoning, kind of mistake, missed points); the full `EvidencePack` is saved with the evidence run |
+| Course or web | Research still decides per answer: the session's course documents, or the web (with `TAVILY_API_KEY`; `RESEARCH_BRIDGE_WEB=false` turns it off). Only course passages become citations, which the validator requires; web findings reach the Judge as labelled context with their links |
+| Budget | every Research model and tool call counts against the workflow's shared budget; inside a session Research uses lighter budgets (`RESEARCH_BRIDGE_*`) |
+| IS469 files → sessions | `export-documents` turns the lecture files into session documents, so either evidence agent can search the real slides instead of the demo notes |
+
+```bash
+uv run python -m classpartai.research export-documents   # writes var/is469_documents.json (git-ignored)
+# then in .env: COURSE_DOCUMENTS="var/is469_documents.json"  (sessions made from new recordings)
+uv run python -m classpartai.research session data/sample_assessment.json --date 2026-10-20
+                                                          # research every answer in a session file
 ```
 
 ## Checks

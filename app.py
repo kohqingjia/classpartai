@@ -20,6 +20,7 @@ from pathlib import Path
 
 import streamlit as st
 
+from classpartai import config
 from classpartai.agents import listener
 from classpartai.assessment import AssessmentInputs, parse_inputs
 from classpartai.classlist import ClassList
@@ -310,7 +311,7 @@ if view == "new":
                         roster=[{"id": s.person_id, "displayName": s.name} for s in roster],
                         transcript=st.session_state.pop("pending_transcript"),
                         rubric=json.loads((DATA / "default_rubric.json").read_text()),
-                        documents=json.loads((DATA / "course_materials.json").read_text()),
+                        documents=json.loads(config.COURSE_DOCUMENTS.read_text()),
                     )
                 )
 
@@ -576,8 +577,11 @@ else:
         )
         ready = bool(len(question.strip()) >= 5 and turn_ids and criterion_ids)
         if st.button("Investigate", type="primary", disabled=not ready):
-            driver = configured_driver(EVIDENCE_INSTRUCTIONS, EVIDENCE_TOOLS)
-            if driver is None:
+            use_research = config.EVIDENCE_AGENT == "research"
+            driver = (
+                None if use_research else configured_driver(EVIDENCE_INSTRUCTIONS, EVIDENCE_TOOLS)
+            )
+            if driver is None and not use_research:
                 st.error("No model configured (set OPENAI_API_KEY).")
             else:
                 log = st.status("The evidence agent is investigating…", expanded=True)
@@ -597,7 +601,12 @@ else:
                     turnIds=turn_ids,
                     criterionIds=criterion_ids,
                 )
-                outcome = investigate(request, inputs, driver, CourseIndex(inputs), checkpoint)
+                if use_research:  # ② Research (research/bridge.py), same contract
+                    from classpartai.research import bridge
+
+                    outcome = bridge.investigate(request, inputs, None, checkpoint)
+                else:
+                    outcome = investigate(request, inputs, driver, CourseIndex(inputs), checkpoint)
                 records.save_evidence_run(session_id, question, outcome)
                 log.update(
                     label=f"Evidence agent: {outcome.status} ({outcome.stopReason})",

@@ -15,6 +15,7 @@ from dataclasses import asdict
 
 from pydantic import BaseModel, ConfigDict, Field, ValidationError
 
+from classpartai import config
 from classpartai.evidence import INSTRUCTIONS as EVIDENCE_INSTRUCTIONS
 from classpartai.evidence import TOOL_DEFINITIONS as EVIDENCE_TOOLS
 from classpartai.evidence import CourseIndex, Investigation, investigate
@@ -249,8 +250,11 @@ def coordinate(
                             )
                         output = {"id": args.reuseRunId, "bundle": bundle.model_dump()}
                     else:
-                        evidence_driver = factory(EVIDENCE_INSTRUCTIONS, EVIDENCE_TOOLS)
-                        if evidence_driver is None:
+                        use_research = config.EVIDENCE_AGENT == "research"
+                        evidence_driver = (
+                            None if use_research else factory(EVIDENCE_INSTRUCTIONS, EVIDENCE_TOOLS)
+                        )
+                        if evidence_driver is None and not use_research:
                             raise RuntimeError("Model configuration blocked")
                         request = Investigation(
                             sessionId=session_id,
@@ -267,9 +271,14 @@ def coordinate(
                                 budget.tool(p.toolCalls - before)
                                 before = p.toolCalls
 
-                        outcome = investigate(
-                            request, inputs, budget.wrap(evidence_driver), index, count_tools
-                        )
+                        if use_research:  # ② Research (research/bridge.py), same contract
+                            from classpartai.research import bridge
+
+                            outcome = bridge.investigate(request, inputs, budget, count_tools)
+                        else:
+                            outcome = investigate(
+                                request, inputs, budget.wrap(evidence_driver), index, count_tools
+                            )
                         evidence_run = records.save_evidence_run(session_id, args.question, outcome)
                         progress.evidenceRunIds.append(evidence_run)
                         output = {
