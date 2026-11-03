@@ -95,6 +95,23 @@ def test_step_bar_names_the_agents_and_goes_back(app):
     assert at.query_params["step"] == "AI assessment"
 
 
+def test_history_entries_always_name_their_step(app):
+    """Browser Back restores an old address; it must show the step it showed before, even after
+    the session has moved on (a pending transcript, a new draft)."""
+    at, _ = app
+    click(at, "🎙️ New class session")
+    assert at.query_params["step"] == "Record"
+    sid = demo(at)
+    assert dict(at.query_params) == {
+        "view": "session",
+        "session": sid,
+        "step": "AI assessment",
+    }
+    click(at, "🏠 Home")
+    next(b for b in at.button if b.key == f"open-{sid}").click().run()
+    assert at.query_params["step"] == "AI assessment"
+
+
 @pytest.mark.parametrize("populated", [False, True])
 def test_every_agent_tab_empty_and_populated(app, populated):
     at, records = app

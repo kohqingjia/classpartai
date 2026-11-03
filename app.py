@@ -367,10 +367,23 @@ def go(view: str, session: str | None = None, step: int | None = None) -> None:
     if session:
         params["session"] = session
         st.session_state.session_id = session
+    # Always record the step, so a history entry can't be reinterpreted after the session moves on.
+    if step is None and view == "new":
+        step = 1
+    elif step is None and view == "session" and session:
+        step = default_step(session)
     if step:
         params["step"] = STEPS[step - 1]
     st.query_params.from_dict(params)  # one change, so one history entry
     st.session_state.view = view
+
+
+def default_step(session: str) -> int:
+    """The first step still to do: ③ until there's a draft, ④ until approved, then ⑤."""
+    latest = records.latest_draft(session)
+    if latest is None:
+        return 3
+    return 5 if records.active_approval(session) else 4
 
 
 def show_flow(slot, active=None, done=(), notes=None, banner="") -> None:
@@ -656,7 +669,7 @@ if view == "home":
 
 elif view == "new":
     pending = st.session_state.get("pending")
-    new_step = 2 if pending and requested_step != 1 else 1
+    new_step = 2 if pending and (requested_step or 2) == 2 else 1
     step_bar("new", new_step, {1} if pending else set(), {1, 2} if pending else {1})
     st.session_state.setdefault("new-title", default_title())
     st.title(st.session_state["new-title"] or "Untitled session")
@@ -1052,8 +1065,7 @@ else:
         | ({4} if approval else set())
         | ({5} if sent else set())
     )
-    first_open = 3 if not latest else 4 if not approval else 5
-    step = requested_step or first_open
+    step = requested_step or default_step(session_id)
     step_bar("session", step, done, {1, 2, 3, 4, 5})
     st.title(inputs.sessionTitle)
     st.markdown(
