@@ -76,14 +76,22 @@ def process_without_diarization(audio_path: str) -> dict:
     }
 
 
-def to_transcript(result: dict, ids_by_name: dict[str, str], version: str) -> Transcript:
-    """``ids_by_name`` maps a registered display name to its roster ID."""
+def to_transcript(
+    result: dict,
+    ids_by_name: dict[str, str],
+    version: str,
+    professor_names: frozenset[str] | set[str] = frozenset(),
+) -> Transcript:
+    """``ids_by_name`` maps a registered student's display name to their roster ID;
+    ``professor_names`` are registered professors' names, whose turns become professor turns."""
     turns = []
     for n, seg in enumerate(result["segments"], start=1):
         start = int(seg["start"] * 1000)
         end = max(int(seg["end"] * 1000), start + 1)
         student_id = ids_by_name.get(seg["speaker"])
-        if student_id:
+        if seg["speaker"] in professor_names:
+            speaker = {"kind": "professor", "label": seg["speaker"]}
+        elif student_id:
             speaker = {"kind": "student", "studentId": student_id}
         else:
             label = "Ambiguous speaker" if seg["speaker"] == "AMBIGUOUS" else "Unknown speaker"
