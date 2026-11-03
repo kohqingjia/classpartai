@@ -830,6 +830,9 @@ else:
                     label=f"Evidence agent: {outcome.status} ({outcome.stopReason})",
                     state="complete",
                 )
+                # The Retrieval tab was drawn before this check existed: redraw to list it.
+                st.toast("Evidence check saved: replay it in the 🌌 Retrieval tab")
+                st.rerun()
         for ev in records.evidence_runs(session_id):
             bundle = ev["progress"]["bundle"]
             with st.expander(f"{ev['status']} · {ev['question']}"):
