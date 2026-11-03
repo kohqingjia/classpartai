@@ -71,6 +71,7 @@ class Step:
     seconds: float = 0.0
     # Course chunks a search returned, best first: {"chunk_id", "score"} (for the UI's replay)
     hits: list[dict] = field(default_factory=list)
+    output: str | None = None  # exact tool return, diagnostic only
 
 
 def norm_claim(claim: str) -> str:
@@ -400,7 +401,7 @@ class ResearchTools:
                 ok, summary = False, str(exc)
         seconds = round(time.perf_counter() - started, 3)
         hits, self._hits = self._hits, []
-        self.trajectory.append(Step(step, name, args, ok, summary, seconds, hits))
+        self.trajectory.append(Step(step, name, args, ok, summary, seconds, hits, output=out))
         if self.on_step is not None:
             self.on_step(self.trajectory[-1])
         return out
