@@ -83,6 +83,8 @@ def test_every_agent_tab_empty_and_populated(app, populated):
             assert not at.json
             assert not any("Tools it may call" in m.value for m in at.markdown)
             assert not at.toggle[0].value
+            if populated and agent in agent_ui.ROLE_NAMES:
+                assert any("professor draft" in m.value for m in at.markdown)
             at.toggle[0].set_value(True).run()
             assert not at.exception
             headings = [m.value for m in at.markdown]

@@ -17,13 +17,13 @@ from classpartai.voices import enrolments, match_rows
 AGENTS = [name for _, _, name, _ in STAGES]
 TABS = ["Overview", *AGENTS]
 TOPICS = {
-    "Listener": "Preprocessing · Topic 2 Transformers · Topics 1/8 Embeddings",
-    "Coordinator": "Topic 7 · Agents, tool calling & harness",
-    "Evidence / Research": "Topic 8 · Agentic RAG · BM25 + vectors + RRF / CRAG",
-    "Judge": "Topic 6 · Evaluation · Rubric LLM-as-judge",
-    "Auditor": "Topic 6 · Evaluation · Verify first, judge last",
-    "Feedback writer": "Topic 7 · Agents · Structured role calls",
-    "Delivery": "Topic 9 · Ethics · Human approval & controlled delivery",
+    "Listener": "Topic 2 · Transformers",
+    "Coordinator": "Topic 7 · Agents",
+    "Evidence / Research": "Topic 8 · Agentic RAG",
+    "Judge": "Topic 6 · LLM-as-judge",
+    "Auditor": "Topic 6 · Evaluation",
+    "Feedback writer": "Topic 7 · Agents",
+    "Delivery": "Topic 9 · Ethics",
 }
 DESCRIPTIONS = {
     "Listener": "From a class recording to a transcript you can trust and review.",
@@ -59,7 +59,7 @@ def raw(label, data):
 
 
 def header(name, status):
-    st.caption(TOPICS[name])
+    st.badge(TOPICS[name], color="gray")
     title, state = st.columns([4, 1])
     title.subheader(name)
     label = {"configuration_blocked": "setup needed"}.get(status, status.replace("_", " "))
@@ -194,7 +194,10 @@ def listener_view(records, session_id, inputs):
     diagnostics = records.listener_run(session_id)
     header("Listener", "reviewed transcript")
     section(
-        1, "Inputs", "Whisper encoder-decoder transformer → speaker embeddings + cosine similarity"
+        1,
+        "Inputs",
+        "Preprocessing · Whisper encoder-decoder transformer (Topic 2) → "
+        "speaker embeddings + cosine similarity (Topics 1/8)",
     )
     recording = DATA_DIR / "recordings" / f"{session_id}.wav"
     if recording.is_file():
@@ -713,7 +716,13 @@ def presentation_agent(name, records, session_id, inputs, live=None):
     latest = records.latest_draft(session_id)
     runs = records.runs(session_id)
     evidence = records.evidence_runs(session_id)
-    status = "draft available" if latest else "waiting"
+    status = (
+        "professor draft"
+        if latest and latest.origin == "professor"
+        else "draft available"
+        if latest
+        else "waiting"
+    )
     if name == "Listener":
         status = "transcript available"
     elif name == "Coordinator":
@@ -791,6 +800,10 @@ def presentation_agent(name, records, session_id, inputs, live=None):
         cols[0].metric("Searches", len(searches_of(p)))
         cols[1].metric("Citations", len(bundle.get("citations", [])))
         cols[2].metric("Evidence gaps", len(bundle.get("gaps", [])))
+        if live and live["thread"].is_alive():
+            events = list(live.get("events", []))
+            searches = sum(kind == "retrieval" for kind, _ in events)
+            st.caption(f"Run in progress · {searches} searches returned so far")
         if bundle:
             result_card(
                 "Research finding", bundle.get("explanation") or "Evidence bundle recorded."
@@ -835,6 +848,11 @@ def presentation_agent(name, records, session_id, inputs, live=None):
             "For review", sum(i.severity == "review" and i.disposition == "open" for i in issues)
         )
         cols[2].metric("Resolved", sum(i.disposition == "revised" for i in issues))
+        st.caption(
+            "Deterministic checks + model audit recorded"
+            if latest.content.audit.modelReviewed
+            else "Deterministic checks recorded · model audit pending"
+        )
         open_issues = [i for i in issues if i.disposition == "open"]
         if open_issues:
             with st.expander(f"Review {len(open_issues)} open issues"):
