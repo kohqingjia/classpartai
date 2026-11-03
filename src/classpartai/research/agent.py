@@ -183,6 +183,8 @@ class ResearchAgent:
         # Called before every tool call the model makes; it may raise (e.g. BudgetExceeded) to
         # stop the run before the tool does anything.
         self.on_tool = on_tool
+        # Called after each tool with its Step (what it searched and returned), for live views.
+        self.on_step: Callable | None = None
         self.budgets = {
             "max_course_searches": max_course_searches,
             "max_web_searches": max_web_searches,
@@ -243,6 +245,7 @@ class ResearchAgent:
         started = time.perf_counter()
         llm = CountingChat(self.llm)
         tools = ResearchTools(self.store, self.schedule, llm, self.web, **self.budgets)
+        tools.on_step = self.on_step
         schemas = tools.schemas()
         system = SYSTEM_PROMPT.format(
             course=self.budgets["max_course_searches"],

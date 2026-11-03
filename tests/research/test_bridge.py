@@ -516,3 +516,26 @@ def test_budget_exhaustion_during_grading_is_not_a_grading_failure(inputs):
     outcome = bridge.investigate(request(), inputs, budget, agent=scripted_agent(inputs, llm))
     assert outcome.stopReason == "shared_budget"
     assert not llm.grader_prompts and len(llm.agent_calls) == 2
+
+
+def test_searches_are_recorded_for_the_vault_view(inputs):
+    from classpartai.retrieval import examined_of, searches_of
+
+    streamed = []
+    outcome = bridge.investigate(
+        request(),
+        inputs,
+        checkpoint=lambda p: streamed.append(len(p.searches)),
+        agent=scripted_agent(inputs, grader()),
+    )
+    searches = searches_of(outcome.progress)
+    assert [s["query"] for s in searches] == ["agentic RAG query rewriting vague question"]
+    passages = {bridge.passage_id(d, p.id) for d in inputs.documents for p in d.passages}
+    hits = searches[0]["hits"]
+    assert hits and all(h["passageId"] in passages and h["score"] is not None for h in hits)
+    assert 1 in streamed  # reported while running, not only at the end
+    assert set(examined_of({"research": outcome.progress.research})) <= {
+        h["passageId"] for h in hits
+    }
+    search = next(a for a in outcome.progress.actions if a["tool"] == "search_course_materials")
+    assert search["resultReferences"] == [h["passageId"] for h in hits]
