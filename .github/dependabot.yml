@@ -6,7 +6,31 @@ updates:
       interval: weekly
       day: monday
     open-pull-requests-limit: 5
+    # The audio stack (audio-service/requirements.txt, installed into the Docker image) isn't
+    # exercised by CI, so a green check means nothing for it. These were tested by building the
+    # image on the VPS (Nov 2026) and break it; lift a rule only after rebuilding and
+    # transcribing a clip.
+    ignore:
+      # SpeechBrain's hyperpyyaml requires ruamel.yaml < 0.19: the image fails to install.
+      - dependency-name: "ruamel.yaml"
+        versions: [">=0.19"]
+      # av 19 removed open(metadata_errors=...), which faster-whisper calls: transcription crashes.
+      - dependency-name: "av"
+        versions: [">=19"]
+      # torch, torchaudio and torchcodec must move together (CPU wheels in the Dockerfile), and
+      # numpy with them for pyannote/SpeechBrain: patch releases only.
+      - dependency-name: "torch"
+        update-types: ["version-update:semver-major", "version-update:semver-minor"]
+      - dependency-name: "torchaudio"
+        update-types: ["version-update:semver-major", "version-update:semver-minor"]
+      - dependency-name: "torchcodec"
+        update-types: ["version-update:semver-major", "version-update:semver-minor"]
+      - dependency-name: "numpy"
+        update-types: ["version-update:semver-major", "version-update:semver-minor"]
     groups:
+      # OpenTelemetry packages depend on each other's exact versions; split PRs can't install.
+      opentelemetry:
+        patterns: ["opentelemetry-*"]
       # Routine bumps land in one PR; a major stays on its own so it gets read.
       minor-and-patch:
         applies-to: version-updates
