@@ -4,7 +4,9 @@ flow_html()  - the stages, the one the coordinator is using now, and the ones it
 board_html() - one card per student showing where their assessment and feedback stand.
 """
 
+import json
 from html import escape
+from pathlib import Path
 
 STAGES = [
     ("listener", "①", "Transcript", "who said what"),
@@ -137,3 +139,77 @@ def board_html(cards: list[tuple[str, str, str]], newest: str | None = None) -> 
             f'<div class="state">{escape(label)}</div></div>'
         )
     return _page(_BOARD_CSS, f'<div class="wrap"><div class="board">{"".join(items)}</div></div>')
+
+
+# --- The vault: course documents as a constellation, and what the evidence agent retrieved ----
+
+# The page (HTML, CSS and canvas JavaScript) lives in assets/vault.html; Python fills in the data.
+_VAULT_PAGE = (Path(__file__).parent / "assets" / "vault.html").read_text()
+
+
+def _value(obj, key):
+    return obj[key] if isinstance(obj, dict) else getattr(obj, key)
+
+
+def vault_html(
+    documents,
+    searches=(),
+    examined=(),
+    cited=(),
+    *,
+    agent: str = "Evidence agent",
+    finished: bool = True,
+    running: bool = False,
+    start_at: int = 0,
+    height: int = 520,
+) -> str:
+    """The course documents as a constellation (one cluster per file, one star per passage) and
+    a replay of what an evidence agent retrieved from them.
+
+    ``searches``: [{"query", "hits": [{"passageId", "score"}]}] (classpartai.retrieval);
+    ``examined``: passage IDs the agent graded; ``cited``: the bundle's citations. With
+    ``finished`` False the replay stops after the searches (a live run); ``start_at`` skips
+    searches already shown. All text is passed as JSON and drawn as text, never as markup.
+    """
+    docs = []
+    for d in documents:
+        doc_id, version = _value(d, "id"), _value(d, "version")
+        source = _value(d, "source")
+        passages = [
+            {
+                "pid": f"{doc_id}:{version}:{_value(p, 'id')}",
+                "page": _value(p, "page"),
+                "text": " ".join(_value(p, "text").split())[:260],
+            }
+            for p in _value(d, "passages")
+        ]
+        docs.append(
+            {
+                "title": _value(d, "title"),
+                "file": source.split(": ", 1)[-1],
+                "passages": passages,
+            }
+        )
+    data = {
+        "docs": docs,
+        "searches": list(searches),
+        "examined": list(examined),
+        "cited": [
+            {
+                "passageId": _value(c, "passageId"),
+                "excerpt": _value(c, "excerpt")[:400],
+                "relationship": _value(c, "relationship"),
+            }
+            for c in cited
+        ],
+        "agent": agent,
+        "finished": finished,
+        "running": running,
+        "startAt": start_at,
+    }
+    payload = json.dumps(data).replace("</", "<\\/")
+    return (
+        _VAULT_PAGE.replace("__DATA__", payload)
+        .replace("__STAGE_MOBILE__", str(max(260, height - 200)))
+        .replace("__HEIGHT__", str(height))
+    )

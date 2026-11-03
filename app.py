@@ -29,6 +29,8 @@ from classpartai.config import DATA_DIR, ENROLLMENT_DIR, REPO_ROOT
 from classpartai.evidence import INSTRUCTIONS as EVIDENCE_INSTRUCTIONS
 from classpartai.evidence import TOOL_DEFINITIONS as EVIDENCE_TOOLS
 from classpartai.evidence import CourseIndex, Investigation, investigate
+from classpartai.library import SUPPORTED as LIBRARY_TYPES
+from classpartai.library import Library
 from classpartai.models import WORKFLOW_LIMITS, configured_driver
 from classpartai.participation.coordinator import coordinate
 from classpartai.participation.delivery import (
@@ -39,7 +41,8 @@ from classpartai.participation.delivery import (
 from classpartai.participation.records import Records
 from classpartai.participation.schema import Proposal
 from classpartai.participation.validation import Unprocessable, observed_count, totals
-from classpartai.ui import STAGES, TOOL_STAGE, board_html, flow_html
+from classpartai.retrieval import examined_of, searches_of
+from classpartai.ui import STAGES, TOOL_STAGE, board_html, flow_html, vault_html
 
 DATA = REPO_ROOT / "data"
 REGISTRY_PATH = ENROLLMENT_DIR / "registry.json"
@@ -63,6 +66,36 @@ def services() -> tuple[Records, ClassList]:
     # A new file: the earlier Action-harness build left a classpartai.db with an incompatible
     # `sessions` table.
     return Records(DATA_DIR / "assessments.db"), ClassList(DATA_DIR / "classlist.json")
+
+
+@st.cache_resource
+def course_library() -> Library:
+    return Library(DATA_DIR / "library")
+
+
+def with_library(documents: list) -> list:
+    """A new session's documents: its own plus the course library's (at most 100)."""
+    own = [d if isinstance(d, dict) else d.model_dump() for d in documents]
+    ids = {d["id"] for d in own}
+    return (own + [d for d in course_library().documents() if d["id"] not in ids])[:100]
+
+
+def show_vault(documents, progress: dict | None = None, **options) -> None:
+    """The documents as a constellation, replaying what an evidence run retrieved."""
+    progress = progress or {}
+    bundle = progress.get("bundle") or {}
+    height = options.pop("height", 520)
+    st.iframe(
+        vault_html(
+            documents,
+            searches_of(progress),
+            examined_of(progress),
+            bundle.get("citations", []),
+            height=height,
+            **options,
+        ),
+        height=height + 4,
+    )
 
 
 @st.cache_resource(show_spinner="Loading speech models (the first run downloads them)…")
@@ -99,6 +132,7 @@ def start_run(session_id: str) -> None:
 def fold_events(events, inputs: AssessmentInputs) -> dict:
     """Where a run has got to, from its events: for the animation and the agent log."""
     view = {"active": None, "done": set(), "notes": {}, "newest": None, "lines": []}
+    view["searches"] = []
     view["banner"] = "<b>Coordinator</b> starting…"
     counts, refused = {}, {}
     for kind, detail in events:
@@ -110,6 +144,10 @@ def fold_events(events, inputs: AssessmentInputs) -> dict:
             tool = escape(detail["tool"].replace("_", " "))
             view["banner"] = f"<b>Evidence agent</b> step {detail['step']}: {tool}"
             view["lines"].append(f"&emsp;↳ evidence agent: `{detail['tool']}`")
+        elif kind == "retrieval":
+            view["searches"].append(detail)
+            hits = len(detail["hits"])
+            view["lines"].append(f"&emsp;↳ retrieved {hits} passage(s) for “{detail['query']}”")
         elif kind == "done":
             view["active"] = None
             view["banner"] = f"<b>Finished</b>: {escape(detail['stopReason'].replace('_', ' '))}"
@@ -151,6 +189,16 @@ def run_panel(session_id: str, inputs: AssessmentInputs) -> None:
         banner = f"{view['banner']} · {elapsed // 60}:{elapsed % 60:02d}"
         show_flow(st.empty(), view["active"], view["done"], view["notes"], banner)
         show_board(st.empty(), cards, view["newest"])
+        if alive and (view["searches"] or view["active"] == "research"):
+            st.caption("🌌 Live retrieval from the course documents")
+            show_vault(
+                inputs.documents,
+                {"searches": view["searches"]},
+                finished=False,
+                running=view["active"] == "research",
+                start_at=max(0, len(view["searches"]) - 1),
+                height=420,
+            )
         runs = records.runs(session_id)
         if runs:
             p, limits = runs[0]["progress"], WORKFLOW_LIMITS
@@ -337,6 +385,13 @@ with st.sidebar:
         st.caption("No sessions yet.")
     st.divider()
     st.button(
+        "📚 Course library",
+        width="stretch",
+        type="secondary" if st.session_state.view == "library" else "tertiary",
+        on_click=go,
+        args=("library",),
+    )
+    st.button(
         "👥 Class list",
         width="stretch",
         type="secondary" if st.session_state.view == "classlist" else "tertiary",
@@ -425,7 +480,8 @@ if view == "new":
                         roster=[{"id": s.person_id, "displayName": s.name} for s in roster],
                         transcript=st.session_state.pop("pending_transcript"),
                         rubric=json.loads((DATA / "default_rubric.json").read_text()),
-                        documents=json.loads(config.COURSE_DOCUMENTS.read_text()),
+                        documents=course_library().documents()
+                        or json.loads(config.COURSE_DOCUMENTS.read_text()),
                     )
                 )
 
@@ -435,9 +491,16 @@ if view == "new":
         for pid, entry in json.loads((DATA / "sample_classlist.json").read_text()).items():
             if classlist.get(pid) is None:
                 classlist.upsert(entry["name"], entry["email"])
-        open_session(parse_inputs((DATA / "sample_assessment.json").read_text()))
+        demo = parse_inputs((DATA / "sample_assessment.json").read_text())
+        open_session(demo.model_copy(update={"documents": with_library(demo.documents)}))
     if col_fixture.button("Use Le Yong's fixture", width="stretch"):
         open_session(parse_inputs((DATA / "fixture-fictional.json").read_text()))
+    files = len(course_library().entries())
+    st.caption(
+        f"New sessions search the {files} file(s) in the 📚 Course library"
+        if files
+        else "📚 The Course library is empty: sessions from recordings use the demo course notes."
+    )
     with st.expander("Import a session file (JSON)"):
         st.caption("A reviewed session file: roster, transcript, rubric and course documents.")
         upload = st.file_uploader("Session JSON", type=["json"])
@@ -446,6 +509,60 @@ if view == "new":
                 open_session(parse_inputs(upload.getvalue().decode()))
             except ValueError as exc:
                 st.error(str(exc))
+
+# --- Course library ---------------------------------------------------------------------------
+
+elif view == "library":
+    library = course_library()
+    st.title("Course library")
+    st.write(
+        "Upload the course's slides, readings and labs. Every slide or page becomes a passage "
+        "the evidence agents can search and quote; new class sessions use everything here."
+    )
+    st.session_state.setdefault("upload-round", 0)
+    with st.container(border=True):
+        uploads = st.file_uploader(
+            "⬆ Upload files",
+            type=[t.lstrip(".") for t in LIBRARY_TYPES],
+            accept_multiple_files=True,
+            key=f"library-upload-{st.session_state['upload-round']}",
+        )
+        if uploads and st.button(f"Add {len(uploads)} file(s) to the library", type="primary"):
+            added = []
+            with st.spinner("Reading the files…"):
+                for upload in uploads:
+                    try:
+                        doc = library.add(upload.name, upload.getvalue())
+                        added.append(f"{doc['title']} ({len(doc['passages'])} passages)")
+                    except ValueError as exc:
+                        st.error(str(exc))
+            if added:
+                st.session_state["upload-round"] += 1
+                st.toast("Added " + ", ".join(added))
+                st.rerun()
+        st.caption(
+            "PDF, PowerPoint, Markdown, text or notebooks · up to 50 MB each · stored on this "
+            "server only (course material is licensed). Re-uploading a file name replaces it."
+        )
+    entries = library.entries()
+    if entries:
+        documents = [e["document"] for e in entries]
+        show_vault(documents, agent="Course library", height=460)
+        for entry in entries:
+            doc = entry["document"]
+            col_name, col_count, col_when, col_remove = st.columns([4, 2, 2, 1])
+            col_name.markdown(f"📄 **{doc['title']}**  \n:gray[{entry['file']}]")
+            col_count.write(f"{len(doc['passages'])} passages")
+            col_when.caption(when(entry["uploadedAt"]))
+            if col_remove.button("Remove", key=f"lib-rm-{entry['file']}"):
+                library.remove(entry["file"])
+                st.rerun()
+        st.caption(
+            "Sessions keep the documents they were created with, so removing a file here "
+            "doesn't change past evidence or scores."
+        )
+    else:
+        st.info("No files yet. Upload the slides for the topics your seminars cover.")
 
 # --- Class list -------------------------------------------------------------------------------
 
@@ -507,8 +624,8 @@ else:
     )
 
     with st.container(border=True):
-        tab_summary, tab_transcript, tab_evidence, tab_details = st.tabs(
-            ["✨ Summary", "💬 Transcript", "🔎 Ask the course notes", "⋯ Details"]
+        tab_summary, tab_vault, tab_transcript, tab_evidence, tab_details = st.tabs(
+            ["✨ Summary", "🌌 Retrieval", "💬 Transcript", "🔎 Ask the course notes", "⋯ Details"]
         )
 
     # Summary: the coordinator's run and its result.
@@ -619,6 +736,30 @@ else:
                         st.rerun()
                     except (Unprocessable, ValueError) as exc:
                         st.error(str(exc))
+
+    with tab_vault:
+        evidence_runs = records.evidence_runs(session_id)
+        if not evidence_runs:
+            st.caption(
+                "This session's course documents. Once the evidence agent has searched them, "
+                "pick a search here to replay what it retrieved."
+            )
+            show_vault(inputs.documents)
+        else:
+            labels = {
+                i: f"{r['question'][:90]} · {r['status'].replace('_', ' ')}"
+                for i, r in enumerate(evidence_runs)
+            }
+            pick = st.selectbox(
+                "Evidence check", list(labels), format_func=labels.get, key=f"vault-{session_id}"
+            )
+            chosen = evidence_runs[pick]
+            show_vault(inputs.documents, chosen["progress"])
+            if not searches_of(chosen["progress"]):
+                st.caption(
+                    "This check was saved before searches were recorded, so only its quoted "
+                    "evidence is shown. Newer checks replay every search."
+                )
 
     with tab_transcript:
         st.caption(

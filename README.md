@@ -92,7 +92,10 @@ src/classpartai/
     delivery.py         approval-gated sending through AgentMail
   agents/listener.py    adapter from audio-service/ to a transcript
   classlist.py          names and emails, keyed by student ID
-  ui.py                 the animated workflow strip and student cards
+  library.py            course library: uploaded slides/readings/labs as session documents
+  retrieval.py          what an evidence run searched and retrieved (for the vault view)
+  ui.py                 the animated workflow strip, student cards and the vault constellation
+  assets/vault.html     the vault constellation page (canvas animation)
 audio-service/          Listener pipeline: Whisper, pyannote, SpeechBrain (Tina)
 app.py                  Streamlit app: one page per class session (record, transcript, AI summary, review & send)
 data/                   sample IS469 session, Le Yong's fictional fixture, rubric, course notes;

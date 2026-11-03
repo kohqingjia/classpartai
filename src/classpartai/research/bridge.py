@@ -457,6 +457,7 @@ class ResearchProgress(EvidenceProgress):
 
     research: list[dict] | None = None
     lastTool: str | None = None  # the tool running now, for the UI's live view
+    searches: list[dict] | None = None  # every course search: query + passages returned
 
 
 def _actions(pack: EvidencePack, offset: int) -> list[dict]:
@@ -466,11 +467,21 @@ def _actions(pack: EvidencePack, offset: int) -> list[dict]:
             "tool": step["tool"],
             "arguments": json.dumps(step["args"])[:1000],
             "outcome": "ok" if step["ok"] else "invalid",
-            "resultReferences": [],
+            "resultReferences": [h["chunk_id"].rsplit("#", 1)[0] for h in step.get("hits", [])],
             "summary": step["result"][:300],
         }
         for i, step in enumerate(pack.trajectory)
     ]
+
+
+def search_record(step) -> dict:
+    """One course search as the UI replays it: the query and the passages that came back."""
+    return {
+        "query": str(step.args.get("query", ""))[:300],
+        "hits": [
+            {"passageId": h["chunk_id"].rsplit("#", 1)[0], "score": h["score"]} for h in step.hits
+        ],
+    }
 
 
 AgentFactory = Callable[[ChatModel], ResearchAgent]
@@ -549,7 +560,7 @@ def investigate(
     if agent is None:
         _default = _default or default_agent_factory()
         agent = _default(inputs)
-    progress = ResearchProgress(research=[])
+    progress = ResearchProgress(research=[], searches=[])
     day = date or Date.today().isoformat()
     turns = {t.id for t in inputs.transcript.turns}
     criteria = {c.id for c in inputs.rubric.criteria}
@@ -559,6 +570,11 @@ def investigate(
         raise ValueError("Unknown transcript turn or rubric criterion")
     pairs, skipped = choose_pairs(answer_pairs(inputs.transcript, request.turnIds))
     packs, students, stopped = [], [], None
+
+    def record(step) -> None:
+        if step.tool == "search_course_materials" and step.ok:
+            progress.searches.append(search_record(step))
+            checkpoint(progress)
 
     def charge(tool: str) -> None:
         # Counted before the tool runs: the coordinator's checkpoint charges the shared budget
@@ -571,6 +587,7 @@ def investigate(
         for pair in pairs or [None]:
             research = agent(lambda model: BudgetedChat(model, budget, progress))
             research.on_tool = charge
+            research.on_step = record
             if pair is None:  # no student answer among the turns: research the question itself
                 pack = research.answer_question(request.question, day)
                 student = "the investigation"
