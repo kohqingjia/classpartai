@@ -1,12 +1,12 @@
-# A dark, Notion-like theme.
+# Calm, high-contrast workspace. All fonts are local system fonts.
 [theme]
 base = "dark"
-primaryColor = "#2383e2"
-backgroundColor = "#191919"
-secondaryBackgroundColor = "#202020"
-textColor = "#e3e3e3"
-borderColor = "#2f2f2f"
-baseRadius = "0.6rem"
+primaryColor = "#a5b4fc"
+backgroundColor = "#0d1119"
+secondaryBackgroundColor = "#151c28"
+textColor = "#e9edf5"
+borderColor = "#293140"
+baseRadius = "0.65rem"
 showSidebarBorder = true
 
 [client]

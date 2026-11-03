@@ -1,0 +1,646 @@
+"""Read-only inspectors for the seven agents. All judgements come from persisted records."""
+
+import json
+from datetime import UTC, datetime
+from urllib.parse import urlencode
+
+import streamlit as st
+
+from classpartai.config import DATA_DIR
+from classpartai.models import WORKFLOW_LIMITS
+from classpartai.participation.coordinator import COORDINATOR_TOOLS
+from classpartai.participation.delivery import DeliverySettings, feedback_email
+from classpartai.participation.validation import observed_count, totals
+from classpartai.retrieval import examined_of, searches_of
+from classpartai.ui import STAGES, flow_html, vault_html
+from classpartai.voices import enrolments, match_rows
+
+AGENTS = [name for _, _, name, _ in STAGES]
+TABS = ["Overview", *AGENTS]
+TOPICS = {
+    "Listener": "Preprocessing · Topic 2 Transformers · Topics 1/8 Embeddings",
+    "Coordinator": "Topic 7 · Agents, tool calling & harness",
+    "Evidence / Research": "Topic 8 · Agentic RAG · BM25 + vectors + RRF / CRAG",
+    "Judge": "Topic 6 · Evaluation · Rubric LLM-as-judge",
+    "Auditor": "Topic 6 · Evaluation · Verify first, judge last",
+    "Feedback writer": "Topic 7 · Agents · Structured role calls",
+    "Delivery": "Topic 9 · Ethics · Human approval & controlled delivery",
+}
+DESCRIPTIONS = {
+    "Listener": "From a class recording to a transcript you can trust and review.",
+    "Coordinator": "The planner chooses its next tool from what the last action returned.",
+    "Evidence / Research": (
+        "Follow every search from a question to a passage, a grade and a citation."
+    ),
+    "Judge": "Provisional findings, grounded in each student's own contributions.",
+    "Auditor": "A second look at support, attribution and uncertainty before professor review.",
+    "Feedback writer": "One student's strengths and next step, with the evidence kept in view.",
+    "Delivery": "The exact version you approved, sent only to roster-managed recipients.",
+}
+ROLE_NAMES = {
+    "Judge": "finish_rubric_judgement",
+    "Auditor": "finish_assessment_audit",
+    "Feedback writer": "finish_student_feedback",
+}
+
+
+def section(number, title, note=None):
+    st.markdown(f"#### {number:02d} / {title}")
+    if note:
+        st.caption(note)
+
+
+def empty(text):
+    st.info(text, icon=":material/info:")
+
+
+def raw(label, data):
+    with st.expander(label):
+        st.json(data, expanded=False)
+
+
+def header(name, status):
+    st.caption(TOPICS[name])
+    title, state = st.columns([4, 1])
+    title.subheader(name)
+    state.badge(status.replace("_", " "), color="blue")
+    st.write(DESCRIPTIONS[name])
+    st.divider()
+
+
+def run_progress(run):
+    progress = dict(run["progress"])
+    if run["status"] == "running":
+        elapsed = (datetime.now(UTC) - datetime.fromisoformat(run["created_at"])).total_seconds()
+        progress["elapsedSeconds"] = max(progress.get("elapsedSeconds", 0), elapsed)
+    return progress
+
+
+def budget_gauges(progress):
+    for col, key, label in zip(
+        st.columns(4),
+        ("modelCalls", "toolCalls", "tokens", "seconds"),
+        ("Model calls", "Tool calls", "Tokens", "Seconds"),
+        strict=True,
+    ):
+        used = progress.get("elapsedSeconds", 0) if key == "seconds" else progress.get(key, 0)
+        maximum = WORKFLOW_LIMITS[key]
+        col.metric(label, f"{used:,.0f}", f"of {maximum:,}", delta_color="off")
+        col.progress(min(1.0, max(0.0, used / maximum)))
+    st.caption(f"Shared workflow budget · token usage: {progress.get('usageKind', 'reported')}")
+
+
+def timeline(actions):
+    if not actions:
+        empty("No calls recorded yet. This timeline fills as the agent works.")
+    for n, action in enumerate(actions, 1):
+        outcome = action.get("outcome", "ok" if action.get("ok") else "refused")
+        with st.expander(f"{n:02d} · {action['tool']} · {outcome}"):
+            st.caption("Arguments received")
+            args = action.get("requestedArguments", action.get("arguments", action.get("args", {})))
+            if isinstance(args, str):
+                try:
+                    args = json.loads(args)
+                except ValueError:
+                    pass
+            st.json(args)
+            st.caption("Returned result / refusal")
+            result = action.get("output") or action.get(
+                "result", action.get("summary", "Not recorded")
+            )
+            if isinstance(result, (dict, list)):
+                st.json(result)
+            else:
+                st.text(str(result))
+
+
+def role_calls(records, session_id, name):
+    return [
+        (run, call)
+        for run in records.runs(session_id)
+        for call in reversed(run["progress"].get("roleCalls", []))
+        if call["role"] == ROLE_NAMES[name]
+    ]
+
+
+def role_trajectory(calls):
+    if not calls:
+        empty("No role call recorded. Older runs do not contain exact role inputs or outputs.")
+    for n, (run, call) in enumerate(calls, 1):
+        with st.expander(
+            f"{n:02d} · attempt {call['attempt']} · {call['outcome']} · {run['id'][:8]}"
+        ):
+            st.caption(f"Validation: {call.get('validation', 'not recorded')}")
+            if call.get("reason"):
+                st.warning(call["reason"])
+            st.caption("Exact instructions and input history")
+            st.text(call["instructions"])
+            st.json(call["history"], expanded=False)
+            st.caption("Structured calls returned")
+            st.json(call.get("calls", []), expanded=False)
+            if "output" in call:
+                st.json(call["output"], expanded=False)
+            st.caption("Only public structured results are recorded; no hidden reasoning.")
+
+
+def guardrails(messages, policy):
+    section(5, "Guardrails that fired", "Topic 9 · Ethics & prompt injection")
+    if messages:
+        for message in dict.fromkeys(messages):
+            st.warning(message)
+    else:
+        st.caption("No guardrail event recorded for this view.")
+    with st.expander("Always enforced"):
+        st.write(policy)
+
+
+def overview(records, session_id, inputs, live=None):
+    st.caption("ASSESSMENT WORKSPACE / IS469")
+    st.subheader("Every decision, in view.")
+    st.write("Follow the evidence through seven agent views. Your approval remains the final gate.")
+    links = {
+        key: "?" + urlencode({"session": session_id, "step": "AI assessment", "agent": name})
+        for key, _, name, _ in STAGES
+    }
+    # This HTML never includes a live counter or a changing event list.
+    st.iframe(flow_html(links=links, banner="SELECT A STAGE TO INSPECT ITS WORK"), height=190)
+    runs = records.runs(session_id)
+    latest = records.latest_draft(session_id)
+    cols = st.columns(4)
+    cols[0].metric("Students", len(inputs.roster))
+    cols[1].metric("Reviewed turns", len(inputs.transcript.turns))
+    cols[2].metric("Evidence checks", len(records.evidence_runs(session_id)))
+    cols[3].metric("Draft version", latest.version if latest else "—")
+    st.divider()
+    st.markdown("#### Run activity")
+    if live:
+        if live.get("error"):
+            st.error(live["error"])
+        events = list(live.get("events", []))
+        if events:
+            kind, detail = events[-1]
+            detail = detail or {}
+            label = {
+                "thinking": "Coordinator is choosing the next action",
+                "substep": "Research is using a tool",
+                "retrieval": "Research retrieved passages",
+                "action": "Coordinator completed an action",
+                "done": "Run finished",
+            }.get(kind, kind)
+            st.write(label)
+            if detail:
+                st.json(detail, expanded=False)
+    if runs:
+        st.badge(runs[0]["status"].replace("_", " "), color="blue")
+        st.caption(runs[0]["stop_reason"] or "Running in the background; you can browse any tab.")
+        budget_gauges(run_progress(runs[0]))
+    else:
+        empty("Ready when you are. Start an assessment to see the coordinator's live progress.")
+    if latest:
+        st.markdown("#### Student coverage")
+        st.dataframe(
+            [
+                {
+                    "Student": s.displayName,
+                    "Observed turns": observed_count(inputs, s.id),
+                    "Criteria assessed": totals(latest.content, inputs, s.id)["assessedCriteria"],
+                    "Feedback": "Drafted"
+                    if any(f.studentId == s.id for f in latest.content.feedback)
+                    else "Pending",
+                }
+                for s in inputs.roster
+            ],
+            hide_index=True,
+            width="stretch",
+        )
+
+
+def listener_view(records, session_id, inputs):
+    diagnostics = records.listener_run(session_id)
+    header("Listener", "reviewed transcript")
+    section(
+        1, "Inputs", "Whisper encoder-decoder transformer → speaker embeddings + cosine similarity"
+    )
+    recording = DATA_DIR / "recordings" / f"{session_id}.wav"
+    if recording.is_file():
+        st.audio(str(recording))
+    else:
+        st.caption("No recording saved for this session. Imported/demo transcripts have no audio.")
+    voices = enrolments()
+    with st.expander(f"Enrolled voices · {len(voices)}"):
+        if voices:
+            st.dataframe(
+                [{"Student ID": k, "Name": v["name"]} for k, v in voices.items()],
+                hide_index=True,
+                width="stretch",
+            )
+        else:
+            st.caption("No enrolled voices.")
+    section(2, "Tools it may call")
+    st.code("Whisper → pyannote diarisation → SpeechBrain verification", language=None)
+    st.caption("Fixed preprocessing pipeline; no planner or scoring tool.")
+    section(3, "Trajectory / timeline")
+    if diagnostics:
+        if diagnostics.get("note"):
+            st.warning(diagnostics["note"])
+        with st.expander("Whisper segments", expanded=True):
+            st.dataframe(diagnostics.get("whisper_segments", []), hide_index=True, width="stretch")
+        rows = match_rows(diagnostics)
+        if rows:
+            st.dataframe(rows, hide_index=True, width="stretch")
+        raw("Original Listener response", diagnostics)
+    else:
+        empty("Listener diagnostics were not recorded for this imported or older session.")
+    st.caption(
+        "Reference threshold 0.35 · reference margin 0.10 (best minus runner-up). "
+        "This backend uses SpeechBrain accepted-match flags; these reference values "
+        "do not change or reproduce its identity decision."
+    )
+    section(4, "Outputs", f"Reviewed transcript · {inputs.transcript.version}")
+    names = {s.id: s.displayName for s in inputs.roster}
+    for turn in inputs.transcript.turns:
+        speaker = turn.speaker
+        who = (
+            names.get(speaker.studentId, speaker.studentId)
+            if speaker.kind == "student"
+            else speaker.label
+        )
+        label = " · not scored" if speaker.kind == "uncertain" else ""
+        with st.container(border=True):
+            st.caption(f"{turn.id} · {turn.startMs / 1000:g}–{turn.endMs / 1000:g}s · {who}{label}")
+            st.text(turn.text)
+    guardrails(
+        [
+            f"{t.id}: unknown/uncertain speaker — not scored."
+            for t in inputs.transcript.turns
+            if t.speaker.kind == "uncertain"
+        ],
+        "Uncertain speakers cannot establish a score. Attribution must be "
+        "reviewed by the professor.",
+    )
+
+
+def coordinator_view(records, session_id, inputs):
+    runs = records.runs(session_id)
+    run = runs[0] if runs else None
+    if len(runs) > 1:
+        selected = st.selectbox(
+            "Coordinator run",
+            range(len(runs)),
+            format_func=lambda i: f"{runs[i]['created_at']} · {runs[i]['status']}",
+        )
+        run = runs[selected]
+    progress = run_progress(run) if run else {}
+    header("Coordinator", run["status"] if run else "not started")
+    budget_gauges(progress)
+    if run:
+        st.caption(f"Run {run['id']} · stop: {run['stop_reason'] or 'pending'}")
+    section(1, "Inputs")
+    raw("Pinned roster, rubric and transcript", inputs.model_dump(exclude={"documents"}))
+    raw(
+        "Recorded coordinator instructions and initial history",
+        progress.get("coordinatorInput", {}),
+    )
+    section(2, "Tools it may call", "The model chooses an action; the harness validates it.")
+    st.dataframe(
+        [{"Tool": t.name, "Purpose": t.description} for t in COORDINATOR_TOOLS],
+        hide_index=True,
+        width="stretch",
+    )
+    section(3, "Trajectory / timeline")
+    timeline(progress.get("actions", []))
+    section(4, "Outputs")
+    st.text(f"Latest draft: {progress.get('latestDraftId') or 'No draft handed on'}")
+    st.caption("Evidence runs handed back: " + ", ".join(progress.get("evidenceRunIds", [])))
+    guardrails(
+        [
+            a.get("result", {}).get("error", a["summary"])
+            for a in progress.get("actions", [])
+            if a["outcome"] == "invalid"
+        ]
+        + (
+            [f"Run stopped: {run['stop_reason']}"]
+            if run and run["stop_reason"] not in (None, "ready_for_professor_review")
+            else []
+        ),
+        "One shared budget covers all roles and research. Tools are schema checked. "
+        "The coordinator cannot approve or send. Transcript and tool results are untrusted data.",
+    )
+
+
+def evidence_view(records, session_id, inputs):
+    runs = records.evidence_runs(session_id)
+    run = None
+    if runs:
+        pick = st.selectbox(
+            "Evidence check",
+            range(len(runs)),
+            format_func=lambda i: f"{runs[i]['question']} · {runs[i]['status']}",
+        )
+        run = runs[pick]
+    p = run["progress"] if run else {}
+    bundle = p.get("bundle") or {}
+    header("Evidence / Research", run["status"] if run else "not started")
+    st.iframe(
+        vault_html(
+            inputs.documents,
+            searches_of(p),
+            examined_of(p),
+            bundle.get("citations", []),
+            height=420,
+        ),
+        height=424,
+    )
+    section(1, "Inputs")
+    if run:
+        st.text(run["question"])
+    st.caption(
+        f"{len(inputs.documents)} pinned course documents · {len(inputs.transcript.turns)} turns"
+    )
+    raw("Session documents and passages", [d.model_dump() for d in inputs.documents])
+    section(2, "Tools it may call")
+    st.code(
+        "get_lesson_context · search_course_materials · search_web (when configured)\n"
+        "grade_evidence · submit_findings",
+        language=None,
+    )
+    st.caption(
+        "Legacy evidence.py: search_course_passages · get_source_passage · finish_evidence. "
+        "The actual calls below identify which agent ran."
+    )
+    section(
+        3,
+        "Trajectory / timeline",
+        "BM25 keywords + vector cosine, ranked by reciprocal rank fusion",
+    )
+    passages = {f"{d.id}:{d.version}:{x.id}": x.text for d in inputs.documents for x in d.passages}
+    searches = searches_of(p)
+    if not searches:
+        empty("No search trace recorded yet.")
+    for i, search in enumerate(searches, 1):
+        with st.expander(f"Search {i:02d} · {search['query']}", expanded=i == 1):
+            for hit in search["hits"]:
+                st.caption(
+                    f"{hit['passageId']} · cosine: {hit.get('score', 'not recorded')} · "
+                    f"BM25: {hit.get('bm25', 'not recorded')} · "
+                    f"RRF: {hit.get('rrf', 'not recorded')}"
+                )
+                st.text(hit.get("text") or passages.get(hit["passageId"], "Passage not available"))
+    timeline(p.get("actions", []))
+    for pack in p.get("research", []) or []:
+        with st.expander(f"Research pack · {pack.get('contribution_id') or pack.get('kind')}"):
+            st.text("Question: " + (pack.get("question") or "Unprompted contribution"))
+            st.text(pack.get("text", ""))
+            st.caption(f"Route: {pack.get('route')} · {pack.get('route_reason')}")
+            raw("Exact research model history", pack.get("model_history", []))
+            timeline(pack.get("trajectory", []))
+            for claim in [*pack.get("claims", []), *pack.get("expected_points", [])]:
+                st.text(f"{claim.get('claim')} — {claim.get('status')}")
+                st.json(claim.get("evidence", []), expanded=False)
+            raw("Complete graded pack and handoff signals", pack)
+    section(4, "Outputs", "Validated citations and gaps handed to the Judge")
+    if bundle:
+        st.text(bundle.get("explanation", ""))
+        for cite in bundle.get("citations", []):
+            with st.container(border=True):
+                st.caption(f"{cite['title']} · p. {cite['page']} · {cite['relationship']}")
+                st.text("“" + cite["excerpt"] + "”")
+        for gap in bundle.get("gaps", []):
+            st.warning("Gap: " + gap)
+        for conflict in bundle.get("conflicts", []):
+            st.warning("Conflict: " + conflict)
+    else:
+        st.caption("No evidence bundle handed on.")
+    flagged = [
+        a.get("summary", "Refused research action")
+        for a in p.get("actions", [])
+        if a.get("outcome") not in ("ok", "started")
+    ]
+    for pack in p.get("research", []) or []:
+        flagged.extend(pack.get("notes", []))
+    guardrails(
+        flagged,
+        "Quotes must be verbatim from retrieved passages in this session. "
+        "Untrusted retrieved instructions cannot change the rubric. Weak "
+        "evidence stays unverified.",
+    )
+
+
+def cited_evidence(records, session_id, inputs, item):
+    turns = {t.id: t for t in inputs.transcript.turns}
+    for tid in item.turnIds:
+        st.caption("Cited turn · " + tid)
+        st.text(turns[tid].text if tid in turns else "Turn unavailable")
+    bundles = dict(records.evidence_for(session_id))
+    for ref in item.citations:
+        bundle = bundles.get(ref.evidenceRunId)
+        cite = (
+            next((c for c in bundle.citations if c.passageId == ref.passageId), None)
+            if bundle
+            else None
+        )
+        st.caption(f"Course citation · {ref.passageId}")
+        st.text(cite.excerpt if cite else "Citation unavailable; review required")
+
+
+def role_view(records, session_id, inputs, name):
+    latest = records.latest_draft(session_id)
+    calls = role_calls(records, session_id, name)
+    header(name, "draft available" if latest else "not started")
+    section(1, "Inputs")
+    if calls:
+        raw("Exact inputs from the latest recorded call", calls[0][1]["inputs"])
+    else:
+        st.caption("Exact role inputs unavailable until a new role call is recorded.")
+    raw("Pinned rubric", inputs.rubric.model_dump())
+    section(2, "Tools it may call")
+    st.code(ROLE_NAMES[name], language=None)
+    st.caption(
+        "One structured role call, with one correction attempt if invalid. Topic 7 · Agents."
+    )
+    section(3, "Trajectory / timeline")
+    role_trajectory(calls)
+    section(
+        4,
+        "Outputs",
+        f"Current draft · version {latest.version} · {latest.origin}" if latest else None,
+    )
+    if latest is None:
+        empty("No draft yet. Generate an assessment or create a professor draft from Overview.")
+    elif name == "Judge":
+        findings = latest.content.findings
+        matrix = []
+        for student in inputs.roster:
+            row = {"Student": student.displayName}
+            for criterion in inputs.rubric.criteria:
+                f = next(
+                    (
+                        f
+                        for f in findings
+                        if f.studentId == student.id and f.criterionId == criterion.id
+                    ),
+                    None,
+                )
+                row[criterion.title] = (
+                    f"{f.score:g} / {criterion.maxScore:g}"
+                    if f and f.status == "scored"
+                    else "Insufficient evidence"
+                    if f
+                    else "Not assessed"
+                )
+            matrix.append(row)
+        st.dataframe(matrix, hide_index=True, width="stretch")
+        for s in inputs.roster:
+            with st.expander(s.displayName):
+                for f in findings:
+                    if f.studentId != s.id:
+                        continue
+                    st.write(f"**{f.criterionId}** · {f.status.replace('_', ' ')}")
+                    st.text(f.justification)
+                    cited_evidence(records, session_id, inputs, f)
+                    for limitation in f.limitations:
+                        st.caption(limitation)
+        st.caption(
+            "validate_proposal checks: roster and criterion IDs; duplicate findings; rubric "
+            "range; own attributed turns; silence rules; null for insufficient evidence; "
+            "course-citation snapshot. Saved drafts passed validation; incomplete coverage "
+            "is assessed separately by audit_draft."
+        )
+    elif name == "Auditor":
+        issues = latest.content.audit.issues
+        counts = st.columns(3)
+        counts[0].metric(
+            "Blocking / open",
+            sum(i.severity == "blocking" and i.disposition == "open" for i in issues),
+        )
+        counts[1].metric(
+            "Review / open", sum(i.severity == "review" and i.disposition == "open" for i in issues)
+        )
+        counts[2].metric("Resolved / revised", sum(i.disposition == "revised" for i in issues))
+        for issue in sorted(
+            issues, key=lambda i: (i.severity != "blocking", i.disposition != "open")
+        ):
+            origin = "Model-raised" if issue.id.startswith("model:") else "Deterministic"
+            with st.container(border=True):
+                st.caption(
+                    f"{issue.severity.upper()} · {origin} · "
+                    f"{'resolved (revised)' if issue.disposition == 'revised' else 'open'} "
+                    f"· {issue.id}"
+                )
+                st.text(issue.detail)
+                if issue.resolution:
+                    st.text("Resolution: " + issue.resolution)
+        st.caption(latest.content.audit.notes)
+        raw(
+            "Audit history by draft version",
+            [
+                {"version": d.version, "audit": d.content.audit.model_dump()}
+                for d in records.drafts(session_id)
+            ],
+        )
+    else:
+        for s in inputs.roster:
+            fb = next((f for f in latest.content.feedback if f.studentId == s.id), None)
+            with st.expander(s.displayName, expanded=True):
+                if fb:
+                    st.caption("STRENGTHS")
+                    st.text(fb.strengths)
+                    st.caption("NEXT STEP")
+                    st.text(fb.nextStep)
+                    for limitation in fb.limitations:
+                        st.caption(limitation)
+                    cited_evidence(records, session_id, inputs, fb)
+                else:
+                    st.caption("No feedback drafted for this student.")
+        for _, call in calls:
+            result = call.get("output", {}).get("result", {})
+            if result.get("status") == "needs_evidence":
+                st.warning("Needs evidence: " + result["question"])
+    fired = [c["reason"] for _, c in calls if c.get("reason")]
+    if name == "Auditor" and latest:
+        fired += [i.detail for i in latest.content.audit.issues if i.disposition == "open"]
+    guardrails(
+        fired,
+        {
+            "Judge": "Scores are provisional. Insufficient evidence is never zero. "
+            "No score from an "
+            "uncertain speaker or another student's turn. Deterministic "
+            "validation is authoritative.",
+            "Auditor": "Verify first, judge last. Model issues request review; "
+            "they never lower scores. "
+            "A model audit is not professor approval.",
+            "Feedback writer": "Never name another student. "
+            "Only the student's own turns and approved "
+            "learning goals may be cited. Silence does not imply poor understanding.",
+        }[name],
+    )
+
+
+def delivery_view(records, session_id, inputs):
+    latest = records.latest_draft(session_id)
+    approval = records.active_approval(session_id)
+    settings = DeliverySettings.from_env()
+    deliveries = records.deliveries(session_id)
+    header("Delivery", "approved" if approval else "awaiting approval")
+    st.badge("Test mode" if settings.test_mode else "Live mode", color="orange")
+    if settings.test_mode:
+        st.caption(
+            f"All sends redirect to: {settings.test_recipient or 'test inbox not configured'}"
+        )
+    section(1, "Inputs", "Exact content + roster recipients + recipient revisions → SHA-256")
+    recipients = records.recipients(session_id)
+    st.dataframe(recipients or [{"Recipients": "Not set"}], hide_index=True, width="stretch")
+    if latest:
+        st.caption(f"Version {latest.version} · current digest")
+        st.code(records.approval_digest(latest.content, recipients), language=None, wrap_lines=True)
+    if approval:
+        st.caption("Approved digest")
+        st.code(approval["digest"], language=None, wrap_lines=True)
+    section(2, "Tools it may call")
+    st.code("Professor: approve_draft → deliver_approved → AgentMail transport", language=None)
+    st.caption("Deterministic delivery service. No model has approval or send tools.")
+    section(3, "Trajectory / timeline")
+    raw("Approval history (including invalidated versions)", records.approvals(session_id))
+    raw("Delivery attempts", records.attempts(session_id))
+    st.caption("Send states: sending → accepted / rejected / ambiguous")
+    section(4, "Outputs", "Email previews use the same formatter as delivery.")
+    if latest:
+        for s in inputs.roster:
+            with st.expander(f"Email preview · {s.displayName}"):
+                if any(f.studentId == s.id for f in latest.content.feedback):
+                    st.text(feedback_email(records, session_id, s.id, latest))
+                else:
+                    st.caption("No email preview: feedback has not been drafted.")
+    if deliveries:
+        st.dataframe(deliveries, hide_index=True, width="stretch")
+    else:
+        st.caption("No send attempted.")
+    guardrails(
+        [
+            f"{d['student_id']}: {d['state']}"
+            for d in deliveries
+            if d["state"] in ("ambiguous", "rejected")
+        ],
+        "Approval must match the latest content and recipients exactly. "
+        "An edit invalidates approval. "
+        "Accepted means provider acceptance, not inbox delivery. Accepted sends are never resent; "
+        "ambiguous outcomes are never retried automatically.",
+    )
+
+
+def render_agent(name, records, session_id, inputs, live=None):
+    if name == "Listener":
+        listener_view(records, session_id, inputs)
+    elif name == "Coordinator":
+        coordinator_view(records, session_id, inputs)
+    elif name == "Evidence / Research":
+        evidence_view(records, session_id, inputs)
+        if live and live["thread"].is_alive():
+            with st.expander("Live research activity", expanded=True):
+                for kind, detail in list(live.get("events", [])):
+                    if kind in ("substep", "retrieval"):
+                        st.json({"event": kind, **detail}, expanded=False)
+    elif name in ROLE_NAMES:
+        role_view(records, session_id, inputs, name)
+    elif name == "Delivery":
+        delivery_view(records, session_id, inputs)
