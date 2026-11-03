@@ -5,7 +5,8 @@ the evidence agent), run the judge, audit, revise, draft each student's feedback
 hand everything to the professor. It has no approval or delivery tools.
 
 ``on_event(kind, detail)`` lets the UI animate the run: "thinking" before each model call,
-"action" after each tool call (detail = the action record), "done" at the end.
+"action" after each tool call (detail = the action record), "substep" for each tool the
+evidence agent runs inside retrieve_evidence, "done" at the end.
 """
 
 import json
@@ -270,6 +271,10 @@ def coordinate(
                             if p.toolCalls > before:
                                 budget.tool(p.toolCalls - before)
                                 before = p.toolCalls
+                                tool_name = getattr(p, "lastTool", None) or (
+                                    p.actions[-1]["tool"] if p.actions else "working"
+                                )
+                                on_event("substep", {"tool": tool_name, "step": p.toolCalls})
 
                         if use_research:  # ② Research (research/bridge.py), same contract
                             from classpartai.research import bridge

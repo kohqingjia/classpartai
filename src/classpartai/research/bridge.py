@@ -456,6 +456,7 @@ class ResearchProgress(EvidenceProgress):
     """EvidenceProgress plus the full evidence packs (saved with the run by Records)."""
 
     research: list[dict] | None = None
+    lastTool: str | None = None  # the tool running now, for the UI's live view
 
 
 def _actions(pack: EvidencePack, offset: int) -> list[dict]:
@@ -563,6 +564,7 @@ def investigate(
         # Counted before the tool runs: the coordinator's checkpoint charges the shared budget
         # and raises BudgetExceeded when it is spent, which stops Research there.
         progress.toolCalls += 1
+        progress.lastTool = tool
         checkpoint(progress)
 
     try:

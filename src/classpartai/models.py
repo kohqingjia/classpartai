@@ -133,11 +133,12 @@ def configured_driver(instructions: str, tools: list[ToolDefinition]) -> Driver 
 # Original limits were 24 model calls, 36 tool calls, 100k tokens and 120 s for a local model.
 # A real run needs a feedback call per student plus judge, audit and evidence calls, and OpenAI
 # reasoning models count hidden reasoning tokens and add latency, so all four are raised here.
+# One Research investigation (research/bridge.py) alone takes about 25 model calls and 2 minutes.
 WORKFLOW_LIMITS = {
-    "modelCalls": 48,
-    "toolCalls": 72,
-    "tokens": 300000,
-    "seconds": 420,
+    "modelCalls": 72,
+    "toolCalls": 108,
+    "tokens": 400000,
+    "seconds": 600,
     "historyBytes": 100000,
 }
 

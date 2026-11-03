@@ -156,15 +156,16 @@ def test_bundle_is_accepted_by_records_and_the_judge_validator(records, session_
 
 
 def test_budget_exhaustion_keeps_a_gap_bundle(inputs):
-    from classpartai.models import SharedBudget, WorkflowProgress
+    from classpartai.models import WORKFLOW_LIMITS, SharedBudget, WorkflowProgress
 
-    shared = WorkflowProgress(modelCalls=47)  # one call left in the workflow
+    # one call left in the workflow
+    shared = WorkflowProgress(modelCalls=WORKFLOW_LIMITS["modelCalls"] - 1)
     budget = SharedBudget(shared, deadline=float("inf"))
     outcome = bridge.investigate(request(), inputs, budget, agent=scripted_agent(inputs, grader()))
     assert outcome.status == "needs_review" and outcome.stopReason == "shared_budget"
     assert outcome.progress.bundle.status == "gap"
     assert "Unresolved investigation: shared_budget" in outcome.progress.bundle.gaps
-    assert shared.modelCalls == 48
+    assert shared.modelCalls == WORKFLOW_LIMITS["modelCalls"]
 
 
 def test_coordinator_uses_research_when_configured(records, session_id, inputs, monkeypatch):

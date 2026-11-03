@@ -3,23 +3,77 @@
 Wraps audio-service/pipeline.py and maps its output onto the assessment transcript format.
 Identified speakers become student turns; UNKNOWN / AMBIGUOUS become "uncertain" turns, which
 can never establish a student's score. The professor confirms the transcript before it is used.
+
+If Tina's pipeline can't load (its pyannote diarization model is gated on Hugging Face, so a
+token whose account hasn't accepted the model's terms gets a 403), the fallback skips
+diarization: Whisper's segments are matched one by one against the enrolled voices with the
+same SpeechBrain check. Short or unmatched segments stay uncertain.
 """
 
+import json
+import subprocess
 import sys
+import tempfile
+import wave
 from collections.abc import Callable
+from pathlib import Path
 
 from classpartai.assessment import Transcript
 from classpartai.config import AUDIO_SERVICE_DIR
 
 IS_PLACEHOLDER = False
+MIN_SEGMENT_SECONDS = 1.0  # shorter clips are too little voice to identify anyone
 
 
-def load_pipeline() -> Callable[[str], dict]:
+def load_pipeline() -> tuple[Callable[[str], dict], str | None]:
+    """(process_audio, note): ``note`` explains when the fallback is in use."""
     # The pipeline loads its models at import time and needs HF_TOKEN, so import lazily.
     sys.path.insert(0, str(AUDIO_SERVICE_DIR))
-    from pipeline import process_audio
+    try:
+        from pipeline import process_audio
 
-    return process_audio
+        return process_audio, None
+    except Exception as error:  # e.g. huggingface_hub GatedRepoError (403)
+        reason = str(error).splitlines()[0][:200]
+    import speaker_identification  # noqa: F401  (fails here if the voice model can't load)
+
+    note = (
+        "Speaker separation (pyannote) is unavailable, so each sentence's voice is matched "
+        f"against the enrolled samples instead. Reason: {reason}"
+    )
+    return process_without_diarization, note
+
+
+def process_without_diarization(audio_path: str) -> dict:
+    """Tina's pipeline minus diarization: transcribe, then identify each segment's speaker.
+    ``audio_path`` must be a WAV file (the app converts uploads to 16 kHz mono first)."""
+    from speaker_identification import resolve_speaker_identity
+    from speaker_mapping import merge_consecutive_speaker_segments
+
+    worker = AUDIO_SERVICE_DIR / "transcription_worker.py"
+    done = subprocess.run(
+        [sys.executable, str(worker), audio_path], capture_output=True, text=True, check=True
+    )
+    transcription = json.loads(done.stdout)
+    segments = []
+    with tempfile.TemporaryDirectory() as tmp, wave.open(audio_path, "rb") as audio:
+        rate = audio.getframerate()
+        for n, seg in enumerate(transcription["segments"]):
+            speaker = "UNKNOWN"
+            if seg["end"] - seg["start"] >= MIN_SEGMENT_SECONDS:
+                clip = Path(tmp) / f"segment-{n}.wav"
+                audio.setpos(int(seg["start"] * rate))
+                frames = audio.readframes(int((seg["end"] - seg["start"]) * rate))
+                with wave.open(str(clip), "wb") as out:
+                    out.setparams(audio.getparams())
+                    out.writeframes(frames)
+                speaker = resolve_speaker_identity(str(clip))["name"]
+            segments.append({**seg, "speaker": speaker})
+    return {
+        "language": transcription["language"],
+        "speaker_identities": {},
+        "segments": merge_consecutive_speaker_segments(segments),
+    }
 
 
 def to_transcript(result: dict, ids_by_name: dict[str, str], version: str) -> Transcript:
