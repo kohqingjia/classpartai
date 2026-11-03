@@ -51,3 +51,15 @@ def test_professor_role_and_turns(tmp_path):
         for t in to_transcript(result, {"Alex Tan": alex.person_id}, "v1", {"Prof Lim"}).turns
     ]
     assert kinds == ["professor", "student", "uncertain"]
+
+
+def test_best_match_needs_a_clear_winner():
+    from classpartai.agents.listener import best_match
+
+    def m(*pairs):
+        return [{"name": n, "score": s} for n, s in pairs]
+
+    assert best_match(m(("Alex", 0.62), ("Priya", 0.21))) == "Alex"
+    assert best_match(m(("Alex", 0.48), ("Priya", 0.44))) == "AMBIGUOUS"
+    assert best_match(m(("Alex", 0.20), ("Priya", 0.05))) == "UNKNOWN"
+    assert best_match([]) == "UNKNOWN"
