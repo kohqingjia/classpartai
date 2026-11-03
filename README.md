@@ -54,6 +54,12 @@ Every tool call and role output is schema-checked; a refused call goes back to t
 - **Delivery:** recipients come from the roster, never a model; one delivery per student per version; accepted emails are never resent; ambiguous outcomes are never retried automatically; test mode redirects everything to one inbox.
 - **Untrusted text:** transcript, documents and model output are always passed as data, never instructions.
 
+## Agent workspace
+
+Each session has seven inspectable agent tabs inside **AI assessment**, with exact inputs,
+tool trajectories, outputs and guardrails. See [the workspace guide](docs/AGENT-WORKSPACE.md)
+for the data sources, course-topic mapping and diagnostics recorded by new runs.
+
 ## Evaluation
 
 | Part | What we measure |
