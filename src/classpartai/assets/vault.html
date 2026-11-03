@@ -232,7 +232,7 @@ function where(s) { return s.doc.title + (s.p.page ? " · p." + s.p.page : ""); 
 
 function hud() {
   const done = searches.filter((q, i) => t >= (i + 1) * PER - HOLD).length;
-  const cur = Math.min(searches.length - 1, Math.floor(t / PER));
+  const cur = Math.max(0, Math.min(searches.length - 1, Math.floor(t / PER)));
   const retrieved = new Set();
   searches.forEach((q, i) => q.hits.forEach((h, rank) => {
     if (t >= hitTime(i, rank, q.hits.length)) retrieved.add(h.passageId); }));
@@ -274,7 +274,8 @@ function hud() {
 }
 
 function frame(now) {
-  const dt = Math.min(100, now - last); last = now;
+  // rAF's timestamp can be earlier than the performance.now() taken at start-up: never step back.
+  const dt = Math.max(0, Math.min(100, now - last)); last = now;
   if (playing) t = Math.min(end, t + dt);
   draw(now); hud();
   requestAnimationFrame(frame);
