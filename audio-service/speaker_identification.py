@@ -11,7 +11,6 @@ ROOT_DIR = BASE_DIR.parent
 ENROLLMENT_DIR = BASE_DIR / "enrollments"
 REGISTRY_PATH = ENROLLMENT_DIR / "registry.json"
 
-# Load environment variables from project root .env
 load_dotenv(ROOT_DIR / ".env")
 
 HF_TOKEN = os.getenv("HF_TOKEN")
