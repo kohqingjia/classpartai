@@ -1,0 +1,35 @@
+{
+  "seminar": "seminar.ogg",
+  "people": [
+    {
+      "personId": "demo-professor",
+      "name": "Prof Demo",
+      "role": "professor",
+      "file": "voices/demo-professor.ogg"
+    },
+    {
+      "personId": "alex-tan",
+      "name": "Alex Tan",
+      "role": "student",
+      "file": "voices/alex-tan.ogg"
+    },
+    {
+      "personId": "priya-nair",
+      "name": "Priya Nair",
+      "role": "student",
+      "file": "voices/priya-nair.ogg"
+    },
+    {
+      "personId": "jordan-wong",
+      "name": "Jordan Wong",
+      "role": "student",
+      "file": "voices/jordan-wong.ogg"
+    },
+    {
+      "personId": "marcus-lee",
+      "name": "Marcus Lee",
+      "role": "student",
+      "file": "voices/marcus-lee.ogg"
+    }
+  ]
+}

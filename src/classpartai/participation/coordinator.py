@@ -373,13 +373,20 @@ def coordinate(
                     action["arguments"] = args.model_dump_json()
                     if draft is None:
                         raise Unprocessable("No provisional draft exists")
-                    if (
-                        any(i.severity == "blocking" for i in audit_draft(draft.content, inputs))
-                        or not draft.content.audit.modelReviewed
-                    ):
+                    # Say exactly what is missing: a vague refusal had the model retry this
+                    # call over and over instead of fixing the draft.
+                    blocking = [
+                        i for i in audit_draft(draft.content, inputs) if i.severity == "blocking"
+                    ]
+                    if blocking:
                         raise Unprocessable(
-                            "Complete every roster student's outputs and audit the current draft "
-                            "first"
+                            "Complete every roster student's outputs first. Blocking: "
+                            + "; ".join(i.detail for i in blocking[:5])
+                        )
+                    if not draft.content.audit.modelReviewed:
+                        raise Unprocessable(
+                            f"Draft version {draft.version} changed after its last audit: call "
+                            "audit_assessment on it, then request review"
                         )
                     action["outcome"] = "ok"
                     action["summary"] = (
@@ -404,8 +411,10 @@ def coordinate(
             except (Unprocessable, ValidationError, ValueError, RuntimeError) as error:
                 action["outcome"] = "invalid"
                 action["summary"] = (
-                    "Action refused or role output invalid; revise the request, inspect context "
-                    "or escalate"
+                    f"Refused: {error}"[:300]
+                    if isinstance(error, Unprocessable)
+                    else "Action refused or role output invalid; revise the request, inspect "
+                    "context or escalate"
                 )
                 output = {
                     "error": str(error) if isinstance(error, Unprocessable) else action["summary"]

@@ -34,9 +34,11 @@ def click(at, label):
     assert not at.exception
 
 
+STEP_NUMBERS = {"AI assessment": 3, "Approve": 4, "Send": 5}
+
+
 def navigate(at, step, agent=None):
-    at.session_state["step"] = step
-    at.query_params["step"] = step
+    at.session_state[f"step-{at.session_state['session_id']}"] = STEP_NUMBERS[step]
     if agent:
         at.session_state["agent"] = agent
         at.query_params["agent"] = agent
@@ -52,18 +54,22 @@ def demo(at):
 
 def test_every_outer_page_and_session_step(app):
     at, _ = app
-    assert "clearer view" in at.title[0].value
+    assert at.title[0].value == "ClassPart AI"
     for label, title in [
         ("📚 Course library", "Course library"),
         ("👥 Class & voices", "Class & voices"),
+        ("🎙️ New class session", None),
     ]:
         click(at, label)
-        assert at.title[0].value == title
+        if title:
+            assert at.title[0].value == title
+    # Steps 1-2 (Record, Who spoke?) are the New class session page; 3-5 are the session's.
+    assert any("Record the seminar" in m.value for m in at.markdown)
     demo(at)
-    for step in ["Record", "Who spoke?", "AI assessment", "Approve", "Send"]:
+    for step in STEP_NUMBERS:
         navigate(at, step)
-    click(at, "Home")
-    assert "clearer view" in at.title[0].value
+    click(at, "🏠 Home")
+    assert at.title[0].value == "ClassPart AI"
 
 
 @pytest.mark.parametrize("populated", [False, True])
@@ -126,15 +132,16 @@ def test_approval_and_send_use_existing_gates(app, monkeypatch):
         session_id, Proposal.model_validate(full_proposal()), "professor", "UI test fixture"
     )
     navigate(at, "Send")
-    assert next(b for b in at.button if b.label.startswith("Send 4 emails")).disabled
+    assert not any(b.label.startswith("Send 4 emails") for b in at.button)
+    assert any("Approve a version" in i.value for i in at.info)
     navigate(at, "Approve")
-    click(at, f"Approve version {draft.version}")
+    approve = next(b for b in at.button if b.label == f"Approve version {draft.version}")
+    assert approve.disabled  # until the box is ticked and, with open issues, a reason given
     assert records.active_approval(session_id) is None
-    assert at.error
     at.checkbox[0].check()
-    next(t for t in at.text_input if t.label.startswith("Acknowledgement")).input(
-        "Reviewed uncertainty and all evidence in this test fixture."
-    )
+    reason = next(t for t in at.text_input if t.label.startswith(("Why you're", "Note")))
+    reason.input("Reviewed uncertainty and all evidence in this test fixture.")
+    at.run()
     click(at, f"Approve version {draft.version}")
     assert records.active_approval(session_id)
     navigate(at, "Send")

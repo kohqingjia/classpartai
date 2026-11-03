@@ -229,11 +229,18 @@ def listener_view(records, session_id, inputs):
         raw("Original Listener response", diagnostics)
     else:
         empty("Listener diagnostics were not recorded for this imported or older session.")
-    st.caption(
-        "Reference threshold 0.35 · reference margin 0.10 (best minus runner-up). "
-        "This backend uses SpeechBrain accepted-match flags; these reference values "
-        "do not change or reproduce its identity decision."
-    )
+    matching = (diagnostics or {}).get("matching")
+    if matching:
+        st.caption(
+            f"Per-sentence matching: the best voice needs cosine ≥ {matching['minScore']:g} and a "
+            f"lead of ≥ {matching['minMargin']:g} over the runner-up, otherwise the line stays "
+            "unknown (pyannote diarisation was unavailable for this recording)."
+        )
+    elif diagnostics:
+        st.caption(
+            "Diarised speakers were identified with SpeechBrain's verifier: exactly one accepted "
+            "match names the speaker; none is unknown, several is ambiguous."
+        )
     section(4, "Outputs", f"Reviewed transcript · {inputs.transcript.version}")
     names = {s.id: s.displayName for s in inputs.roster}
     for turn in inputs.transcript.turns:

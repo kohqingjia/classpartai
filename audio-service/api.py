@@ -18,7 +18,9 @@ def root():
 
 
 @app.post("/process-audio")
-async def process_audio_endpoint(audio: Annotated[UploadFile, File(...)]):
+async def process_audio_endpoint(
+    audio: Annotated[UploadFile, File()],
+):
     # Keep the original extension if possible
     suffix = Path(audio.filename or "recording.wav").suffix
 
