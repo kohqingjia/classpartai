@@ -550,3 +550,40 @@ def test_retrieval_diagnostics_keep_all_rank_scores_and_passage_text(inputs):
             assert hit["rrf"] > 0
             assert hit["text"]
             assert hit["source"]
+
+
+def test_two_claims_backed_by_the_same_quote_both_keep_the_citation(inputs):
+    from types import SimpleNamespace
+
+    doc = inputs.documents[0]
+    passage = doc.passages[0]
+    quote = " ".join(passage.text.split()[:8])
+    evidence = {
+        "chunk_id": f"{bridge.passage_id(doc, passage.id)}#0",
+        "quote": quote,
+        "stance": "supports",
+        "relevance": "relevant",
+    }
+    claims = [{"claim": c, "evidence": [evidence]} for c in ("first point", "second point")]
+    cited = bridge.citations_for([SimpleNamespace(claims=claims)], inputs)
+    assert sorted(claim for _, claim in cited) == ["first point", "second point"]
+
+
+def test_the_session_index_is_keyed_by_the_documents_not_the_object(inputs, monkeypatch):
+    from classpartai import llm
+    from classpartai.research import materials, web
+
+    built = []
+    monkeypatch.setattr(llm, "OpenAIEmbedder", lambda: None)
+    monkeypatch.setattr(llm, "OpenAIChat", lambda: None)
+    monkeypatch.setattr(materials, "load_schedule", lambda _: {"weeks": []})
+    monkeypatch.setattr(web, "default_web_search", lambda: None)
+    monkeypatch.setattr(bridge, "session_store", lambda i, *_: built.append(i) or object())
+    make = bridge.default_agent_factory()
+    make(inputs)
+    make(inputs.model_copy(deep=True))  # same documents, another object: reuse the index
+    assert len(built) == 1
+    other = inputs.model_copy(deep=True)
+    other.documents[0].passages[0].text = "Different notes entirely."
+    make(other)
+    assert len(built) == 2
