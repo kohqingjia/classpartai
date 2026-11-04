@@ -122,7 +122,10 @@ deploy/                 Docker deploy for the VPS
    server only (`audio-service/enrollments`, git-ignored), never in the repo.
 3. **🎙️ New class session**: ① record or upload the seminar → ② check who spoke (play any line
    with ▶) → ③ run the agents → ④ approve → ⑤ preview and send the emails. Recordings are kept
-   on the server for playback (`DATA_DIR/recordings`).
+   on the server for playback (`DATA_DIR/recordings`). The step bar names the agents at work in
+   each step; every step is clickable, and the browser's back button walks back through them.
+4. **🧭 How it works**: the whole system on one page (pipeline diagram, why it's agentic,
+   guardrails, IS469 topic map), for presenting.
 
 No recording to hand? **▶ Use the demo recording** processes `data/demo_audio/seminar.ogg`, a
 48-second mock seminar read by synthetic macOS voices, after enrolling those voices (marked as

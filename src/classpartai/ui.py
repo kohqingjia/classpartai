@@ -204,3 +204,148 @@ def vault_html(
         .replace("__STAGE_MOBILE__", str(max(260, height - 200)))
         .replace("__HEIGHT__", str(height))
     )
+
+
+# --- How it works: the whole system on one page, for the presentation -------------------------
+
+SYSTEM_LANES = [
+    {
+        "step": "Set up",
+        "title": "Before class",
+        "nodes": [
+            ["Course library", "Slides, readings, labs → one passage per slide or page", ""],
+            ["Class & voices", "Roster, roles, a voice sample per person", ""],
+        ],
+    },
+    {
+        "step": "① ②",
+        "title": "Listener",
+        "nodes": [
+            ["Whisper", "Recording → timed text (encoder-decoder transformer)", "Topic 2"],
+            [
+                "Speaker match",
+                "Voice embeddings, cosine similarity: ≥ 0.35 and 0.10 ahead of the runner-up",
+                "Topics 1, 8",
+            ],
+            [
+                "Who spoke? check",
+                "A person confirms the attribution; unknown voices aren't scored",
+                "",
+            ],
+        ],
+    },
+    {
+        "step": "③",
+        "title": "Coordinator agent",
+        "lead": "Plans the next tool call from what the last one returned, within a budget",
+        "badge": "Topic 7",
+        "nodes": [
+            [
+                "Evidence / Research",
+                "BM25 + vectors fused with RRF → grade → quote; web results are context, "
+                "never cited",
+                "Topic 8",
+            ],
+            [
+                "Judge",
+                "Rubric LLM-as-judge per student × criterion, or 'insufficient evidence'",
+                "Topic 6",
+            ],
+            [
+                "Auditor",
+                "Deterministic checks first, then a model audit: verify first, judge last",
+                "Topic 6",
+            ],
+            [
+                "Feedback writer",
+                "Strengths and one next step per student, citing their turns",
+                "Topic 7",
+            ],
+        ],
+    },
+    {
+        "step": "④",
+        "title": "Professor",
+        "nodes": [
+            ["Approve", "Signs off the exact version (SHA-256 of content + recipients)", "Topic 9"],
+        ],
+    },
+    {
+        "step": "⑤",
+        "title": "Delivery",
+        "nodes": [
+            [
+                "AgentMail",
+                "Code, not a model, sends the approved emails; test mode redirects",
+                "Topic 9",
+            ],
+        ],
+    },
+]
+
+SYSTEM_GUARDRAILS = [
+    "Transcript and slides are untrusted data, never instructions",
+    "Every score must cite the student's own turns",
+    "Budgets: 72 model calls · 108 tool calls · 400k tokens · 600 s",
+    "No AI can send: a human approves the exact version",
+    "Ambiguous sends are never retried automatically",
+]
+
+_SYSTEM_CSS = """
+.lanes { display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1.2fr) minmax(0,2.2fr)
+         minmax(0,.9fr) minmax(0,.9fr); gap:10px; align-items:stretch; }
+.lane { position:relative; background:var(--card); border:1px solid var(--line);
+        border-radius:12px; padding:12px; display:flex; flex-direction:column; gap:8px; }
+.lane:not(:last-child)::after { content:"→"; position:absolute; right:-13px; top:50%;
+        transform:translateY(-50%); color:#a5b4fc; font-size:14px; }
+.head { display:flex; gap:8px; align-items:baseline; }
+.step { color:#a5b4fc; font:12px ui-monospace,monospace; white-space:nowrap; }
+.title { font-weight:650; font-size:14px; }
+.lead { font-size:11px; color:var(--muted); }
+.coord { border-color:#4f5fd1; }
+.tools { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:8px; }
+.node { background:var(--bg); border:1px solid var(--line); border-radius:9px; padding:9px; }
+.name { font-weight:600; font-size:12px; }
+.what { font-size:11px; color:var(--muted); margin-top:4px; line-height:1.35; }
+.badge { display:inline-block; margin-top:6px; font-size:10px; color:#c7d2fe;
+         border:1px solid #3b4470; border-radius:999px; padding:1px 7px;
+         align-self:flex-start; }
+.rails { display:flex; flex-wrap:wrap; gap:6px; margin-top:12px; }
+.rail { font-size:11px; color:#fcd68a; border:1px solid #5a4a24; background:#1f1a10;
+        border-radius:999px; padding:3px 10px; }
+.railhead { font-size:11px; color:var(--muted); margin-top:14px; letter-spacing:.06em; }
+@media(max-width:900px) { .lanes { grid-template-columns:1fr; }
+  .lane:not(:last-child)::after { content:"↓"; right:auto; left:50%; top:auto; bottom:-15px;
+  transform:translateX(-50%); } }
+"""
+
+
+def system_html() -> str:
+    """The whole pipeline, from set-up to delivery, with the course topic of each part."""
+    return _data_page(
+        _SYSTEM_CSS,
+        {"lanes": SYSTEM_LANES, "rails": SYSTEM_GUARDRAILS},
+        """
+const d=JSON.parse(document.getElementById('data').textContent);
+const root=document.getElementById('root');root.className='wrap';
+const el=(tag,cls,text)=>{const e=document.createElement(tag);e.className=cls;
+ if(text!==undefined)e.textContent=text;return e;};
+const lanes=el('div','lanes');root.appendChild(lanes);
+d.lanes.forEach(l=>{
+ const lane=el('div','lane'+(l.lead?' coord':''));
+ const head=el('div','head');head.appendChild(el('span','step',l.step));
+ head.appendChild(el('span','title',l.title));lane.appendChild(head);
+ if(l.lead){lane.appendChild(el('div','lead',l.lead));lane.appendChild(el('span','badge',l.badge));}
+ const box=el('div',l.lead?'tools':'');
+ l.nodes.forEach(([name,what,topic])=>{
+  const n=el('div','node');n.appendChild(el('div','name',name));
+  n.appendChild(el('div','what',what));
+  if(topic)n.appendChild(el('span','badge',topic));box.appendChild(n);
+ });
+ lane.appendChild(box);lanes.appendChild(lane);
+});
+root.appendChild(el('div','railhead','GUARDRAILS · TOPIC 9'));
+const rails=el('div','rails');root.appendChild(rails);
+d.rails.forEach(r=>rails.appendChild(el('span','rail',r)));
+""",
+    )

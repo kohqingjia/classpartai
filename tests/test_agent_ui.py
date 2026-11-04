@@ -34,11 +34,13 @@ def click(at, label):
     assert not at.exception
 
 
-STEP_NUMBERS = {"AI assessment": 3, "Approve": 4, "Send": 5}
+STEP_NUMBERS = {"Record": 1, "Who spoke?": 2, "AI assessment": 3, "Approve": 4, "Send": 5}
 
 
 def navigate(at, step, agent=None):
-    at.session_state[f"step-{at.session_state['session_id']}"] = STEP_NUMBERS[step]
+    at.query_params.update(
+        {"view": "session", "session": at.session_state["session_id"], "step": step}
+    )
     if agent:
         at.session_state["agent"] = agent
         at.query_params["agent"] = agent
@@ -70,6 +72,44 @@ def test_every_outer_page_and_session_step(app):
         navigate(at, step)
     click(at, "🏠 Home")
     assert at.title[0].value == "ClassPart AI"
+    click(at, "🧭 How it works")
+    assert at.title[0].value == "How ClassPart AI works"
+
+
+def test_step_bar_names_the_agents_and_goes_back(app):
+    at, _ = app
+    demo(at)
+    # A new session opens at its first open step, with every step clickable.
+    assert next(b for b in at.button if b.key == "stepbar-3").proto.type == "primary"
+    captions = " ".join(c.value for c in at.caption)
+    for agent in ["Listener", "Coordinator", "Research", "Judge", "Auditor", "Feedback writer"]:
+        assert agent in captions
+    next(b for b in at.button if b.key == "stepbar-2").click().run()
+    assert not at.exception
+    assert at.query_params["step"] == "Who spoke?"
+    assert any("Who spoke?" in m.value for m in at.markdown)
+    click(at, "← Back to Record")
+    assert at.query_params["step"] == "Record"
+    click(at, "Next: ② Who spoke? →")
+    click(at, "Next: ③ AI assessment →")
+    assert at.query_params["step"] == "AI assessment"
+
+
+def test_history_entries_always_name_their_step(app):
+    """Browser Back restores an old address; it must show the step it showed before, even after
+    the session has moved on (a pending transcript, a new draft)."""
+    at, _ = app
+    click(at, "🎙️ New class session")
+    assert at.query_params["step"] == "Record"
+    sid = demo(at)
+    assert dict(at.query_params) == {
+        "view": "session",
+        "session": sid,
+        "step": "AI assessment",
+    }
+    click(at, "🏠 Home")
+    next(b for b in at.button if b.key == f"open-{sid}").click().run()
+    assert at.query_params["step"] == "AI assessment"
 
 
 @pytest.mark.parametrize("populated", [False, True])
