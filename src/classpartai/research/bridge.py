@@ -311,7 +311,8 @@ def citations_for(
                 doc, passage = passages[pid]
                 excerpt = exact_excerpt(ev.get("quote", ""), passage.text)
                 relationship = STANCE_TO_RELATIONSHIP.get(ev.get("stance"), "context")
-                key = (pid, excerpt, relationship)
+                # Per claim: two claims backed by the same quote both keep their citation.
+                key = (pid, excerpt, relationship, claim["claim"])
                 if excerpt is None or key in seen:
                     continue
                 seen.add(key)
@@ -500,10 +501,16 @@ def default_agent_factory(light: bool = True) -> AgentFactory:
     web = default_web_search() if config.RESEARCH_BRIDGE_WEB else None
     embedder = OpenAIEmbedder()
     chat = OpenAIChat()
-    stores: dict[int, VectorStore] = {}
+    stores: dict[str, VectorStore] = {}
 
     def make(inputs: AssessmentInputs):
-        key = id(inputs)
+        # Keyed by the documents' content, not id(inputs): Python reuses ids of freed objects,
+        # so another session could otherwise get this session's index.
+        key = hashlib.sha256(
+            json.dumps(
+                [d.model_dump() for d in inputs.documents], sort_keys=True, default=str
+            ).encode()
+        ).hexdigest()
         if key not in stores:
             stores.clear()
             stores[key] = session_store(
