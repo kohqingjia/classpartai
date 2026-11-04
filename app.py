@@ -1023,6 +1023,33 @@ elif view == "how":
         "600 s) and stops cleanly when it runs out."
     )
 
+    st.subheader("How retrieval works")
+    st.markdown(
+        "| When | What happens |\n"
+        "|---|---|\n"
+        "| **Upload** (Course library) | Each file is split into passages: one per slide, PDF "
+        "page or group of notebook cells. Plain text only, nothing is embedded yet. |\n"
+        "| **New session** | Every library file (up to 100) is copied into the session, so its "
+        "scores always refer to the exact notes it had. Later uploads don't change it. |\n"
+        "| **First search** (③) | Passages are cut into 120-word chunks with 30-word overlap "
+        "(Topic 8 lab), embedded with `text-embedding-3-small` and indexed for BM25. The index "
+        "is cached by content, so sessions with the same library reuse it. |\n"
+        "| **Every search** | The agent looks up the session's week in the course schedule, "
+        "searches that week's files (plus undated ones), fuses BM25 and vector rankings with "
+        "RRF and takes the top 5. Weak results: it rewrites the query or drops the week "
+        "filter, at most twice. |"
+    )
+    st.markdown(
+        "- **Which files count for a week?** Those whose name matches the schedule (e.g. "
+        "`week08 Agentic RAG.pptx`). Unmatched files are searched every week, so keep the "
+        "original IS469 file names.\n"
+        "- **Does more files mean slower?** Barely. A search scores every chunk, but even "
+        "~10,000 chunks take milliseconds; model calls dominate. The cost is one-time "
+        "indexing (about 30–60 s for a full library), repeated when the library changes.\n"
+        "- **The real trade-off is relevance:** more files, more near-misses competing for the "
+        "top 5. The week filter keeps searches on topic."
+    )
+
     st.subheader("Guardrails")
     st.markdown(
         "- Transcript and slide text is treated as **data, never instructions** "
