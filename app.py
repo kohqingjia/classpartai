@@ -26,6 +26,7 @@ from pathlib import Path
 import streamlit as st
 
 from classpartai import config
+from classpartai import snippets as code_snippets
 from classpartai.agent_ui import TABS, overview, render_agent
 from classpartai.agents import listener
 from classpartai.assessment import AssessmentInputs, parse_inputs
@@ -1075,6 +1076,23 @@ elif view == "how":
         "| Approval, Delivery | Human in the loop, untrusted data, no autonomous actions | "
         "9 · Ethics |"
     )
+    st.subheader("Under the hood: the code behind each topic")
+    st.caption(
+        "Read live from the source files, so this is exactly the code that runs. Open one to "
+        "see the parameters."
+    )
+    for topic, snippets in code_snippets.TOPICS:
+        st.markdown(f"**{topic}**")
+        for snippet in snippets:
+            found = code_snippets.source(snippet)
+            with st.expander(snippet.title):
+                if found is None:
+                    st.caption(f"{snippet.path} isn't available on this server.")
+                    continue
+                code, line = found
+                st.caption(f"`{snippet.path}:{line}` · {snippet.say}")
+                st.code(code, language="python")
+
     st.button("🎙️ Try it: start a class session", type="primary", on_click=go, args=("new",))
 
 # --- Session page: steps 3 (AI assessment), 4 (Approve) and 5 (Send) ---------------------------
