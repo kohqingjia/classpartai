@@ -8,6 +8,7 @@ dependencies = [
     "agentmail>=0.1",
     "av==16.0.1",
     "faster-whisper>=1.2.1",
+    "groq>=1.7.0",
     "numpy>=2.0",  # audio-service/requirements.txt pins 2.4.6 in the Docker image
     "openai>=3.42.0",
     "pydantic>=2.8",
