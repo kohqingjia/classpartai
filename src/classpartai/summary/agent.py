@@ -1,13 +1,11 @@
-
 import json
 from collections.abc import Callable
 
 from classpartai.summary.prompts import SUMMARY_SYSTEM_PROMPT
 from classpartai.summary.tools import (
-    get_session_transcript,
     get_participation_summary,
+    get_session_transcript,
 )
-
 
 # Approximate character-based chunking.
 # Can be adjusted depending on your LLM's context window.
@@ -33,9 +31,7 @@ def _split_transcript(turns, max_chars=MAX_CHUNK_CHARS):
     current_size = 0
 
     for turn in turns:
-        turn_size = len(json.dumps(
-            turn, ensure_ascii=False, default=str
-        ))
+        turn_size = len(json.dumps(turn, ensure_ascii=False, default=str))
 
         if current_chunk and current_size + turn_size > max_chars:
             chunks.append(current_chunk)
@@ -70,9 +66,7 @@ def _normalise_analysis(analysis):
         normalised[field] = value if isinstance(value, list) else []
 
     normalised["main_topics"] = normalised["main_topics"][:6]
-    normalised["investigations_needed"] = (
-        normalised["investigations_needed"][:2]
-    )
+    normalised["investigations_needed"] = normalised["investigations_needed"][:2]
 
     return normalised
 
@@ -156,11 +150,7 @@ def _consolidate_analysis(
     payload = {
         "chunk_analyses": chunk_analyses,
         "existing_research": existing_research,
-        "transcript_turn_ids": [
-            turn.get("id")
-            for turn in turns
-            if isinstance(turn, dict)
-        ],
+        "transcript_turn_ids": [turn.get("turn_id") for turn in turns if isinstance(turn, dict)],
     }
 
     prompt = f"""
@@ -290,14 +280,10 @@ Return valid JSON only.
 
     verification = _call_llm(generate_json, prompt)
 
-    verified_questions = verification.get(
-        "unresolved_questions", []
-    )
+    verified_questions = verification.get("unresolved_questions", [])
 
     if not isinstance(verified_questions, list):
-        raise ValueError(
-            "unresolved_questions must be a list"
-        )
+        raise ValueError("unresolved_questions must be a list")
 
     analysis["unresolved_questions"] = verified_questions
 
@@ -309,9 +295,9 @@ def _filter_turn_ids(analysis, turns):
     Remove invalid transcript references from findings.
     """
     valid_ids = {
-        str(turn["id"])
+        str(turn["turn_id"])
         for turn in turns
-        if isinstance(turn, dict) and turn.get("id") is not None
+        if isinstance(turn, dict) and turn.get("turn_id") is not None
     }
 
     for field in (
@@ -329,11 +315,7 @@ def _filter_turn_ids(analysis, turns):
             if not isinstance(ids, list):
                 ids = []
 
-            item["turn_ids"] = [
-                turn_id
-                for turn_id in ids
-                if str(turn_id) in valid_ids
-            ]
+            item["turn_ids"] = [turn_id for turn_id in ids if str(turn_id) in valid_ids]
 
     for item in analysis.get("investigations_needed", []):
         if not isinstance(item, dict):
@@ -370,9 +352,7 @@ def analyse_session(
 
     if not turns:
         return {
-            "analysis": {
-                field: [] for field in SUMMARY_FIELDS
-            },
+            "analysis": {field: [] for field in SUMMARY_FIELDS},
             "participation": participation,
         }
 
@@ -380,10 +360,7 @@ def analyse_session(
     chunks = _split_transcript(turns)
 
     # Step 2: Analyse each section independently.
-    chunk_analyses = [
-        _analyse_chunk(chunk, generate_json)
-        for chunk in chunks
-    ]
+    chunk_analyses = [_analyse_chunk(chunk, generate_json) for chunk in chunks]
 
     # Step 3: Consolidate the entire seminar.
     analysis = _consolidate_analysis(

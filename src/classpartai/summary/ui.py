@@ -1,7 +1,6 @@
-
-import streamlit as st
-import pandas as pd
 import altair as alt
+import pandas as pd
+import streamlit as st
 
 
 def render_session_summary(result):
@@ -16,9 +15,7 @@ def render_session_summary(result):
     followups = analysis.get("suggested_followups") or []
 
     st.title("Session Summary")
-    st.caption(
-        "Key discussions, learning gaps, and recommended follow-ups."
-    )
+    st.caption("Key discussions, learning gaps, and recommended follow-ups.")
 
     # Overview metrics
     col1, col2, col3 = st.columns(3)
@@ -38,9 +35,7 @@ def render_session_summary(result):
         for i, topic in enumerate(topics):
             with cols[i % 2]:
                 with st.container(border=True):
-                    st.markdown(
-                        f"**{topic.get('topic', 'Untitled topic')}**"
-                    )
+                    st.markdown(f"**{topic.get('topic', 'Untitled topic')}**")
                     st.caption(topic.get("explanation", ""))
     else:
         st.info("No major discussion topics identified.")
@@ -56,9 +51,7 @@ def render_session_summary(result):
 
             if agreements:
                 for item in agreements:
-                    st.write(
-                        item.get("description", "")
-                    )
+                    st.write(item.get("description", ""))
             else:
                 st.caption("No clear agreements identified.")
 
@@ -68,9 +61,7 @@ def render_session_summary(result):
 
             if disagreements:
                 for item in disagreements:
-                    st.write(
-                        item.get("description", "")
-                    )
+                    st.write(item.get("description", ""))
             else:
                 st.caption("No clear disagreements identified.")
 
@@ -83,9 +74,7 @@ def render_session_summary(result):
     ):
         if questions:
             for item in questions:
-                st.write(
-                    item.get("question", "")
-                )
+                st.write(item.get("question", ""))
         else:
             st.caption("No unresolved questions identified.")
 
@@ -96,12 +85,8 @@ def render_session_summary(result):
     ):
         if investigations:
             for item in investigations:
-                st.markdown(
-                    f"**{item.get('claim', '')}**"
-                )
-                st.caption(
-                    item.get("reason", "")
-                )
+                st.markdown(f"**{item.get('claim', '')}**")
+                st.caption(item.get("reason", ""))
         else:
             st.caption("No claims flagged for verification.")
 
@@ -109,13 +94,15 @@ def render_session_summary(result):
     st.subheader("Participation Overview")
 
     if participation:
-        chart_data = pd.DataFrame([
-            {
-                "Student": name,
-                "Speaking turns": count,
-            }
-            for name, count in participation.items()
-        ])
+        chart_data = pd.DataFrame(
+            [
+                {
+                    "Student": name,
+                    "Speaking turns": count,
+                }
+                for name, count in participation.items()
+            ]
+        )
 
         chart_data = chart_data.sort_values(
             "Speaking turns",
@@ -179,12 +166,9 @@ def render_session_summary(result):
             use_container_width=True,
         )
 
-        st.caption(
-            "Counts reflect speaking turns, not CP scores."
-        )
+        st.caption("Counts reflect speaking turns, not CP scores.")
     else:
         st.info("No student participation data available.")
-
 
     # Follow-up actions
     st.subheader("Suggested Professor Follow-ups")

@@ -23,15 +23,9 @@ from datetime import datetime, timedelta, timezone
 from html import escape
 from pathlib import Path
 
-from groq import Groq
-from dotenv import load_dotenv
-
-from classpartai.summary.agent import analyse_session
-from classpartai.summary.ui import render_session_summary
-
-load_dotenv()
-
 import streamlit as st
+from dotenv import load_dotenv
+from groq import Groq
 
 from classpartai import config
 from classpartai import snippets as code_snippets
@@ -62,8 +56,12 @@ from classpartai.participation.validation import (
     totals,
 )
 from classpartai.retrieval import examined_of, searches_of
+from classpartai.summary.agent import analyse_session
+from classpartai.summary.ui import render_session_summary
 from classpartai.ui import STAGES, TOOL_STAGE, board_html, flow_html, system_html, vault_html
 from classpartai.voices import GOOD_SECONDS, Voices
+
+load_dotenv()  # GROQ_API_KEY for the Session Summary
 
 DATA = REPO_ROOT / "data"
 VIEWS = {"home", "new", "session", "summary", "library", "voices", "how"}
@@ -628,6 +626,7 @@ def transcribe(wav: Path, roster: list[dict], professors: set[str], meta: dict) 
         **meta,
     }
 
+
 def generate_summary_json(system_prompt, user_prompt):
     client = Groq(api_key=os.environ["GROQ_API_KEY"])
 
@@ -642,6 +641,7 @@ def generate_summary_json(system_prompt, user_prompt):
     )
 
     return json.loads(response.choices[0].message.content)
+
 
 # --- Home -------------------------------------------------------------------------------------
 
@@ -1137,7 +1137,7 @@ elif view == "how":
                 st.code(code, language="python")
 
     st.button("🎙️ Try it: start a class session", type="primary", on_click=go, args=("new",))
-    
+
 
 # --- Session Summary ----------------------------------------------------------
 
@@ -1148,9 +1148,7 @@ elif view == "summary":
     st.title(f"Session Summary · {inputs.sessionTitle}")
 
     st.caption(
-        f"📅 {when(meta['created_at'])} · "
-        f"{inputs.courseTitle} · "
-        f"{len(inputs.roster)} students"
+        f"📅 {when(meta['created_at'])} · {inputs.courseTitle} · {len(inputs.roster)} students"
     )
 
     st.button(
@@ -1169,7 +1167,7 @@ elif view == "summary":
         "participation and suggested follow-ups."
     )
 
-        # Keep each session's summary separate
+    # Keep each session's summary separate
     summary_key = f"session_summary_{session_id}"
 
     if not os.getenv("GROQ_API_KEY"):
@@ -1196,9 +1194,7 @@ elif view == "summary":
         # Display the generated summary
         if summary_key in st.session_state:
             st.divider()
-            render_session_summary(
-                st.session_state[summary_key]
-            )
+            render_session_summary(st.session_state[summary_key])
     # --- Assessment Workflow ------------------------------------------------------
 
 elif view == "session":

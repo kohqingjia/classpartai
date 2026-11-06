@@ -108,7 +108,7 @@ def test_history_entries_always_name_their_step(app):
         "step": "AI assessment",
     }
     click(at, "🏠 Home")
-    next(b for b in at.button if b.key == f"open-{sid}").click().run()
+    next(b for b in at.button if b.key == f"assessment-{sid}").click().run()
     assert at.query_params["step"] == "AI assessment"
 
 

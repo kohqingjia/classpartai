@@ -1,4 +1,3 @@
-
 from types import SimpleNamespace
 
 from classpartai.summary.agent import analyse_session
@@ -19,29 +18,45 @@ def test_session_summary():
             startMs=start_ms,
         )
 
-    transcript = SimpleNamespace(turns=[
-        turn(
-            "t1", "professor", None,
-            "What is the difference between traditional RAG "
-            "and Agentic RAG?", 0,
-        ),
-        turn(
-            "t2", "student", "Tina",
-            "Traditional RAG follows a predefined workflow.", 5000,
-        ),
-        turn(
-            "t3", "student", "John",
-            "Agentic RAG can decide whether to retrieve again.", 12000,
-        ),
-        turn(
-            "t4", "student", "Sarah",
-            "Repeated retrieval may increase latency.", 20000,
-        ),
-        turn(
-            "t5", "student", "John",
-            "Any system using tools is automatically agentic.", 30000,
-        ),
-    ])
+    transcript = SimpleNamespace(
+        turns=[
+            turn(
+                "t1",
+                "professor",
+                None,
+                "What is the difference between traditional RAG and Agentic RAG?",
+                0,
+            ),
+            turn(
+                "t2",
+                "student",
+                "Tina",
+                "Traditional RAG follows a predefined workflow.",
+                5000,
+            ),
+            turn(
+                "t3",
+                "student",
+                "John",
+                "Agentic RAG can decide whether to retrieve again.",
+                12000,
+            ),
+            turn(
+                "t4",
+                "student",
+                "Sarah",
+                "Repeated retrieval may increase latency.",
+                20000,
+            ),
+            turn(
+                "t5",
+                "student",
+                "John",
+                "Any system using tools is automatically agentic.",
+                30000,
+            ),
+        ]
+    )
 
     # Fake LLM: returns a predictable response.
     def mock_generate_json(system_prompt, user_prompt):
@@ -49,19 +64,23 @@ def test_session_summary():
         assert "Agentic RAG" in user_prompt
 
         return {
-            "main_topics": [{
-                "topic": "Agentic RAG vs Traditional RAG",
-                "explanation": "Students discussed retrieval autonomy.",
-                "turn_ids": ["t1", "t2", "t3"],
-            }],
+            "main_topics": [
+                {
+                    "topic": "Agentic RAG vs Traditional RAG",
+                    "explanation": "Students discussed retrieval autonomy.",
+                    "turn_ids": ["t1", "t2", "t3"],
+                }
+            ],
             "agreements": [],
             "disagreements": [],
             "unresolved_questions": [],
-            "investigations_needed": [{
-                "turn_id": "t5",
-                "claim": "Any system using tools is automatically agentic.",
-                "reason": "Requires verification.",
-            }],
+            "investigations_needed": [
+                {
+                    "turn_id": "t5",
+                    "claim": "Any system using tools is automatically agentic.",
+                    "reason": "Requires verification.",
+                }
+            ],
             "suggested_followups": [
                 "Compare a fixed RAG pipeline with agent-controlled retrieval."
             ],
@@ -73,9 +92,7 @@ def test_session_summary():
         existing_research={},
     )
 
-    assert result["analysis"]["main_topics"][0]["topic"] == (
-        "Agentic RAG vs Traditional RAG"
-    )
+    assert result["analysis"]["main_topics"][0]["topic"] == ("Agentic RAG vs Traditional RAG")
     assert result["participation"] == {
         "Tina": 1,
         "John": 2,
@@ -85,4 +102,3 @@ def test_session_summary():
 
     print("\nSESSION SUMMARY TEST PASSED")
     print(result)
-
