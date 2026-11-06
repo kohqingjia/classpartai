@@ -6,6 +6,10 @@ on SQLite instead of Postgres. The rules are unchanged:
 - editing a draft or a recipient invalidates every approval
 - only the latest exact version can be approved, with an acknowledgement when issues remain
 - nothing changes while a delivery is in flight
+
+Each participation run also keeps its UI events (append-only, with seconds since the run
+started), so step ③ can replay a past run without calling any model. Runs recorded before
+``run_events`` existed simply have none.
 """
 
 import hashlib
@@ -61,6 +65,9 @@ CREATE TABLE IF NOT EXISTS deliveries (
 CREATE TABLE IF NOT EXISTS delivery_attempts (
     id TEXT PRIMARY KEY, delivery_id TEXT NOT NULL, attempt INTEGER NOT NULL,
     state TEXT NOT NULL, reason TEXT, message_id TEXT, sent_to TEXT, started_at TEXT NOT NULL);
+CREATE TABLE IF NOT EXISTS run_events (
+    run_id TEXT NOT NULL, seq INTEGER NOT NULL, at REAL NOT NULL, kind TEXT NOT NULL,
+    detail TEXT, PRIMARY KEY (run_id, seq));
 """
 
 EMAIL = re.compile(r"^[^@\s]{1,100}@[^@\s]{1,100}\.[^@\s]{2,}$")
@@ -205,6 +212,12 @@ class Records:
         return [
             Draft(**{**r, "content": DraftContent.model_validate_json(r["content"])}) for r in rows
         ]
+
+    def draft(self, draft_id: str) -> Draft | None:
+        row = self._one("SELECT * FROM drafts WHERE id = ?", (draft_id,))
+        if row is None:
+            return None
+        return Draft(**{**row, "content": DraftContent.model_validate_json(row["content"])})
 
     def latest_draft(self, session_id: str) -> Draft | None:
         drafts = self.drafts(session_id, 1)
@@ -442,6 +455,40 @@ class Records:
         for r in rows:
             r["progress"] = json.loads(r["progress"])
         return rows
+
+    def append_run_event(
+        self, run_id: str, seq: int, at: float, kind: str, detail: dict | None
+    ) -> None:
+        """Record one UI event of a run (append-only: an existing seq is never overwritten)."""
+        with self.lock:
+            self.db.execute(
+                "INSERT OR IGNORE INTO run_events VALUES (?, ?, ?, ?, ?)",
+                (
+                    run_id,
+                    seq,
+                    at,
+                    kind,
+                    None if detail is None else json.dumps(detail, default=str),
+                ),
+            )
+
+    def run_events(self, run_id: str) -> list[dict]:
+        """[{"at": seconds since the run started, "kind", "detail"}], in the order emitted."""
+        rows = self._all(
+            "SELECT at, kind, detail FROM run_events WHERE run_id = ? ORDER BY seq", (run_id,)
+        )
+        for r in rows:
+            r["detail"] = None if r["detail"] is None else json.loads(r["detail"])
+        return rows
+
+    def replayable_runs(self, session_id: str) -> list[dict]:
+        """Finished runs of a session that recorded their events, newest first."""
+        return [
+            r
+            for r in self.runs(session_id)
+            if r["status"] != "running"
+            and self._one("SELECT 1 FROM run_events WHERE run_id = ? LIMIT 1", (r["id"],))
+        ]
 
     # --- Deliveries -------------------------------------------------------------------------
 

@@ -263,6 +263,94 @@ def test_persisted_role_and_research_trajectories_render(app):
     assert "Course materials" in search["output"]
 
 
+def snapshot(records):
+    """Every row of every table, to prove a replay writes nothing."""
+    tables = [
+        r["name"] for r in records._all("SELECT name FROM sqlite_master WHERE type = 'table'")
+    ]
+    return {t: records._all(f"SELECT * FROM {t}") for t in sorted(tables)}
+
+
+def test_replay_is_offered_only_for_a_stored_run(app):
+    from test_coordinator import test_coordinator_runs_the_whole_workflow
+
+    at, records = app
+    session_id = demo(at)
+    navigate(at, "AI assessment", "Overview")
+    assert not any(b.label == "▶ Replay this run" for b in at.button)
+    # A run from before events were kept: no replay.
+    records.start_run(session_id, {}, 60)
+    records.update_run(records.runs(session_id)[0]["id"], {}, "needs_review", "old")
+    records.db.execute("UPDATE participation_runs SET created_at = '2026-01-01T00:00:00+00:00'")
+    navigate(at, "AI assessment", "Overview")
+    assert not any(b.label == "▶ Replay this run" for b in at.button)
+    assert any("before replays were kept" in c.value for c in at.caption)
+    test_coordinator_runs_the_whole_workflow(records, session_id)
+    navigate(at, "AI assessment", "Overview")
+    assert any(b.label == "▶ Replay this run" for b in at.button)
+
+
+def test_stepping_a_replay_reaches_the_stored_draft_without_writing(app, monkeypatch):
+    from test_coordinator import test_coordinator_runs_the_whole_workflow
+
+    from classpartai import evidence, models
+    from classpartai.participation import coordinator, delivery
+
+    at, records = app
+    session_id = demo(at)
+    test_coordinator_runs_the_whole_workflow(records, session_id)
+    final = records.latest_draft(session_id)
+    events = records.run_events(records.runs(session_id)[0]["id"])
+
+    def forbidden(*args, **kwargs):
+        raise AssertionError("a replay must not call models, tools or email")
+
+    for module, name in [
+        (coordinator, "coordinate"),
+        (evidence, "investigate"),
+        (models, "configured_driver"),
+        (delivery, "deliver_approved"),
+    ]:
+        monkeypatch.setattr(module, name, forbidden)
+    navigate(at, "AI assessment", "Overview")
+    before = snapshot(records)
+    click(at, "▶ Replay this run")
+    assert any("no AI calls are made" in i.value for i in at.info)
+    assert any("event 0 of" in c.value for c in at.caption)
+    assert any("shown here when the replay finishes" in c.value for c in at.caption)
+    for n in range(1, len(events) + 1):
+        click(at, "⏭ Next event")
+        assert any(f"event {n} of {len(events)}" in c.value for c in at.caption)
+    assert next(b for b in at.button if b.label == "⏭ Next event").disabled
+    assert any(f"draft version {final.version}, as the run left it" in s.value for s in at.success)
+    log = " ".join(m.value for m in at.markdown)
+    assert "request_professor_review" in log and "draft_student_feedback" in log
+    # The stored draft is shown again below the finished replay.
+    assert any(f"Version {final.version}" in m.value for m in at.markdown)
+    click(at, "⏮ Restart")
+    assert any("event 0 of" in c.value for c in at.caption)
+    click(at, "⏩ Skip to end")
+    click(at, "✕ Close replay")
+    assert any(b.label == "▶ Replay this run" for b in at.button)
+    assert snapshot(records) == before
+
+
+def test_a_timed_replay_plays_to_the_end_and_stops(app):
+    from test_coordinator import test_coordinator_runs_the_whole_workflow
+
+    at, records = app
+    session_id = demo(at)
+    test_coordinator_runs_the_whole_workflow(records, session_id)
+    navigate(at, "AI assessment", "Overview")
+    click(at, "▶ Replay this run")
+    assert next(b for b in at.button if b.label == "▶ Play").disabled  # Step mode
+    at.radio(key=f"replay-speed-{session_id}").set_value("20×").run()
+    click(at, "▶ Play")
+    # The scripted run took milliseconds, so one tick at 20× reaches the end and stops.
+    assert any("as the run left it" in s.value for s in at.success)
+    assert any(b.label == "▶ Play" for b in at.button)
+
+
 def test_week7_seminar_uses_the_course_library(app, tmp_path):
     at, records = app
     click(at, "🎙️ New class session")

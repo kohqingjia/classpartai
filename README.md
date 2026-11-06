@@ -124,6 +124,8 @@ deploy/                 Docker deploy for the VPS
    with ▶) → ③ run the agents → ④ approve → ⑤ preview and send the emails. Recordings are kept
    on the server for playback (`DATA_DIR/recordings`). The step bar names the agents at work in
    each step; every step is clickable, and the browser's back button walks back through them.
+   To present without running the agents live, ③ **▶ Replay this run** plays a stored run's
+   events again (one per click, or at 1×/5×/20× of its real timing) with no AI calls.
 4. **🧭 How it works**: the whole system on one page (pipeline diagram, why it's agentic,
    guardrails, IS469 topic map), for presenting.
 
