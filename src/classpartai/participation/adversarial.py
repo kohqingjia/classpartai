@@ -130,15 +130,16 @@ class CaseRun:
         return sum(1 for a in self.progress.get("actions", []) if a["tool"] == "unsupported_tool")
 
     def injection_flags(self) -> list[str]:
-        """Course passages Research flagged as instruction-like (``_INJECTION``)."""
+        """Retrieved course chunks Research flagged as instruction-like (``_INJECTION``), from
+        the search results the agent saw."""
         out = []
         for r in self.evidence_runs:
             for pack in r["progress"].get("research") or []:
-                for claim in [*pack.get("claims", []), *pack.get("expected_points", [])]:
-                    out += [e["chunk_id"] for e in claim["evidence"] if e.get("flagged_injection")]
-            for step in r["progress"].get("actions") or []:
-                if "WARNING: contains instruction-like text" in str(step.get("summary")):
-                    out.append(step["id"])
+                for step in pack.get("trajectory") or []:
+                    for line in (step.get("output") or "").splitlines():
+                        if "WARNING: contains instruction-like text" in line:
+                            # "[C3] <source>, p. 6  WARNING: ..." -> "<source>, p. 6"
+                            out.append(line.split("  WARNING")[0].split("] ", 1)[-1])
         return sorted(set(out))
 
     def cited_passages(self) -> set[str]:
