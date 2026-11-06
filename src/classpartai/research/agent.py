@@ -273,11 +273,12 @@ class ResearchAgent:
             )
         if focus and focus.strip() != (text or "").strip():
             body += (
-                "\n\nThe investigator (the coordinator or the professor) asks specifically:\n"
+                "\n\nThe investigator (the coordinator or the professor) asks:\n"
                 f"<investigation_question>\n{focus}\n</investigation_question>\n"
-                "Make sure your findings answer it: search and grade evidence for what it asks "
-                "(as an expected point, or the student's claim it is about), and address it in "
-                "your summary."
+                "Your job does not change: check the student's own claims against the course "
+                "first. Use this question to choose which of the student's points matter most, "
+                "and answer it in your summary. Never search the course for the rubric, grading "
+                "or scores: they are not in the course materials, and the Judge has the rubric."
             )
         messages = [
             {"role": "system", "content": system},
@@ -347,6 +348,8 @@ class ResearchAgent:
             turn = llm.complete(messages, tools=only_submit)
             submit = next((c for c in turn.tool_calls if c.name == "submit_findings"), None)
             if submit is not None:
+                if self.on_tool is not None:
+                    self.on_tool("submit_findings")  # charged like every other tool call
                 submitted, stop_reason = _parse(submit), "submitted_after_budget"
                 tools.trajectory.append(
                     Step(turns, "submit_findings", submitted, True, "submitted after budget")
@@ -363,7 +366,21 @@ class ResearchAgent:
                 elif clean:
                     kept.append(clean)
             for claim in invented:
-                screened.append(f"Left out a claim the student did not make: {claim}")
+                own = _closest_sentence(claim, text, kept)
+                if own is None:
+                    screened.append(f"Left out a claim the student did not make: {claim}")
+                    continue
+                # The word check can reject a fair rewording, so the student's own sentence is
+                # checked with the evidence graded for the rewording, and a person confirms it.
+                key = norm_claim(own)
+                tools.claim_text.setdefault(key, own)
+                for evidence_id, grade in tools.grades.get(norm_claim(claim), {}).items():
+                    tools.grades.setdefault(key, {}).setdefault(evidence_id, grade)
+                kept.append(own)
+                screened.append(
+                    f'{REWORDED} "{own}" checked through the agent\'s rewording "{claim}"; '
+                    "confirm that reading."
+                )
             if invented and not kept:
                 # The student did say something checkable: check their own words instead.
                 own, _ = _screen(text.strip()[:400])
@@ -505,7 +522,11 @@ class ResearchAgent:
                 point["coverage"] = status
         everything = claims + expected
         notes: list[str] = list(screened)
-        needs_review = stop_reason != "submitted"
+        # A claim the student didn't make, or a rewording standing in for their words: a person
+        # should look before the verdict is used.
+        needs_review = stop_reason != "submitted" or any(
+            n.startswith((REWORDED, "Left out a claim the student did not make")) for n in notes
+        )
         if stop_reason == "no_submission":
             notes.append("The agent did not submit findings; verdicts come from its grades so far.")
         elif stop_reason == "submitted_after_budget":
@@ -632,6 +653,33 @@ def _content_words(text: str) -> set[str]:
     """Content words, cut to 4 letters so that "trains" and "training" count as the same."""
     words = re.findall(r"[a-z0-9]+", text.lower())
     return {w[:4] for w in words if w not in _STOPWORDS and (len(w) > 2 or w.isdigit())}
+
+
+REWORDED = "Reworded claim:"
+
+
+def _closest_sentence(claim: str, said: str, kept: list[str]) -> str | None:
+    """The student's sentence a rejected claim most likely stands for: the uncovered sentence
+    sharing the most content words with it or, when none shares any, the only sentence no kept
+    claim covers. None when there's no such sentence."""
+    kept_words = [_content_words(k) for k in kept]
+
+    def covered(sentence: str) -> bool:
+        words = _content_words(sentence)
+        return norm_claim(sentence) in {norm_claim(k) for k in kept} or any(
+            words and len(words & k) / len(words) >= 0.5 for k in kept_words
+        )
+
+    open_sentences = [
+        own
+        for sentence in re.split(r"(?<=[.!?])\s+", said.strip())
+        if (own := _screen(sentence)[0]) and not covered(own)
+    ]
+    words = _content_words(claim)
+    best = max(open_sentences, key=lambda o: len(words & _content_words(o)), default=None)
+    if best is not None and words & _content_words(best):
+        return best
+    return open_sentences[0] if len(open_sentences) == 1 else None
 
 
 def _screen(claim: str) -> tuple[str | None, str | None]:

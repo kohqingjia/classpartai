@@ -600,5 +600,7 @@ def test_invented_claim_is_replaced_by_the_students_words_and_web_results_get_gr
     assert [(c["claim"], c["status"]) for c in pack.claims] == [(said, "supported")]
     assert pack.claims[0]["evidence"][0]["url"] == "https://example.com/metcalfe"
     assert pack.correctness == "correct"
-    assert any(n == f"Left out a claim the student did not make: {invented}" for n in pack.notes)
+    # Matched back to the student's own sentence, so a person confirms the reading.
+    assert any(n.startswith(f'Reworded claim: "{said}"') for n in pack.notes)
+    assert pack.needs_review
     assert "grade_evidence (harness)" in [s["tool"] for s in pack.trajectory]

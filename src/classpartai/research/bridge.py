@@ -439,6 +439,15 @@ def bundle_for(
     )
 
 
+def is_about_rubric(question: str, inputs: AssessmentInputs) -> bool:
+    """Whether the investigation question asks about the rubric (its criteria or what they mean)
+    rather than about course content. The rubric isn't in the course documents."""
+    asked = question.lower()
+    if re.search(r"\brubric|\bcriteri(on|a)\b", asked):
+        return True
+    return any(c.title.lower() in asked for c in inputs.rubric.criteria)
+
+
 def choose_pairs(pairs: list[AnswerPair]) -> tuple[list[AnswerPair], list[AnswerPair]]:
     """(at most MAX_RUNS answers to research, the rest). Each student's first answer comes
     before anyone's second, so one student can't use up both runs."""
@@ -598,9 +607,17 @@ def investigate(
                 student = "the investigation"
             else:
                 # The investigator's question goes with the answer: it is what was asked for,
-                # and the professor's question stays as the answer's context.
-                contribution = {**pair.contribution(), "focus": request.question}
+                # and the professor's question stays as the answer's context. A question about
+                # the rubric is for the Judge, not the course notes, so it isn't passed on.
+                about_rubric = is_about_rubric(request.question, inputs)
+                focus = None if about_rubric else request.question
+                contribution = {**pair.contribution(), "focus": focus}
                 pack = research.research_contribution(contribution, day)
+                if about_rubric:
+                    pack.notes.append(
+                        "The investigation question was about the rubric, which the Judge holds, "
+                        "so Research checked the student's claims against the course instead."
+                    )
                 student = pair.student_id
             packs.append(pack)
             students.append(student)

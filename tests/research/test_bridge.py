@@ -587,3 +587,111 @@ def test_the_session_index_is_keyed_by_the_documents_not_the_object(inputs, monk
     other.documents[0].passages[0].text = "Different notes entirely."
     make(other)
     assert len(built) == 2
+
+
+# --- Pullfrog's follow-up review on a08a4e0, and the first run on the deployed demo -----------
+
+
+def test_a_rubric_question_does_not_replace_checking_the_claims(inputs):
+    """On the live demo the coordinator asked about the rubric, and Research spent its searches
+    looking for 'participation rubric reasoning engagement' in the course notes. A rubric
+    question is for the Judge: Research checks the student's claims instead, and says so."""
+    for asked in (
+        "What do the reasoning and engagement criteria in the rubric mean for Alex?",
+        "How does Alex do on Reasoning with evidence?",  # a criterion's title
+    ):
+        llm = grader()
+        outcome = bridge.investigate(
+            request().model_copy(update={"question": asked}),
+            inputs,
+            agent=scripted_agent(inputs, llm),
+        )
+        prompt = llm.agent_calls[0]["messages"][1]["content"]
+        assert "<investigation_question>" not in prompt and asked not in prompt
+        research = outcome.progress.research[0]
+        assert any("was about the rubric" in n for n in research["notes"])
+        assert research["correctness"] == "correct"  # the claims were still checked
+    assert not bridge.is_about_rubric("Is Alex right about multi-hop retrieval?", inputs)
+
+
+def test_a_content_question_still_comes_with_claims_first(inputs):
+    llm = grader()
+    bridge.investigate(
+        request().model_copy(update={"question": "Is Alex right about multi-hop retrieval?"}),
+        inputs,
+        agent=scripted_agent(inputs, llm),
+    )
+    prompt = llm.agent_calls[0]["messages"][1]["content"]
+    assert "<investigation_question>" in prompt
+    assert "check the student's own claims against the course first" in prompt
+    assert "Never search the course for the rubric" in prompt
+
+
+def test_the_forced_final_submit_is_charged_too(inputs):
+    """Out of turns, the agent's last turn may only submit; that call is charged like any other."""
+    charged = []
+    store = bridge.session_store(inputs, HashEmbedder(), None)
+    llm = ScriptedLLM(
+        [
+            turn(call("search_course_materials", query="agentic RAG query rewriting")),
+            turn(submit()),  # the forced submit-only turn
+        ]
+    )
+    agent = ResearchAgent(llm, store, {"weeks": []}, None, max_steps=1, on_tool=charged.append)
+    pack = agent.run("Hi.", date="2026-10-20")
+    assert pack.stop_reason == "submitted_after_budget"
+    assert charged == ["search_course_materials", "submit_findings"]
+
+
+def test_a_rejected_rewording_of_a_wrong_statement_keeps_the_answer_from_looking_correct(inputs):
+    """Pullfrog's probe: the student's second sentence is wrong; the agent rewords it so loosely
+    that the word check rejects it, and only the correct first claim used to survive, giving
+    'correct' with no review. Now the rewording is matched back to the student's sentence,
+    which keeps its contradicting grade, and a person is asked to confirm."""
+    store = bridge.session_store(inputs, HashEmbedder(), None)
+    said = (
+        "The agent rewrites a vague question before retrieving. It only ever looks things up once."
+    )
+    rewrite = "The agent rewrites a vague question before retrieving."
+    reworded = "Agentic retrieval cannot perform iterative searches."
+    rows = {
+        rewrite: ("relevant", "supports", "vague question is reformulated before retrieval"),
+        reworded: ("relevant", "contradicts", "a second search uses facts found in the first"),
+    }
+
+    def grade(claim, passages):
+        relevance, stance, phrase = rows[claim]
+        out = []
+        for pid, text in passages:
+            sentence = next((x for x in text.split(". ") if phrase in x), "")
+            hit = bool(sentence)
+            out.append(
+                {
+                    "id": pid,
+                    "relevance": relevance if hit else "irrelevant",
+                    "stance": stance if hit else "neither",
+                    "quote": sentence,
+                }
+            )
+        return out
+
+    llm = ScriptedLLM(
+        [
+            turn(call("search_course_materials", query="query rewriting multi-hop retrieval")),
+            lambda m: turn(
+                call("grade_evidence", claim=rewrite, chunks=ids_in(last_tool_result(m))),
+                call("grade_evidence", claim=reworded, chunks=ids_in(last_tool_result(m))),
+            ),
+            turn(submit([rewrite, reworded])),
+            turn(submit([rewrite, reworded])),  # after the one send-back, accepted as it is
+        ],
+        grader=grade,
+    )
+    pack = ResearchAgent(llm, store, {"weeks": []}, None).run(said, date="2026-10-20")
+    statuses = {c["claim"]: c["status"] for c in pack.claims}
+    assert statuses == {rewrite: "supported", "It only ever looks things up once.": "contradicted"}
+    assert pack.correctness == "partially_correct"
+    assert pack.needs_review
+    assert any(
+        n.startswith('Reworded claim: "It only ever looks things up once."') for n in pack.notes
+    )
