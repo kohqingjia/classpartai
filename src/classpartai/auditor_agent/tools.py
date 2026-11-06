@@ -23,7 +23,14 @@ from .contracts import (
     text,
     validate_issues,
 )
-from .harness import CITATION_TOOL, Budget, Model, bounded_call, validate_tool_arguments
+from .harness import (
+    CITATION_TOOL,
+    Budget,
+    Model,
+    bounded_call,
+    execution_issue,
+    validate_tool_arguments,
+)
 
 
 @dataclass(frozen=True)
@@ -497,6 +504,36 @@ def merge_issues(first: list[Issue], second: list[Issue]) -> list[Issue]:
             raise ContractError("Issue ID reused for a different objection")
         result[issue.issue_id] = issue
     return list(result.values())
+
+
+def refuse_reused_ids(issues: list[Issue], prior: list[Issue]) -> None:
+    """Refuse a model issue that reuses a prior objection's ID for different content.
+
+    Call inside the harness's guarded tool boundary so a collision becomes a refused tool call
+    (and, if never corrected, professor review) rather than an uncaught crash. An exact
+    restatement of a prior objection is not a collision.
+    """
+    originals = {i.issue_id: i for i in prior}
+    if any(i.issue_id in originals and originals[i.issue_id] != i for i in issues):
+        raise ContractError("Issue ID reused for a different objection")
+
+
+def keep_prior_objections(issues: list[Issue], prior: list[Issue]) -> list[Issue]:
+    """Merge prior objections into a terminal result without ever overwriting them.
+
+    Collisions should already have been refused inside the guarded boundary; if one still
+    arrives, the original objection is kept and the conflict is recorded, never raised.
+    """
+    originals = {i.issue_id: i for i in prior}
+    conflict = any(i.issue_id in originals and originals[i.issue_id] != i for i in issues)
+    kept = [i for i in issues if i.issue_id not in originals or originals[i.issue_id] == i]
+    merged = merge_issues(kept, prior)
+    if conflict:
+        merged = merge_issues(
+            merged,
+            [execution_issue("A reworded objection reused a prior issue ID; original kept")],
+        )
+    return merged
 
 
 def correlation(pairs: list[tuple[float, float]]) -> dict:
