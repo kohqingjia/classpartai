@@ -19,9 +19,10 @@ result, so records, ``compose_draft``, the coordinator and the UI work unchanged
 - **Output.** Auditor issues become ``ModelAuditIssue``s (one per affected finding) with the
   Auditor's own kind and severity kept in the text. A re-judge request is reported as issues
   plus a note for the coordinator; the Auditor never changes a score. Deterministic
-  validation (``validation.py``) still runs on every draft and stays authoritative. A later
-  ``audit_passed`` (every audited finding inspected, every citation verified, nothing left)
-  resolves the Auditor's own earlier open issues on those findings.
+  validation (``validation.py``) still runs on every draft and stays authoritative. Only a
+  linked re-judge round resolves earlier Auditor issues (the harness requires each pending
+  objection to be explicitly resolved); a fresh case's pass leaves them open for the professor.
+  Issues over ModelAudit's 100-issue cap are replaced by one visible overflow issue.
 - **Feedback.** The Auditor's contract has no feedback, so ``roles.feedback_audit`` (one
   structured call) reviews the feedback drafts and its issues are merged in.
 - **Fallback.** If the Auditor errors (a mapping/contract failure, a provider or reader failure,
@@ -461,19 +462,22 @@ def to_model_audit(
                 )
             )
     resolved: list[str] = []
-    if result.verdict == "audit_passed":
-        # A pass is only issued after the harness confirms every audited finding was inspected
-        # and every citation verified, with no objection left (pending ones included). So it
-        # resolves the Auditor's own earlier open issues on those findings, and its earlier
-        # execution issues. Issues raised by other roles are left for them or the professor.
-        audited = set(mapping.findings.values())
-        resolved = [
-            i.id
-            for i in draft.audit.issues
-            if i.id.startswith("model:agent-")
-            and i.disposition == "open"
-            and ((i.studentId, i.criterionId) in audited or i.studentId is i.criterionId is None)
-        ]
+    open_agent = [
+        i for i in draft.audit.issues if i.id.startswith("model:agent-") and i.disposition == "open"
+    ]
+    if mapping.revision and result.verdict == "audit_passed":
+        # Only the linked re-judge round resolves anything: the earlier objections were supplied
+        # to the agent as pending state, and the harness passes only when each one is explicitly
+        # resolved after re-inspection (and refuses citation removal as a resolution). A fresh
+        # case never sees earlier objections, so its pass cannot resolve them.
+        pending = AuditRequest.parse(mapping.request).state.pending_rejudge
+        keys = {
+            f"{o.issue_id}|{finding_id}"
+            for o in pending.objections
+            for finding_id in o.finding_ids or [None]
+        }
+        ids = {"model:" + session.app_ids[k] for k in keys if k in session.app_ids}
+        resolved = [i.id for i in open_agent if i.id in ids]
     notes = [
         f"Auditor agent verdict: {result.verdict} ({result.stop_reason}); "
         f"{result.usage['model_calls']} model calls, {result.usage['tool_steps']} tool steps."
@@ -490,13 +494,19 @@ def to_model_audit(
         notes.append("Not audited by the agent: " + ", ".join(mapping.excluded) + ".")
     if mapping.limitations:
         notes.append("Input limitations: " + "; ".join(mapping.limitations) + ".")
+    still_open = len(open_agent) - len(resolved)
+    if still_open:
+        notes.append(
+            f"{still_open} earlier Auditor issue(s) stay open for professor review: only a linked "
+            "re-judge round can resolve them."
+        )
     notes.append("Deterministic checks remain authoritative; an audit pass is not approval.")
     return ModelAudit(
-        issues=issues[:100],
+        issues=capped(issues, 100),
         resolvedIssueIds=resolved,
         resolutionReason=(
-            "A later Auditor agent pass inspected every audited finding and citation and "
-            "raised no remaining objection"
+            "The Auditor agent re-inspected the re-judged findings and explicitly resolved "
+            "each pending objection"
             if resolved
             else "No earlier Auditor objection was resolved in this audit"
         ),
@@ -588,6 +598,28 @@ def agent_audit(
     return fallback.model_copy(update={"notes": (note + fallback.notes)[:1500]})
 
 
+def capped(issues: list[ModelAuditIssue], limit: int) -> list[ModelAuditIssue]:
+    """At most ``limit`` issues; any overflow is replaced by one visible issue, never dropped
+    silently (the full list stays in the role trace)."""
+    if len(issues) <= limit:
+        return issues
+    kept = issues[: limit - 1]
+    overflow = issues[limit - 1 :]
+    return [
+        *kept,
+        ModelAuditIssue(
+            id=f"overflow-{_digest([i.id for i in overflow])}",
+            studentId=None,
+            criterionId=None,
+            detail=(
+                f"{len(overflow)} further audit issue(s) exceed the {limit}-issue limit and are "
+                "not listed here; review the Auditor's role trace before approving."
+            ),
+            kind="uncertainty",
+        ),
+    ]
+
+
 def _settle(model: WorkflowModel, budget: SharedBudget) -> None:
     """Count any in-flight Auditor call before handing control back to the coordinator."""
     if not model.settle(budget.deadline - time.monotonic()) or model.shared_budget_exhausted:
@@ -608,7 +640,9 @@ def _with_feedback_review(
         return audit.model_copy(update={"notes": (audit.notes + note)[:1500]})
     review = feedback_audit(inputs, draft, evidence, budget, factory)
     taken = {i.id for i in audit.issues}
-    issues = [*audit.issues, *[i for i in review.issues if i.id not in taken]][:100]
+    # Both reviews keep room: neither may silently push the other's issues past the cap.
+    feedback = capped([i for i in review.issues if i.id not in taken], 50)
+    issues = [*capped(audit.issues, 100 - len(feedback)), *feedback]
     # The feedback role may resolve earlier non-Auditor model issues; the agent owns its own.
     extra = [r for r in review.resolvedIssueIds if not r.startswith("model:agent-")]
     resolved = list(dict.fromkeys([*audit.resolvedIssueIds, *extra]))

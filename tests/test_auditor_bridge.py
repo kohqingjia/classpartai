@@ -391,7 +391,7 @@ def test_feedback_drafts_still_get_a_semantic_review(benign):
     )
 
 
-def test_a_later_pass_resolves_issues_raised_without_a_rejudge(benign):
+def test_a_fresh_pass_never_resolves_an_objection_it_was_not_shown(benign):
     session = AuditorSession()
     escalate = (
         "complete_audit",
@@ -413,10 +413,46 @@ def test_a_later_pass_resolves_issues_raised_without_a_rejudge(benign):
         factory_for({"get_session_scores": ScriptedDriver([READ, finish()])}),
         session=session,
     )
+    # The second case never received the objection, so its pass cannot resolve it: the issue
+    # stays open for the professor (only a linked re-judge round resolves explicitly).
     app_id = "model:" + first.issues[0].id
-    assert second.resolvedIssueIds == [app_id]
+    assert second.resolvedIssueIds == []
+    assert "1 earlier Auditor issue(s) stay open" in second.notes
     final = draft_of(benign, corrected, second)
-    assert next(i for i in final.audit.issues if i.id == app_id).disposition == "revised"
+    assert next(i for i in final.audit.issues if i.id == app_id).disposition == "open"
+
+
+def test_issue_overflow_is_surfaced_and_feedback_issues_are_kept(benign):
+    from classpartai.participation.schema import ModelAudit, ModelAuditIssue
+
+    many = [
+        ModelAuditIssue(
+            id=f"agent-{n}", studentId=None, criterionId=None, detail="Issue.", kind="support"
+        )
+        for n in range(100)  # a full agent result
+    ]
+    feedback = {
+        "id": "alex-feedback",
+        "studentId": "alex-tan",
+        "criterionId": None,
+        "detail": "Unsupported strength.",
+        "kind": "feedback",
+    }
+    review = ScriptedDriver([("finish_feedback_audit", {**FEEDBACK_OK[1], "issues": [feedback]})])
+    from classpartai.participation.auditor_bridge import _with_feedback_review
+
+    merged = _with_feedback_review(
+        ModelAudit(issues=many, resolvedIssueIds=[], resolutionReason="n/a", notes="Agent."),
+        benign,
+        draft_of(benign),
+        [],
+        budget(),
+        factory_for({"finish_feedback_audit": review}),
+    )
+    assert len(merged.issues) == 100
+    assert merged.issues[-1].id == "alex-feedback"
+    overflow = merged.issues[-2]
+    assert overflow.id.startswith("overflow-") and "2 further audit issue(s)" in overflow.detail
 
 
 def test_a_timed_out_call_is_counted_before_the_coordinator_continues(inputs, monkeypatch):
