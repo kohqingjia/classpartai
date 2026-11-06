@@ -6,7 +6,8 @@ hand everything to the professor. It has no approval or delivery tools.
 
 ``on_event(kind, detail)`` lets the UI animate the run: "thinking" before each model call,
 "action" after each tool call (detail = the action record), "substep" for each tool the
-evidence agent runs inside retrieve_evidence, "done" at the end.
+evidence agent runs inside retrieve_evidence, "retrieval" for each course search, "done" at
+the end. Every event is also stored with its time (``Records.run_events``) for replay.
 """
 
 import json
@@ -141,6 +142,22 @@ def coordinate(
     )
 
     started = time.monotonic()
+    seq = [0]
+
+    def emit(kind: str, detail: dict | None) -> None:
+        """Show the event live, and keep it (slimmed to what the UI reads) for replay."""
+        on_event(kind, detail)
+        kept = detail
+        if kind == "action":
+            kept = {k: detail.get(k) for k in ("id", "tool", "arguments", "outcome", "summary")}
+            result = detail.get("result")
+            if isinstance(result, dict) and result.get("draftId"):
+                kept["draftId"] = result["draftId"]
+        try:
+            records.append_run_event(run_id, seq[0], time.monotonic() - started, kind, kept)
+        except Exception:  # a replay record must never stop the run itself
+            pass
+        seq[0] += 1
 
     def checkpoint() -> None:
         progress.elapsedSeconds = round(time.monotonic() - started, 3)
@@ -154,7 +171,7 @@ def coordinate(
         records.update_run(
             run_id, asdict(progress), "configuration_blocked", "model_not_configured"
         )
-        on_event("done", {"stopReason": "model_not_configured"})
+        emit("done", {"stopReason": "model_not_configured"})
         return run_id
 
     budget = SharedBudget(progress, time.monotonic() + WORKFLOW_LIMITS["seconds"], checkpoint)
@@ -193,7 +210,7 @@ def coordinate(
         while True:
             if budget.expired():
                 raise BudgetExceeded()
-            on_event("thinking", None)
+            emit("thinking", None)
             response = budget.call(driver, history)
             budget.tool()
             if len(response.calls) != 1:
@@ -277,7 +294,7 @@ def coordinate(
                             nonlocal before, searches_seen
                             searches = searches_of(p)
                             for search in searches[searches_seen:]:
-                                on_event("retrieval", search)
+                                emit("retrieval", search)
                             searches_seen = len(searches)
                             if p.toolCalls > before:
                                 budget.tool(p.toolCalls - before)
@@ -285,7 +302,7 @@ def coordinate(
                                 tool_name = getattr(p, "lastTool", None) or (
                                     p.actions[-1]["tool"] if p.actions else "working"
                                 )
-                                on_event("substep", {"tool": tool_name, "step": p.toolCalls})
+                                emit("substep", {"tool": tool_name, "step": p.toolCalls})
 
                         if use_research:  # ② Research (research/bridge.py), same contract
                             from classpartai.research import bridge
@@ -421,7 +438,7 @@ def coordinate(
                 }
             action["result"] = output
             checkpoint()
-            on_event("action", action)
+            emit("action", action)
             if finished:
                 break
             history.append(
@@ -442,7 +459,7 @@ def coordinate(
         "failed" if stop_reason == "provider_failure" else "needs_review",
         stop_reason,
     )
-    on_event("done", {"stopReason": stop_reason})
+    emit("done", {"stopReason": stop_reason})
     return run_id
 
 

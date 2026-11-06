@@ -140,3 +140,25 @@ def test_trace_keeps_both_correction_attempts(records, session_id):
     assert "validated evidence" in calls[0]["reason"]
     assert len(calls[0]["history"]) == 1
     assert len(calls[1]["history"]) == 3
+
+
+def test_run_events_are_stored_in_order_for_replay(records, session_id):
+    test_coordinator_runs_the_whole_workflow(records, session_id)
+    run = records.runs(session_id)[0]
+    stored = records.run_events(run["id"])
+    kinds = [e["kind"] for e in stored]
+    assert kinds[0] == "thinking" and kinds[-1] == "done"
+    assert kinds.count("action") == len(run["progress"]["actions"])
+    times = [e["at"] for e in stored]
+    assert times == sorted(times) and times[0] >= 0
+    actions = [e["detail"] for e in stored if e["kind"] == "action"]
+    # Slimmed to what the UI shows, plus the draft each action left behind.
+    assert "result" not in actions[0]
+    assert actions[-2]["draftId"] == records.latest_draft(session_id).id
+    assert [r["id"] for r in records.replayable_runs(session_id)] == [run["id"]]
+
+
+def test_a_blocked_run_still_records_its_end(records, session_id):
+    test_no_model_configured_blocks_the_run(records, session_id)
+    run_id = records.runs(session_id)[0]["id"]
+    assert [e["kind"] for e in records.run_events(run_id)] == ["done"]

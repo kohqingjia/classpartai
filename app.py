@@ -48,7 +48,7 @@ from classpartai.participation.delivery import (
     deliver_approved,
     feedback_email,
 )
-from classpartai.participation.records import Records
+from classpartai.participation.records import Draft, Records
 from classpartai.participation.schema import Proposal
 from classpartai.participation.validation import (
     Unprocessable,
@@ -171,19 +171,20 @@ def start_run(session_id: str) -> None:
 
 
 def fold_events(events, inputs: AssessmentInputs) -> dict:
-    """Where a run has got to, from its events: for the animation and the agent log."""
+    """Where a run has got to, from its events: for the animation and the agent log (live or
+    replayed). The banner is plain text: flow_html draws it with textContent."""
     view = {"active": None, "done": set(), "notes": {}, "newest": None, "lines": []}
     view["searches"] = []
-    view["banner"] = "<b>Coordinator</b> starting…"
+    view["banner"] = "Coordinator starting…"
     counts, refused = {}, {}
     for kind, detail in events:
         if kind == "thinking":
-            view["active"] = None
-            view["banner"] = "<b>Coordinator</b> deciding what to do next…"
+            view["active"] = "coordinator"
+            view["banner"] = "Coordinator deciding what to do next…"
         elif kind == "substep":
             view["active"] = "research"
-            tool = escape(detail["tool"].replace("_", " "))
-            view["banner"] = f"<b>Evidence agent</b> step {detail['step']}: {tool}"
+            tool = detail["tool"].replace("_", " ")
+            view["banner"] = f"Evidence agent step {detail['step']}: {tool}"
             view["lines"].append(f"&emsp;↳ evidence agent: `{detail['tool']}`")
         elif kind == "retrieval":
             view["searches"].append(detail)
@@ -191,7 +192,8 @@ def fold_events(events, inputs: AssessmentInputs) -> dict:
             view["lines"].append(f"&emsp;↳ retrieved {hits} passage(s) for “{detail['query']}”")
         elif kind == "done":
             view["active"] = None
-            view["banner"] = f"<b>Finished</b>: {escape(detail['stopReason'].replace('_', ' '))}"
+            view["done"].add("coordinator")
+            view["banner"] = f"Finished: {detail['stopReason'].replace('_', ' ')}"
         else:
             stage, ok = TOOL_STAGE.get(detail["tool"]), detail["outcome"] == "ok"
             view["lines"].append(f"{'✅' if ok else '⛔'} `{detail['tool']}`: {detail['summary']}")
@@ -205,7 +207,7 @@ def fold_events(events, inputs: AssessmentInputs) -> dict:
                 if ok:
                     view["done"].add(stage)
                 view["active"] = stage
-                view["banner"] = f"<b>Coordinator</b> chose {escape(STAGE_NAMES[stage])}"
+                view["banner"] = f"Coordinator chose {STAGE_NAMES[stage]}"
             if detail["tool"] == "draft_student_feedback" and ok:
                 sid = json.loads(detail["arguments"]).get("studentId")
                 view["newest"] = next((s.displayName for s in inputs.roster if s.id == sid), None)
@@ -222,7 +224,7 @@ def run_panel(session_id: str, inputs: AssessmentInputs) -> None:
         alive = bool(entry and entry["thread"].is_alive())
         cards = student_cards(inputs, records.latest_draft(session_id))
         if entry is None:
-            show_flow(st.empty(), banner="<b>Coordinator</b> idle")
+            show_flow(st.empty(), banner="Coordinator idle")
             show_board(st.empty(), cards)
             return
         view = fold_events(list(entry["events"]), inputs)
@@ -260,6 +262,203 @@ def run_panel(session_id: str, inputs: AssessmentInputs) -> None:
             st.rerun()  # the whole page, to show the new draft
 
     st.fragment(run_every=2 if running else None)(panel)()
+
+
+# --- Replay: a stored run, event by event, with no model calls --------------------------------
+
+REPLAY_SPEEDS = {"Step": None, "1×": 1, "5×": 5, "20×": 20}
+
+
+def replay_key(session_id: str) -> str:
+    return f"replay-{session_id}"
+
+
+def open_replay(session_id: str, run_id: str) -> None:
+    events = [(e["at"], e["kind"], e["detail"]) for e in records.run_events(run_id)]
+    st.session_state[replay_key(session_id)] = {
+        "run": run_id,
+        "events": events,
+        "pos": 0,
+        "clock": 0.0,
+        "wall": 0.0,
+        "playing": False,
+    }
+
+
+def replay_control(session_id: str, action: str) -> None:
+    """The replay buttons' callbacks: they only move its position (nothing is written)."""
+    state = st.session_state.get(replay_key(session_id))
+    if state is None:
+        return
+    events, n = state["events"], len(state["events"])
+    if action == "close":
+        st.session_state.pop(replay_key(session_id), None)
+    elif action == "next":
+        state.update(playing=False, pos=min(n, state["pos"] + 1))
+        state["clock"] = events[state["pos"] - 1][0] if state["pos"] else 0.0
+    elif action == "restart":
+        state.update(playing=False, pos=0, clock=0.0)
+    elif action == "end":
+        state.update(playing=False, pos=n, clock=events[-1][0] if events else 0.0)
+    elif action == "play":
+        if state["pos"] >= n:
+            state.update(pos=0, clock=0.0)
+        state.update(playing=True, wall=time.monotonic())
+    elif action == "pause":
+        state["playing"] = False
+
+
+def replay_section(session_id: str, inputs: AssessmentInputs) -> tuple[bool, Draft | None]:
+    """Offer to replay a stored run. Returns (open and unfinished, the run's final draft once
+    its replay has finished, else None).
+
+    Read-only: it reads the run's stored events and drafts, and calls no model, tool,
+    retrieval or email."""
+    runs = records.replayable_runs(session_id)
+    state = st.session_state.get(replay_key(session_id))
+    if state and not any(r["id"] == state["run"] for r in runs):
+        st.session_state.pop(replay_key(session_id), None)
+        state = None
+    if not runs:
+        if records.runs(session_id):
+            st.caption("This session's run was recorded before replays were kept.")
+        return False, None
+    if state is None:
+        labels = {
+            r["id"]: f"Run at {when(r['created_at'])} · "
+            + (r["stop_reason"] or "finished").replace("_", " ")
+            for r in runs
+        }
+        col_play, col_pick, _ = st.columns([1, 1, 2])
+        run_id = (
+            runs[0]["id"]
+            if len(runs) == 1
+            else col_pick.selectbox(
+                "Run to replay",
+                list(labels),
+                format_func=labels.get,
+                label_visibility="collapsed",
+                key=f"replay-pick-{session_id}",
+            )
+        )
+        col_play.button(
+            "▶ Replay this run",
+            width="stretch",
+            on_click=open_replay,
+            args=(session_id, run_id),
+            help="Plays a past run's stored events at presentation speed. No AI calls.",
+        )
+        return False, None
+
+    run = next(r for r in runs if r["id"] == state["run"])
+    st.info(
+        f"Replay of the run at {when(run['created_at'])}: no AI calls are made.",
+        icon=":material/replay:",
+    )
+    speed = st.radio(
+        "Speed",
+        list(REPLAY_SPEEDS),
+        horizontal=True,
+        key=f"replay-speed-{session_id}",
+        help="Step: one event per click (best for presenting). The others compress the run's "
+        "real timing.",
+    )
+    if REPLAY_SPEEDS[speed] is None:
+        state["playing"] = False
+    n, playing = len(state["events"]), state["playing"]
+    cols = st.columns(5)
+    cols[0].button(
+        "⏭ Next event",
+        on_click=replay_control,
+        args=(session_id, "next"),
+        disabled=state["pos"] >= n,
+        width="stretch",
+    )
+    cols[1].button(
+        "⏸ Pause" if playing else "▶ Play",
+        on_click=replay_control,
+        args=(session_id, "pause" if playing else "play"),
+        disabled=REPLAY_SPEEDS[speed] is None,
+        width="stretch",
+    )
+    cols[2].button(
+        "⏮ Restart", on_click=replay_control, args=(session_id, "restart"), width="stretch"
+    )
+    cols[3].button(
+        "⏩ Skip to end", on_click=replay_control, args=(session_id, "end"), width="stretch"
+    )
+    cols[4].button(
+        "✕ Close replay", on_click=replay_control, args=(session_id, "close"), width="stretch"
+    )
+
+    def view() -> None:
+        state = st.session_state.get(replay_key(session_id))
+        if state is None:
+            return
+        events, n = state["events"], len(state["events"])
+        if state["playing"]:
+            now = time.monotonic()
+            state["clock"] += (now - state["wall"]) * (REPLAY_SPEEDS[speed] or 1)
+            state["wall"] = now
+            state["pos"] = sum(1 for at, _, _ in events if at <= state["clock"])
+        shown = events[: state["pos"]]
+        finished = state["pos"] >= n
+        fold = fold_events([(kind, detail) for _, kind, detail in shown], inputs)
+        if not shown:
+            fold["banner"] = "Replay ready: press Next event or Play"
+        draft = replay_draft(shown, run["progress"].get("latestDraftId") if finished else None)
+        show_flow(st.empty(), fold["active"], fold["done"], fold["notes"], fold["banner"])
+        show_board(st.empty(), student_cards(inputs, draft), fold["newest"])
+        if not finished and (fold["searches"] or fold["active"] == "research"):
+            st.caption("🌌 Retrieval from the course documents, as it happened")
+            show_vault(
+                inputs.documents,
+                {"searches": fold["searches"]},
+                finished=False,
+                running=fold["active"] == "research",
+                start_at=max(0, len(fold["searches"]) - 1),
+                height=420,
+            )
+        recorded = events[-1][0] if events else 0.0
+        progress = run["progress"]
+        st.caption(
+            f"⏱ {min(state['clock'], recorded):.0f} s of {recorded:.0f} s recorded · "
+            f"event {state['pos']} of {n}"
+            + (
+                f" · the run used {progress.get('modelCalls', 0)} model calls and "
+                f"{progress.get('tokens', 0) // 1000}k tokens"
+                if finished
+                else ""
+            )
+        )
+        with st.expander("Agent log", expanded=True):
+            with st.container(height=240, border=False):
+                st.markdown("  \n".join(fold["lines"]) or "Nothing yet.")
+        if finished:
+            reason = (run["stop_reason"] or "finished").replace("_", " ")
+            st.success(
+                f"Replay finished ({reason}): draft version {draft.version}, as the run left it."
+                if draft
+                else f"Replay finished ({reason}): the run left no draft."
+            )
+        if state["playing"] and finished:
+            state["playing"] = False
+            st.rerun()  # the whole page: stop ticking and show the stored draft
+
+    st.fragment(run_every=1 if state["playing"] else None)(view)()
+    if state["pos"] < n:
+        return True, None
+    return False, replay_draft(state["events"], run["progress"].get("latestDraftId"))
+
+
+def replay_draft(events: list, recorded: str | None = None) -> Draft | None:
+    """The draft as of these events: the run's recorded latest if given, else the last draft
+    an action made."""
+    draft_id = recorded or next(
+        (d["draftId"] for _, k, d in reversed(events) if k == "action" and d.get("draftId")),
+        None,
+    )
+    return records.draft(draft_id) if draft_id else None
 
 
 def file_to_wav(src: Path, dest: Path) -> Path:
@@ -403,7 +602,7 @@ def default_step(session: str) -> int:
 
 def show_flow(slot, active=None, done=(), notes=None, banner="") -> None:
     with slot.container():
-        # Dynamic strings are escaped in classpartai.ui or below, so there's no untrusted markup.
+        # flow_html passes everything as escaped JSON and draws it with textContent: no markup.
         st.iframe(flow_html(active, set(done), set(), notes or {}, banner), height=165)
 
 
@@ -1154,6 +1353,10 @@ elif view == "how":
         "| ⑤ Send | **Delivery** (plain code) emails the approved feedback | One email per "
         "student, with its delivery state |"
     )
+    st.caption(
+        "Every run's events are stored with their timing, so ③ can replay a past run (▶ Replay "
+        "this run) for a presentation: same visuals, no AI calls, nothing written."
+    )
 
     st.subheader("Why it's agentic")
     st.markdown(
@@ -1497,6 +1700,7 @@ elif view == "session":
                     width="stretch",
                     disabled=running,
                 ):
+                    st.session_state.pop(replay_key(session_id), None)
                     start_run(session_id)
                     st.rerun()
                 if (
@@ -1506,19 +1710,33 @@ elif view == "session":
                 ):
                     records.create_professor_draft(session_id)
                     st.rerun()
-                if live:
+                if running:  # a run started elsewhere (another tab) ends any replay
+                    st.session_state.pop(replay_key(session_id), None)
+                replaying, replayed = (
+                    (False, None) if running else replay_section(session_id, inputs)
+                )
+                if live and replay_key(session_id) not in st.session_state:
                     run_panel(session_id, inputs)
-                if latest:
-                    origin = "AI proposal" if latest.origin == "model" else "professor edit"
-                    st.markdown(f"#### Version {latest.version} · {origin}")
+                # A finished replay shows the draft its run left, not a later version.
+                shown = replayed or latest
+                if replaying:
+                    st.caption("The stored draft is shown here when the replay finishes.")
+                elif shown:
+                    origin = "AI proposal" if shown.origin == "model" else "professor edit"
+                    st.markdown(f"#### Version {shown.version} · {origin}")
+                    if shown.id != latest.id:
+                        st.caption(
+                            f"From the replayed run. The current version is {latest.version}: "
+                            "close the replay to see it. ④ Approve always uses the current one."
+                        )
                     if running:
                         st.caption("A new run is working; this is the previous version.")
-                    st.caption(latest.content.revisionNote)
+                    st.caption(shown.content.revisionNote)
                     bundles = dict(records.evidence_for(session_id))
                     criteria = {c.id: c.title for c in inputs.rubric.criteria}
                     turns = {t.id: t for t in inputs.transcript.turns}
                     for s in inputs.roster:
-                        total = totals(latest.content, inputs, s.id)
+                        total = totals(shown.content, inputs, s.id)
                         headline = (
                             f"{total['total']:g}/{total['maximum']}"
                             if total["total"] is not None
@@ -1526,7 +1744,7 @@ elif view == "session":
                         )
                         with st.expander(f"**{s.displayName}** · {headline}"):
                             fb = next(
-                                (x for x in latest.content.feedback if x.studentId == s.id), None
+                                (x for x in shown.content.feedback if x.studentId == s.id), None
                             )
                             if fb:
                                 st.markdown(f"{fb.strengths}\n\n**Next step:** {fb.nextStep}")
@@ -1539,7 +1757,7 @@ elif view == "session":
                                 f"{observed_count(inputs, s.id)} "
                                 f"(counts are separate from judgement). {total['limitation']}."
                             )
-                            for f in [x for x in latest.content.findings if x.studentId == s.id]:
+                            for f in [x for x in shown.content.findings if x.studentId == s.id]:
                                 verdict = (
                                     f"proposed {f.score:g}"
                                     if f.status == "scored"
