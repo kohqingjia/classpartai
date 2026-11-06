@@ -777,7 +777,7 @@ elif view == "new":
 
         with st.container(border=True):
             st.markdown("**No recording to hand?**")
-            col_rec_demo, col_seminar, col_fixture = st.columns(3)
+            col_rec_demo, col_seminar, col_week7, col_fixture = st.columns(4)
             if col_rec_demo.button(
                 "▶ Use the demo recording",
                 width="stretch",
@@ -820,6 +820,21 @@ elif view == "new":
                     {pid: e["email"] for pid, e in sample_people.items()},
                 )
                 st.rerun()
+            if col_week7.button(
+                "IS469 Week 7 seminar",
+                width="stretch",
+                help="Tasmin's transcript of the Week 7 (Agentic AI) Q&A, checked against "
+                "the course library: starts at step 3",
+            ):
+                # The slides come from the course library: they are the instructor's, not ours to
+                # commit.
+                seminar = json.loads((DATA / "is469" / "week7_seminar.json").read_text())
+                documents = with_library([])
+                if documents:
+                    seminar["documents"] = documents
+                    open_session(AssessmentInputs.model_validate(seminar))
+                    st.rerun()
+                st.warning("Upload the IS469 slides in 📚 Course library first.")
             if col_fixture.button("Le Yong's fixture", width="stretch"):
                 open_session(parse_inputs((DATA / "fixture-fictional.json").read_text()))
                 st.rerun()

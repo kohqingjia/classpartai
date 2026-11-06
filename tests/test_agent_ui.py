@@ -261,3 +261,22 @@ def test_persisted_role_and_research_trajectories_render(app):
     assert any(step["tool"] == "submit_findings" for step in pack["trajectory"])
     search = next(s for s in pack["trajectory"] if s["tool"] == "search_course_materials")
     assert "Course materials" in search["output"]
+
+
+def test_week7_seminar_uses_the_course_library(app, tmp_path):
+    at, records = app
+    click(at, "🎙️ New class session")
+    click(at, "IS469 Week 7 seminar")
+    assert any("Upload the IS469 slides" in w.value for w in at.warning)
+    assert not records.sessions()
+
+    sample = json.loads((config.REPO_ROOT / "data" / "sample_assessment.json").read_text())
+    library = tmp_path / "library"
+    library.mkdir()
+    (library / "documents.json").write_text(
+        json.dumps([{"file": "slides.pdf", "uploadedAt": "", "document": sample["documents"][0]}])
+    )
+    click(at, "IS469 Week 7 seminar")
+    inputs = records.inputs(at.session_state["session_id"])
+    assert inputs.sessionTitle.startswith("Week 7 seminar")
+    assert [d.id for d in inputs.documents] == [sample["documents"][0]["id"]]

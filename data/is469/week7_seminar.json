@@ -1,0 +1,154 @@
+{
+  "formatVersion": 1,
+  "provenance": "fictional-development",
+  "courseTitle": "IS469 Gen AI with LLMs",
+  "sessionTitle": "Week 7 seminar: Agentic AI (lecture questions, team demo answers)",
+  "roster": [
+    {
+      "id": "koh-qing-jia",
+      "displayName": "Koh Qing Jia"
+    },
+    {
+      "id": "tasmin",
+      "displayName": "Tasmin"
+    },
+    {
+      "id": "tina",
+      "displayName": "Tina"
+    },
+    {
+      "id": "le-yong",
+      "displayName": "Le Yong"
+    }
+  ],
+  "transcript": {
+    "version": "review-1",
+    "reviewStatus": "reviewed",
+    "turns": [
+      {
+        "id": "turn-001",
+        "startMs": 0,
+        "endMs": 15900,
+        "speaker": {
+          "kind": "professor",
+          "label": "Professor"
+        },
+        "text": "So when we pre-train an LLM, can the output naturally look like that? It cannot, right? Because pre-training does what? When we pre-train an LLM, what is the training objective?"
+      },
+      {
+        "id": "turn-002",
+        "startMs": 16800,
+        "endMs": 23100,
+        "speaker": {
+          "kind": "student",
+          "studentId": "koh-qing-jia"
+        },
+        "text": "It's next-word prediction, because the model learns to predict the next token over a huge amount of text."
+      },
+      {
+        "id": "turn-003",
+        "startMs": 24700,
+        "endMs": 33800,
+        "speaker": {
+          "kind": "professor",
+          "label": "Professor"
+        },
+        "text": "Okay, so now what do you think is obs? We assign the output of this run tool to obs. What do you think would be contained in that variable?"
+      },
+      {
+        "id": "turn-004",
+        "startMs": 34700,
+        "endMs": 40000,
+        "speaker": {
+          "kind": "student",
+          "studentId": "tasmin"
+        },
+        "text": "I think it's the output of the tool, so like the result, or an error if the call failed."
+      },
+      {
+        "id": "turn-005",
+        "startMs": 41500,
+        "endMs": 78700,
+        "speaker": {
+          "kind": "professor",
+          "label": "Professor"
+        },
+        "text": "So, what given the canonical harness that I showed you, what would be an advantage to splitting up? These tasks, I suppose we've got a system with only two kind of tasks. One is writing code and executing it, and another is looking up some information on the web or in some documents. What would be an advantage to splitting it up, like and have two separate agents to do? each of the tasks instead of 1. Because we could actually just have one. It's perfectly feasible. What would be the advantage to splitting it up though?"
+      },
+      {
+        "id": "turn-006",
+        "startMs": 79600,
+        "endMs": 83300,
+        "speaker": {
+          "kind": "student",
+          "studentId": "tina"
+        },
+        "text": "Maybe it's just faster, since they run at the same time?"
+      },
+      {
+        "id": "turn-007",
+        "startMs": 84900,
+        "endMs": 97100,
+        "speaker": {
+          "kind": "professor",
+          "label": "Professor"
+        },
+        "text": "Okay, Agents Skills. Agents Skills, this is, by the way, another standard that was created by Anthropic. Who remembers from last lecture? We talked about a standard that was created by Anthropic. What was it called?"
+      },
+      {
+        "id": "turn-008",
+        "startMs": 98000,
+        "endMs": 101000,
+        "speaker": {
+          "kind": "student",
+          "studentId": "le-yong"
+        },
+        "text": "MCP, the Model Context Protocol."
+      },
+      {
+        "id": "turn-009",
+        "startMs": 102600,
+        "endMs": 113900,
+        "speaker": {
+          "kind": "professor",
+          "label": "Professor"
+        },
+        "text": "What does accuracy mean? Well, was it the right tool each time? And did it have the right argument? Why is this, why do you think that this is very important, the tool-call accuracy?"
+      },
+      {
+        "id": "turn-010",
+        "startMs": 114800,
+        "endMs": 119900,
+        "speaker": {
+          "kind": "student",
+          "studentId": "tasmin"
+        },
+        "text": "Because if the agent calls the wrong tool, it wastes steps and might not finish the task."
+      }
+    ]
+  },
+  "rubric": {
+    "id": "is469-cp-rubric",
+    "version": "1",
+    "title": "IS469 class participation rubric",
+    "aggregation": {
+      "method": "sum"
+    },
+    "criteria": [
+      {
+        "id": "reasoning",
+        "title": "Reasoning with evidence",
+        "description": "Explain claims accurately and connect them to course concepts or observable evidence. Record insufficient evidence separately from a low score.",
+        "minScore": 0,
+        "maxScore": 3
+      },
+      {
+        "id": "engagement",
+        "title": "Constructive engagement",
+        "description": "Respond to, question or develop another contribution. Silence alone does not establish understanding or its absence.",
+        "minScore": 0,
+        "maxScore": 3
+      }
+    ]
+  }
+}
