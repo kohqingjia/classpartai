@@ -358,14 +358,20 @@ def who_spoke(turns, names: dict[str, str], audio: Path | None, player_key: str)
     show_transcript(turns, names, player_key=player_key if audio and audio.exists() else None)
 
 
+def clock(stamp: datetime) -> str:
+    """'3:50 PM'. Not strftime's %-I: Windows doesn't support it."""
+    return f"{stamp.hour % 12 or 12}:{stamp:%M %p}"
+
+
 def when(iso: str) -> str:
     """'Wed 29 Oct, 3:50 PM' in Singapore time."""
     stamp = datetime.fromisoformat(iso).astimezone(SGT)
-    return stamp.strftime("%a %-d %b, %-I:%M %p")
+    return f"{stamp:%a} {stamp.day} {stamp:%b}, {clock(stamp)}"
 
 
 def default_title() -> str:
-    return datetime.now(SGT).strftime("Seminar @%A %-I:%M %p")
+    now = datetime.now(SGT)
+    return f"Seminar @{now:%A} {clock(now)}"
 
 
 def go(view: str, session: str | None = None, step: int | None = None) -> None:
