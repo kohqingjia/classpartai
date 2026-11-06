@@ -23,6 +23,9 @@ class Finding(Strict):
     citations: list[CitationRef] = Field(max_length=12)
     justification: str = Field(min_length=1, max_length=1500)
     limitations: list[str] = Field(max_length=10)
+    # How sure the Judge is. None for findings made before this field existed and for the
+    # professor's own edits; it is left out of the approval digest while unset.
+    confidence: Literal["low", "medium", "high"] | None = None
 
 
 class Feedback(Strict):

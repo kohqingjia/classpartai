@@ -325,7 +325,12 @@ class Records:
     @staticmethod
     def approval_digest(content: DraftContent, recipients: list[dict]) -> str:
         pairs = sorted([r["student_id"], r["email"], r["revision"]] for r in recipients)
-        canonical = json.dumps([content.model_dump(), pairs], sort_keys=True, separators=(",", ":"))
+        body = content.model_dump()
+        for finding in body["findings"]:
+            # Drafts approved before confidence existed must keep their digest.
+            if finding.get("confidence") is None:
+                finding.pop("confidence", None)
+        canonical = json.dumps([body, pairs], sort_keys=True, separators=(",", ":"))
         return hashlib.sha256(canonical.encode()).hexdigest()
 
     def approvals(self, session_id: str) -> list[dict]:

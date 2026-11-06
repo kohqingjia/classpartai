@@ -15,6 +15,10 @@ Small datasets and evaluation sets live here. Large or licensed files go in `dat
   correct, whether it answers the question, and (for some) how the student reasoned and what kind
   of mistake it was, and the topic files holding the gold evidence. Used by
   `eval/research_eval.py`.
+- `is469/judge_labels.jsonl` (committed): a human score (0-3, or `null` for insufficient evidence) for
+  each rubric criterion of those 20 contributions, whether the Judge should flag the contribution for
+  the professor, and a one-line reason. Used by `eval/judge_eval.py`. **Drafts**: every row says
+  `"reviewed": false` until a teammate has checked it and flipped it to `true`.
 - `raw/is469/` (**git-ignored**): the lecture files themselves, which are the instructor's and are
   not ours to commit. Source: the IS469 course materials (Topic 1–8 decks as `.pptx`/`.pdf`, labs as
   `.ipynb`). Each teammate copies them in, all in one folder; keep one copy of any file downloaded

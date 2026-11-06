@@ -1,4 +1,4 @@
-from conftest import SILENT, ScriptedDriver, factory_for, feedback, full_proposal
+from conftest import SILENT, ScriptedDriver, factory_for, feedback, full_proposal, judge_steps
 
 from classpartai.participation.coordinator import coordinate
 
@@ -39,9 +39,7 @@ def test_coordinator_runs_the_whole_workflow(records, session_id):
     roles = factory_for(
         {
             "inspect_transcript_context": coordinator,
-            "finish_rubric_judgement": ScriptedDriver(
-                [("finish_rubric_judgement", {"findings": full_proposal()["findings"]})]
-            ),
+            "finish_rubric_judgement": ScriptedDriver(judge_steps()),
             "finish_student_feedback": ScriptedDriver(
                 [
                     ("finish_student_feedback", fb("alex-tan")),
@@ -76,8 +74,9 @@ def test_invalid_role_output_is_refused_and_reported(records, session_id):
             ("request_professor_review", {"summary": "Giving up"}),
         ]
     )
-    bad = {"findings": [{**full_proposal()["findings"][0], "score": 99}]}
-    judge = ScriptedDriver([("finish_rubric_judgement", bad)] * 2)
+    first = {k: v for k, v in full_proposal()["findings"][0].items() if k != "studentId"}
+    bad = {"studentId": "alex-tan", "scores": [{**first, "score": 99, "confidence": "high"}]}
+    judge = ScriptedDriver([("score_contribution", bad)] * 9)  # the Judge gives up after 8 refusals
     roles = factory_for(
         {"inspect_transcript_context": coordinator, "finish_rubric_judgement": judge}
     )
@@ -85,21 +84,25 @@ def test_invalid_role_output_is_refused_and_reported(records, session_id):
     actions = records.runs(session_id)[0]["progress"]["actions"]
     assert actions[0]["outcome"] == "invalid"
     assert records.latest_draft(session_id) is None
-    # The judge was told which rule it broke before its one correction attempt.
+    # The Judge was told which rule it broke, then kept breaking it until it was stopped.
     assert "outside the pinned rubric range" in judge.histories[1][-1]["output"]
 
 
 def test_judge_corrects_itself_after_rule_feedback(records, session_id):
     coordinator = ScriptedDriver([("propose_rubric_assessment", {"note": "First pass"})])
     coordinator.steps.append(("request_professor_review", {"summary": "stop"}))
-    wrong = full_proposal()["findings"]
-    wrong[0] = {**wrong[0], "citations": [{"evidenceRunId": "review-1", "passageId": "turn-002"}]}
-    judge = ScriptedDriver(
-        [
-            ("finish_rubric_judgement", {"findings": wrong}),
-            ("finish_rubric_judgement", {"findings": full_proposal()["findings"]}),
-        ]
-    )
+    first = {k: v for k, v in full_proposal()["findings"][0].items() if k != "studentId"}
+    wrong = {
+        "studentId": "alex-tan",
+        "scores": [
+            {
+                **first,
+                "citations": [{"evidenceRunId": "review-1", "passageId": "turn-002"}],
+                "confidence": "high",
+            }
+        ],
+    }
+    judge = ScriptedDriver([("score_contribution", wrong), *judge_steps()])
     roles = factory_for(
         {"inspect_transcript_context": coordinator, "finish_rubric_judgement": judge}
     )
@@ -119,14 +122,20 @@ def test_role_trace_retains_exact_inputs_outputs_and_refusal_without_extra_calls
 ):
     test_coordinator_runs_the_whole_workflow(records, session_id)
     p = records.runs(session_id)[0]["progress"]
-    assert (p["modelCalls"], p["toolCalls"], p["tokens"]) == (15, 15, 150)
+    assert (p["modelCalls"], p["toolCalls"], p["tokens"]) == (22, 22, 220)
     assert p["elapsedSeconds"] >= 0
     calls = p["roleCalls"]
-    assert len(calls) == 6
-    judge = calls[0]
-    assert judge["inputs"]["transcript"] == records.inputs(session_id).transcript.model_dump()
-    assert judge["output"]["findings"] == full_proposal()["findings"]
-    assert judge["validation"] == "validate_proposal passed"
+    assert len(calls) == 13  # 8 Judge turns, 4 feedback drafts, 1 audit
+    judge = [c for c in calls if c["role"] == "judge_agent"]
+    assert len(judge) == 8
+    assert judge[0]["inputs"]["roster"][0]["id"] == "alex-tan"
+    assert [c["calls"][0]["name"] for c in judge[:3]] == [
+        "get_rubric",
+        "get_evidence",
+        "get_contributions",
+    ]
+    assert judge[-1]["validation"] == "validate_proposal passed"
+    assert len(judge[-1]["output"]["findings"]) == len(full_proposal()["findings"])
     assert all(c["outcome"] == "ok" for c in calls)
     assert p["actions"][0]["result"]["reviewedTurns"]
     assert "No provisional draft" in p["actions"][1]["result"]["error"]
@@ -136,7 +145,8 @@ def test_role_trace_retains_exact_inputs_outputs_and_refusal_without_extra_calls
 def test_trace_keeps_both_correction_attempts(records, session_id):
     test_judge_corrects_itself_after_rule_feedback(records, session_id)
     calls = records.runs(session_id)[0]["progress"]["roleCalls"]
-    assert [c["outcome"] for c in calls] == ["refused", "ok"]
+    assert [c["outcome"] for c in calls[:3]] == ["refused", "ok", "ok"]
     assert "validated evidence" in calls[0]["reason"]
-    assert len(calls[0]["history"]) == 1
-    assert len(calls[1]["history"]) == 3
+    assert len(calls[0]["history"]) == 1  # the opening message
+    # Each later turn records only what is new: the previous tool's result.
+    assert [i["type"] for i in calls[1]["history"]] == ["function_call_output"]

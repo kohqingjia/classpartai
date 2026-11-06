@@ -28,12 +28,12 @@ from classpartai.models import (
     configured_driver,
     tool,
 )
+from classpartai.participation.judge import judge
 from classpartai.participation.records import Draft, Records
 from classpartai.participation.roles import (
     ROLE_POLICY,
     DriverFactory,
     feedback_for,
-    judge,
     model_audit,
 )
 from classpartai.participation.schema import Proposal

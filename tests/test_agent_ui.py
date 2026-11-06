@@ -261,3 +261,18 @@ def test_persisted_role_and_research_trajectories_render(app):
     assert any(step["tool"] == "submit_findings" for step in pack["trajectory"])
     search = next(s for s in pack["trajectory"] if s["tool"] == "search_course_materials")
     assert "Course materials" in search["output"]
+
+
+def test_judge_tab_shows_each_tool_the_agent_called_in_order(app):
+    from test_coordinator import test_coordinator_runs_the_whole_workflow
+
+    at, records = app
+    session_id = demo(at)
+    test_coordinator_runs_the_whole_workflow(records, session_id)
+    navigate(at, "AI assessment", "Judge")
+    at.toggle[0].set_value(True).run()
+    assert not at.exception
+    steps = [e.label for e in at.expander if " · judge" not in e.label and "· ok ·" in e.label]
+    tools = [label.split(" · ")[1] for label in steps]
+    assert tools[:3] == ["get_rubric", "get_evidence", "get_contributions"]
+    assert tools[-1] == "finish_rubric_judgement" and tools.count("score_contribution") == 4

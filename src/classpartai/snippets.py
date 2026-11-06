@@ -121,11 +121,12 @@ TOPICS: list[tuple[str, list[Snippet]]] = [
         "Topic 6 · Evaluation: LLM-as-judge, verify first",
         [
             Snippet(
-                "The Judge: rubric scoring, then deterministic validation",
-                "src/classpartai/participation/roles.py",
-                ("judge",),
-                "Scores only attributable participation, or 'insufficient_evidence'. Its output "
-                "must pass validate_proposal; a failure goes back to the model with the reason.",
+                "The Judge: an agent with tools, then deterministic validation",
+                "src/classpartai/participation/judge.py",
+                ("JUDGE_TOOLS",),
+                "The Judge picks its next tool: rubric, evidence, a student's own turns, score, "
+                "flag, finish. Every score must pass validate_proposal; a refusal goes back to "
+                "the model with the reason.",
             ),
             Snippet(
                 "The Auditor: a second model checks support",

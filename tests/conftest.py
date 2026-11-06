@@ -110,3 +110,22 @@ def full_proposal() -> dict:
             feedback("marcus-lee", SILENT),
         ],
     }
+
+
+def judge_steps(findings=None, confidence="high") -> list:
+    """The Judge agent's scripted run: read everything, score each student, finish."""
+    findings = findings or full_proposal()["findings"]
+    students = list(dict.fromkeys(f["studentId"] for f in findings))
+    steps = [
+        ("get_rubric", {}),
+        ("get_evidence", {"runId": None}),
+        ("get_contributions", {"studentIds": students}),
+    ]
+    for student in students:
+        scores = [
+            {**{k: v for k, v in f.items() if k != "studentId"}, "confidence": confidence}
+            for f in findings
+            if f["studentId"] == student
+        ]
+        steps.append(("score_contribution", {"studentId": student, "scores": scores}))
+    return [*steps, ("finish_rubric_judgement", {})]
