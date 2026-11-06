@@ -66,7 +66,7 @@ for the data sources, course-topic mapping and diagnostics recorded by new runs.
 | Part | What we measure |
 |---|---|
 | ① Listener | word error rate; speaker-attribution accuracy |
-| ② Research agent | single-pass vs agentic RAG on 20 labelled IS469 Q&A pairs (`eval/research_eval.py`): routing, correctness, answers-the-question, context precision, cost |
+| ② Research agent | single-pass vs agentic RAG on 20 labelled IS469 Q&A pairs (`eval/research_eval.py`): routing, correctness, answers-the-question, context precision, cost. Results: [eval/results/research-is469-library.md](eval/results/research-is469-library.md) |
 | ③ Judge | agreement with human scores on hand-scored sessions (Spearman, Cohen's kappa) |
 | ④ Auditor | judge alone vs judge + auditor: issues caught, injected instructions flagged |
 | Coordinator / harness | tool-call validity, refusals recovered from, budget use; unsafe actions blocked |
@@ -171,6 +171,9 @@ uv run python -m classpartai.research run "LoRA only trains two small matrices."
     --question "Why does LoRA fit on one GPU when full fine-tuning does not?" \
     --date 2026-09-08 --trajectory                 # one answer: verdicts, quotes, every tool call
 uv run python eval/research_eval.py                # single-pass vs agentic RAG on labelled Q&A pairs
+uv run python eval/research_eval.py --documents var/library/documents.json --max-usd 1
+                                                   # the same on the app's course library, with a
+                                                   # spending cap; writes eval/results/*.{md,json}
 ```
 
 Research takes a professor's question and a student's answer from the transcript, and works out two

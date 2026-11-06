@@ -25,7 +25,8 @@ from pathlib import Path
 from classpartai.research.agent import EvidencePack
 from classpartai.research.materials import matches
 
-# US$ per million tokens: (input, cached input, output). OpenAI's list prices, November 2026.
+# US$ per million tokens: (input, cached input, output), from OpenAI's price list; update them
+# here if it changes. Matched by prefix, so dated snapshots ("gpt-5-mini-2025-08-07") count too.
 PRICES = {
     "gpt-5-mini": (0.25, 0.025, 2.00),
     "text-embedding-3-small": (0.02, 0.02, 0.0),
