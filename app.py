@@ -23,6 +23,14 @@ from datetime import datetime, timedelta, timezone
 from html import escape
 from pathlib import Path
 
+from groq import Groq
+from dotenv import load_dotenv
+
+from classpartai.summary.agent import analyse_session
+from classpartai.summary.ui import render_session_summary
+
+load_dotenv()
+
 import streamlit as st
 
 from classpartai import config
@@ -58,7 +66,7 @@ from classpartai.ui import STAGES, TOOL_STAGE, board_html, flow_html, system_htm
 from classpartai.voices import GOOD_SECONDS, Voices
 
 DATA = REPO_ROOT / "data"
-VIEWS = {"home", "new", "session", "library", "voices", "how"}
+VIEWS = {"home", "new", "session", "summary", "library", "voices", "how"}
 RECORDINGS = DATA_DIR / "recordings"  # class recordings, kept for playback (server volume only)
 DEMO_AUDIO = DATA / "demo_audio"
 # Read aloud for a voice sample: about 20 seconds, with varied sounds.
@@ -507,7 +515,9 @@ linked = st.query_params.get("session")
 if linked in by_id:
     st.session_state.session_id = linked
 st.session_state.view = st.query_params.get("view") or ("session" if linked in by_id else "home")
-if st.session_state.view not in VIEWS or (st.session_state.view == "session" and not sessions):
+if st.session_state.view not in VIEWS or (
+    st.session_state.view in {"session", "summary"} and not sessions
+):
     st.session_state.view = "home"
 requested_step = STEP_PARAMS.get(st.query_params.get("step", ""))
 
@@ -532,7 +542,26 @@ with st.sidebar:
     nav("🎙️ New class session", "new")
     st.caption("Class sessions")
     for s in sessions:
-        nav(f"📝 {s['title']}", "session", s["id"], key=f"open-{s['id']}")
+        with st.expander(
+            f"📝 {s['title']}",
+            expanded=(
+                s["id"] == st.session_state.session_id
+                and st.session_state.view in {"session", "summary"}
+            ),
+        ):
+            nav(
+                "📋 Assessment workflow",
+                "session",
+                s["id"],
+                key=f"assessment-{s['id']}",
+            )
+
+            nav(
+                "📝 Session Summary",
+                "summary",
+                s["id"],
+                key=f"summary-{s['id']}",
+            )
     if not sessions:
         st.caption("No sessions yet.")
     st.divider()
@@ -599,6 +628,20 @@ def transcribe(wav: Path, roster: list[dict], professors: set[str], meta: dict) 
         **meta,
     }
 
+def generate_summary_json(system_prompt, user_prompt):
+    client = Groq(api_key=os.environ["GROQ_API_KEY"])
+
+    response = client.chat.completions.create(
+        model="openai/gpt-oss-20b",
+        messages=[
+            {"role": "system", "content": system_prompt},
+            {"role": "user", "content": user_prompt},
+        ],
+        response_format={"type": "json_object"},
+        temperature=0,
+    )
+
+    return json.loads(response.choices[0].message.content)
 
 # --- Home -------------------------------------------------------------------------------------
 
@@ -1094,10 +1137,71 @@ elif view == "how":
                 st.code(code, language="python")
 
     st.button("🎙️ Try it: start a class session", type="primary", on_click=go, args=("new",))
+    
 
-# --- Session page: steps 3 (AI assessment), 4 (Approve) and 5 (Send) ---------------------------
+# --- Session Summary ----------------------------------------------------------
 
-else:
+elif view == "summary":
+    inputs = records.inputs(session_id)
+    meta = by_id[session_id]
+
+    st.title(f"Session Summary · {inputs.sessionTitle}")
+
+    st.caption(
+        f"📅 {when(meta['created_at'])} · "
+        f"{inputs.courseTitle} · "
+        f"{len(inputs.roster)} students"
+    )
+
+    st.button(
+        "← Back to Assessment workflow",
+        on_click=go,
+        args=("session", session_id),
+    )
+
+    st.divider()
+
+    st.subheader("Seminar discussion overview")
+
+    st.write(
+        "Generate an AI briefing covering the main discussion topics, "
+        "agreements, disagreements, unresolved questions, "
+        "participation and suggested follow-ups."
+    )
+
+        # Keep each session's summary separate
+    summary_key = f"session_summary_{session_id}"
+
+    if not os.getenv("GROQ_API_KEY"):
+        st.error("GROQ_API_KEY is missing from your .env file.")
+
+    else:
+        if st.button(
+            "✨ Generate Session Summary",
+            type="primary",
+            key=f"generate_summary_{session_id}",
+        ):
+            with st.spinner("Analysing the seminar discussion..."):
+                try:
+                    result = analyse_session(
+                        transcript=inputs.transcript,
+                        generate_json=generate_summary_json,
+                    )
+
+                    st.session_state[summary_key] = result
+
+                except Exception as exc:
+                    st.error(f"Summary generation failed: {exc}")
+
+        # Display the generated summary
+        if summary_key in st.session_state:
+            st.divider()
+            render_session_summary(
+                st.session_state[summary_key]
+            )
+    # --- Assessment Workflow ------------------------------------------------------
+
+elif view == "session":
     inputs = records.inputs(session_id)
     meta = by_id[session_id]
     latest = records.latest_draft(session_id)

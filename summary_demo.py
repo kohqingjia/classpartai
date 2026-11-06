@@ -7,7 +7,7 @@ import streamlit as st
 from dotenv import load_dotenv
 from groq import Groq
 
-from classpartai.summary.orchestrator import orchestrate_session
+from classpartai.summary.agent import analyse_session
 from classpartai.summary.ui import render_session_summary
 
 load_dotenv()
