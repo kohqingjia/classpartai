@@ -28,7 +28,7 @@ from dotenv import load_dotenv
 from groq import Groq
 from openai import OpenAI
 
-from classpartai import config
+from classpartai import config, demo_seminars
 from classpartai import snippets as code_snippets
 from classpartai.agent_ui import TABS, overview, render_agent
 from classpartai.agents import listener
@@ -68,6 +68,7 @@ DATA = REPO_ROOT / "data"
 VIEWS = {"home", "new", "session", "summary", "library", "voices", "how"}
 RECORDINGS = DATA_DIR / "recordings"  # class recordings, kept for playback (server volume only)
 DEMO_AUDIO = DATA / "demo_audio"
+DEMO_SEMINARS = DATA_DIR / "demo-seminars"  # edge-case demos: server only (cloned voices)
 # Read aloud for a voice sample: about 20 seconds, with varied sounds.
 READING = (
     "Good morning. My name is on the class list, and this is my voice sample for ClassPart AI. "
@@ -607,6 +608,32 @@ def demo_people() -> list[dict]:
     return json.loads((DEMO_AUDIO / "manifest.json").read_text())["people"]
 
 
+def enrol_seminar_voices() -> None:
+    """The demo seminars' synthetic voices (their professor), marked as demo entries."""
+    for person in demo_seminars.voices(DEMO_SEMINARS):
+        if not voices().get(person["personId"]):
+            voices().enrol(person["personId"], person["name"], Path(person["path"]), demo=True)
+
+
+def show_script(script: dict, player_key: str | None) -> None:
+    """A demo seminar's script: what was actually said, to check the Listener against."""
+    st.markdown("**What was said** · the script this demo recording was made from")
+    st.caption(script["case"])
+    for n, line in enumerate(script["lines"]):
+        stamp = f"{int(line['start']) // 60}:{int(line['start']) % 60:02d}"
+        col_line, col_play = st.columns([12, 1])
+        col_line.markdown(f"`{stamp}` **{line['speaker']}**: {line['text']}")
+        if player_key:
+            col_play.button(
+                "▶",
+                key=f"{player_key}-script-{n}",
+                help=f"Play from {stamp}",
+                type="tertiary",
+                on_click=seek,
+                args=(player_key, line["start"]),
+            )
+
+
 def enrol_demo_voices() -> None:
     """The synthetic voices of the demo recording, marked as demo entries."""
     with tempfile.TemporaryDirectory() as tmp:
@@ -860,6 +887,48 @@ elif view == "new":
                         st.rerun()
                     except ValueError as exc:
                         st.error(str(exc))
+            demos = demo_seminars.available(DEMO_SEMINARS)
+            if demos:
+                with st.expander(f"🎭 Demo seminars: {len(demos)} edge cases, with their scripts"):
+                    st.caption(
+                        "Mock classes in our cloned voices, with a synthetic professor. Each runs "
+                        "through the real Listener; the script is kept so you can check it."
+                    )
+                    for demo in demos:
+                        col_text, col_go = st.columns([4, 1])
+                        col_text.markdown(f"**{demo['title']}**  \n{demo['case']}")
+                        if col_go.button("Transcribe →", key=f"demo-seminar-{demo['id']}"):
+                            wav = RECORDINGS / f"pending-{uuid.uuid4().hex}.wav"
+                            try:
+                                with st.spinner("Enrolling the demo professor's voice…"):
+                                    enrol_seminar_voices()
+                                file_to_wav(Path(demo["audio"]), wav)
+                                profs = {p.name for p in classlist.professors()} | {
+                                    v["name"]
+                                    for v in demo_seminars.voices(DEMO_SEMINARS)
+                                    if v["role"] == "professor"
+                                }
+                                transcribe(
+                                    wav,
+                                    [
+                                        {"id": p.person_id, "displayName": p.name}
+                                        for p in classlist.students()
+                                    ],
+                                    profs,
+                                    {
+                                        "title": demo["title"],
+                                        "course": course,
+                                        "demo": False,
+                                        "script": {k: demo[k] for k in ("id", "case", "lines")},
+                                    },
+                                )
+                                go("new", step=2)
+                                st.rerun()
+                            except Exception as exc:
+                                st.error(
+                                    f"Couldn't process {demo['title']} "
+                                    f"({str(exc).splitlines()[0][:300]})."
+                                )
     else:
         transcript = pending["transcript"]
         roster = pending["roster"]
@@ -871,6 +940,8 @@ elif view == "new":
             turns = transcript.turns
             audio = Path(pending["audio"]) if pending.get("audio") else None
             who_spoke(turns, names, audio, "pending-seek")
+            if pending.get("script"):
+                show_script(pending["script"], "pending-seek" if audio else None)
             confirmed = st.checkbox("I've checked who said what (listen with ▶ if unsure)")
             col_go, col_drop, _ = st.columns([1, 1, 2])
             if col_go.button("Create session →", type="primary", disabled=not confirmed):
@@ -901,7 +972,10 @@ elif view == "new":
                 new_id = open_session(new_inputs, recipients)
                 RECORDINGS.mkdir(parents=True, exist_ok=True)
                 shutil.move(pending["audio"], RECORDINGS / f"{new_id}.wav")
-                records.save_listener_run(new_id, pending.get("diagnostics") or {})
+                diagnostics = pending.get("diagnostics") or {}
+                if pending.get("script"):
+                    diagnostics = {**diagnostics, "script": pending["script"]}
+                records.save_listener_run(new_id, diagnostics)
                 del st.session_state["pending"]
                 st.rerun()
             if col_drop.button("Discard and record again"):
@@ -1259,6 +1333,9 @@ elif view == "session":
                     "No recording: this session started from a ready-made transcript or an "
                     "imported file."
                 )
+            script = (records.listener_run(session_id) or {}).get("script")
+            if script:
+                show_script(script, f"seek-{session_id}" if audio else None)
         st.button(
             "Next: ② Who spoke? →", on_click=go, args=("session", session_id, 2), key="next-2"
         )
