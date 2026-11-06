@@ -117,7 +117,10 @@ def markdown(report: dict, items: list[dict]) -> str:
         "",
         format_table(report),
         "",
-        "| system | model calls | input tokens | output tokens | US$ total | seconds total |",
+        "Totals per system (API calls are chat and query-embedding calls; output tokens include "
+        "the model's reasoning tokens):",
+        "",
+        "| system | API calls | input tokens | output tokens | US$ total | seconds total |",
         "|---|---|---|---|---|---|",
     ]
     for name in ("single_pass", "agentic"):
