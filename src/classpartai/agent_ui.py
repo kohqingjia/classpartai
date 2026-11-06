@@ -43,7 +43,7 @@ ROLE_NAMES = {
 }
 # Roles run as a multi-step agent rather than one structured call (the Auditor agent falls back
 # to the single-call role above if it errors).
-AGENT_ROLES = {"Auditor": ("auditor_agent",)}
+AGENT_ROLES = {"Auditor": ("auditor_agent", "finish_feedback_audit")}
 
 
 def section(number, title, note=None):
@@ -449,8 +449,9 @@ def role_view(records, session_id, inputs, name):
         st.caption(
             "Le Yong's Auditor agent chooses one read-only tool at a time (citation checks "
             "include a nested model review) and can only raise issues, request one re-judge or "
-            "escalate to the professor. If it errors, the workflow falls back to the single "
-            f"structured call {ROLE_NAMES[name]}. Topic 7 · Agents."
+            "escalate to the professor. Feedback drafts get a separate structured review "
+            "(finish_feedback_audit). If the agent errors, the workflow falls back to the "
+            f"single structured call {ROLE_NAMES[name]}. Topic 7 · Agents."
         )
     else:
         st.code(ROLE_NAMES[name], language=None)

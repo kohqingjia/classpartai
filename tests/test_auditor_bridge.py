@@ -1,9 +1,11 @@
 """The workflow's audit step through Le Yong's Auditor agent, with scripted fakes (no network)."""
 
+import threading
 import time
 
+import conftest
 import pytest
-from conftest import SILENT, ScriptedDriver, factory_for, full_proposal
+from conftest import SILENT, ScriptedDriver, full_proposal
 from test_coordinator import AUDIT, fb
 
 from classpartai import config
@@ -15,6 +17,16 @@ from classpartai.participation.schema import Proposal
 from classpartai.participation.validation import compose_draft
 
 READ = ("get_session_scores", {"offset": 0, "limit": 10})
+FEEDBACK_OK = (
+    "finish_feedback_audit",
+    {"issues": [], "resolvedIssueIds": [], "resolutionReason": "n/a", "notes": "Feedback fits."},
+)
+
+
+def factory_for(scripts):
+    """conftest.factory_for plus a feedback-review script, which runs after the agent."""
+    scripts.setdefault("finish_feedback_audit", ScriptedDriver([FEEDBACK_OK] * 5))
+    return conftest.factory_for(scripts)
 
 
 def finish(verdict="audit_passed", resolved=()):
@@ -116,8 +128,9 @@ def test_audit_raises_issues_never_changes_scores_and_counts_the_shared_budget(i
     assert "professor_review_required" in audit.notes
     assert "marcus-lee:reasoning (no attributable turns)" in audit.notes
     assert draft.findings == Proposal.model_validate(full_proposal()).findings
-    assert (b.progress.modelCalls, b.progress.toolCalls, b.progress.tokens) == (2, 2, 20)
-    trace = b.progress.roleCalls[-1]
+    assert (b.progress.modelCalls, b.progress.toolCalls, b.progress.tokens) == (3, 3, 30)
+    trace = b.progress.roleCalls[-2]  # then the feedback review
+    assert b.progress.roleCalls[-1]["role"] == "finish_feedback_audit"
     assert (trace["role"], trace["outcome"], trace["verdict"]) == (
         "auditor_agent",
         "ok",
@@ -160,7 +173,7 @@ def test_rejudge_then_revision_resolves_the_original_objection(benign):
         b,
         session,
     )
-    request = b.progress.roleCalls[-1]["inputs"]
+    request = b.progress.roleCalls[-2]["inputs"]
     assert request["proposal"]["reference"]["version"] == 2  # submitted as the revision
     assert request["state"]["rejudge_count"] == 1
     assert second.issues == [] and second.resolvedIssueIds == [app_id]
@@ -231,7 +244,7 @@ def test_citations_are_verified_against_the_sessions_own_passages(benign):
     assert audit.issues == []
     assert "audit_passed" in audit.notes
     assert passage.text in reviewer.histories[0][0]["content"]  # read from the session's docs
-    assert b.progress.modelCalls == 4  # nested citation review counts too
+    assert b.progress.modelCalls == 5  # nested citation review and feedback review count
 
 
 def test_agent_error_falls_back_to_single_call_audit_and_says_so(inputs):
@@ -264,8 +277,14 @@ def test_auditor_limits_are_capped_by_what_is_left_of_the_shared_budget(inputs):
     b = budget()
     b.progress.modelCalls = WORKFLOW_LIMITS["modelCalls"] - 1  # room for one Auditor call
     agent = ScriptedDriver([READ, finish()])
-    audit = run(inputs, draft_of(inputs), factory_for({"get_session_scores": agent}), b)
+    no_feedback = compose_draft(
+        Proposal(findings=Proposal.model_validate(full_proposal()).findings, feedback=[]),
+        inputs,
+        "test",
+    )
+    audit = run(inputs, no_feedback, factory_for({"get_session_scores": agent}), b)
     assert b.progress.modelCalls == WORKFLOW_LIMITS["modelCalls"]
+    assert "no feedback drafted yet" in audit.notes
     assert "budget_exhausted" in audit.notes
     assert any("budget exhausted" in i.detail for i in audit.issues)
 
@@ -326,5 +345,109 @@ def test_coordinator_runs_the_auditor_agent_end_to_end(records, session_id):
     # Deterministic issues are still there alongside the Auditor's.
     assert "attribution:uncertain" in [i.id for i in draft.content.audit.issues]
     progress = run_record["progress"]
-    assert progress["modelCalls"] == 7 + 1 + 4 + 2  # coordinator, judge, feedback, Auditor
-    assert [c["role"] for c in progress["roleCalls"]][-1] == "auditor_agent"
+    assert progress["modelCalls"] == 7 + 1 + 4 + 2 + 1  # coordinator, judge, feedback, Auditor
+    assert [c["role"] for c in progress["roleCalls"]][-2:] == [
+        "auditor_agent",
+        "finish_feedback_audit",
+    ]
+
+
+def test_feedback_drafts_still_get_a_semantic_review(benign):
+    raw = full_proposal()
+    claim = "You correctly explained how fine-tuning updates neural network weights."
+    raw["feedback"][0]["strengths"] = claim
+    draft = compose_draft(Proposal.model_validate(raw), benign, "test")
+    issue = {
+        "id": "alex-feedback",
+        "studentId": "alex-tan",
+        "criterionId": None,
+        "detail": "Strength credits a point Alex never made.",
+        "kind": "feedback",
+    }
+    review = ScriptedDriver(
+        [
+            (
+                "finish_feedback_audit",
+                {**FEEDBACK_OK[1], "issues": [issue], "notes": "One unsupported strength."},
+            )
+        ]
+    )
+    audit = run(
+        benign,
+        draft,
+        factory_for(
+            {
+                "get_session_scores": ScriptedDriver([READ, finish()]),
+                "finish_feedback_audit": review,
+            }
+        ),
+    )
+    assert claim in review.histories[0][0]["content"]  # the reviewer saw the feedback
+    assert [(i.id, i.kind) for i in audit.issues] == [("alex-feedback", "feedback")]
+    assert "audit_passed" in audit.notes and "One unsupported strength." in audit.notes
+    final = compose_draft(Proposal.model_validate(raw), benign, "audited", draft, audit)
+    assert any(
+        i.id == "model:alex-feedback" and i.disposition == "open" for i in final.audit.issues
+    )
+
+
+def test_a_later_pass_resolves_issues_raised_without_a_rejudge(benign):
+    session = AuditorSession()
+    escalate = (
+        "complete_audit",
+        {"verdict": "professor_review_required", "issues": [objection()], "resolved_issue_ids": []},
+    )
+    first = run(
+        benign,
+        draft_of(benign),
+        factory_for({"get_session_scores": ScriptedDriver([READ, escalate])}),
+        session=session,
+    )
+    assert [(i.studentId, i.criterionId) for i in first.issues] == [("alex-tan", "reasoning")]
+    assert session.pending is None  # no re-judge round is open
+    audited = draft_of(benign, draft_of(benign), first)
+    corrected = draft_of(benign, audited)
+    second = run(
+        benign,
+        corrected,
+        factory_for({"get_session_scores": ScriptedDriver([READ, finish()])}),
+        session=session,
+    )
+    app_id = "model:" + first.issues[0].id
+    assert second.resolvedIssueIds == [app_id]
+    final = draft_of(benign, corrected, second)
+    assert next(i for i in final.audit.issues if i.id == app_id).disposition == "revised"
+
+
+def test_a_timed_out_call_is_counted_before_the_coordinator_continues(inputs, monkeypatch):
+    from classpartai.participation import auditor_bridge
+
+    release = threading.Event()
+
+    class HeldDriver(ScriptedDriver):
+        def next(self, history):
+            release.wait(5)
+            turn = super().next(history)
+            turn.tokens = 150
+            return turn
+
+    agent = HeldDriver([READ, finish()])
+    real = auditor_bridge._limits
+
+    def short(b):
+        return real(b).__class__(model_calls=4, steps=4, seconds=0.05)
+
+    monkeypatch.setattr(auditor_bridge, "_limits", short)
+    threading.Timer(0.3, release.set).start()
+    b = budget()
+    no_feedback = compose_draft(
+        Proposal(findings=Proposal.model_validate(full_proposal()).findings, feedback=[]),
+        inputs,
+        "test",
+    )
+    audit = run(inputs, no_feedback, factory_for({"get_session_scores": agent}), b)
+    assert "budget_exhausted" in audit.notes
+    # The held call finished and was counted before agent_audit returned control.
+    assert (b.progress.modelCalls, b.progress.tokens) == (1, 150)
+    time.sleep(0.2)
+    assert (b.progress.modelCalls, b.progress.tokens) == (1, 150)  # nothing arrives later

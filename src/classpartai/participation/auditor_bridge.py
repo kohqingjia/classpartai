@@ -13,11 +13,17 @@ result, so records, ``compose_draft``, the coordinator and the UI work unchanged
 - **Model and budget.** The Auditor's model is the app's driver from the coordinator's factory
   (OpenAI via ``OPENAI_MODEL``). Every Auditor model call, nested citation reviews included,
   goes through ``SharedBudget.call`` and every returned tool call through ``SharedBudget.tool``,
-  so they count against ``WORKFLOW_LIMITS``. The Auditor's own limits are capped by what is left.
+  so they count against ``WORKFLOW_LIMITS``. The Auditor's own limits are capped by what is left,
+  and a call left running by an Auditor timeout is waited for (and counted) before the
+  coordinator continues.
 - **Output.** Auditor issues become ``ModelAuditIssue``s (one per affected finding) with the
   Auditor's own kind and severity kept in the text. A re-judge request is reported as issues
   plus a note for the coordinator; the Auditor never changes a score. Deterministic
-  validation (``validation.py``) still runs on every draft and stays authoritative.
+  validation (``validation.py``) still runs on every draft and stays authoritative. A later
+  ``audit_passed`` (every audited finding inspected, every citation verified, nothing left)
+  resolves the Auditor's own earlier open issues on those findings.
+- **Feedback.** The Auditor's contract has no feedback, so ``roles.feedback_audit`` (one
+  structured call) reviews the feedback drafts and its issues are merged in.
 - **Fallback.** If the Auditor errors (a mapping/contract failure, a provider or reader failure,
   or no model), the workflow falls back to the single-call ``model_audit`` and the notes and the
   role trace say so. ``AUDITOR=model`` uses ``model_audit`` directly.
@@ -32,6 +38,7 @@ from __future__ import annotations
 import hashlib
 import json
 import re
+import threading
 import time
 from dataclasses import asdict, dataclass, field
 
@@ -56,7 +63,12 @@ from classpartai.models import (
     SharedBudget,
     ToolDefinition,
 )
-from classpartai.participation.roles import ROLE_POLICY, DriverFactory, model_audit
+from classpartai.participation.roles import (
+    ROLE_POLICY,
+    DriverFactory,
+    feedback_audit,
+    model_audit,
+)
 from classpartai.participation.schema import DraftContent, ModelAudit, ModelAuditIssue
 from classpartai.participation.validation import EvidenceMap
 
@@ -344,8 +356,30 @@ class WorkflowModel:
         self.factory = factory
         self.drivers: dict[tuple, object] = {}
         self.shared_budget_exhausted = False
+        self.closed = False
+        self.in_flight = 0
+        self.idle = threading.Condition()
+
+    def settle(self, timeout: float) -> bool:
+        """Close to new calls and wait for in-flight ones (left running by a harness timeout)
+        to finish, so their usage is counted before the coordinator continues."""
+        with self.idle:
+            self.closed = True
+            return self.idle.wait_for(lambda: self.in_flight == 0, max(0.0, timeout))
 
     def choose(self, messages: list[dict], tools: list[dict], *, timeout: float) -> ToolCall:
+        with self.idle:
+            if self.closed:
+                raise BudgetExhausted("Audit finished; no further model calls")
+            self.in_flight += 1
+        try:
+            return self._choose(messages, tools)
+        finally:
+            with self.idle:
+                self.in_flight -= 1
+                self.idle.notify_all()
+
+    def _choose(self, messages: list[dict], tools: list[dict]) -> ToolCall:
         system, history = messages[0], messages[1:]
         instructions = f"{ROLE_POLICY}\n{system['content']}"
         key = (instructions, tuple(t["function"]["name"] for t in tools))
@@ -388,7 +422,9 @@ def _limits(budget: SharedBudget) -> Limits:
     tools = WORKFLOW_LIMITS["toolCalls"] - budget.progress.toolCalls
     if left <= 1 or calls < 1 or tools < 1:
         raise BudgetExceeded()
-    return Limits(model_calls=min(16, calls), steps=min(12, tools), seconds=min(120.0, left))
+    # Leave headroom before the shared deadline to let a timed-out call finish and be counted.
+    seconds = min(120.0, left - min(30.0, left / 4))
+    return Limits(model_calls=min(16, calls), steps=min(12, tools), seconds=seconds)
 
 
 def to_model_audit(
@@ -425,19 +461,19 @@ def to_model_audit(
                 )
             )
     resolved: list[str] = []
-    if mapping.revision and result.verdict == "audit_passed":
-        # A revision pass requires every pending objection resolved (enforced by the harness).
-        pending = AuditRequest.parse(mapping.request).state.pending_rejudge
-        open_ids = {
+    if result.verdict == "audit_passed":
+        # A pass is only issued after the harness confirms every audited finding was inspected
+        # and every citation verified, with no objection left (pending ones included). So it
+        # resolves the Auditor's own earlier open issues on those findings, and its earlier
+        # execution issues. Issues raised by other roles are left for them or the professor.
+        audited = set(mapping.findings.values())
+        resolved = [
             i.id
             for i in draft.audit.issues
-            if i.id.startswith("model:") and i.disposition == "open"
-        }
-        for objection in pending.objections:
-            for finding_id in objection.finding_ids or [None]:
-                key = f"{objection.issue_id}|{finding_id}"
-                if key in session.app_ids and "model:" + session.app_ids[key] in open_ids:
-                    resolved.append("model:" + session.app_ids[key])
+            if i.id.startswith("model:agent-")
+            and i.disposition == "open"
+            and ((i.studentId, i.criterionId) in audited or i.studentId is i.criterionId is None)
+        ]
     notes = [
         f"Auditor agent verdict: {result.verdict} ({result.stop_reason}); "
         f"{result.usage['model_calls']} model calls, {result.usage['tool_steps']} tool steps."
@@ -459,8 +495,8 @@ def to_model_audit(
         issues=issues[:100],
         resolvedIssueIds=resolved,
         resolutionReason=(
-            "The Auditor agent re-audited the revised findings and found the re-judge "
-            "objections resolved"
+            "A later Auditor agent pass inspected every audited finding and citation and "
+            "raised no remaining objection"
             if resolved
             else "No earlier Auditor objection was resolved in this audit"
         ),
@@ -506,8 +542,7 @@ def agent_audit(
             evidence_reader=ScopedReader(mapping.request["trusted_scope"], mapping.evidence),
             limits=_limits(budget),
         )
-        if model.shared_budget_exhausted:
-            raise BudgetExceeded()
+        _settle(model, budget)
         trace.update(
             history=result.trace,
             calls=[e for e in result.trace if e.get("kind") == "tool"],
@@ -532,8 +567,8 @@ def agent_audit(
             )
             trace.update(outcome="ok", verdict=result.verdict)
             budget.checkpoint()
-            return audit
     except BudgetExceeded:
+        model.settle(budget.deadline - time.monotonic())
         trace.update(outcome="interrupted", reason="Shared workflow budget exhausted")
         budget.checkpoint()
         raise
@@ -541,8 +576,48 @@ def agent_audit(
         reason = f"Auditor agent error: {type(error).__name__}"
         if isinstance(error, ContractError):
             reason += f" ({error})"
+        _settle(model, budget)
+    if reason is None:
+        # Outside the fallback boundary: a failed feedback review is a refused audit action,
+        # exactly as a failed model_audit was, rather than a reason to discard the agent's audit.
+        return _with_feedback_review(audit, inputs, draft, evidence, budget, factory)
     trace.update(outcome="fell_back", reason=reason[:300])
     budget.checkpoint()
     fallback = model_audit(inputs, draft, evidence, budget, factory)
     note = f"Auditor agent unavailable ({reason}); fell back to the single-call model audit. "
     return fallback.model_copy(update={"notes": (note + fallback.notes)[:1500]})
+
+
+def _settle(model: WorkflowModel, budget: SharedBudget) -> None:
+    """Count any in-flight Auditor call before handing control back to the coordinator."""
+    if not model.settle(budget.deadline - time.monotonic()) or model.shared_budget_exhausted:
+        raise BudgetExceeded()
+
+
+def _with_feedback_review(
+    audit: ModelAudit,
+    inputs: AssessmentInputs,
+    draft: DraftContent,
+    evidence: EvidenceMap,
+    budget: SharedBudget,
+    factory: DriverFactory,
+) -> ModelAudit:
+    """The Auditor's contract has no feedback, so a feedback-only role reviews the drafts."""
+    if not draft.feedback:
+        note = " Feedback review: no feedback drafted yet."
+        return audit.model_copy(update={"notes": (audit.notes + note)[:1500]})
+    review = feedback_audit(inputs, draft, evidence, budget, factory)
+    taken = {i.id for i in audit.issues}
+    issues = [*audit.issues, *[i for i in review.issues if i.id not in taken]][:100]
+    # The feedback role may resolve earlier non-Auditor model issues; the agent owns its own.
+    extra = [r for r in review.resolvedIssueIds if not r.startswith("model:agent-")]
+    resolved = list(dict.fromkeys([*audit.resolvedIssueIds, *extra]))
+    reason = audit.resolutionReason if audit.resolvedIssueIds else ""
+    if extra:
+        reason = (reason + " Feedback review: " + review.resolutionReason).strip()
+    return ModelAudit(
+        issues=issues,
+        resolvedIssueIds=resolved,
+        resolutionReason=(reason or audit.resolutionReason)[:1000],
+        notes=(audit.notes[:900] + " Feedback review: " + review.notes)[:1500],
+    )
