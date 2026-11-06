@@ -26,6 +26,7 @@ from pathlib import Path
 import streamlit as st
 from dotenv import load_dotenv
 from groq import Groq
+from openai import OpenAI
 
 from classpartai import config
 from classpartai import snippets as code_snippets
@@ -61,7 +62,7 @@ from classpartai.summary.ui import render_session_summary
 from classpartai.ui import STAGES, TOOL_STAGE, board_html, flow_html, system_html, vault_html
 from classpartai.voices import GOOD_SECONDS, Voices
 
-load_dotenv()  # GROQ_API_KEY for the Session Summary
+load_dotenv()  # the Session Summary's API key
 
 DATA = REPO_ROOT / "data"
 VIEWS = {"home", "new", "session", "summary", "library", "voices", "how"}
@@ -628,18 +629,25 @@ def transcribe(wav: Path, roster: list[dict], professors: set[str], meta: dict) 
 
 
 def generate_summary_json(system_prompt, user_prompt):
-    client = Groq(api_key=os.environ["GROQ_API_KEY"])
-
-    response = client.chat.completions.create(
-        model="openai/gpt-oss-20b",
-        messages=[
-            {"role": "system", "content": system_prompt},
-            {"role": "user", "content": user_prompt},
-        ],
-        response_format={"type": "json_object"},
-        temperature=0,
-    )
-
+    """Groq (Tina's setup) when GROQ_API_KEY is set, otherwise the app's OpenAI model."""
+    messages = [
+        {"role": "system", "content": system_prompt},
+        {"role": "user", "content": user_prompt},
+    ]
+    if os.getenv("GROQ_API_KEY"):
+        response = Groq(api_key=os.environ["GROQ_API_KEY"]).chat.completions.create(
+            model="openai/gpt-oss-20b",
+            messages=messages,
+            response_format={"type": "json_object"},
+            temperature=0,
+        )
+    else:
+        # gpt-5 models only accept the default temperature.
+        response = OpenAI().chat.completions.create(
+            model=config.OPENAI_MODEL,
+            messages=messages,
+            response_format={"type": "json_object"},
+        )
     return json.loads(response.choices[0].message.content)
 
 
@@ -1185,8 +1193,8 @@ elif view == "summary":
     # Keep each session's summary separate
     summary_key = f"session_summary_{session_id}"
 
-    if not os.getenv("GROQ_API_KEY"):
-        st.error("GROQ_API_KEY is missing from your .env file.")
+    if not (os.getenv("GROQ_API_KEY") or os.getenv("OPENAI_API_KEY")):
+        st.error("Set OPENAI_API_KEY (or GROQ_API_KEY) in your .env file.")
 
     else:
         if st.button(
