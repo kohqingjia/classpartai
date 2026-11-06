@@ -96,6 +96,9 @@ def run_comparison(items: list[dict], agent: ResearchAgent, meter: UsageMeter | 
     )
 
 
+SYSTEMS = ("single_pass", "agentic")
+
+
 def _cell(value) -> str:
     if value is None:
         return "–"
@@ -117,14 +120,18 @@ def markdown(report: dict, items: list[dict]) -> str:
         "",
         format_table(report),
         "",
+    ]
+    if report.get("stopped"):
+        lines += [f"**Stopped early, results incomplete:** {report['stopped']}.", ""]
+    lines += [
         "Totals per system (API calls are chat and query-embedding calls; output tokens include "
         "the model's reasoning tokens):",
         "",
         "| system | API calls | input tokens | output tokens | US$ total | seconds total |",
         "|---|---|---|---|---|---|",
     ]
-    for name in ("single_pass", "agentic"):
-        usage = report[name].get("usage")
+    for name in SYSTEMS:
+        usage = report.get(name, {}).get("usage")
         if not usage:
             continue
         models = usage["by_model"].values()
@@ -148,9 +155,13 @@ def markdown(report: dict, items: list[dict]) -> str:
         "| gold hit (sp / agent) |",
         "|---|---|---|---|---|---|---|---|",
     ]
-    single = {r["id"]: r for r in report["single_pass"]["rows"]}
-    for item, row in zip(items, report["agentic"]["rows"], strict=True):
-        sp = single[item["id"]]
+    single, agentic = ({r["id"]: r for r in report.get(n, {}).get("rows", [])} for n in SYSTEMS)
+    not_run = {k: None for k in ("correctness", "correctness_ok", "gold_hit")}
+    not_run |= {"route": "not run", "routed_correctly": None, "answers_question": None}
+    for item in items:
+        if item["id"] not in single and item["id"] not in agentic:
+            continue
+        sp, row = single.get(item["id"], not_run), agentic.get(item["id"], not_run)
         lines.append(
             f"| {item['id']} | {_cell(item.get('expected_correctness'))} | "
             f"{_cell(sp['correctness'])} {_cell(sp['correctness_ok'])} | "
@@ -188,7 +199,11 @@ def main() -> None:
     items = load_labelled(args.items)
     if args.only:
         items = [i for i in items if i["id"] in set(args.only)]
-    meter = UsageMeter(make_client(config.LLM_PROVIDER), max_usd=args.max_usd)
+    meter = UsageMeter(
+        make_client(config.LLM_PROVIDER),
+        max_usd=args.max_usd,
+        require_prices=config.LLM_PROVIDER != "ollama",  # local models are free
+    )
     documents = load_documents(args.documents) if args.documents else None
     agent = build_agent(meter, documents, args.index_cache)
     index_usage = {"by_model": meter.snapshot(), "usd": round(meter.cost(), 6)}
@@ -216,6 +231,8 @@ def main() -> None:
 
     print(format_table(report))
     print(f"\nSpent US${meter.cost():.4f} in total")
+    if report.get("stopped"):
+        print(f"Stopped early, results incomplete: {report['stopped']}")
     stem = args.name or f"research-{datetime.now():%Y%m%d-%H%M%S}"
     path = write_results(report, items, args.out, stem)
     print(f"Results: {path}.json, {path}.md")

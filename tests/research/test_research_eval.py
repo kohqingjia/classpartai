@@ -10,10 +10,20 @@ import pytest
 from classpartai.llm import OpenAIChat, OpenAIEmbedder
 from classpartai.research.agent import ResearchAgent
 from classpartai.research.bridge import documents_from_materials
-from classpartai.research.evaluate import UsageMeter, load_labelled
+from classpartai.research.evaluate import SpendLimitReached, UsageMeter, compare, load_labelled
 
 from .conftest import SAMPLE
-from .fakes import HashEmbedder, ScriptedLLM, keyword_grader, submit, turn
+from .fakes import (
+    HashEmbedder,
+    ScriptedLLM,
+    call,
+    ids_in,
+    keyword_grader,
+    last_tool_result,
+    submit,
+    turn,
+)
+from .test_evaluate import pack
 
 _spec = importlib.util.spec_from_file_location(
     "research_eval", Path(__file__).resolve().parents[2] / "eval" / "research_eval.py"
@@ -57,7 +67,7 @@ def test_meter_counts_tokens_and_cost_by_model_and_enforces_the_budget():
     # 600 fresh input at $0.25/M, 400 cached at $0.025/M, 500 output at $2/M, 10 embedded at $0.02/M
     assert meter.cost() == pytest.approx((600 * 0.25 + 400 * 0.025 + 500 * 2 + 10 * 0.02) / 1e6)
     chat.complete([{"role": "user", "content": "again"}])  # now over US$0.002
-    with pytest.raises(RuntimeError, match="Budget spent"):
+    with pytest.raises(SpendLimitReached, match="Budget spent"):
         chat.complete([{"role": "user", "content": "one too many"}])
 
 
@@ -115,3 +125,72 @@ def test_saved_quotes_are_cut_short():
     [evidence] = _brief_claim(claim)["evidence"]
     assert len(evidence["quote"].split()) == QUOTE_WORDS + 1  # the words and an ellipsis
     assert "text" not in evidence
+
+
+def test_an_unpriced_paid_model_is_refused_not_counted_as_free():
+    meter = UsageMeter(FakeOpenAI(), max_usd=0.0001)
+    chat = OpenAIChat(model="gpt-4o", client=meter, provider="openai")
+    with pytest.raises(ValueError, match="No price for gpt-4o"):
+        chat.complete([{"role": "user", "content": "hi"}])
+    assert meter.totals == {}  # refused before the call was made
+    local = UsageMeter(FakeOpenAI(), require_prices=False)  # e.g. Ollama: free
+    OpenAIChat(model="qwen3:8b", client=local, provider="openai").complete([])
+    assert local.cost() == 0 and local.totals["qwen3:8b"]["calls"] == 1
+
+
+def test_spending_limit_keeps_finished_rows_and_marks_the_report(tmp_path):
+    items = [
+        {
+            "id": i,
+            "expected_sources": ["course"],
+            "expected_correctness": "correct",
+            "gold_docs": [],
+        }
+        for i in ("a", "b", "c")
+    ]
+    calls = []
+
+    def agentic(item):
+        calls.append(item["id"])
+        if item["id"] == "b":
+            raise SpendLimitReached("Budget spent: US$1.0000 of US$1.0")
+        return pack()
+
+    report = compare(items, agentic, lambda item: pack())
+    assert [r["id"] for r in report["single_pass"]["rows"]] == ["a", "b", "c"]
+    assert [r["id"] for r in report["agentic"]["rows"]] == ["a"]  # b interrupted, c not run
+    assert calls == ["a", "b"] and "at agentic b" in report["stopped"]
+    report["config"] = {
+        "model": "m",
+        "embedder": "e",
+        "web": None,
+        "items": "x",
+        "corpus": "c",
+        "seed": 42,
+        "run_at": "now",
+    }
+    table = research_eval.write_results(report, items, tmp_path, "partial").with_suffix(".md")
+    text = table.read_text()
+    assert "Stopped early" in text and "| c | correct |" in text and "not run" in text
+
+
+def test_spending_limit_inside_a_tool_stops_the_run(store, schedule):
+    """Research's tool handler reports most failures to the model; the spending limit must not
+    be one of them."""
+
+    def spent(claim, passages):
+        raise SpendLimitReached("Budget spent")
+
+    claim = "People keep three apps and drivers switch between them."
+    llm = ScriptedLLM(
+        [
+            turn(call("search_course_materials", query="multi-homing riders drivers")),
+            lambda m: turn(call("grade_evidence", claim=claim, chunks=ids_in(last_tool_result(m)))),
+        ],
+        grader=spent,
+    )
+    item = {"id": "x", "date": "2026-09-01", "text": claim, "expected_sources": ["course"]}
+    agent = ResearchAgent(llm, store, schedule)
+    report = research_eval.run_comparison([item], agent, None)
+    assert report["single_pass"]["rows"] == [] and "at single_pass x" in report["stopped"]
+    assert "agentic" not in report

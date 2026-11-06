@@ -22,6 +22,7 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
+from classpartai.models import BudgetExceeded
 from classpartai.research.agent import EvidencePack
 from classpartai.research.materials import matches
 
@@ -136,14 +137,23 @@ def summarise(rows: list[dict]) -> dict:
 def compare(items: list[dict], run_agentic, run_single_pass, meter=None) -> dict:
     """run_*(item) -> EvidencePack. Returns per-item rows and a summary for each system. With a
     UsageMeter that the runs' models call through, each row also gets its tokens and cost, and
-    each system its usage by model, total cost and total time."""
+    each system its usage by model, total cost and total time. If the meter's spending limit is
+    reached, the run stops there: the item in progress is left out, the rows already done are
+    kept, and ``report["stopped"]`` says why."""
     report = {}
     for name, runner in (("single_pass", run_single_pass), ("agentic", run_agentic)):
+        if "stopped" in report:
+            break
         rows = []
         system_start = meter.snapshot() if meter else None
         for item in items:
             before = meter.snapshot() if meter else None
-            row = score(item, runner(item))
+            try:
+                pack = runner(item)
+            except SpendLimitReached as stop:
+                report["stopped"] = f"{stop} (at {name} {item['id']})"
+                break
+            row = score(item, pack)
             if meter:
                 spent = meter.since(before)
                 row["tokens"] = sum(m["input"] + m["output"] for m in spent.values())
@@ -168,13 +178,30 @@ def compare(items: list[dict], run_agentic, run_single_pass, meter=None) -> dict
     return report
 
 
+class SpendLimitReached(BudgetExceeded):
+    """The meter's ``max_usd`` is spent. A BudgetExceeded, so Research's tool and assessment
+    handlers stop on it instead of reporting it to the model as a failed tool."""
+
+    def __init__(self, message: str) -> None:
+        Exception.__init__(self, message)
+
+
 class UsageMeter:
     """Stands in for an OpenAI client: passes chat and embedding calls through and adds up the
-    tokens each reports, by model, so a comparison can say what each system cost. Raises before
-    a call once ``max_usd`` has been spent."""
+    tokens each reports, by model, so a comparison can say what each system cost. Raises
+    SpendLimitReached before a call once ``max_usd`` has been spent. With ``require_prices``
+    (for a paid provider), a model missing from ``prices`` is refused rather than counted as
+    free, so it can't slip past the limit."""
 
-    def __init__(self, client, prices: dict = PRICES, max_usd: float | None = None):
+    def __init__(
+        self,
+        client,
+        prices: dict = PRICES,
+        max_usd: float | None = None,
+        require_prices: bool = True,
+    ):
         self.client, self.prices, self.max_usd = client, prices, max_usd
+        self.require_prices = require_prices
         self.totals: dict[str, dict] = {}
         self.chat = _Namespace(completions=_Namespace(create=self._chat))
         self.embeddings = _Namespace(create=self._embed)
@@ -186,12 +213,17 @@ class UsageMeter:
         row["cached"] += cached
         row["output"] += output
 
-    def _check(self) -> None:
+    def _price(self, model: str) -> tuple[float, float, float] | None:
+        return next((p for name, p in self.prices.items() if model.startswith(name)), None)
+
+    def _check(self, model: str) -> None:
+        if self.require_prices and self._price(model) is None:
+            raise ValueError(f"No price for {model}: add it to evaluate.PRICES")
         if self.max_usd is not None and self.cost() >= self.max_usd:
-            raise RuntimeError(f"Budget spent: US${self.cost():.4f} of US${self.max_usd}")
+            raise SpendLimitReached(f"Budget spent: US${self.cost():.4f} of US${self.max_usd}")
 
     def _chat(self, **kwargs):
-        self._check()
+        self._check(kwargs["model"])
         response = self.client.chat.completions.create(**kwargs)
         usage = getattr(response, "usage", None)
         details = getattr(usage, "prompt_tokens_details", None)
@@ -204,7 +236,7 @@ class UsageMeter:
         return response
 
     def _embed(self, **kwargs):
-        self._check()
+        self._check(kwargs["model"])
         response = self.client.embeddings.create(**kwargs)
         usage = getattr(response, "usage", None)
         self._add(kwargs["model"], getattr(usage, "prompt_tokens", 0) or 0, 0, 0)
@@ -224,11 +256,11 @@ class UsageMeter:
         return out
 
     def cost(self, usage: dict[str, dict] | None = None) -> float:
-        """US$ for ``usage`` (default: everything so far). A model without a price counts as
-        free, e.g. a local Ollama model."""
+        """US$ for ``usage`` (default: everything so far). Unpriced models (only let through
+        without ``require_prices``, e.g. a local Ollama model) count as free."""
         total = 0.0
         for model, row in (self.totals if usage is None else usage).items():
-            price = next((p for name, p in self.prices.items() if model.startswith(name)), None)
+            price = self._price(model)
             if price is None:
                 continue
             fresh = row["input"] - row["cached"]
