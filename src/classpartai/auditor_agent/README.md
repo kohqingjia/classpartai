@@ -37,7 +37,7 @@ A second marker for provisional, per-contribution rubric findings. It investigat
 rationales and evidence, then returns `audit_passed`, `rejudge_requested`, or
 `professor_review_required`. It never calculates a replacement grade, approves grades, sends
 email, invokes the Judge, or writes application records. Audit pass is not professor approval.
-The component remains standalone and is not wired to the application's placeholder Auditor.
+The workflow's `audit_assessment` step now runs it through `participation/auditor_bridge.py` (see that module's docstring for the data mapping); `AUDITOR=model` or an agent error falls back to the single-call `roles.model_audit`.
 
 ## Groq setup (no OpenAI key required)
 

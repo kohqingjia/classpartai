@@ -1,4 +1,4 @@
-"""Standalone ClassPart AI Auditor; deliberately not wired to the application."""
+"""ClassPart AI Auditor; the workflow runs it via participation/auditor_bridge.py."""
 
 from .agent import AuditorAgent, audit_proposal
 from .contracts import AuditRequest, AuditResult, ContractError

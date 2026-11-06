@@ -41,6 +41,9 @@ ROLE_NAMES = {
     "Auditor": "finish_assessment_audit",
     "Feedback writer": "finish_student_feedback",
 }
+# Roles run as a multi-step agent rather than one structured call (the Auditor agent falls back
+# to the single-call role above if it errors).
+AGENT_ROLES = {"Auditor": ("auditor_agent",)}
 
 
 def section(number, title, note=None):
@@ -118,7 +121,7 @@ def role_calls(records, session_id, name):
         (run, call)
         for run in records.runs(session_id)
         for call in reversed(run["progress"].get("roleCalls", []))
-        if call["role"] == ROLE_NAMES[name]
+        if call["role"] in (ROLE_NAMES[name], *AGENT_ROLES.get(name, ()))
     ]
 
 
@@ -439,10 +442,21 @@ def role_view(records, session_id, inputs, name):
         st.caption("Exact role inputs unavailable until a new role call is recorded.")
     raw("Pinned rubric", inputs.rubric.model_dump())
     section(2, "Tools it may call")
-    st.code(ROLE_NAMES[name], language=None)
-    st.caption(
-        "One structured role call, with one correction attempt if invalid. Topic 7 · Agents."
-    )
+    if name == "Auditor":
+        from classpartai.auditor_agent.harness import TOOLS
+
+        st.code(", ".join(t["function"]["name"] for t in TOOLS), language=None)
+        st.caption(
+            "Le Yong's Auditor agent chooses one read-only tool at a time (citation checks "
+            "include a nested model review) and can only raise issues, request one re-judge or "
+            "escalate to the professor. If it errors, the workflow falls back to the single "
+            f"structured call {ROLE_NAMES[name]}. Topic 7 · Agents."
+        )
+    else:
+        st.code(ROLE_NAMES[name], language=None)
+        st.caption(
+            "One structured role call, with one correction attempt if invalid. Topic 7 · Agents."
+        )
     section(3, "Trajectory / timeline")
     role_trajectory(calls)
     section(
