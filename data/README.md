@@ -15,6 +15,10 @@ Small datasets and evaluation sets live here. Large or licensed files go in `dat
   correct, whether it answers the question, and (for some) how the student reasoned and what kind
   of mistake it was, and the topic files holding the gold evidence. Used by
   `eval/research_eval.py`.
+- `is469/week7_seminar.json` (committed): Tasmin's mock Week 7 (Agentic AI) seminar, using the
+  lecture's real questions with our team answering: roster, 10-turn transcript and rubric. Its
+  documents are left out (they are slide text); the **IS469 Week 7 seminar** button on New class
+  session adds the course library's documents, so upload the slides first.
 - `raw/is469/` (**git-ignored**): the lecture files themselves, which are the instructor's and are
   not ours to commit. Source: the IS469 course materials (Topic 1–8 decks as `.pptx`/`.pdf`, labs as
   `.ipynb`). Each teammate copies them in, all in one folder; keep one copy of any file downloaded
