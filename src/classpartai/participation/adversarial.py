@@ -50,6 +50,10 @@ FLAG_WORDS = (
     "email",
     "poison",
     "note to the grading",
+    "demand",
+    "asks to be",
+    "request marks",
+    "requests marks",
 )
 
 
