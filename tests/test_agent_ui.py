@@ -280,3 +280,37 @@ def test_week7_seminar_uses_the_course_library(app, tmp_path):
     inputs = records.inputs(at.session_state["session_id"])
     assert inputs.sessionTitle.startswith("Week 7 seminar")
     assert [d.id for d in inputs.documents] == [sample["documents"][0]["id"]]
+
+
+SCRIPT = {
+    "id": "02-one-silent",
+    "case": "Le Yong is on the class list but says nothing.",
+    "lines": [
+        {"speaker": "Prof Lim (demo)", "text": "What is obs?", "start": 0.0, "end": 2.0},
+        {"speaker": "Tasmin", "text": "The tool's output.", "start": 2.5, "end": 4.0},
+    ],
+}
+
+
+def test_demo_seminars_are_listed_only_with_their_recording(app, tmp_path):
+    at, _ = app
+    demos = tmp_path / "demo-seminars"
+    demos.mkdir()
+    (demos / "02-one-silent.json").write_text(json.dumps({**SCRIPT, "title": "Demo 2"}))
+    (demos / "03-nobody.json").write_text(json.dumps({**SCRIPT, "id": "03", "title": "Demo 3"}))
+    (demos / "02-one-silent.wav").write_bytes(b"")
+    click(at, "🎙️ New class session")
+    assert any(e.label.startswith("🎭 Demo seminars: 1 edge") for e in at.expander)
+    assert [b.key for b in at.button if b.key and b.key.startswith("demo-seminar-")] == [
+        "demo-seminar-02-one-silent"
+    ]
+
+
+def test_a_demo_session_shows_its_script_under_the_recording(app):
+    at, records = app
+    sid = demo(at)
+    records.save_listener_run(sid, {"script": SCRIPT})
+    navigate(at, "Record")
+    assert any("What was said" in m.value for m in at.markdown)
+    assert any("**Tasmin**: The tool's output." in m.value for m in at.markdown)
+    assert any(c.value == SCRIPT["case"] for c in at.caption)
