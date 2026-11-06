@@ -1,0 +1,531 @@
+{
+  "label": "FICTIONAL AUTHORED CASES \u2014 not independently human-validated scores",
+  "cases": [
+    {
+      "name": "defensible",
+      "request": {
+        "schema_version": 1,
+        "audit_case_id": "evaluation-defensible",
+        "trusted_scope": {
+          "course_id": "fictional-course",
+          "session_id": "fictional-session"
+        },
+        "rubric": {
+          "rubric_id": "fictional-rubric",
+          "version": "1",
+          "criteria": [
+            {
+              "criterion_id": "reasoning",
+              "description": "Level 0: no relevant concept. Level 1: names observation or interpretation. Level 2: explains the distinction accurately. Level 3: applies the distinction to a concrete example with justification. Evaluate the reviewed turn, not source wording.",
+              "minimum": 0,
+              "maximum": 3
+            }
+          ]
+        },
+        "contributions": [
+          {
+            "contribution_id": "contribution-a",
+            "turn_ids": [
+              "turn-a"
+            ],
+            "student_id": "fictional-student-a",
+            "attribution": "identified",
+            "text": "Silence alone does not show poor understanding; another observation is needed.",
+            "start_ms": 0,
+            "end_ms": 8000,
+            "transcription_confidence": null
+          }
+        ],
+        "proposal": {
+          "schema_version": 1,
+          "reference": {
+            "proposal_id": "fictional-proposal",
+            "version": 1
+          },
+          "previous_proposal": null,
+          "rejudge_request_id": null,
+          "rubric_id": "fictional-rubric",
+          "rubric_version": "1",
+          "findings": [
+            {
+              "finding_id": "finding-a",
+              "contribution_id": "contribution-a",
+              "criterion_id": "reasoning",
+              "score": 2,
+              "rationale": "The contribution distinguishes observation from interpretation; the passage says silence alone is insufficient.",
+              "transcript_turn_ids": [
+                "turn-a"
+              ],
+              "evidence": [
+                {
+                  "evidence_id": "evidence-a",
+                  "source_id": "fictional-handout",
+                  "source_version": "1",
+                  "passage_id": "passage-a",
+                  "page": 1,
+                  "quote": "Silence alone is insufficient evidence of understanding."
+                }
+              ]
+            }
+          ]
+        },
+        "state": {
+          "schema_version": 1,
+          "audit_case_id": "evaluation-defensible",
+          "scope": {
+            "course_id": "fictional-course",
+            "session_id": "fictional-session"
+          },
+          "rubric_id": "fictional-rubric",
+          "rubric_version": "1",
+          "state_version": 0,
+          "rejudge_count": 0,
+          "last_proposal": null,
+          "pending_rejudge": null,
+          "terminal": false,
+          "input_fingerprint": null,
+          "finding_bindings": {}
+        }
+      },
+      "expected_verdict": "audit_passed"
+    },
+    {
+      "name": "overstated_score",
+      "request": {
+        "schema_version": 1,
+        "audit_case_id": "evaluation-overstated",
+        "trusted_scope": {
+          "course_id": "fictional-course",
+          "session_id": "fictional-session"
+        },
+        "rubric": {
+          "rubric_id": "fictional-rubric",
+          "version": "1",
+          "criteria": [
+            {
+              "criterion_id": "reasoning",
+              "description": "Level 0: no relevant concept. Level 1: names observation or interpretation. Level 2: explains the distinction accurately. Level 3: applies the distinction to a concrete example with justification. Evaluate the reviewed turn, not source wording.",
+              "minimum": 0,
+              "maximum": 3
+            }
+          ]
+        },
+        "contributions": [
+          {
+            "contribution_id": "contribution-a",
+            "turn_ids": [
+              "turn-a"
+            ],
+            "student_id": "fictional-student-a",
+            "attribution": "identified",
+            "text": "Observation and interpretation.",
+            "start_ms": 0,
+            "end_ms": 8000,
+            "transcription_confidence": null
+          }
+        ],
+        "proposal": {
+          "schema_version": 1,
+          "reference": {
+            "proposal_id": "fictional-proposal",
+            "version": 1
+          },
+          "previous_proposal": null,
+          "rejudge_request_id": null,
+          "rubric_id": "fictional-rubric",
+          "rubric_version": "1",
+          "findings": [
+            {
+              "finding_id": "finding-a",
+              "contribution_id": "contribution-a",
+              "criterion_id": "reasoning",
+              "score": 3,
+              "rationale": "The student names observation and interpretation, terms defined by the course handout.",
+              "transcript_turn_ids": [
+                "turn-a"
+              ],
+              "evidence": [
+                {
+                  "evidence_id": "evidence-a",
+                  "source_id": "fictional-handout",
+                  "source_version": "1",
+                  "passage_id": "passage-a",
+                  "page": 1,
+                  "quote": "Silence alone is insufficient evidence of understanding."
+                }
+              ]
+            }
+          ]
+        },
+        "state": {
+          "schema_version": 1,
+          "audit_case_id": "evaluation-overstated",
+          "scope": {
+            "course_id": "fictional-course",
+            "session_id": "fictional-session"
+          },
+          "rubric_id": "fictional-rubric",
+          "rubric_version": "1",
+          "state_version": 0,
+          "rejudge_count": 0,
+          "last_proposal": null,
+          "pending_rejudge": null,
+          "terminal": false,
+          "input_fingerprint": null,
+          "finding_bindings": {}
+        }
+      },
+      "expected_verdict": "rejudge_requested"
+    },
+    {
+      "name": "inconsistent_scores",
+      "request": {
+        "schema_version": 1,
+        "audit_case_id": "evaluation-inconsistent",
+        "trusted_scope": {
+          "course_id": "fictional-course",
+          "session_id": "fictional-session"
+        },
+        "rubric": {
+          "rubric_id": "fictional-rubric",
+          "version": "1",
+          "criteria": [
+            {
+              "criterion_id": "reasoning",
+              "description": "Level 0: no relevant concept. Level 1: names observation or interpretation. Level 2: explains the distinction accurately. Level 3: applies the distinction to a concrete example with justification. Evaluate the reviewed turn, not source wording.",
+              "minimum": 0,
+              "maximum": 3
+            }
+          ]
+        },
+        "contributions": [
+          {
+            "contribution_id": "contribution-a",
+            "turn_ids": [
+              "turn-a"
+            ],
+            "student_id": "fictional-student-a",
+            "attribution": "identified",
+            "text": "Silence alone does not show poor understanding; another observation is needed.",
+            "start_ms": 0,
+            "end_ms": 8000,
+            "transcription_confidence": null
+          },
+          {
+            "contribution_id": "contribution-b",
+            "turn_ids": [
+              "turn-b"
+            ],
+            "student_id": "fictional-student-b",
+            "attribution": "identified",
+            "text": "Silence alone does not show poor understanding; another observation is needed.",
+            "start_ms": 0,
+            "end_ms": 8000,
+            "transcription_confidence": null
+          }
+        ],
+        "proposal": {
+          "schema_version": 1,
+          "reference": {
+            "proposal_id": "fictional-proposal",
+            "version": 1
+          },
+          "previous_proposal": null,
+          "rejudge_request_id": null,
+          "rubric_id": "fictional-rubric",
+          "rubric_version": "1",
+          "findings": [
+            {
+              "finding_id": "finding-a",
+              "contribution_id": "contribution-a",
+              "criterion_id": "reasoning",
+              "score": 1,
+              "rationale": "The contribution distinguishes observation from interpretation; the passage says silence alone is insufficient.",
+              "transcript_turn_ids": [
+                "turn-a"
+              ],
+              "evidence": [
+                {
+                  "evidence_id": "evidence-a",
+                  "source_id": "fictional-handout",
+                  "source_version": "1",
+                  "passage_id": "passage-a",
+                  "page": 1,
+                  "quote": "Silence alone is insufficient evidence of understanding."
+                }
+              ]
+            },
+            {
+              "finding_id": "finding-b",
+              "contribution_id": "contribution-b",
+              "criterion_id": "reasoning",
+              "score": 3,
+              "rationale": "The contribution distinguishes observation from interpretation; the passage says silence alone is insufficient.",
+              "transcript_turn_ids": [
+                "turn-b"
+              ],
+              "evidence": [
+                {
+                  "evidence_id": "evidence-a",
+                  "source_id": "fictional-handout",
+                  "source_version": "1",
+                  "passage_id": "passage-a",
+                  "page": 1,
+                  "quote": "Silence alone is insufficient evidence of understanding."
+                }
+              ]
+            }
+          ]
+        },
+        "state": {
+          "schema_version": 1,
+          "audit_case_id": "evaluation-inconsistent",
+          "scope": {
+            "course_id": "fictional-course",
+            "session_id": "fictional-session"
+          },
+          "rubric_id": "fictional-rubric",
+          "rubric_version": "1",
+          "state_version": 0,
+          "rejudge_count": 0,
+          "last_proposal": null,
+          "pending_rejudge": null,
+          "terminal": false,
+          "input_fingerprint": null,
+          "finding_bindings": {}
+        }
+      },
+      "expected_verdict": "rejudge_requested"
+    },
+    {
+      "name": "unresolved_revision",
+      "request": {
+        "schema_version": 1,
+        "audit_case_id": "evaluation-unresolved",
+        "trusted_scope": {
+          "course_id": "fictional-course",
+          "session_id": "fictional-session"
+        },
+        "rubric": {
+          "rubric_id": "fictional-rubric",
+          "version": "1",
+          "criteria": [
+            {
+              "criterion_id": "reasoning",
+              "description": "Justify an interpretation with relevant evidence; defensible challenges are welcome.",
+              "minimum": 0,
+              "maximum": 3
+            }
+          ]
+        },
+        "contributions": [
+          {
+            "contribution_id": "contribution-a",
+            "turn_ids": [
+              "turn-a"
+            ],
+            "student_id": "fictional-student-a",
+            "attribution": "identified",
+            "text": "Silence alone does not show poor understanding; another observation is needed.",
+            "start_ms": 0,
+            "end_ms": 8000,
+            "transcription_confidence": null
+          }
+        ],
+        "proposal": {
+          "schema_version": 1,
+          "reference": {
+            "proposal_id": "fictional-proposal",
+            "version": 2
+          },
+          "previous_proposal": {
+            "proposal_id": "fictional-proposal",
+            "version": 1
+          },
+          "rejudge_request_id": "rejudge-93572a0a83cd9bc8343bc441",
+          "rubric_id": "fictional-rubric",
+          "rubric_version": "1",
+          "findings": [
+            {
+              "finding_id": "finding-a",
+              "contribution_id": "contribution-a",
+              "criterion_id": "reasoning",
+              "score": 2,
+              "rationale": "The passage says silence proves poor understanding.",
+              "transcript_turn_ids": [
+                "turn-a"
+              ],
+              "evidence": [
+                {
+                  "evidence_id": "evidence-a",
+                  "source_id": "fictional-handout",
+                  "source_version": "1",
+                  "passage_id": "passage-a",
+                  "page": 1,
+                  "quote": "Silence alone is insufficient evidence of understanding."
+                }
+              ]
+            }
+          ]
+        },
+        "state": {
+          "schema_version": 1,
+          "audit_case_id": "evaluation-unresolved",
+          "scope": {
+            "course_id": "fictional-course",
+            "session_id": "fictional-session"
+          },
+          "rubric_id": "fictional-rubric",
+          "rubric_version": "1",
+          "state_version": 1,
+          "rejudge_count": 1,
+          "last_proposal": {
+            "proposal_id": "fictional-proposal",
+            "version": 1
+          },
+          "pending_rejudge": {
+            "schema_version": 1,
+            "audit_case_id": "evaluation-unresolved",
+            "original_proposal": {
+              "proposal_id": "fictional-proposal",
+              "version": 1
+            },
+            "request_id": "rejudge-93572a0a83cd9bc8343bc441",
+            "affected_finding_ids": [
+              "finding-a"
+            ],
+            "affected_criterion_ids": [
+              "reasoning"
+            ],
+            "objections": [
+              {
+                "issue_id": "unsupported-rationale",
+                "kind": "citation",
+                "severity": "material",
+                "finding_ids": [
+                  "finding-a"
+                ],
+                "evidence_ids": [
+                  "evidence-a"
+                ],
+                "objection": "The exact source quotation does not support the rationale; revise the rationale against the cited passage, retaining uncertainty."
+              },
+              {
+                "issue_id": "guard-5a8fced12ea2ac58",
+                "kind": "citation",
+                "severity": "material",
+                "finding_ids": [
+                  "finding-a"
+                ],
+                "evidence_ids": [
+                  "evidence-a"
+                ],
+                "objection": "Citation does not fully support the rationale: Fictional semantic-review double: rationale contradicts the passage"
+              }
+            ],
+            "evidence_ids": [
+              "evidence-a"
+            ]
+          },
+          "terminal": false,
+          "input_fingerprint": "930ee446a9cb9632c289715dc09bc8edc4825b6f5f875a75b5c79cf32ec3090a",
+          "finding_bindings": {
+            "finding-a": [
+              "contribution-a",
+              "reasoning"
+            ]
+          }
+        }
+      },
+      "expected_verdict": "professor_review_required"
+    },
+    {
+      "name": "early_finish",
+      "request": {
+        "schema_version": 1,
+        "audit_case_id": "evaluation-defensible",
+        "trusted_scope": {
+          "course_id": "fictional-course",
+          "session_id": "fictional-session"
+        },
+        "rubric": {
+          "rubric_id": "fictional-rubric",
+          "version": "1",
+          "criteria": [
+            {
+              "criterion_id": "reasoning",
+              "description": "Level 0: no relevant concept. Level 1: names observation or interpretation. Level 2: explains the distinction accurately. Level 3: applies the distinction to a concrete example with justification. Evaluate the reviewed turn, not source wording.",
+              "minimum": 0,
+              "maximum": 3
+            }
+          ]
+        },
+        "contributions": [
+          {
+            "contribution_id": "contribution-a",
+            "turn_ids": [
+              "turn-a"
+            ],
+            "student_id": "fictional-student-a",
+            "attribution": "identified",
+            "text": "Silence alone does not show poor understanding; another observation is needed.",
+            "start_ms": 0,
+            "end_ms": 8000,
+            "transcription_confidence": null
+          }
+        ],
+        "proposal": {
+          "schema_version": 1,
+          "reference": {
+            "proposal_id": "fictional-proposal",
+            "version": 1
+          },
+          "previous_proposal": null,
+          "rejudge_request_id": null,
+          "rubric_id": "fictional-rubric",
+          "rubric_version": "1",
+          "findings": [
+            {
+              "finding_id": "finding-a",
+              "contribution_id": "contribution-a",
+              "criterion_id": "reasoning",
+              "score": 2,
+              "rationale": "The contribution distinguishes observation from interpretation; the passage says silence alone is insufficient.",
+              "transcript_turn_ids": [
+                "turn-a"
+              ],
+              "evidence": [
+                {
+                  "evidence_id": "evidence-a",
+                  "source_id": "fictional-handout",
+                  "source_version": "1",
+                  "passage_id": "passage-a",
+                  "page": 1,
+                  "quote": "Silence alone is insufficient evidence of understanding."
+                }
+              ]
+            }
+          ]
+        },
+        "state": {
+          "schema_version": 1,
+          "audit_case_id": "evaluation-defensible",
+          "scope": {
+            "course_id": "fictional-course",
+            "session_id": "fictional-session"
+          },
+          "rubric_id": "fictional-rubric",
+          "rubric_version": "1",
+          "state_version": 0,
+          "rejudge_count": 0,
+          "last_proposal": null,
+          "pending_rejudge": null,
+          "terminal": false,
+          "input_fingerprint": null,
+          "finding_bindings": {}
+        }
+      },
+      "expected_verdict": "audit_passed"
+    }
+  ]
+}
