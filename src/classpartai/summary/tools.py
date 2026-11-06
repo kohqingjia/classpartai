@@ -1,4 +1,3 @@
-
 from collections import defaultdict
 
 
@@ -16,13 +15,15 @@ def get_session_transcript(transcript):
         else:
             speaker_id = "unknown"
 
-        result.append({
-            "turn_id": turn.id,
-            "speaker_id": speaker_id,
-            "speaker_type": speaker.kind,
-            "text": turn.text,
-            "start_seconds": turn.startMs / 1000,
-        })
+        result.append(
+            {
+                "turn_id": turn.id,
+                "speaker_id": speaker_id,
+                "speaker_type": speaker.kind,
+                "text": turn.text,
+                "start_seconds": turn.startMs / 1000,
+            }
+        )
 
     return result
 

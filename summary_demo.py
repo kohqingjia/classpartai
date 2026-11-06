@@ -1,4 +1,3 @@
-
 import json
 import os
 from types import SimpleNamespace
@@ -29,9 +28,7 @@ def build_transcript(raw_text):
         if not speaker_name or not text:
             continue
 
-        is_professor = speaker_name.lower() in {
-            "professor", "prof", "instructor"
-        }
+        is_professor = speaker_name.lower() in {"professor", "prof", "instructor"}
 
         turns.append(
             SimpleNamespace(
@@ -46,7 +43,6 @@ def build_transcript(raw_text):
         )
 
     return SimpleNamespace(turns=turns)
-
 
 
 def generate_json(system_prompt, user_prompt):
@@ -71,13 +67,9 @@ def generate_json(system_prompt, user_prompt):
     return json.loads(response.choices[0].message.content)
 
 
-
 st.title("ClassPart AI — Session Summary")
 
-st.write(
-    "Enter a seminar transcript to generate an AI-powered "
-    "professor briefing."
-)
+st.write("Enter a seminar transcript to generate an AI-powered professor briefing.")
 
 raw_transcript = st.text_area(
     "Seminar Transcript",
@@ -93,10 +85,7 @@ if st.button("Generate Session Summary"):
     transcript = build_transcript(raw_transcript)
 
     if not transcript.turns:
-        st.error(
-            "Enter at least one contribution using "
-            "'Speaker: contribution'."
-        )
+        st.error("Enter at least one contribution using 'Speaker: contribution'.")
     elif not os.getenv("GROQ_API_KEY"):
         st.error("GROQ_API_KEY is missing from your .env file.")
     else:
