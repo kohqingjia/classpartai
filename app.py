@@ -27,7 +27,7 @@ import streamlit as st
 from dotenv import load_dotenv
 from groq import Groq
 
-from classpartai import config
+from classpartai import config, usage
 from classpartai import snippets as code_snippets
 from classpartai.agent_ui import TABS, overview, render_agent
 from classpartai.agents import listener
@@ -40,6 +40,7 @@ from classpartai.evidence import CourseIndex, Investigation, investigate
 from classpartai.library import SUPPORTED as LIBRARY_TYPES
 from classpartai.library import Library
 from classpartai.models import WORKFLOW_LIMITS, configured_driver
+from classpartai.monitoring_ui import monitoring_view
 from classpartai.participation.coordinator import coordinate
 from classpartai.participation.delivery import (
     AgentMailTransport,
@@ -64,7 +65,7 @@ from classpartai.voices import GOOD_SECONDS, Voices
 load_dotenv()  # GROQ_API_KEY for the Session Summary
 
 DATA = REPO_ROOT / "data"
-VIEWS = {"home", "new", "session", "summary", "library", "voices", "how"}
+VIEWS = {"home", "new", "session", "summary", "library", "voices", "how", "monitoring"}
 RECORDINGS = DATA_DIR / "recordings"  # class recordings, kept for playback (server volume only)
 DEMO_AUDIO = DATA / "demo_audio"
 # Read aloud for a voice sample: about 20 seconds, with varied sounds.
@@ -99,7 +100,9 @@ button:active:not(:disabled) { transform:scale(0.97); }
 def services() -> tuple[Records, ClassList]:
     # A new file: the earlier Action-harness build left a classpartai.db with an incompatible
     # `sessions` table.
-    return Records(DATA_DIR / "assessments.db"), ClassList(DATA_DIR / "classlist.json")
+    store = Records(DATA_DIR / "assessments.db")
+    usage.configure(store.log_event)  # every model call, anywhere in the app, is kept here
+    return store, ClassList(DATA_DIR / "classlist.json")
 
 
 @st.cache_resource
@@ -568,6 +571,7 @@ with st.sidebar:
     nav("👥 Class & voices", "voices")
     st.caption("Present")
     nav("🧭 How it works", "how")
+    nav("📈 Monitoring", "monitoring")
     if os.getenv("EMAIL_TEST_MODE", "true").lower() != "false":
         recipient = os.getenv("EMAIL_TEST_RECIPIENT", "(not set)")
         st.caption(f"✉️ Test mode: every email goes to {recipient}")
@@ -629,16 +633,32 @@ def transcribe(wav: Path, roster: list[dict], professors: set[str], meta: dict) 
 
 def generate_summary_json(system_prompt, user_prompt):
     client = Groq(api_key=os.environ["GROQ_API_KEY"])
+    model = "openai/gpt-oss-20b"
 
-    response = client.chat.completions.create(
-        model="openai/gpt-oss-20b",
-        messages=[
-            {"role": "system", "content": system_prompt},
-            {"role": "user", "content": user_prompt},
-        ],
-        response_format={"type": "json_object"},
-        temperature=0,
-    )
+    with usage.tracking(agent="summary", session_id=st.session_state.get("session_id")):
+        started = usage.begin()
+        try:
+            response = client.chat.completions.create(
+                model=model,
+                messages=[
+                    {"role": "system", "content": system_prompt},
+                    {"role": "user", "content": user_prompt},
+                ],
+                response_format={"type": "json_object"},
+                temperature=0,
+            )
+        except Exception as error:
+            usage.record_model_call(
+                started,
+                model=model,
+                provider="groq",
+                status="error",
+                error=f"{type(error).__name__}: {error}",
+            )
+            raise
+        usage.record_model_call(
+            started, model=model, provider="groq", usage=getattr(response, "usage", None)
+        )
 
     return json.loads(response.choices[0].message.content)
 
@@ -1141,6 +1161,9 @@ elif view == "how":
 
 # --- Session Summary ----------------------------------------------------------
 
+elif view == "monitoring":
+    monitoring_view(records, go)
+
 elif view == "summary":
     inputs = records.inputs(session_id)
     meta = by_id[session_id]
@@ -1340,13 +1363,19 @@ elif view == "session":
                                     ):  # ② Research (research/bridge.py), same contract
                                         from classpartai.research import bridge
 
-                                        outcome = bridge.investigate(
-                                            request, inputs, None, checkpoint
-                                        )
+                                        with usage.tracking(session_id=session_id):
+                                            outcome = bridge.investigate(
+                                                request, inputs, None, checkpoint
+                                            )
                                     else:
-                                        outcome = investigate(
-                                            request, inputs, driver, CourseIndex(inputs), checkpoint
-                                        )
+                                        with usage.tracking(session_id=session_id):
+                                            outcome = investigate(
+                                                request,
+                                                inputs,
+                                                driver,
+                                                CourseIndex(inputs),
+                                                checkpoint,
+                                            )
                                     records.save_evidence_run(session_id, question, outcome)
                                     log.update(
                                         label=f"Evidence agent: {outcome.status} "

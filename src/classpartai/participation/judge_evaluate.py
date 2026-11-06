@@ -19,7 +19,7 @@ Trajectory metrics, per case:
 
     finished        the Judge handed over findings that passed validation
     first_try_valid no score it proposed was refused by the rules
-    read_first      it read the student's turns before scoring
+    score_calls     scoring calls it needed (1 means it scored everyone in one go)
     flag_recall     it flagged the cases a person said need the professor (e.g. an injection)
     false_flag_rate it flagged cases nobody expected to be flagged
     model_calls, tool_calls, tokens, seconds   what it cost
@@ -182,7 +182,6 @@ def score(
         if name == "score_contribution" and t["outcome"] == "refused"
     )
     findings = {f.criterionId: f for f in proposal.findings} if proposal else {}
-    first_score = tools.index("score_contribution") if "score_contribution" in tools else None
     expected = case["expected_scores"]
     return {
         "id": case["id"],
@@ -201,7 +200,7 @@ def score(
         "trajectory": tools,
         "refused_calls": sum(t["outcome"] == "refused" for t in turns),
         "first_try_valid": refused_scores == 0,
-        "read_first": first_score is not None and "get_contributions" in tools[:first_score],
+        "score_calls": tools.count("score_contribution"),
         "model_calls": progress.modelCalls,
         "tool_calls": progress.toolCalls,
         "tokens": progress.tokens,
@@ -305,7 +304,7 @@ def summarise(rows: list[dict], inputs: AssessmentInputs | None = None) -> dict:
         "trajectory": {
             "finished": mean("finished"),
             "first_try_valid": mean("first_try_valid", done),
-            "read_first": mean("read_first", done),
+            "score_calls": mean("score_calls", done),
             "flag_recall": mean("flagged", expected_flag),
             "false_flag_rate": mean("flagged", unexpected),
             "refused_calls": mean("refused_calls"),

@@ -22,9 +22,10 @@ The assessment workflow was designed and first built by Le Yong in TypeScript (`
                     │                                 pair question + answer → course notes or web →
                     │                                 grade → rewrite → verdict: correct? answers it?
                     │                                 reasoned? guess or misconception?
-                    ├─ propose_rubric_assessment ─► ③ JUDGE (an agent): reads the rubric, evidence and each
-                    │                                 student's own turns, then scores one finding per student ×
-                    │                                 criterion with a confidence, flags what needs the professor,
+                    ├─ propose_rubric_assessment ─► ③ JUDGE (an agent): gets the rubric, each student's own
+                    │                                 turns and the evidence summary in one message, scores every
+                    │                                 student × criterion with a confidence, flags what needs the
+                    │                                 professor (a revision re-scores only the audited students),
                     │                                 or says "insufficient evidence" (never counted as zero)
                     ├─ audit_assessment ──────────► ④ AUDITOR: deterministic checks + model review
                     ├─ draft_student_feedback ────► ⑤ FEEDBACK: strengths, next step, limitations
@@ -69,7 +70,7 @@ for the data sources, course-topic mapping and diagnostics recorded by new runs.
 |---|---|
 | ① Listener | word error rate; speaker-attribution accuracy |
 | ② Research agent | single-pass vs agentic RAG on 20 labelled IS469 Q&A pairs (`eval/research_eval.py`): routing, correctness, answers-the-question, context precision, cost |
-| ③ Judge | output: agreement with human scores on 20 hand-scored contributions (Spearman, quadratic-weighted Cohen's kappa; `eval/judge_eval.py`). Trajectory: finished, rules passed first try, read the student's turns first, flagged the injection, calls and cost |
+| ③ Judge | output: agreement with human scores on 20 hand-scored contributions (Spearman, quadratic-weighted Cohen's kappa; `eval/judge_eval.py`). Trajectory: finished, rules passed first try, scoring calls needed, flagged the injection, calls and cost |
 | ④ Auditor | judge alone vs judge + auditor: issues caught, injected instructions flagged |
 | Coordinator / harness | tool-call validity, refusals recovered from, budget use; unsafe actions blocked |
 
@@ -95,7 +96,7 @@ src/classpartai/
   participation/
     schema.py           findings, feedback, audits, drafts
     validation.py       the rules every draft must pass; totals; deterministic audit
-    judge.py            the Judge agent: tools (rubric, evidence, contributions, score, flag, finish)
+    judge.py            the Judge agent: tools (evidence, contributions, score) and revisions
     roles.py            auditor and feedback roles
     coordinator.py      the coordinator agent
     records.py          SQLite: sessions, evidence runs, versioned drafts, recipients, approvals
@@ -104,6 +105,9 @@ src/classpartai/
   classlist.py          names and emails, keyed by student ID
   library.py            course library: uploaded slides/readings/labs as session documents
   retrieval.py          what an evidence run searched and retrieved (for the vault view)
+  usage.py              usage ledger: every model call's tokens, latency and estimated cost, plus trace
+                        steps, kept in SQLite (events table)
+  monitoring_ui.py      the Monitoring page: usage dashboard and per-run traces
   ui.py                 the animated workflow strip, student cards and the vault constellation
   assets/vault.html     the vault constellation page (canvas animation)
 audio-service/          Listener pipeline: Whisper, pyannote, SpeechBrain (Tina)
@@ -128,7 +132,13 @@ deploy/                 Docker deploy for the VPS
    with ▶) → ③ run the agents → ④ approve → ⑤ preview and send the emails. Recordings are kept
    on the server for playback (`DATA_DIR/recordings`). The step bar names the agents at work in
    each step; every step is clickable, and the browser's back button walks back through them.
-4. **🧭 How it works**: the whole system on one page (pipeline diagram, why it's agentic,
+4. **📈 Monitoring**: what the agents used and did. A dashboard of model calls, tokens (cached and
+   reasoning), estimated cost and latency by agent, model and day, and a trace of every step of each
+   assessment run. It is kept in the app's database (`assessments.db`), so it survives restarts and
+   redeploys. Costs come from `data/model_prices.json` (edit it to match your plan; a model with no
+   price shows "no price", never $0); the OpenAI usage page is the source of truth for the bill.
+   Each run's trace is also on the Coordinator tab of its Agent workspace.
+5. **🧭 How it works**: the whole system on one page (pipeline diagram, why it's agentic,
    guardrails, IS469 topic map), for presenting.
 
 No recording to hand? **▶ Use the demo recording** processes `data/demo_audio/seminar.ogg`, a

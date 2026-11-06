@@ -8,6 +8,7 @@ import streamlit as st
 
 from classpartai.config import DATA_DIR
 from classpartai.models import WORKFLOW_LIMITS
+from classpartai.monitoring_ui import usage_panel
 from classpartai.participation.coordinator import COORDINATOR_TOOLS
 from classpartai.participation.delivery import DeliverySettings, feedback_email
 from classpartai.participation.judge import FLAG_PREFIX, JUDGE_TOOLS
@@ -310,6 +311,9 @@ def coordinator_view(records, session_id, inputs):
     budget_gauges(progress)
     if run:
         st.caption(f"Run {run['id']} · stop: {run['stop_reason'] or 'pending'}")
+    if run:
+        section(0, "Usage & trace", "Every model call and step of this run, kept in the database")
+        usage_panel(records, run["id"], "coord")
     section(1, "Inputs")
     raw("Pinned roster, rubric and transcript", inputs.model_dump(exclude={"documents"}))
     raw(

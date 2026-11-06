@@ -58,6 +58,13 @@ CREATE TABLE IF NOT EXISTS deliveries (
     id TEXT PRIMARY KEY, draft_id TEXT NOT NULL, approval_id TEXT NOT NULL,
     student_id TEXT NOT NULL, recipient TEXT NOT NULL, state TEXT NOT NULL,
     attempts INTEGER NOT NULL, updated_at TEXT NOT NULL, UNIQUE (draft_id, student_id));
+CREATE TABLE IF NOT EXISTS events (
+    id TEXT PRIMARY KEY, ts TEXT NOT NULL, run_id TEXT, session_id TEXT, agent TEXT NOT NULL,
+    kind TEXT NOT NULL, name TEXT NOT NULL, provider TEXT, model TEXT, input_tokens INTEGER,
+    output_tokens INTEGER, cached_tokens INTEGER, reasoning_tokens INTEGER, latency_ms INTEGER,
+    cost_usd REAL, status TEXT NOT NULL, detail TEXT NOT NULL);
+CREATE INDEX IF NOT EXISTS events_run ON events (run_id, ts);
+CREATE INDEX IF NOT EXISTS events_ts ON events (ts);
 CREATE TABLE IF NOT EXISTS delivery_attempts (
     id TEXT PRIMARY KEY, delivery_id TEXT NOT NULL, attempt INTEGER NOT NULL,
     state TEXT NOT NULL, reason TEXT, message_id TEXT, sent_to TEXT, started_at TEXT NOT NULL);
@@ -446,6 +453,83 @@ class Records:
         )
         for r in rows:
             r["progress"] = json.loads(r["progress"])
+        return rows
+
+    # --- Usage and trace events (see classpartai/usage.py) -----------------------------------
+
+    def log_event(self, event: dict) -> None:
+        """Store one usage or trace event. Safe to call from any thread."""
+        with self.lock:
+            self.db.execute(
+                "INSERT OR IGNORE INTO events VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,"
+                " ?, ?)",
+                (
+                    event["id"],
+                    event["ts"],
+                    event.get("run_id"),
+                    event.get("session_id"),
+                    event["agent"],
+                    event["kind"],
+                    event["name"],
+                    event.get("provider"),
+                    event.get("model"),
+                    event.get("input_tokens"),
+                    event.get("output_tokens"),
+                    event.get("cached_tokens"),
+                    event.get("reasoning_tokens"),
+                    event.get("latency_ms"),
+                    event.get("cost_usd"),
+                    event["status"],
+                    json.dumps(event.get("detail") or {}, default=str),
+                ),
+            )
+
+    def events(
+        self, run_id: str | None = None, session_id: str | None = None, limit: int = 5000
+    ) -> list[dict]:
+        """Events in the order they started: one run's, one session's, or the latest overall."""
+        where, args = [], []
+        if run_id:
+            where.append("run_id = ?")
+            args.append(run_id)
+        if session_id:
+            where.append("session_id = ?")
+            args.append(session_id)
+        rows = self._all(
+            "SELECT * FROM (SELECT * FROM events"
+            + (" WHERE " + " AND ".join(where) if where else "")
+            + " ORDER BY ts DESC LIMIT ?) ORDER BY ts",
+            (*args, limit),
+        )
+        for r in rows:
+            r["detail"] = json.loads(r["detail"])
+        return rows
+
+    def usage_rows(self, since: str | None = None, limit: int = 100000) -> list[dict]:
+        """Chat and embedding calls (not trace steps) since a timestamp, for the dashboard."""
+        rows = self._all(
+            "SELECT * FROM events WHERE kind IN ('model', 'embedding') AND ts >= ?"
+            " ORDER BY ts DESC LIMIT ?",
+            (since or "", limit),
+        )
+        for r in rows:
+            r["detail"] = json.loads(r["detail"])
+        return rows
+
+    def runs_with_usage(self, since: str | None = None, limit: int = 50) -> list[dict]:
+        """Workflow runs, newest first, with what their model calls used."""
+        rows = self._all(
+            "SELECT r.id, r.session_id, s.title, r.status, r.stop_reason, r.created_at,"
+            " r.manifest, COUNT(e.id) AS calls, SUM(e.input_tokens) AS input_tokens,"
+            " SUM(e.output_tokens) AS output_tokens, SUM(e.cost_usd) AS cost_usd,"
+            " SUM(e.cost_usd IS NULL) AS unpriced, SUM(e.status = 'error') AS errors"
+            " FROM participation_runs r LEFT JOIN sessions s ON s.id = r.session_id"
+            " LEFT JOIN events e ON e.run_id = r.id AND e.kind = 'model'"
+            " WHERE r.created_at >= ? GROUP BY r.id ORDER BY r.created_at DESC LIMIT ?",
+            (since or "", limit),
+        )
+        for r in rows:
+            r["manifest"] = json.loads(r["manifest"])
         return rows
 
     # --- Deliveries -------------------------------------------------------------------------

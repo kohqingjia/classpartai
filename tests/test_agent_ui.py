@@ -274,5 +274,39 @@ def test_judge_tab_shows_each_tool_the_agent_called_in_order(app):
     assert not at.exception
     steps = [e.label for e in at.expander if " · judge" not in e.label and "· ok ·" in e.label]
     tools = [label.split(" · ")[1] for label in steps]
-    assert tools[:3] == ["get_rubric", "get_evidence", "get_contributions"]
-    assert tools[-1] == "finish_rubric_judgement" and tools.count("score_contribution") == 4
+    assert tools == ["score_contribution"]  # the Judge scored everyone in one call
+
+
+def steps_shown(at):
+    """Every value in the 'Step' column of the trace tables on the page."""
+    return {step for df in at.dataframe if "Step" in df.value.columns for step in df.value["Step"]}
+
+
+def test_monitoring_page_and_coordinator_tab_show_usage_and_the_runs_trace(app):
+    from test_usage import event, scripted_workflow
+
+    from classpartai import usage
+
+    at, records = app
+    session_id = demo(at)
+    click(at, "📈 Monitoring")
+    assert at.title[0].value == "Monitoring"
+    assert any("No model calls recorded" in i.value for i in at.info)
+
+    run_id = scripted_workflow(records, session_id)
+    records.log_event(event(id="m1", ts=usage.now_iso(), run_id=run_id, session_id=session_id))
+    click(at, "📈 Monitoring")
+    assert not at.exception
+    metrics = {m.label: m.value for m in at.metric}
+    assert metrics["Model calls"] == "1" and metrics["Tokens in"] == "100"
+    assert metrics["Est. cost"].startswith("$")
+    assert [s.value for s in at.subheader] == ["Usage", "Traces"]
+    runs_label = "Open a run's trace"
+    assert any(s.label == runs_label for s in at.selectbox)
+    assert "propose_rubric_assessment" in steps_shown(at)
+
+    navigate(at, "AI assessment", "Coordinator")
+    at.toggle[0].set_value(True).run()
+    assert not at.exception
+    assert any("Usage & trace" in m.value for m in at.markdown)
+    assert "draft_student_feedback" in steps_shown(at)

@@ -112,20 +112,33 @@ def full_proposal() -> dict:
     }
 
 
-def judge_steps(findings=None, confidence="high") -> list:
-    """The Judge agent's scripted run: read everything, score each student, finish."""
+def score_call(findings=None, confidence="high", **student_extras):
+    """One score_contribution call that scores every student in `findings` (a full proposal's
+    findings by default). `student_extras` (e.g. flag=...) are added to every student."""
     findings = findings or full_proposal()["findings"]
     students = list(dict.fromkeys(f["studentId"] for f in findings))
-    steps = [
-        ("get_rubric", {}),
-        ("get_evidence", {"runId": None}),
-        ("get_contributions", {"studentIds": students}),
-    ]
-    for student in students:
-        scores = [
-            {**{k: v for k, v in f.items() if k != "studentId"}, "confidence": confidence}
-            for f in findings
-            if f["studentId"] == student
-        ]
-        steps.append(("score_contribution", {"studentId": student, "scores": scores}))
-    return [*steps, ("finish_rubric_judgement", {})]
+    return (
+        "score_contribution",
+        {
+            "students": [
+                {
+                    "studentId": student,
+                    **student_extras,
+                    "scores": [
+                        {
+                            **{k: v for k, v in f.items() if k != "studentId"},
+                            "confidence": confidence,
+                        }
+                        for f in findings
+                        if f["studentId"] == student
+                    ],
+                }
+                for student in students
+            ]
+        },
+    )
+
+
+def judge_steps(findings=None, confidence="high") -> list:
+    """The Judge agent's scripted run: it scores everyone in one call and the run ends."""
+    return [score_call(findings, confidence)]

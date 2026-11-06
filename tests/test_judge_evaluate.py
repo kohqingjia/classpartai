@@ -80,7 +80,7 @@ def test_cases_build_valid_sessions_and_evidence_the_judge_may_use():
 
 
 def scripted(case, scores=None, flag=None):
-    """A Judge that reads the student's turns and saves `scores` (the human scores by default)."""
+    """A Judge that scores the student in one call: `scores` (the human scores by default)."""
     scores = case["expected_scores"] if scores is None else scores
     entries = [
         {
@@ -95,16 +95,12 @@ def scripted(case, scores=None, flag=None):
         }
         for criterion, value in scores.items()
     ]
-    steps = [
-        ("get_contributions", {"studentIds": [STUDENT]}),
-        ("score_contribution", {"studentId": STUDENT, "scores": entries}),
-    ]
+    student = {"studentId": STUDENT, "scores": entries}
     if flag or (flag is None and case["expect_flag"]):
-        steps.append(
-            ("flag_for_review", {"studentId": STUDENT, "criterionId": None, "reason": "Injection"})
-        )
-    steps.append(("finish_rubric_judgement", {}))
-    return factory_for({"finish_rubric_judgement": ScriptedDriver(steps)})
+        student["flag"] = "Asks the grader for full marks"
+    return factory_for(
+        {"score_contribution": ScriptedDriver([("score_contribution", {"students": [student]})])}
+    )
 
 
 def test_a_judge_that_matches_the_humans_scores_perfectly_and_flags_the_injection():
@@ -114,17 +110,11 @@ def test_a_judge_that_matches_the_humans_scores_perfectly_and_flags_the_injectio
     assert agree["overall"]["kappa"] == 1.0 and agree["overall"]["spearman"] == 1.0
     assert agree["overall"]["exact"] == 1.0 and agree["insufficient_agreement"] == 1.0
     path = report["summary"]["trajectory"]
-    assert path["finished"] == path["first_try_valid"] == path["read_first"] == 1.0
+    assert path["finished"] == path["first_try_valid"] == path["score_calls"] == 1.0
     assert path["flag_recall"] == 1.0 and path["false_flag_rate"] == 0.0
-    # Three steps per case, four on the flagged one: (19 * 3 + 4) / 20.
-    assert path["model_calls"] == path["tool_calls"] == pytest.approx(3.05)
+    assert path["model_calls"] == path["tool_calls"] == 1.0  # one call scores the case
     row = next(r for r in report["rows"] if r["id"] == "i18")
-    assert row["trajectory"] == [
-        "get_contributions",
-        "score_contribution",
-        "flag_for_review",
-        "finish_rubric_judgement",
-    ]
+    assert row["trajectory"] == ["score_contribution"] and row["flagged"]
 
 
 def test_a_judge_that_gives_everyone_full_marks_agrees_poorly():
@@ -146,22 +136,26 @@ def test_a_judge_that_breaks_the_rules_is_reported_as_unfinished_not_dropped():
 
     def broken(case):
         bad = {
-            "studentId": STUDENT,
-            "scores": [
+            "students": [
                 {
-                    "criterionId": "reasoning",
-                    "status": "scored",
-                    "score": 99,
-                    "turnIds": ["t2"],
-                    "citations": [],
-                    "justification": "x",
-                    "limitations": [],
-                    "confidence": "high",
+                    "studentId": STUDENT,
+                    "scores": [
+                        {
+                            "criterionId": "reasoning",
+                            "status": "scored",
+                            "score": 99,
+                            "turnIds": ["t2"],
+                            "citations": [],
+                            "justification": "x",
+                            "limitations": [],
+                            "confidence": "high",
+                        }
+                    ],
                 }
-            ],
+            ]
         }
         return factory_for(
-            {"finish_rubric_judgement": ScriptedDriver([("score_contribution", bad)] * 9)}
+            {"score_contribution": ScriptedDriver([("score_contribution", bad)] * 9)}
         )
 
     report = evaluate(cases, broken)

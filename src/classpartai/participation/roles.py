@@ -12,6 +12,7 @@ from typing import Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, ValidationError
 
+from classpartai import usage as ledger
 from classpartai.assessment import AssessmentInputs
 from classpartai.models import Driver, HistoryItem, SharedBudget, ToolDefinition, tool
 from classpartai.participation.schema import DraftContent, Feedback, ModelAudit, Proposal
@@ -138,6 +139,7 @@ def role_result[T: BaseModel](
     raise Unprocessable(f"Role did not produce a valid structured result. Last problem: {reason}")
 
 
+@ledger.tracked("auditor")
 def model_audit(
     inputs: AssessmentInputs,
     draft: DraftContent,
@@ -163,6 +165,7 @@ def model_audit(
     )
 
 
+@ledger.tracked("feedback")
 def feedback_for(
     student_id: str,
     inputs: AssessmentInputs,

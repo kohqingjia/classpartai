@@ -15,6 +15,9 @@ from typing import Any, Protocol
 
 from pydantic import BaseModel
 
+from classpartai import config
+from classpartai import usage as ledger
+
 HistoryItem = dict[str, Any]
 
 
@@ -78,8 +81,16 @@ def to_messages(instructions: str, history: list[HistoryItem]) -> list[dict]:
 class OpenAIDriver:
     """One structured tool call per turn from an OpenAI-compatible endpoint."""
 
-    def __init__(self, instructions: str, tools: list[ToolDefinition], model: str, client):
+    def __init__(
+        self,
+        instructions: str,
+        tools: list[ToolDefinition],
+        model: str,
+        client,
+        provider: str = "openai",
+    ):
         self.instructions = instructions
+        self.provider = provider
         self.tools = [
             {
                 "type": "function",
@@ -100,19 +111,41 @@ class OpenAIDriver:
         return len(payload.encode()) // 4 + 4000
 
     def next(self, history: list[HistoryItem]) -> ModelTurn:
-        response = self.client.chat.completions.create(
-            model=self.model,
-            messages=to_messages(self.instructions, history),
-            tools=self.tools,
-            tool_choice="required",
-            parallel_tool_calls=False,
-        )
+        kwargs: dict = {
+            "model": self.model,
+            "messages": to_messages(self.instructions, history),
+            "tools": self.tools,
+            "tool_choice": "required",
+            "parallel_tool_calls": False,
+        }
+        # A thinking level can be set for the Judge's calls alone (JUDGE_REASONING_EFFORT).
+        if config.JUDGE_REASONING_EFFORT and ledger.current().get("agent") == "judge":
+            kwargs["reasoning_effort"] = config.JUDGE_REASONING_EFFORT
+        started = ledger.begin()
+        try:
+            response = self.client.chat.completions.create(**kwargs)
+        except Exception as error:
+            ledger.record_model_call(
+                started,
+                model=self.model,
+                provider=self.provider,
+                status="error",
+                error=f"{type(error).__name__}: {error}",
+            )
+            raise
         message = response.choices[0].message
         calls = [
             ModelCall(c.function.name, c.id, c.function.arguments)
             for c in (message.tool_calls or [])
         ]
         usage = getattr(response, "usage", None)
+        ledger.record_model_call(
+            started,
+            model=self.model,
+            provider=self.provider,
+            usage=usage,
+            calls=[c.name for c in calls],
+        )
         if usage and usage.total_tokens is not None:
             return ModelTurn(calls, usage.total_tokens, "reported")
         return ModelTurn(calls, self.estimate_tokens(history), "estimated")
@@ -124,8 +157,16 @@ def configured_driver(instructions: str, tools: list[ToolDefinition]) -> Driver 
         return None
     from openai import OpenAI
 
-    client = OpenAI(base_url=os.getenv("OPENAI_BASE_URL") or None, timeout=60)
-    return OpenAIDriver(instructions, tools, os.getenv("OPENAI_MODEL", "gpt-5-mini"), client)
+    base_url = os.getenv("OPENAI_BASE_URL") or None
+    client = OpenAI(base_url=base_url, timeout=60)
+    # A local server (Ollama, ...) costs nothing; another hosted endpoint is priced by model name.
+    provider = "openai"
+    if base_url:
+        local = any(host in base_url for host in ("localhost", "127.0.0.1", "host.docker.internal"))
+        provider = "local" if local else "compatible"
+    return OpenAIDriver(
+        instructions, tools, os.getenv("OPENAI_MODEL", "gpt-5-mini"), client, provider
+    )
 
 
 # --- Shared budget ----------------------------------------------------------------------------

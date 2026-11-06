@@ -18,6 +18,7 @@ validate a draft again. Approval and delivery still use the existing backend gat
 | Listener | `records.inputs`, `records.listener_run`, `DATA_DIR/recordings/<session_id>.wav`, `voices.enrolments` | Preprocessing; Topic 2 encoder-decoder transformers; Topics 1/8 embeddings + cosine |
 | Coordinator | `records.runs().progress`: actions, initial input, shared usage, elapsed seconds | Topic 7 Agents, tool calling, harness |
 | Evidence / Research | `records.evidence_runs().progress`: searches, research packs, trajectory, bundle; pinned documents | Topic 8 Agentic RAG: BM25 + vectors + RRF, corrective retrieval |
+| Coordinator (usage & trace) | the `events` table: every model call (tokens, latency, estimated cost) and step of the run, ordered by start | Monitoring; the same data is on the Monitoring page across runs |
 | Judge | `progress.roleCalls` (one entry per tool call the Judge made, role `judge_agent`), `draft.content.findings` with confidence and flags, transcript and evidence citations | Topic 6 Evaluation: rubric LLM-as-judge; Topic 7 Agents |
 | Auditor | `progress.roleCalls`, `draft.content.audit.issues`, version history | Topic 6 Evaluation: verify first, judge last |
 | Feedback writer | `progress.roleCalls`, needs-evidence outputs, `draft.content.feedback` | Topic 7 Agents; Topic 9 privacy |
