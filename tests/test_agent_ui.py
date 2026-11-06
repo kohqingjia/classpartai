@@ -345,10 +345,51 @@ def test_a_timed_replay_plays_to_the_end_and_stops(app):
     click(at, "▶ Replay this run")
     assert next(b for b in at.button if b.label == "▶ Play").disabled  # Step mode
     at.radio(key=f"replay-speed-{session_id}").set_value("20×").run()
+    key = f"replay-{session_id}"
+    events = at.session_state[key]["events"]
+    # Spread the recorded events over 100 s, so the clock decides how far the replay gets.
+    state = at.session_state[key]
+    state["events"] = [(i * 100 / len(events), k, d) for i, (_, k, d) in enumerate(events)]
+    at.session_state[key] = state
     click(at, "▶ Play")
-    # The scripted run took milliseconds, so one tick at 20× reaches the end and stops.
+    assert at.session_state[key]["playing"]
+    # 2.5 s of wall time at 20x is 50 s of the run: about half the events.
+    state = at.session_state[key]
+    state["wall"] -= 2.5
+    at.session_state[key] = state
+    at.run()
+    assert 0 < at.session_state[key]["pos"] < len(events)
+    assert at.session_state[key]["playing"]
+    state = at.session_state[key]
+    state["wall"] -= 10
+    at.session_state[key] = state
+    at.run()
     assert any("as the run left it" in s.value for s in at.success)
+    assert not at.session_state[key]["playing"]
     assert any(b.label == "▶ Play" for b in at.button)
+
+
+def test_a_finished_replay_shows_its_own_draft_not_a_later_edit(app):
+    from test_coordinator import test_coordinator_runs_the_whole_workflow
+
+    at, records = app
+    session_id = demo(at)
+    test_coordinator_runs_the_whole_workflow(records, session_id)
+    replayed = records.latest_draft(session_id)
+    edit = Proposal.model_validate(full_proposal())
+    edit.feedback[0].strengths = "Edited by the professor after the run."
+    records.append_draft(session_id, edit, "professor", "Later edit", replayed.version)
+    navigate(at, "AI assessment", "Overview")
+    click(at, "▶ Replay this run")
+    click(at, "⏩ Skip to end")
+    assert any(f"draft version {replayed.version}," in s.value for s in at.success)
+    headings = [m.value for m in at.markdown]
+    assert any(f"Version {replayed.version} · AI proposal" in h for h in headings)
+    assert not any("Edited by the professor" in h for h in headings)
+    assert any(f"current version is {replayed.version + 1}" in c.value for c in at.caption)
+    click(at, "✕ Close replay")
+    headings = [m.value for m in at.markdown]
+    assert any(f"Version {replayed.version + 1} · professor edit" in h for h in headings)
 
 
 def test_week7_seminar_uses_the_course_library(app, tmp_path):

@@ -48,7 +48,7 @@ from classpartai.participation.delivery import (
     deliver_approved,
     feedback_email,
 )
-from classpartai.participation.records import Records
+from classpartai.participation.records import Draft, Records
 from classpartai.participation.schema import Proposal
 from classpartai.participation.validation import (
     Unprocessable,
@@ -308,8 +308,9 @@ def replay_control(session_id: str, action: str) -> None:
         state["playing"] = False
 
 
-def replay_section(session_id: str, inputs: AssessmentInputs) -> bool:
-    """Offer to replay a stored run; returns True while a replay is open and unfinished.
+def replay_section(session_id: str, inputs: AssessmentInputs) -> tuple[bool, Draft | None]:
+    """Offer to replay a stored run. Returns (open and unfinished, the run's final draft once
+    its replay has finished, else None).
 
     Read-only: it reads the run's stored events and drafts, and calls no model, tool,
     retrieval or email."""
@@ -321,7 +322,7 @@ def replay_section(session_id: str, inputs: AssessmentInputs) -> bool:
     if not runs:
         if records.runs(session_id):
             st.caption("This session's run was recorded before replays were kept.")
-        return False
+        return False, None
     if state is None:
         labels = {
             r["id"]: f"Run at {when(r['created_at'])} · "
@@ -347,7 +348,7 @@ def replay_section(session_id: str, inputs: AssessmentInputs) -> bool:
             args=(session_id, run_id),
             help="Plays a past run's stored events at presentation speed. No AI calls.",
         )
-        return False
+        return False, None
 
     run = next(r for r in runs if r["id"] == state["run"])
     st.info(
@@ -405,13 +406,7 @@ def replay_section(session_id: str, inputs: AssessmentInputs) -> bool:
         fold = fold_events([(kind, detail) for _, kind, detail in shown], inputs)
         if not shown:
             fold["banner"] = "Replay ready: press Next event or Play"
-        draft_id = next(
-            (d["draftId"] for _, k, d in reversed(shown) if k == "action" and d.get("draftId")),
-            None,
-        )
-        if finished:
-            draft_id = run["progress"].get("latestDraftId") or draft_id
-        draft = records.draft(draft_id) if draft_id else None
+        draft = replay_draft(shown, run["progress"].get("latestDraftId") if finished else None)
         show_flow(st.empty(), fold["active"], fold["done"], fold["notes"], fold["banner"])
         show_board(st.empty(), student_cards(inputs, draft), fold["newest"])
         if not finished and (fold["searches"] or fold["active"] == "research"):
@@ -451,7 +446,19 @@ def replay_section(session_id: str, inputs: AssessmentInputs) -> bool:
             st.rerun()  # the whole page: stop ticking and show the stored draft
 
     st.fragment(run_every=1 if state["playing"] else None)(view)()
-    return state["pos"] < n
+    if state["pos"] < n:
+        return True, None
+    return False, replay_draft(state["events"], run["progress"].get("latestDraftId"))
+
+
+def replay_draft(events: list, recorded: str | None = None) -> Draft | None:
+    """The draft as of these events: the run's recorded latest if given, else the last draft
+    an action made."""
+    draft_id = recorded or next(
+        (d["draftId"] for _, k, d in reversed(events) if k == "action" and d.get("draftId")),
+        None,
+    )
+    return records.draft(draft_id) if draft_id else None
 
 
 def file_to_wav(src: Path, dest: Path) -> Path:
@@ -1705,22 +1712,31 @@ elif view == "session":
                     st.rerun()
                 if running:  # a run started elsewhere (another tab) ends any replay
                     st.session_state.pop(replay_key(session_id), None)
-                replaying = not running and replay_section(session_id, inputs)
+                replaying, replayed = (
+                    (False, None) if running else replay_section(session_id, inputs)
+                )
                 if live and replay_key(session_id) not in st.session_state:
                     run_panel(session_id, inputs)
+                # A finished replay shows the draft its run left, not a later version.
+                shown = replayed or latest
                 if replaying:
                     st.caption("The stored draft is shown here when the replay finishes.")
-                elif latest:
-                    origin = "AI proposal" if latest.origin == "model" else "professor edit"
-                    st.markdown(f"#### Version {latest.version} · {origin}")
+                elif shown:
+                    origin = "AI proposal" if shown.origin == "model" else "professor edit"
+                    st.markdown(f"#### Version {shown.version} · {origin}")
+                    if shown.id != latest.id:
+                        st.caption(
+                            f"From the replayed run. The current version is {latest.version}: "
+                            "close the replay to see it. ④ Approve always uses the current one."
+                        )
                     if running:
                         st.caption("A new run is working; this is the previous version.")
-                    st.caption(latest.content.revisionNote)
+                    st.caption(shown.content.revisionNote)
                     bundles = dict(records.evidence_for(session_id))
                     criteria = {c.id: c.title for c in inputs.rubric.criteria}
                     turns = {t.id: t for t in inputs.transcript.turns}
                     for s in inputs.roster:
-                        total = totals(latest.content, inputs, s.id)
+                        total = totals(shown.content, inputs, s.id)
                         headline = (
                             f"{total['total']:g}/{total['maximum']}"
                             if total["total"] is not None
@@ -1728,7 +1744,7 @@ elif view == "session":
                         )
                         with st.expander(f"**{s.displayName}** · {headline}"):
                             fb = next(
-                                (x for x in latest.content.feedback if x.studentId == s.id), None
+                                (x for x in shown.content.feedback if x.studentId == s.id), None
                             )
                             if fb:
                                 st.markdown(f"{fb.strengths}\n\n**Next step:** {fb.nextStep}")
@@ -1741,7 +1757,7 @@ elif view == "session":
                                 f"{observed_count(inputs, s.id)} "
                                 f"(counts are separate from judgement). {total['limitation']}."
                             )
-                            for f in [x for x in latest.content.findings if x.studentId == s.id]:
+                            for f in [x for x in shown.content.findings if x.studentId == s.id]:
                                 verdict = (
                                     f"proposed {f.score:g}"
                                     if f.status == "scored"
