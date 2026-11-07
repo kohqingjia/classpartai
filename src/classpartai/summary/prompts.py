@@ -1,4 +1,3 @@
-
 SUMMARY_SYSTEM_PROMPT = """
 You are the Session Summary Agent for ClassPart AI.
 

@@ -102,3 +102,17 @@ def test_session_summary():
 
     print("\nSESSION SUMMARY TEST PASSED")
     print(result)
+
+
+def test_unresolved_questions_are_rechecked_against_the_whole_transcript():
+    """The re-check's answer replaces the candidate questions (it raised NameError before)."""
+    from classpartai.summary.agent import _verify_unresolved_questions
+
+    kept = [{"question": "Does RAG need fine-tuning?", "turn_ids": ["t1"]}]
+    analysis = {"unresolved_questions": [*kept, {"question": "Answered later", "turn_ids": []}]}
+    out = _verify_unresolved_questions(
+        analysis,
+        [{"turn_id": "t1", "text": "?"}],
+        lambda system, prompt: {"unresolved_questions": kept},
+    )
+    assert out["unresolved_questions"] == kept
