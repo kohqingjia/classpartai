@@ -145,6 +145,8 @@ class OpenAIChat:
             provider=self.provider,
             usage=usage,
             calls=[c.name for c in calls],
+            input=messages[-1].get("content") if messages else None,
+            output=message.content or [f"{c.name}({c.arguments})" for c in calls],
         )
         tokens = getattr(usage, "total_tokens", None)
         return AssistantTurn(

@@ -88,7 +88,7 @@ the Coordinator tab.
 
 ## Getting the audio from the deployed server
 
-The recordings, voice samples and database live on the server's volume. Set `EXPORT_PASSWORD`
-in the server's `.env`, wait for the next deploy, then open **Download data** in the sidebar, enter
-the password, tick what you need and download one zip. Without the password set, the page stays
-off. The zip may contain students' voices and names: keep it off shared drives.
+The recordings, voice samples and database live on the server's volume. After the next deploy,
+open **Download data** in the sidebar, tick what you need and download one zip. Voices and student
+records start unticked; the zip may contain students' voices and names, so keep it off shared
+drives.

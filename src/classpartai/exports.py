@@ -2,13 +2,11 @@
 
 The audio lives only on the deployed server's volume (``CLASSPARTAI_DATA_DIR``), so a teammate
 who wants to run the Listener or the evaluations on their own machine needs a way to get it.
-This builds the zip; app.py's "Download data" page offers it behind ``EXPORT_PASSWORD``.
-
-Nothing here is a secret store: recordings and the database hold students' voices and
-assessments, which is why the page refuses to work unless a password is set on the server.
+This builds the zip; app.py's "Download data" page offers it. The app has no login, so the
+page leaves the groups that hold people's voices or records unticked: anyone who can open the
+app can open this page.
 """
 
-import hmac
 import sqlite3
 import tempfile
 import zipfile
@@ -84,11 +82,6 @@ def groups(data_dir: Path, enrollment_dir: Path, repo_root: Path) -> list[Group]
             personal=True,
         ),
     ]
-
-
-def allowed(password: str, configured: str) -> bool:
-    """True only if a password is configured and matches (constant-time)."""
-    return bool(configured) and hmac.compare_digest(password.encode(), configured.encode())
 
 
 def snapshot(db: Path, target: Path) -> Path | None:

@@ -54,11 +54,10 @@ WORKED = [
     ),
     (
         "Fewer model calls where the work is routine",
-        "The Judge scores every student in one call (about one model call a run). A student "
-        "with no observed turns gets fixed wording with no model call. One Coordinator action "
-        "drafts everyone's feedback. The Coordinator and the Feedback writer think at a low "
-        "setting. On the scripted whole-workflow the Judge optimisation alone took 22 model "
-        "calls to 15.",
+        "The Judge scores every student in one call (about one model call a run). On the "
+        "scripted whole-workflow the Judge optimisation alone took 22 model calls to 15. "
+        "Every other agent keeps its own decisions: we cut calls where one agent was being "
+        "asked a question per student, not by taking a decision away from an agent.",
         "Calls were counted by the usage ledger on scripted runs, not on a live model: the "
         "live saving is not measured yet.",
     ),
@@ -156,8 +155,7 @@ RISKS = [
         "Voices, names and transcripts are personal data, and the transcript goes to the "
         "model provider.",
         "Feedback cannot name another student; emails go only to the roster's own addresses; "
-        "the data download page needs a password set on the server; test mode sends to one "
-        "inbox.",
+        "test mode sends to one inbox.",
         "No login on the app, no retention policy, and the provider still receives "
         "transcripts. Consent for the demo voices is the team's own.",
     ),

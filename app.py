@@ -1930,58 +1930,48 @@ elif view == "downloads":
         "Listener or the evaluations on your own machine.</p>",
         unsafe_allow_html=True,
     )
-    password = os.getenv("EXPORT_PASSWORD", "")
-    if not password:
-        st.warning(
-            "Downloads are switched off. Recordings and the database hold students' voices and "
-            "assessments, so set EXPORT_PASSWORD in the server's .env and redeploy to turn "
-            "this page on."
+    choices = exports.groups(DATA_DIR, ENROLLMENT_DIR, REPO_ROOT)
+    sizes = {g.key: g.files() for g in choices if g.key != "database"}
+    picked = []
+    for group in choices:
+        files = sizes.get(group.key)
+        count = (
+            f"{len(files)} files, {sum(f.stat().st_size for f, _ in files) / 1e6:.1f} MB"
+            if files is not None
+            else "one SQLite file"
         )
-    elif not exports.allowed(st.text_input("Download password", type="password"), password):
-        st.info("Enter the download password to continue.")
-    else:
-        choices = exports.groups(DATA_DIR, ENROLLMENT_DIR, REPO_ROOT)
-        sizes = {g.key: g.files() for g in choices if g.key != "database"}
-        picked = []
-        for group in choices:
-            files = sizes.get(group.key)
-            count = (
-                f"{len(files)} files, {sum(f.stat().st_size for f, _ in files) / 1e6:.1f} MB"
-                if files is not None
-                else "one SQLite file"
+        tag = " · personal data" if group.personal else ""
+        if st.checkbox(
+            f"**{group.label}** ({count}{tag})",
+            value=group.key in ("demo-seminars", "results"),
+            key=f"export-{group.key}",
+            help=group.note,
+        ):
+            picked.append(group)
+    if any(g.personal for g in picked):
+        st.warning(
+            "This includes voices or student records. Keep the zip off shared drives and "
+            "delete it when you are done."
+        )
+    if picked and st.button("Prepare zip", type="primary"):
+        with st.spinner("Zipping…"):
+            tmp = tempfile.NamedTemporaryFile(suffix=".zip", delete=False)
+            with tmp:
+                rows = exports.build_archive(picked, DATA_DIR, tmp)
+            st.session_state["export"] = {"path": tmp.name, "rows": rows}
+    ready = st.session_state.get("export")
+    if ready and Path(ready["path"]).is_file():
+        st.dataframe(ready["rows"], hide_index=True, width="stretch")
+        with open(ready["path"], "rb") as zipped:
+            st.download_button(
+                "Download classpartai-data.zip",
+                zipped,
+                file_name="classpartai-data.zip",
+                mime="application/zip",
             )
-            tag = " · personal data" if group.personal else ""
-            if st.checkbox(
-                f"**{group.label}** ({count}{tag})",
-                value=group.key in ("demo-seminars", "voices", "results"),
-                key=f"export-{group.key}",
-                help=group.note,
-            ):
-                picked.append(group)
-        if any(g.personal for g in picked):
-            st.warning(
-                "This includes voices or student records. Keep the zip off shared drives and "
-                "delete it when you are done."
-            )
-        if picked and st.button("Prepare zip", type="primary"):
-            with st.spinner("Zipping…"):
-                tmp = tempfile.NamedTemporaryFile(suffix=".zip", delete=False)
-                with tmp:
-                    rows = exports.build_archive(picked, DATA_DIR, tmp)
-                st.session_state["export"] = {"path": tmp.name, "rows": rows}
-        ready = st.session_state.get("export")
-        if ready and Path(ready["path"]).is_file():
-            st.dataframe(ready["rows"], hide_index=True, width="stretch")
-            with open(ready["path"], "rb") as zipped:
-                st.download_button(
-                    "Download classpartai-data.zip",
-                    zipped,
-                    file_name="classpartai-data.zip",
-                    mime="application/zip",
-                )
 
 elif view == "evaluation":
-    evaluation_view()
+    evaluation_view(records)
 
 elif view == "summary":
     inputs = records.inputs(session_id)

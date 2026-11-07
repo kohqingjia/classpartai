@@ -31,14 +31,12 @@ LLM_REASONING_EFFORT = os.getenv("LLM_REASONING_EFFORT") or None
 # Thinking level for the Judge agent's calls only ("minimal", "low", "medium", "high"); unset =
 # the model's default. Hidden reasoning tokens are billed as output, so "low" is cheaper and faster.
 JUDGE_REASONING_EFFORT = os.getenv("JUDGE_REASONING_EFFORT") or None
-# Thinking level per agent. The Coordinator only routes between tools and the Feedback writer
-# turns findings into plain sentences, so "low" saves hidden reasoning tokens (billed as output)
-# and time there. The Judge, Research and the Auditor keep the model's default until a
-# comparison (eval/judge_eval.py, research_eval.py) shows "low" costs them nothing. Set an
-# agent's variable to the empty string for the model's default.
+# Thinking level per agent, all unset (the model's default) so behaviour is unchanged. "low" on
+# the Coordinator and Feedback writer saves hidden reasoning tokens (billed as output) and time;
+# turn it on and compare before trusting it.
 REASONING_EFFORT = {
-    "coordinator": os.getenv("COORDINATOR_REASONING_EFFORT", "low") or None,
-    "feedback": os.getenv("FEEDBACK_REASONING_EFFORT", "low") or None,
+    "coordinator": os.getenv("COORDINATOR_REASONING_EFFORT") or None,
+    "feedback": os.getenv("FEEDBACK_REASONING_EFFORT") or None,
     "judge": JUDGE_REASONING_EFFORT,
 }
 # Estimated prices for the Monitoring page (USD per million tokens; edit to match your plan).

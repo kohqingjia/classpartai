@@ -618,7 +618,7 @@ class Records:
             " SUM(e.output_tokens) AS output_tokens, SUM(e.cost_usd) AS cost_usd,"
             " SUM(e.cost_usd IS NULL) AS unpriced, SUM(e.status = 'error') AS errors"
             " FROM participation_runs r LEFT JOIN sessions s ON s.id = r.session_id"
-            " LEFT JOIN events e ON e.run_id = r.id AND e.kind = 'model'"
+            " LEFT JOIN events e ON e.run_id = r.id AND e.kind IN ('model', 'embedding')"
             " WHERE r.created_at >= ? GROUP BY r.id ORDER BY r.created_at DESC LIMIT ?",
             (since or "", limit),
         )

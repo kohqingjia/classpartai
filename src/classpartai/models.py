@@ -148,6 +148,8 @@ class OpenAIDriver:
             provider=self.provider,
             usage=usage,
             calls=[c.name for c in calls],
+            input=kwargs["messages"][-1].get("content") if kwargs["messages"] else None,
+            output=message.content or [f"{c.name}({c.arguments})" for c in calls],
         )
         if usage and usage.total_tokens is not None:
             return ModelTurn(calls, usage.total_tokens, "reported")

@@ -139,17 +139,21 @@ deploy/                 Docker deploy for the VPS
    each step; every step is clickable, and the browser's back button walks back through them.
    To present without running the agents live, ③ **▶ Replay this run** plays a stored run's
    events again (one per click, or at 1×/5×/20× of its real timing) with no AI calls.
-4. **📈 Monitoring**: what the agents used and did. A dashboard of model calls, tokens (cached and
-   reasoning), estimated cost and latency by agent, model and day, and a trace of every step of each
-   assessment run. It is kept in the app's database (`assessments.db`), so it survives restarts and
-   redeploys. Costs come from `data/model_prices.json` (edit it to match your plan; a model with no
-   price shows "no price", never $0); the OpenAI usage page is the source of truth for the bill.
-   Each run's trace is also on the Coordinator tab of its Agent workspace.
+4. **📈 Monitoring**: the central dashboard, in three tabs. *Usage & cost*: model calls, tokens
+   (cached and reasoning), estimated cost and latency by agent, model and day. *Traces*: for every
+   assessment run, a tree of what happened (run → Coordinator step → agent → model call), each row
+   with its time, tokens and cost rolled up, and any step's input, output and error one click away.
+   *Before & after*: every comparison we have run, side by side from `eval/results` (agentic vs
+   single-pass RAG, the Listener before and after its fixes, the injection screen, the guardrail
+   suite with and without the Auditor agent). Everything is kept in the app's database
+   (`assessments.db`), so it survives restarts and redeploys. Costs come from
+   `data/model_prices.json` (a model with no price shows "no price", never $0; only gpt-5-mini's
+   price has been checked against OpenAI's page); the OpenAI usage page is the source of truth.
 5. **💡 Reflection & risks**: what worked and why, what did not, where it goes next, and each
    risk with its mitigation and what is left. The project is presented from the site, so this is
    its reflective analysis.
 6. **⬇ Download data**: one zip of the server's recordings, voice samples, evaluation cache and
-   database. Off unless `EXPORT_PASSWORD` is set on the server.
+   database. The app has no login, so voices and records start unticked.
 7. **🧭 How it works**: the whole system on one page (pipeline diagram, why it's agentic,
    guardrails, IS469 topic map), for presenting.
 

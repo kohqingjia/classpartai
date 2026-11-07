@@ -38,10 +38,9 @@ from classpartai.participation.roles import (
     ROLE_POLICY,
     DriverFactory,
     feedback_for,
-    no_observation_feedback,
 )
 from classpartai.participation.schema import Proposal
-from classpartai.participation.validation import Unprocessable, audit_draft, observed_count
+from classpartai.participation.validation import Unprocessable, audit_draft
 from classpartai.retrieval import searches_of
 
 
@@ -147,9 +146,7 @@ COORDINATOR_TOOLS = [
     ),
     tool(
         "draft_student_feedback",
-        "Draft feedback for the named roster student AND for every other roster student still "
-        "without it, in one action (a student with no observed turns gets fixed wording, no "
-        "model call). Returns any student whose feedback needs more evidence",
+        "Ask the feedback role to draft for one roster student or request missing evidence",
         Student,
     ),
     tool(
@@ -181,8 +178,13 @@ def coordinate(
 ) -> str:
     """Run the workflow for one session; returns the participation run ID."""
     # Every model call and step inside is recorded against this run (usage.py, Monitoring page).
-    with ledger.tracking(session_id=session_id, agent="coordinator", sink=records.log_event):
-        return _coordinate(records, session_id, factory, on_event)
+    with (
+        ledger.tracking(session_id=session_id, agent="coordinator", sink=records.log_event),
+        ledger.span("Assessment run", "run") as run_span,
+    ):
+        run_id = _coordinate(records, session_id, factory, on_event)
+        run_span.output = f"run {run_id}"
+        return run_id
 
 
 def _coordinate(
@@ -281,6 +283,7 @@ def _coordinate(
         "draft is not reused)"
     )
     stop_reason = "shared_budget_exhausted"
+    tool_span = None  # the tool call in progress, closed if the run is cut short
     try:
         while True:
             if budget.expired():
@@ -302,7 +305,7 @@ def _coordinate(
             }
             progress.actions.append(action)
             checkpoint()
-            step_started = ledger.begin()
+            tool_span = ledger.open_span(call.name, "tool", call.arguments)
             history.append(
                 {
                     "type": "function_call",
@@ -462,49 +465,25 @@ def _coordinate(
                         raise Unprocessable("Create findings before feedback")
                     if not judged:
                         raise Unprocessable(NOT_JUDGED)
-                    if args.studentId not in {st.id for st in inputs.roster}:
-                        raise ValueError("Unknown feedback student")
-                    # One action drafts everyone still without feedback: a coordinator turn per
-                    # student re-sent the whole history each time. Each student's feedback is
-                    # still its own call (privacy: the writer sees only that student's data).
-                    have = {f.studentId for f in draft.content.feedback}
-                    wanted = [args.studentId] + [
-                        st.id for st in inputs.roster if st.id not in have | {args.studentId}
-                    ]
-                    proposal = _proposal(draft)
-                    drafted: list[str] = []
-                    needs_evidence: dict[str, dict] = {}
-                    evidence = records.evidence_for(session_id)
-                    for student_id in wanted:
-                        if observed_count(inputs, student_id) == 0:
-                            feedback = no_observation_feedback(student_id)
-                        else:
-                            result = feedback_for(
-                                student_id,
-                                inputs,
-                                _proposal(draft),
-                                evidence,
-                                budget,
-                                factory,
-                                session_id,
-                            )
-                            if result.status == "needs_evidence":
-                                needs_evidence[student_id] = result.model_dump()
-                                continue
-                            if result.feedback.studentId != student_id:
-                                raise Unprocessable("Feedback role returned a different student")
-                            feedback = result.feedback
-                        proposal.feedback = [
-                            *[f for f in proposal.feedback if f.studentId != student_id],
-                            feedback,
-                        ]
-                        drafted.append(student_id)
-                    if not drafted:
-                        # Nothing could be drafted: say what evidence is missing, as before.
-                        output = needs_evidence.get(args.studentId) or {
-                            "needsEvidence": needs_evidence
-                        }
+                    result = feedback_for(
+                        args.studentId,
+                        inputs,
+                        _proposal(draft),
+                        records.evidence_for(session_id),
+                        budget,
+                        factory,
+                        session_id,
+                    )
+                    if result.status == "needs_evidence":
+                        output = result.model_dump()
                     else:
+                        if result.feedback.studentId != args.studentId:
+                            raise Unprocessable("Feedback role returned a different student")
+                        proposal = _proposal(draft)
+                        proposal.feedback = [
+                            *[f for f in proposal.feedback if f.studentId != args.studentId],
+                            result.feedback,
+                        ]
                         nxt = records.append_draft(
                             session_id,
                             proposal,
@@ -515,13 +494,12 @@ def _coordinate(
                         progress.latestDraftId = nxt.id
                         output = {
                             "draftId": nxt.id,
-                            "feedbackStudentIds": drafted,
+                            "feedbackStudentId": args.studentId,
                             "studentsWithoutFeedback": [
                                 st.id
                                 for st in inputs.roster
                                 if st.id not in {f.studentId for f in nxt.content.feedback}
                             ],
-                            "needsEvidence": needs_evidence,
                             "openIssues": len(
                                 [i for i in nxt.content.audit.issues if i.disposition == "open"]
                             ),
@@ -597,13 +575,11 @@ def _coordinate(
                 }
             action["result"] = output
             failure = output.get("error") if isinstance(output, dict) else None
-            ledger.record_step(
-                step_started,
-                action["tool"],
+            tool_span.end(
                 "ok" if action["outcome"] == "ok" else "refused",
-                {"arguments": action["arguments"], "summary": action["summary"], "error": failure}
-                if failure
-                else {"arguments": action["arguments"], "summary": action["summary"]},
+                output=action["summary"],
+                error=failure,
+                detail={"arguments": action["arguments"], "summary": action["summary"]},
             )
             checkpoint()
             emit("action", action)
@@ -618,8 +594,12 @@ def _coordinate(
             )
     except BudgetExceeded:
         stop_reason = "shared_budget_or_interruption"
+        if tool_span:
+            tool_span.end("error", error="Stopped: shared budget or deadline reached")
     except Exception as error:
         stop_reason = "provider_failure"
+        if tool_span:
+            tool_span.end("error", error=error)
         ledger.record_error("coordinator", error)  # the reason, which the run record drops
     progress.elapsedSeconds = round(time.monotonic() - started, 3)
     records.update_run(

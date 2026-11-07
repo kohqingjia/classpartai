@@ -7,7 +7,10 @@ monitoring must not be able to break a run.
 
 An event is a dict: ``id, ts, run_id, session_id, agent, kind, name, provider, model,
 input_tokens, output_tokens, cached_tokens, reasoning_tokens, latency_ms, cost_usd, status,
-detail``. ``kind`` is "model" (a chat call), "embedding", "tool" (a step an agent took) or "error".
+detail``. ``kind`` is "model" (a chat call), "embedding", "tool" (a step an agent took), "span"
+(a run or an agent: a stretch of work that contains the calls made inside it) or "error".
+``detail`` of every event also holds ``parent_id``: the span it ran inside, so the events of a
+run form a tree (run, agent, tool, model call) that the Monitoring page draws.
 Output tokens include reasoning tokens, as OpenAI bills them.
 
 Costs are estimates from ``data/model_prices.json`` (USD per million tokens), not an invoice. A
@@ -62,13 +65,92 @@ def update(**fields) -> None:
         ctx.update({k: v for k, v in fields.items() if v is not None})
 
 
+_span_id: contextvars.ContextVar[str | None] = contextvars.ContextVar("usage_span", default=None)
+
+
+def current_span() -> str | None:
+    return _span_id.get()
+
+
+def preview(value, limit: int = 1200) -> str | None:
+    """A readable, cut-down copy of a call's input or output for the trace."""
+    if value is None:
+        return None
+    text = value if isinstance(value, str) else json.dumps(value, default=str)
+    return text if len(text) <= limit else text[:limit] + "…"
+
+
+class Span:
+    """A stretch of work (a run, an agent, a tool call). Everything recorded while it is open is
+    its child. Open one with ``span()`` (or ``open_span`` when the end is far from the start) and
+    close it with ``end``; ending twice does nothing. It never raises."""
+
+    def __init__(self, name: str, kind: str, input=None):
+        self.id = uuid.uuid4().hex[:16]
+        self.parent = _span_id.get()
+        self.name, self.kind = name, kind
+        self.input = preview(input)
+        self.started = begin()
+        self.agent = current().get("agent") or "unknown"
+        self._token = _span_id.set(self.id)
+        self.done = False
+
+    def end(self, status: str = "ok", output=None, error=None, detail: dict | None = None) -> None:
+        if self.done:
+            return
+        self.done = True
+        try:
+            _span_id.reset(self._token)
+        except ValueError:  # ended from another context: put the parent back instead
+            _span_id.set(self.parent)
+        body = {
+            "span_id": self.id,
+            "parent_id": self.parent,
+            "span_kind": self.kind,
+            "input": self.input,
+            "output": preview(output),
+            **(detail or {}),
+        }
+        if error:
+            body["error"] = preview(str(error), 500)
+        # A tool call stays a "tool" event (the trace table and the summaries read it so).
+        kind = "tool" if self.kind == "tool" else "span"
+        event = _event(self.started, kind, self.name, status, _short(body))
+        event["agent"] = self.agent
+        _emit(event)
+
+
+def open_span(name: str, kind: str = "tool", input=None) -> Span:
+    try:
+        return Span(name, kind, input)
+    except Exception:
+        dead = object.__new__(Span)  # monitoring must never break a run
+        dead.done = True
+        return dead
+
+
+@contextmanager
+def span(name: str, kind: str = "agent", input=None):
+    """``with span("judge", "agent") as sp: ...``; set ``sp.output`` to record a result."""
+    sp = open_span(name, kind, input)
+    sp.output = None
+    status, error = "ok", None
+    try:
+        yield sp
+    except BaseException as caught:
+        status, error = "error", caught
+        raise
+    finally:
+        sp.end(status, sp.output, f"{type(error).__name__}: {error}" if error else None)
+
+
 def tracked(agent: str):
-    """Decorator: calls made inside the function are attributed to this agent."""
+    """Decorator: calls made inside the function are attributed to this agent, under a span."""
 
     def decorate(fn):
         @wraps(fn)
         def wrapper(*args, **kwargs):
-            with tracking(agent=agent):
+            with tracking(agent=agent), span(agent, "agent"):
                 return fn(*args, **kwargs)
 
         return wrapper
@@ -165,7 +247,7 @@ def _event(started: Started, kind: str, name: str, status: str, detail: dict | N
         "latency_ms": round((time.perf_counter() - t0) * 1000),
         "cost_usd": None,
         "status": status,
-        "detail": detail or {},
+        "detail": {"parent_id": _span_id.get(), **(detail or {})},
         **extra,
     }
 
@@ -180,14 +262,18 @@ def record_model_call(
     status: str = "ok",
     error: str | None = None,
     kind: str = "model",
+    input=None,
+    output=None,
 ) -> None:
-    """One chat (or embedding) call. ``calls`` are the tool names the model asked for."""
+    """One chat (or embedding) call. ``calls`` are the tool names the model asked for; ``input``
+    and ``output`` are what it was sent last and what it answered, kept for the trace."""
     tokens = extract(usage)
-    detail: dict = {}
+    detail: dict = {"input": preview(input), "output": preview(output)}
     if calls:
         detail["calls"] = calls
     if error:
         detail["error"] = error[:500]
+    detail = {k: v for k, v in detail.items() if v is not None}
     _emit(
         _event(
             started,
