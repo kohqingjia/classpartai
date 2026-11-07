@@ -11,9 +11,9 @@ MEASURED = {
 
 
 def test_the_semester_cost_scales_the_measured_run_by_contributions():
-    a = Assumptions(contributions=20, lessons=12, server_usd_month=25, semester_months=4)
+    a = Assumptions(contributions=20, lessons=12, server_sgd_month=32.5, semester_months=4)
     e = estimate(MEASURED, a)
-    # 0.02 US$ per contribution × 20 × 1.30 = S$0.52 a lesson; the server is 25 × 4 × 1.30
+    # US$0.02 a contribution × 20 × 1.30 = S$0.52 a lesson; the server is S$32.50 × 4
     assert e["model_per_lesson"] == pytest.approx(0.52)
     assert e["server_semester"] == pytest.approx(130.0)
     assert e["software_semester"] == pytest.approx(130.0 + 0.52 * 12)

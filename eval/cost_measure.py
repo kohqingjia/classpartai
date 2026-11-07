@@ -4,8 +4,8 @@ Run where the app's database is (the VPS container), on a run recorded with the 
 
     python eval/cost_measure.py <run id>  > eval/results/cost-measured.json
 
-It sums the run's model calls from the ledger (tokens and estimated USD, by agent), counts the
-student turns it assessed, and adds the Listener's measured speed from the Listener eval.
+It sums the run's model calls from the ledger (tokens and estimated cost, by agent) and counts
+the student turns it assessed. The Listener's speed is read from the Listener eval instead.
 """
 
 import json
@@ -13,11 +13,8 @@ import sys
 from collections import defaultdict
 
 from classpartai import usage
-from classpartai.config import DATA_DIR, REPO_ROOT
+from classpartai.config import DATA_DIR
 from classpartai.participation.records import Records
-
-# From eval/results/listener-20261107.md: the seven demo recordings, 498 s of audio in total.
-LISTENER_AUDIO_SECONDS = 498.0
 
 
 def main(run_id: str) -> None:
@@ -35,7 +32,6 @@ def main(run_id: str) -> None:
         for k in ("input_tokens", "cached_tokens", "output_tokens", "reasoning_tokens"):
             a[k] += e[k] or 0
         a["usd"] += e["cost_usd"] or 0
-    timings = json.loads((REPO_ROOT / "eval/results/listener-20261107.json").read_text())
     print(
         json.dumps(
             {
@@ -55,13 +51,6 @@ def main(run_id: str) -> None:
                     "byAgent": {
                         k: {n: round(v, 5) for n, v in a.items()} for k, a in by_agent.items()
                     },
-                },
-                "listener": {
-                    "pipeline_seconds": round(
-                        sum(t["total_s"] for t in timings["timings"].values()), 1
-                    ),
-                    "audio_seconds": LISTENER_AUDIO_SECONDS,
-                    "cpu": "4-core VPS CPU, nothing else running",
                 },
                 "prices": {
                     "usdPerMillionTokens": usage.price_for(

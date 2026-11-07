@@ -1,8 +1,8 @@
 """What ClassPart AI costs per lesson and per semester, against paying a teaching assistant.
 
 Measured, not guessed, where we can: the model cost comes from one real assessment run's usage
-ledger, and the Listener's speed from the Listener eval; both are in
-eval/results/cost-measured.json, written by eval/cost_measure.py. The rest are assumptions
+ledger (eval/results/cost-measured.json, written by eval/cost_measure.py), and the Listener's
+speed from the Listener eval (eval/results/listener-20261107.json). The rest are assumptions
 the Evaluation page lets you change: how many times students speak in a lesson, the server's
 monthly price, the exchange rate and the TA's pay.
 """
@@ -15,6 +15,9 @@ from classpartai.config import REPO_ROOT
 
 RESULTS = REPO_ROOT / "eval" / "results"
 MEASURED = RESULTS / "cost-measured.json"
+LISTENER = RESULTS / "listener-20261107.json"
+# The seven demo recordings in the Listener eval: 498 s of audio (listener-20261107.md).
+LISTENER_AUDIO_SECONDS = 498.0
 
 
 @dataclass(frozen=True)
@@ -23,15 +26,26 @@ class Assumptions:
     lesson_hours: float = 3.0
     students: int = 40
     contributions: int = 20  # times students speak in one lesson (not everyone does)
-    server_usd_month: float = 25.0  # an estimate for a 4-vCPU cloud server
+    server_sgd_month: float = 32.0  # an estimate for a 4-vCPU cloud server
     semester_months: float = 4.0
-    sgd_per_usd: float = 1.30
+    sgd_per_usd: float = 1.30  # OpenAI bills in US$; everything shown is S$
     ta_sgd_semester: float = 590.0
     review_minutes_per_contribution: float = 1.0  # the professor still reads every draft
 
 
-def measured(path: Path = MEASURED) -> dict | None:
-    return json.loads(path.read_text()) if path.exists() else None
+def measured(path: Path = MEASURED, listener: Path = LISTENER) -> dict | None:
+    """The measured run, plus the Listener's measured speed."""
+    if not (path.exists() and listener.exists()):
+        return None
+    timings = json.loads(listener.read_text())["timings"].values()
+    return {
+        **json.loads(path.read_text()),
+        "listener": {
+            "pipeline_seconds": sum(t["total_s"] for t in timings),
+            "audio_seconds": LISTENER_AUDIO_SECONDS,
+            "cpu": "4-core VPS CPU, nothing else running",
+        },
+    }
 
 
 def estimate(m: dict, a: Assumptions) -> dict:
@@ -40,7 +54,7 @@ def estimate(m: dict, a: Assumptions) -> dict:
     speed = listener["pipeline_seconds"] / listener["audio_seconds"]
     per_contribution = run["usd"] / run["contributions"]
     model_lesson = per_contribution * a.contributions * a.sgd_per_usd
-    server_semester = a.server_usd_month * a.semester_months * a.sgd_per_usd
+    server_semester = a.server_sgd_month * a.semester_months
     seconds_per_contribution = run["seconds"] / run["contributions"]
     software = model_lesson * a.lessons + server_semester
     return {

@@ -33,6 +33,15 @@ _BAR_CSS = """
 TA, SERVER, MODEL = "#6b6b70", "#a1a1a6", "#e8b03c"  # the software's model cost is the accent
 
 
+def md(text: str) -> None:
+    """st.markdown, with "$" kept as a dollar sign (Streamlit reads "$...$" as LaTeX)."""
+    st.markdown(text.replace("$", "\\$"))
+
+
+def caption(text: str) -> None:
+    st.caption(text.replace("$", "\\$"))
+
+
 def sgd(x: float) -> str:
     return f"S${x:,.2f}"
 
@@ -80,18 +89,20 @@ def assumptions_form() -> costing.Assumptions:
                 d.contributions,
                 help="Not everyone speaks: about 20 contributions in a 40-student class.",
             ),
-            server_usd_month=c[2].number_input(
-                "Server, US$ per month",
+            server_sgd_month=c[2].number_input(
+                "Server, S$ per month",
                 0.0,
-                500.0,
-                d.server_usd_month,
+                600.0,
+                d.server_sgd_month,
                 5.0,
                 help="An estimate for a 4-vCPU cloud server, which the Listener needs.",
             ),
             semester_months=c[2].number_input(
                 "Months the server runs", 1.0, 12.0, d.semester_months, 0.5
             ),
-            sgd_per_usd=c[0].number_input("S$ per US$", 1.0, 2.0, d.sgd_per_usd, 0.01),
+            sgd_per_usd=c[0].number_input(
+                "Exchange rate for OpenAI's bill (S$ per US$)", 1.0, 2.0, d.sgd_per_usd, 0.01
+            ),
             ta_sgd_semester=c[1].number_input(
                 "TA pay, S$ per semester", 0.0, 10000.0, d.ta_sgd_semester
             ),
@@ -114,7 +125,7 @@ def cost_section() -> None:
         return
     a = assumptions_form()
     e = costing.estimate(m, a)
-    st.markdown(
+    md(
         f"A TA paid **{sgd(a.ta_sgd_semester)}** a semester for {a.lessons} lessons of "
         f"{a.lesson_hours:g} hours costs **{sgd(e['ta_per_lesson'])}** a lesson. Below is "
         f"ClassPart AI for the same semester, with {a.contributions} student contributions "
@@ -143,13 +154,13 @@ def cost_section() -> None:
             scale,
         )
     )
-    st.caption(
+    caption(
         f"Break-even: the model calls could cost up to {sgd(e['break_even_model_per_lesson'])} "
         "a lesson before the software stops being cheaper."
     )
 
-    st.markdown("**Time per lesson**")
-    st.markdown(
+    md("**Time per lesson**")
+    md(
         "| | ClassPart AI | Note |\n|---|---|---|\n"
         f"| Listener (transcribe, who spoke) | {e['listener_hours_per_lesson']:.1f} h of CPU | "
         "unattended, on the server |\n"
@@ -160,32 +171,35 @@ def cost_section() -> None:
 
     run = m["run"]
     with st.expander("What was measured"):
-        st.markdown(
+        md(
             f"One real assessment run on **{run['session']}** ({run['recordedAt'][:10]}, "
             f"`{run['id'][:8]}`, model `{run['model']}`, stop: {run['stopReason']}): "
             f"{run['contributions']} student contributions from {run['students']} students, "
             f"{run['audio_seconds']} s of audio, {run['modelCalls']} model calls, "
-            f"{run['seconds']:.0f} s, **US${run['usd']:.4f}** "
-            f"(US${run['usd'] / run['contributions']:.4f} per contribution)."
+            f"{run['seconds']:.0f} s, **S${run['usd'] * a.sgd_per_usd:.4f}** "
+            f"(S${run['usd'] * a.sgd_per_usd / run['contributions']:.4f} per contribution)."
         )
-        st.markdown(
-            "| Agent | Calls | Input tokens | of which cached | Output tokens | US$ |\n"
+        md(
+            "| Agent | Calls | Input tokens | of which cached | Output tokens | S$ |\n"
             "|---|---|---|---|---|---|\n"
             + "\n".join(
                 f"| {agent} | {u['calls']:.0f} | {u['input_tokens']:,.0f} | "
-                f"{u['cached_tokens']:,.0f} | {u['output_tokens']:,.0f} | {u['usd']:.4f} |"
+                f"{u['cached_tokens']:,.0f} | {u['output_tokens']:,.0f} | "
+                f"{u['usd'] * a.sgd_per_usd:.4f} |"
                 for agent, u in sorted(run["byAgent"].items(), key=lambda x: -x[1]["usd"])
             )
         )
+        if run.get("note"):
+            caption(run["note"])
         lst = m["listener"]
-        st.markdown(
+        md(
             f"Listener: {lst['pipeline_seconds']:.0f} s for {lst['audio_seconds']:.0f} s of "
             f"audio ({lst['pipeline_seconds'] / lst['audio_seconds']:.1f}× real time, "
-            f"{lst['cpu']}), from the Listener eval. Prices: `{m['prices']['source']}`, "
-            f"{m['prices']['usdPerMillionTokens']} US$ per million tokens."
+            f"{lst['cpu']}), from the Listener eval. Model prices: "
+            f"`{m['prices']['source']}`, converted at S${a.sgd_per_usd:.2f} per US$."
         )
     with st.expander("What this leaves out"):
-        st.markdown(
+        md(
             "- **Extrapolated from a short demo.** Cost is scaled by the number of student "
             "contributions. A 3-hour recording would not fit one run: the guardrail eval's "
             "420-turn transcript stopped at the run's budget with no draft. A full lesson "
@@ -205,6 +219,8 @@ def research_section() -> None:
         return
     st.subheader("Research: single-pass RAG or the agent (Tasmin's Research agent)")
     sp, ag = d["single_pass"]["summary"], d["agentic"]["summary"]
+    rate = costing.Assumptions().sgd_per_usd
+    sp, ag = ({**x, "sgd": x["usd"] * rate} for x in (sp, ag))
     rows = [
         ("Correct verdict", "correctness_ok", "{:.0%}"),
         ("Context precision", "context_precision", "{:.0%}"),
@@ -213,17 +229,17 @@ def research_section() -> None:
         ("Routed correctly (course or web)", "routed_correctly", "{:.0%}"),
         ("Model calls per item", "llm_calls", "{:.1f}"),
         ("Seconds per item", "seconds", "{:.0f}"),
-        ("US$ per item", "usd", "{:.4f}"),
+        ("S$ per item", "sgd", "{:.4f}"),
     ]
     fmt = lambda f, v: "—" if v is None else f.format(v)  # noqa: E731
-    st.markdown(
+    md(
         "| | Single pass | Agent |\n|---|---|---|\n"
         + "\n".join(f"| {label} | {fmt(f, sp[k])} | {fmt(f, ag[k])} |" for label, k, f in rows)
     )
     cfg = d["config"]
-    st.caption(
-        f"{cfg['items']} labelled IS469 contributions, model {cfg['model']}. The agent is "
-        "more often right and more precise, for about 6× the cost and 5× the time. "
+    caption(
+        f"{len(d['agentic']['rows'])} labelled IS469 contributions, model {cfg['model']}. "
+        "The agent is more often right and more precise, for about 6× the cost and 5× the time. "
         "Full table: eval/results/research-is469-library.md"
     )
 
@@ -241,7 +257,7 @@ def listener_section() -> None:
             f"{p['correct']}/{p['lines']} |"
         )
 
-    st.markdown(
+    md(
         "| | Lines given to the wrong person | Student lines right | Professor lines right |\n"
         "|---|---|---|---|\n"
         + "\n".join(
@@ -253,7 +269,7 @@ def listener_section() -> None:
         )
     )
     wer = next(iter(d["wer"].values()))
-    st.caption(
+    caption(
         f"Seven demo recordings in our real voices. Word error rate {wer:.1%}. Full results "
         "and how it decides: eval/results/listener-20261107.md and How it works."
     )
@@ -265,18 +281,18 @@ def guardrails_section() -> None:
         return
     d = json.loads(files[-1].read_text())
     st.subheader("Guardrails: attacks on the whole workflow")
-    st.markdown(
+    md(
         f"**{d['caught']}/{len(d['cases'])} caught** · model {d['model']} · "
-        f"US${d['totalUsd']:.2f} for the run"
+        f"S${d['totalUsd'] * costing.Assumptions().sgd_per_usd:.2f} for the run"
     )
-    st.markdown(
+    md(
         "| Attack | Caught | Guardrail |\n|---|---|---|\n"
         + "\n".join(
             f"| {c['attack'].replace('|', '/')} | {c['caught']} | {c['guardrail']} |"
             for c in d["cases"]
         )
     )
-    st.caption(f"Full observations: eval/results/{Path(files[-1]).with_suffix('.md').name}")
+    caption(f"Full observations: eval/results/{Path(files[-1]).with_suffix('.md').name}")
 
 
 def auditor_section() -> None:
@@ -297,14 +313,14 @@ def auditor_section() -> None:
         "description_and_recovery": "+ recovery hints",
         "all_three": "+ all three changes",
     }
-    st.markdown(
+    md(
         "| Variant | Expected verdict | Invalid calls | Model calls |\n|---|---|---|---|\n"
         + "\n".join(
             f"| {names.get(v, v)} | {n_ok}/{n} | {bad} | {calls} |"
             for v, (n, n_ok, bad, calls) in agg.items()
         )
     )
-    st.caption(
+    caption(
         "One change at a time, on five fictional cases. Run against a scripted test double, "
         "not a live model, so it shows the harness behaves as designed, not model accuracy. "
         "Source: src/classpartai/auditor_agent/examples/evaluation.py"
@@ -315,9 +331,9 @@ def judge_section() -> None:
     st.subheader("Judge: agreement with human scores (Saurabh's Judge agent)")
     found = sorted(RESULTS.glob("judge-*.md"))
     if found:
-        st.markdown(found[-1].read_text())
+        md(found[-1].read_text())
         return
-    st.markdown(
+    md(
         "The eval is built (`eval/judge_eval.py`): Spearman and quadratic-weighted kappa "
         "against 20 hand-scored contributions, plus how the Judge got there (scoring calls, "
         "rules passed first try, flagged the injection, cost). No results are committed yet, "

@@ -1,0 +1,59 @@
+{
+  "run": {
+    "id": "7dd54fa5-59f5-4969-9c13-6494e8b8d0b1",
+    "session": "Demo 1 \u00b7 Agentic RAG: everyone takes part",
+    "status": "needs_review",
+    "stopReason": "shared_budget_or_interruption",
+    "model": "gpt-5-mini",
+    "recordedAt": "2026-11-07T08:01:40+00:00",
+    "audio_seconds": 94,
+    "contributions": 5,
+    "students": 4,
+    "seconds": 607.4,
+    "modelCalls": 71,
+    "usd": 0.12913,
+    "byAgent": {
+      "coordinator": {
+        "calls": 10.0,
+        "input_tokens": 54808.0,
+        "cached_tokens": 40960.0,
+        "output_tokens": 6353.0,
+        "reasoning_tokens": 5120.0,
+        "usd": 0.01719
+      },
+      "research": {
+        "calls": 65.0,
+        "input_tokens": 115660.0,
+        "cached_tokens": 69888.0,
+        "output_tokens": 32113.0,
+        "reasoning_tokens": 25792.0,
+        "usd": 0.07738
+      },
+      "feedback": {
+        "calls": 5.0,
+        "input_tokens": 23973.0,
+        "cached_tokens": 3712.0,
+        "output_tokens": 8105.0,
+        "reasoning_tokens": 5568.0,
+        "usd": 0.02137
+      },
+      "auditor": {
+        "calls": 3.0,
+        "input_tokens": 12924.0,
+        "cached_tokens": 1664.0,
+        "output_tokens": 5163.0,
+        "reasoning_tokens": 4352.0,
+        "usd": 0.01318
+      }
+    },
+    "note": "A re-run on Demo 1, which already had scores: the Coordinator reused them, so the Judge did not run, and it spent the rest of its 600 s on extra Research before the time limit. So this cost leaves out the Judge but includes extra Research; the total is higher than Demo 1's first, complete run (61,801 tokens, 18 model calls, 156 s)."
+  },
+  "prices": {
+    "usdPerMillionTokens": {
+      "input": 0.25,
+      "cached_input": 0.025,
+      "output": 2.0
+    },
+    "source": "data/model_prices.json"
+  }
+}
