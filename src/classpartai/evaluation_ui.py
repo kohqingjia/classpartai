@@ -48,7 +48,7 @@ def sgd(x: float) -> str:
 
 def _load(name: str) -> dict | None:
     path = RESULTS / name
-    return json.loads(path.read_text()) if path.exists() else None
+    return json.loads(path.read_text(encoding="utf-8")) if path.exists() else None
 
 
 def _bar(rows: list[tuple[str, list[tuple[float, str]]]], scale: float) -> str:
@@ -117,12 +117,27 @@ def assumptions_form() -> costing.Assumptions:
     return a
 
 
-def cost_section() -> None:
+def cost_section(records=None) -> None:
     st.subheader("Cost: ClassPart AI or a teaching assistant")
-    m = costing.measured()
+    m = costing.measured(records=records)
     if m is None:
         st.info("No measured run yet: run eval/cost_measure.py on the server.")
         return
+    if m["source"] == "ledger":
+        st.success(
+            f"Measured from the app's own latest complete run (`{m['run']['id'][:8]}`, "
+            f"{m['run']['recordedAt'][:10]}), so it follows the code as it is now.",
+            icon=":material/check_circle:",
+        )
+    issues = costing.problems(m["run"])
+    if issues:
+        st.warning(
+            "The committed sample run is not a fair basis for a lesson's cost: "
+            + "; ".join(issues)
+            + ". The numbers below are therefore rough. Run a full assessment on the server and "
+            "they switch to that run automatically.",
+            icon=":material/warning:",
+        )
     a = assumptions_form()
     e = costing.estimate(m, a)
     md(
@@ -279,7 +294,7 @@ def guardrails_section() -> None:
     files = sorted(RESULTS.glob("guardrails-*.json"))
     if not files:
         return
-    d = json.loads(files[-1].read_text())
+    d = json.loads(files[-1].read_text(encoding="utf-8"))
     st.subheader("Guardrails: attacks on the whole workflow")
     md(
         f"**{d['caught']}/{len(d['cases'])} caught** · model {d['model']} · "
@@ -298,7 +313,7 @@ def guardrails_section() -> None:
 def auditor_section() -> None:
     if not AUDITOR_OFFLINE.exists():
         return
-    d = json.loads(AUDITOR_OFFLINE.read_text())
+    d = json.loads(AUDITOR_OFFLINE.read_text(encoding="utf-8"))
     st.subheader("Auditor: do better tool descriptions help? (Le Yong's Auditor agent)")
     agg: dict = defaultdict(lambda: [0, 0, 0, 0])
     for r in d["runs"]:
@@ -331,7 +346,7 @@ def judge_section() -> None:
     st.subheader("Judge: agreement with human scores (Saurabh's Judge agent)")
     found = sorted(RESULTS.glob("judge-*.md"))
     if found:
-        md(found[-1].read_text())
+        md(found[-1].read_text(encoding="utf-8"))
         return
     md(
         "The eval is built (`eval/judge_eval.py`): Spearman and quadratic-weighted kappa "
@@ -343,7 +358,7 @@ def judge_section() -> None:
     st.code("uv run python eval/judge_eval.py", language="bash")
 
 
-def evaluation_view() -> None:
+def evaluation_view(records=None) -> None:
     st.title("Evaluation")
     st.markdown(
         '<p class="muted">What ClassPart AI costs against a teaching assistant, and every '
@@ -351,7 +366,7 @@ def evaluation_view() -> None:
         "eval/results.</p>",
         unsafe_allow_html=True,
     )
-    cost_section()
+    cost_section(records)
     research_section()
     judge_section()
     auditor_section()

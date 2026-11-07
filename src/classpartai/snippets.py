@@ -396,16 +396,6 @@ AGENTS: list[Agent] = [
                 ("AuditTools.verify_citation",),
             ),
             Tool(
-                "detect_injection",
-                "Checks a contribution or rationale that seems to instruct the grader (e.g. "
-                "'ignore the rubric') with a pattern check on its original text.",
-                "target (contribution or rationale), its ID",
-                "an injection signal for the agent to weigh: quoting an example isn't an attack",
-                "",
-                AUDIT,
-                ("AuditTools.detect_injection",),
-            ),
-            Tool(
                 "score_stats",
                 "A fairness check: do scores track speaking time or transcription confidence?",
                 "nothing",
@@ -524,7 +514,8 @@ AGENTS: list[Agent] = [
         "Tina (pipeline); line and turn checks by QJ",
         "Fixed steps, no model deciding anything: Whisper transcribes, pyannote splits the "
         "audio by voice, voice embeddings name each speaker, then each line and each turn is "
-        "checked again. A person confirms in ② Who spoke?.",
+        "checked again and screened for words aimed at the grader. A person confirms in "
+        "② Who spoke?.",
         "① Record (before the Coordinator runs)",
         code=(
             Snippet(
@@ -538,6 +529,13 @@ AGENTS: list[Agent] = [
                 "src/classpartai/agents/listener.py",
                 ("decide_speakers",),
                 "See 'How the Listener decides who spoke' below for each stage.",
+            ),
+            Snippet(
+                "Injection screen: flag words aimed at the grader",
+                "src/classpartai/agents/listener.py",
+                ("screen_injection",),
+                "Runs over every student or uncertain turn. The flag rides on the turn to the "
+                "professor's review, the Judge and the Auditor; the words are never changed.",
             ),
         ),
     ),

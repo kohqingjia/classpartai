@@ -10,6 +10,7 @@ AgentMail, and test mode (on by default) redirects every email to one inbox.
 """
 
 import os
+import re
 from dataclasses import dataclass
 from typing import Protocol
 
@@ -79,8 +80,9 @@ def feedback_email(records: Records, session_id: str, student_id: str, draft) ->
         cite = next(
             (x for x in bundles[c.evidenceRunId].citations if x.passageId == c.passageId), None
         )
-        if cite:
-            references.append(f'- {cite.title}, p. {cite.page}: "{cite.excerpt}"')
+        line = f'- {cite.title}, p. {cite.page}: "{cite.excerpt}"' if cite else None
+        if line and line not in references:  # the same passage cited twice is listed once
+            references.append(line)
     total = totals(draft.content, inputs, student_id)
     score = (
         f"Provisional participation score: {total['total']:g}/{total['maximum']}\n\n"
@@ -90,10 +92,16 @@ def feedback_email(records: Records, session_id: str, student_id: str, draft) ->
     student = next(s for s in inputs.roster if s.id == student_id)
     # Students can't read turn IDs: each of their own becomes a quote of what they said.
     said = own_turns(inputs, student_id)
+
+    def readable(text: str) -> str:
+        # An ID that is not the student's own turn is never quoted (nobody is shown a
+        # classmate's words), but it must not reach them as "turn-004" either.
+        return re.sub(r"\bturn-\d+\b", "another comment", quote_plain(text, said))
+
     return (
         f"Hi {student.displayName},\n\n"
-        f"{quote_plain(feedback.strengths, said)}\n\n"
-        f"Next step: {quote_plain(feedback.nextStep, said)}\n\n"
+        f"{readable(feedback.strengths)}\n\n"
+        f"Next step: {readable(feedback.nextStep)}\n\n"
         f"{score}"
         + (f"Limitations: {'; '.join(feedback.limitations)}\n\n" if feedback.limitations else "")
         + ("Course references:\n" + "\n".join(references) + "\n\n" if references else "")

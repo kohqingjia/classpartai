@@ -178,8 +178,13 @@ def coordinate(
 ) -> str:
     """Run the workflow for one session; returns the participation run ID."""
     # Every model call and step inside is recorded against this run (usage.py, Monitoring page).
-    with ledger.tracking(session_id=session_id, agent="coordinator", sink=records.log_event):
-        return _coordinate(records, session_id, factory, on_event)
+    with (
+        ledger.tracking(session_id=session_id, agent="coordinator", sink=records.log_event),
+        ledger.span("Assessment run", "run") as run_span,
+    ):
+        run_id = _coordinate(records, session_id, factory, on_event)
+        run_span.output = f"run {run_id}"
+        return run_id
 
 
 def _coordinate(
@@ -199,7 +204,7 @@ def _coordinate(
             "rubricVersion": inputs.rubric.version,
             "promptVersion": PROMPT_VERSION,
             "model": config.OPENAI_MODEL,
-            "judgeReasoningEffort": config.JUDGE_REASONING_EFFORT,
+            "reasoningEffort": config.REASONING_EFFORT,
         },
         WORKFLOW_LIMITS["seconds"],
     )
@@ -278,6 +283,7 @@ def _coordinate(
         "draft is not reused)"
     )
     stop_reason = "shared_budget_exhausted"
+    tool_span = None  # the tool call in progress, closed if the run is cut short
     try:
         while True:
             if budget.expired():
@@ -299,7 +305,7 @@ def _coordinate(
             }
             progress.actions.append(action)
             checkpoint()
-            step_started = ledger.begin()
+            tool_span = ledger.open_span(call.name, "tool", call.arguments)
             history.append(
                 {
                     "type": "function_call",
@@ -569,13 +575,11 @@ def _coordinate(
                 }
             action["result"] = output
             failure = output.get("error") if isinstance(output, dict) else None
-            ledger.record_step(
-                step_started,
-                action["tool"],
+            tool_span.end(
                 "ok" if action["outcome"] == "ok" else "refused",
-                {"arguments": action["arguments"], "summary": action["summary"], "error": failure}
-                if failure
-                else {"arguments": action["arguments"], "summary": action["summary"]},
+                output=action["summary"],
+                error=failure,
+                detail={"arguments": action["arguments"], "summary": action["summary"]},
             )
             checkpoint()
             emit("action", action)
@@ -590,8 +594,12 @@ def _coordinate(
             )
     except BudgetExceeded:
         stop_reason = "shared_budget_or_interruption"
+        if tool_span:
+            tool_span.end("error", error="Stopped: shared budget or deadline reached")
     except Exception as error:
         stop_reason = "provider_failure"
+        if tool_span:
+            tool_span.end("error", error=error)
         ledger.record_error("coordinator", error)  # the reason, which the run record drops
     progress.elapsedSeconds = round(time.monotonic() - started, 3)
     records.update_run(

@@ -72,7 +72,8 @@ def test_a_students_email_never_quotes_a_classmate(records, session_id):
     draft = records.append_draft(session_id, Proposal.model_validate(raw), "model", "v")
     text = feedback_email(records, session_id, "alex-tan", draft)
     priya = next(t.text for t in records.inputs(session_id).transcript.turns if t.id == "turn-003")
-    assert excerpt(priya) not in text and "turn-003" in text
+    # Not their words, and not a raw turn id either: the reader sees "another comment".
+    assert excerpt(priya) not in text and "turn-003" not in text and "another comment" in text
 
 
 def test_an_own_turn_that_names_a_classmate_is_shown_by_its_time(inputs):
