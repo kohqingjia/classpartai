@@ -3,6 +3,8 @@
 import json
 from pathlib import Path
 
+from classpartai.snippets import AGENTS
+
 STAGES = [
     ("listener", "01", "Listener", "recording → transcript"),
     ("coordinator", "02", "Coordinator", "plan the next action"),
@@ -209,58 +211,95 @@ def vault_html(
 
 # --- How it works: the whole system on one page, for the presentation -------------------------
 
+
+def _tools(agent: str) -> list[str]:
+    return [t.name for a in AGENTS if a.name == agent for t in a.tools]
+
+
+# Each node: name, what it does, course topic, kind ("agent" runs its own loop; "model call";
+# "pipeline"; "code"; "human"), and an agent's tools (names read from snippets.AGENTS).
 SYSTEM_LANES = [
     {
         "step": "Set up",
         "title": "Before class",
         "nodes": [
-            ["Course library", "Slides, readings, labs → one passage per slide or page", ""],
-            ["Class & voices", "Roster, roles, a voice sample per person", ""],
+            [
+                "Course library",
+                "Slides, readings, labs → one passage per slide or page",
+                "",
+                "code",
+                [],
+            ],
+            ["Class & voices", "Roster, roles, a voice sample per person", "", "code", []],
         ],
     },
     {
         "step": "① ②",
         "title": "Listener",
+        "kind": "pipeline",
         "nodes": [
-            ["Whisper", "Recording → timed text (encoder-decoder transformer)", "Topic 2"],
+            [
+                "Whisper",
+                "Recording → timed text (encoder-decoder transformer)",
+                "Topic 2",
+                "pipeline",
+                [],
+            ],
             [
                 "Speaker match",
-                "Voice embeddings, cosine similarity: ≥ 0.35 and 0.10 ahead of the runner-up",
+                "pyannote splits by voice; embeddings + cosine similarity name each speaker, "
+                "then every line and turn is re-checked",
                 "Topics 1, 8",
+                "pipeline",
+                [],
             ],
             [
                 "Who spoke? check",
                 "A person confirms the attribution; unknown voices aren't scored",
                 "",
+                "human",
+                [],
             ],
         ],
     },
     {
         "step": "③",
-        "title": "Coordinator agent",
-        "lead": "Plans the next tool call from what the last one returned, within a budget",
+        "title": "Coordinator",
+        "kind": "agent",
+        "lead": "Plans the next tool call from what the last one returned, within a budget. "
+        "Its tools:",
+        "lead_tools": _tools("Coordinator"),
         "badge": "Topic 7",
         "nodes": [
             [
-                "Evidence / Research",
-                "BM25 + vectors fused with RRF → grade → quote; web results are context, "
-                "never cited",
+                "Research",
+                "via retrieve_evidence · BM25 + vectors fused with RRF → grade → quote",
                 "Topic 8",
-            ],
-            [
-                "Judge",
-                "Rubric LLM-as-judge per student × criterion, or 'insufficient evidence'",
-                "Topic 6",
+                "agent",
+                _tools("Research"),
             ],
             [
                 "Auditor",
-                "Deterministic checks first, then a model audit: verify first, judge last",
+                "via audit_assessment · checks support, citations, injection, fairness; "
+                "never changes a score",
                 "Topic 6",
+                "agent",
+                _tools("Auditor"),
+            ],
+            [
+                "Judge",
+                "via propose_rubric_assessment · a score per student × criterion, or "
+                "'insufficient evidence'",
+                "Topic 6",
+                "model call",
+                [],
             ],
             [
                 "Feedback writer",
-                "Strengths and one next step per student, citing their turns",
+                "via draft_student_feedback · what went well and one next step, citing turns",
                 "Topic 7",
+                "model call",
+                [],
             ],
         ],
     },
@@ -268,7 +307,13 @@ SYSTEM_LANES = [
         "step": "④",
         "title": "Professor",
         "nodes": [
-            ["Approve", "Signs off the exact version (SHA-256 of content + recipients)", "Topic 9"],
+            [
+                "Approve",
+                "Signs off the exact version (SHA-256 of content + recipients)",
+                "Topic 9",
+                "human",
+                [],
+            ],
         ],
     },
     {
@@ -279,6 +324,8 @@ SYSTEM_LANES = [
                 "AgentMail",
                 "Code, not a model, sends the approved emails; test mode redirects",
                 "Topic 9",
+                "code",
+                [],
             ],
         ],
     },
@@ -314,6 +361,15 @@ _SYSTEM_CSS = """
 .rail { font-size:11px; color:var(--ink); border:1px solid var(--line); background:var(--card);
         border-radius:6px; padding:4px 8px; }
 .railhead { font-size:12px; color:var(--muted); margin-top:16px; }
+.kind { font:10px ui-monospace,monospace; color:var(--muted); border:1px solid var(--line);
+        border-radius:4px; padding:1px 5px; margin-left:auto; white-space:nowrap; }
+.kind.agent { color:var(--accent); border-color:color-mix(in srgb,var(--accent) 45%,transparent); }
+.nhead { display:flex; gap:6px; align-items:baseline; }
+.tl { display:flex; flex-wrap:wrap; gap:4px; margin-top:6px; }
+.tn { font:10px ui-monospace,monospace; color:var(--ink); background:var(--card);
+      border:1px solid var(--line); border-radius:4px; padding:1px 5px; }
+.legend { display:flex; flex-wrap:wrap; gap:14px; font-size:11px; color:var(--muted);
+          margin-top:12px; align-items:center; }
 @media(max-width:900px) { .lanes { grid-template-columns:1fr; }
   .lane:not(:last-child)::after { content:"↓"; right:auto; left:50%; top:auto; bottom:-15px;
   transform:translateX(-50%); } }
@@ -331,19 +387,37 @@ const root=document.getElementById('root');root.className='wrap';
 const el=(tag,cls,text)=>{const e=document.createElement(tag);e.className=cls;
  if(text!==undefined)e.textContent=text;return e;};
 const lanes=el('div','lanes');root.appendChild(lanes);
+const KIND={agent:'agent',"model call":'model call',pipeline:'pipeline',code:'code',
+ human:'person'};
+const toolList=names=>{const t=el('div','tl');names.forEach(n=>t.appendChild(el('span','tn',n)));
+ return t;};
 d.lanes.forEach(l=>{
  const lane=el('div','lane'+(l.lead?' coord':''));
  const head=el('div','head');head.appendChild(el('span','step',l.step));
- head.appendChild(el('span','title',l.title));lane.appendChild(head);
- if(l.lead){lane.appendChild(el('div','lead',l.lead));lane.appendChild(el('span','badge',l.badge));}
+ head.appendChild(el('span','title',l.title));
+ if(l.kind)head.appendChild(el('span','kind '+(l.kind==='agent'?'agent':''),KIND[l.kind]));
+ lane.appendChild(head);
+ if(l.lead){lane.appendChild(el('div','lead',l.lead));lane.appendChild(toolList(l.lead_tools));
+  lane.appendChild(el('span','badge',l.badge));}
  const box=el('div',l.lead?'tools':'');
- l.nodes.forEach(([name,what,topic])=>{
-  const n=el('div','node');n.appendChild(el('div','name',name));
-  n.appendChild(el('div','what',what));
+ l.nodes.forEach(([name,what,topic,kind,tools])=>{
+  const n=el('div','node');const nh=el('div','nhead');nh.appendChild(el('div','name',name));
+  if(!l.kind||l.kind!==kind)
+   nh.appendChild(el('span','kind '+(kind==='agent'?'agent':''),KIND[kind]));
+  n.appendChild(nh);n.appendChild(el('div','what',what));
+  if(tools.length)n.appendChild(toolList(tools));
   if(topic)n.appendChild(el('span','badge',topic));box.appendChild(n);
  });
  lane.appendChild(box);lanes.appendChild(lane);
 });
+const legend=el('div','legend');
+[['agent','agent','runs its own loop: picks a tool, reads the result, picks the next'],
+ ['','model call','one structured model call'],['','pipeline','fixed steps, no model deciding'],
+ ['','code','plain code'],['','person','a human decision']].forEach(([c,k,t])=>{
+ const i=el('span','');i.appendChild(el('span','kind '+c,k));
+ i.appendChild(document.createTextNode(' '+t));
+ legend.appendChild(i);});
+root.appendChild(legend);
 root.appendChild(el('div','railhead','Guardrails · Topic 9'));
 const rails=el('div','rails');root.appendChild(rails);
 d.rails.forEach(r=>rails.appendChild(el('span','rail',r)));
