@@ -32,8 +32,7 @@
             "attribution": "identified",
             "text": "Silence alone does not show poor understanding; another observation is needed.",
             "start_ms": 0,
-            "end_ms": 8000,
-            "transcription_confidence": null
+            "end_ms": 8000
           }
         ],
         "proposal": {
@@ -120,8 +119,7 @@
             "attribution": "identified",
             "text": "Observation and interpretation.",
             "start_ms": 0,
-            "end_ms": 8000,
-            "transcription_confidence": null
+            "end_ms": 8000
           }
         ],
         "proposal": {
@@ -208,8 +206,7 @@
             "attribution": "identified",
             "text": "Silence alone does not show poor understanding; another observation is needed.",
             "start_ms": 0,
-            "end_ms": 8000,
-            "transcription_confidence": null
+            "end_ms": 8000
           },
           {
             "contribution_id": "contribution-b",
@@ -220,8 +217,7 @@
             "attribution": "identified",
             "text": "Silence alone does not show poor understanding; another observation is needed.",
             "start_ms": 0,
-            "end_ms": 8000,
-            "transcription_confidence": null
+            "end_ms": 8000
           }
         ],
         "proposal": {
@@ -328,8 +324,7 @@
             "attribution": "identified",
             "text": "Silence alone does not show poor understanding; another observation is needed.",
             "start_ms": 0,
-            "end_ms": 8000,
-            "transcription_confidence": null
+            "end_ms": 8000
           }
         ],
         "proposal": {
@@ -470,8 +465,7 @@
             "attribution": "identified",
             "text": "Silence alone does not show poor understanding; another observation is needed.",
             "start_ms": 0,
-            "end_ms": 8000,
-            "transcription_confidence": null
+            "end_ms": 8000
           }
         ],
         "proposal": {

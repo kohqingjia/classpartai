@@ -52,6 +52,7 @@ class ModelAuditIssue(Strict):
 
 
 class ModelAudit(Strict):
+    completed: bool = True
     issues: list[ModelAuditIssue] = Field(max_length=100)
     resolvedIssueIds: list[str] = Field(max_length=100)
     resolutionReason: str = Field(min_length=1, max_length=1000)

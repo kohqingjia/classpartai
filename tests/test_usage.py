@@ -11,7 +11,9 @@ from classpartai.participation.records import Records
 
 
 @pytest.fixture(autouse=True)
-def no_global_sink():
+def no_global_sink(monkeypatch):
+    # Usage scripts explicitly target the single-call audit implementation.
+    monkeypatch.setattr(config, "AUDITOR", "model")
     usage.configure(None)
     yield
     usage.configure(None)

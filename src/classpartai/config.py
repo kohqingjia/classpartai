@@ -50,8 +50,8 @@ RESEARCH_MAX_GRADES = int(os.getenv("RESEARCH_MAX_GRADES", "8"))
 # budget.
 EVIDENCE_AGENT = os.getenv("EVIDENCE_AGENT", "research").strip().lower()
 # Which auditor answers the coordinator's audit_assessment: "agent" (Le Yong's Auditor agent in
-# auditor_agent/, through participation/auditor_bridge.py, the default; it falls back to the
-# single-call audit if it errors) or "model" (the single-call model audit in roles.py).
+# auditor_agent/, through participation/auditor_bridge.py, the default; errors require professor
+# review without automatic fallback) or "model" (explicit single-call audit in roles.py).
 AUDITOR = os.getenv("AUDITOR", "agent").strip().lower()
 RESEARCH_BRIDGE_MAX_STEPS = int(os.getenv("RESEARCH_BRIDGE_MAX_STEPS", "8"))
 RESEARCH_BRIDGE_MAX_COURSE_SEARCHES = int(os.getenv("RESEARCH_BRIDGE_MAX_COURSE_SEARCHES", "4"))

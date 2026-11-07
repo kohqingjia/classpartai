@@ -8,6 +8,7 @@ import json
 import pytest
 from conftest import SILENT, ScriptedDriver, factory_for, feedback, finding, score_call
 
+from classpartai import config
 from classpartai.models import WORKFLOW_LIMITS, BudgetExceeded, SharedBudget, WorkflowProgress
 from classpartai.participation.adversarial import (
     CASES,
@@ -373,3 +374,10 @@ def test_meter_refuses_unpriced_models_and_spent_caps_before_sending():
     with pytest.raises(RuntimeError, match="cost cap"):
         create(None, model="gpt-5-mini")
     assert sent == ["gpt-5-mini", "gpt-5-mini"]
+
+
+@pytest.fixture(autouse=True)
+def explicit_single_call_auditor(monkeypatch):
+    # These authored scripts exercise deterministic gates and deliberately flawed single-call
+    # audits. They must not depend on the agent failing and silently falling back to that role.
+    monkeypatch.setattr(config, "AUDITOR", "model")

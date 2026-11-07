@@ -473,7 +473,7 @@ TOOLS = [
     definition(
         "score_stats",
         (
-            "Use when multiple scored contributions and duration/confidence"
+            "Use when multiple scored contributions and speaking-duration"
             " metadata warrant a fairness check. Skip if not useful. Report"
             " sample size and missingness; correlation is not proven bias "
             "and text does not establish loudness."
@@ -531,6 +531,7 @@ def run_audit(
     limits: Limits | None = None,
     tuning: AuditTuning | None = None,
     prompt: str,
+    allow_rejudge: bool = True,
 ) -> AuditResult:
     """Accept JSON-compatible input with authenticated scope and trusted persisted state.
 
@@ -542,7 +543,9 @@ def run_audit(
     req = AuditRequest.parse(request)
     budget = Budget(limits or Limits())
     tuning = tuning or AuditTuning()
-    available_tools = deepcopy(TOOLS)
+    available_tools = [
+        t for t in deepcopy(TOOLS) if allow_rejudge or t["function"]["name"] != "request_rejudge"
+    ]
     if not tuning.comparison_cue:
         next(t for t in available_tools if t["function"]["name"] == "compare_similar")["function"][
             "description"
@@ -563,7 +566,14 @@ def run_audit(
                     "untrusted_data": {
                         "case_id": req.audit_case_id,
                         "rubric": asdict(req.rubric),
-                        "contributions": [asdict(c) for c in req.contributions],
+                        "contributions": [
+                            {
+                                key: value
+                                for key, value in asdict(c).items()
+                                if key != "transcription_confidence"
+                            }
+                            for c in req.contributions
+                        ],
                         "finding_ids": [f.finding_id for f in req.proposal.findings],
                         "pending_objections": asdict(req.state.pending_rejudge)
                         if req.state.pending_rejudge

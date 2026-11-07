@@ -36,6 +36,10 @@ escalate. Never propose a replacement score, approval or email. After one rejudg
 material objections require professor review. A revision must demonstrably address the pending
 objections; list resolved_issue_ids only after inspecting the returned revision. Return concise
 public objections, not hidden reasoning. Only use the provided native tools, one call at a time.
+Student aggregate scores are not individual-turn scores. Use reviewed_turns to compare actual
+answers in context; never assign the aggregate grade to each answer. No-observation records have
+no transcript references: leave qualitative understanding unassessed and permit a numeric score
+only when the rubric explicitly supplies a no-contribution rule.
 An audit pass is not professor approval. Missing data or failed checks never justify a pass.
 Tool protocol: use exact native function names without aliases or prefixes. Supply all required
 arguments with their declared JSON types, even empty lists. Use only IDs observed in the input
@@ -58,6 +62,7 @@ def audit_proposal(
     evidence_reader: EvidenceReader,
     limits: Limits | None = None,
     tuning: AuditTuning | None = None,
+    allow_rejudge: bool = True,
 ) -> AuditResult:
     """Build the Auditor prompt and delegate bounded tool execution to the harness."""
     tuning = tuning or AuditTuning()
@@ -69,6 +74,7 @@ def audit_proposal(
         limits=limits,
         tuning=tuning,
         prompt=prompt,
+        allow_rejudge=allow_rejudge,
     )
 
 
