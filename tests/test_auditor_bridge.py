@@ -5,7 +5,7 @@ import time
 
 import conftest
 import pytest
-from conftest import SILENT, ScriptedDriver, full_proposal
+from conftest import SILENT, ScriptedDriver, full_proposal, judge_steps
 from test_coordinator import AUDIT, fb
 
 from classpartai import config
@@ -319,9 +319,7 @@ def test_coordinator_runs_the_auditor_agent_end_to_end(records, session_id):
     roles = factory_for(
         {
             "inspect_transcript_context": coordinator,
-            "finish_rubric_judgement": ScriptedDriver(
-                [("finish_rubric_judgement", {"findings": full_proposal()["findings"]})]
-            ),
+            "score_contribution": ScriptedDriver(judge_steps()),
             "finish_student_feedback": ScriptedDriver(
                 [
                     ("finish_student_feedback", fb("alex-tan")),

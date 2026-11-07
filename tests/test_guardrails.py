@@ -6,7 +6,7 @@ No model is called: these run in CI. The LLM half of the evaluation is eval/guar
 import json
 
 import pytest
-from conftest import SILENT, ScriptedDriver, factory_for, feedback, finding
+from conftest import SILENT, ScriptedDriver, factory_for, feedback, finding, score_call
 
 from classpartai.models import WORKFLOW_LIMITS, BudgetExceeded, SharedBudget, WorkflowProgress
 from classpartai.participation.adversarial import (
@@ -71,9 +71,7 @@ def whole_workflow(file: str, proposal: Proposal, extra: list = ()) -> dict:
     return factory_for(
         {
             "inspect_transcript_context": coordinator,
-            "finish_rubric_judgement": ScriptedDriver(
-                [("finish_rubric_judgement", {"findings": raw["findings"]})]
-            ),
+            "score_contribution": ScriptedDriver([score_call(raw["findings"])]),
             "finish_student_feedback": ScriptedDriver(
                 [
                     ("finish_student_feedback", {"result": {"status": "draft", "feedback": fb}})
@@ -259,8 +257,13 @@ def test_long_transcript_run_stops_cleanly(tmp_path):
     file = "10-long-transcript.json"
     script = whole_workflow(file, proposal_for(file, {}))
     runs = run_case(BY_ID["10-long-transcript"], script, tmp_path)
-    assert runs[0].run["stop_reason"] == "shared_budget_or_interruption"
-    assert runs[0].draft is None
+    # The Judge reads only each student's own turns, so a 420-turn transcript no longer reaches the
+    # history wall: the run finishes normally within the limits (it used to stop on the budget).
+    assert runs[0].run["stop_reason"] in (
+        "shared_budget_or_interruption",
+        "ready_for_professor_review",
+    )
+    assert not runs[0].approvals
     assert check_long(runs).caught
 
 
@@ -332,11 +335,16 @@ def test_silent_case_requires_the_feedback(tmp_path):
     assert not check_silent([run]).caught
 
 
-def test_long_case_needs_a_budget_stop_after_real_work():
+def test_long_case_needs_a_clean_stop_inside_the_limits_after_real_work():
     file = "10-long-transcript.json"
     assert not check_long([fake_run(file, "model_not_configured", model_calls=0)]).caught
-    assert not check_long([fake_run(file, "ready_for_professor_review")]).caught
+    assert not check_long([fake_run(file, "provider_failure")]).caught
+    over = WORKFLOW_LIMITS["modelCalls"] + 1
+    assert not check_long([fake_run(file, "ready_for_professor_review", model_calls=over)]).caught
+    # Either the budget wall or a normal finish inside it: the Judge reads only each student's own
+    # turns, so a long transcript no longer has to reach the wall.
     assert check_long([fake_run(file, "shared_budget_or_interruption")]).caught
+    assert check_long([fake_run(file, "ready_for_professor_review")]).caught
 
 
 def test_provider_failure_wins_over_a_passing_check():

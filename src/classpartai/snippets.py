@@ -234,7 +234,7 @@ AGENTS: list[Agent] = [
                 "those turns plus each one's neighbours, at most 20",
                 "Unknown students or turn IDs are refused.",
                 COORD,
-                ("coordinate#inspect_transcript_context",),
+                ("_coordinate#inspect_transcript_context",),
             ),
             Tool(
                 "retrieve_evidence",
@@ -244,7 +244,7 @@ AGENTS: list[Agent] = [
                 "the evidence run's ID, status and its evidence bundle",
                 "Research's tool calls count against the Coordinator's budget.",
                 COORD,
-                ("coordinate#retrieve_evidence",),
+                ("_coordinate#retrieve_evidence",),
             ),
             Tool(
                 "propose_rubric_assessment",
@@ -255,7 +255,7 @@ AGENTS: list[Agent] = [
                 "Every score is validated: right students, existing turns, the student's own "
                 "turns, the rubric's range. A failure goes back to the Judge with the reason.",
                 COORD,
-                ("coordinate#propose_rubric_assessment",),
+                ("_coordinate#propose_rubric_assessment",),
             ),
             Tool(
                 "audit_assessment",
@@ -265,7 +265,7 @@ AGENTS: list[Agent] = [
                 "the new draft's ID and its audit",
                 "Refused before any draft exists. The Auditor never changes a score.",
                 COORD,
-                ("coordinate#audit_assessment",),
+                ("_coordinate#audit_assessment",),
             ),
             Tool(
                 "draft_student_feedback",
@@ -276,7 +276,7 @@ AGENTS: list[Agent] = [
                 "Refused before findings exist ('Create findings before feedback'), or when "
                 "the writer returns a different student.",
                 COORD,
-                ("coordinate#draft_student_feedback",),
+                ("_coordinate#draft_student_feedback",),
             ),
             Tool(
                 "request_professor_review",
@@ -287,7 +287,7 @@ AGENTS: list[Agent] = [
                 "is audited. The third refusal ends the run as 'escalated with open issues'. It "
                 "never approves or sends.",
                 COORD,
-                ("coordinate#request_professor_review",),
+                ("_coordinate#request_professor_review",),
             ),
         ),
     ),
@@ -435,16 +435,17 @@ AGENTS: list[Agent] = [
         "Judge",
         "model call",
         "Saurabh (a full agent is on his branch, not merged yet)",
-        "One structured model call: scores each student on each rubric criterion from their "
-        "attributed turns and the evidence, or says 'insufficient evidence' (not zero).",
+        "An agent: gets the rubric, each student's own turns and the evidence summary at once, "
+        "scores every student on each criterion (or says 'insufficient evidence', not zero), and "
+        "flags what the professor should check.",
         "the Coordinator's propose_rubric_assessment",
         code=(
             Snippet(
                 "Its prompt and the checks on its answer",
-                "src/classpartai/participation/roles.py",
-                ("judge",),
-                "Its instructions, what it's given, and validate_proposal on every answer: a "
-                "refused score goes back to it with the reason.",
+                "src/classpartai/participation/judge.py",
+                ("JUDGE_INSTRUCTIONS",),
+                "Its instructions; what it is given is in the opening message, and every score "
+                "goes through validate_proposal: a refused score goes back to it with the reason.",
             ),
         ),
     ),
