@@ -191,6 +191,17 @@ def veto(
     return "AMBIGUOUS" if own not in ("UNKNOWN", "AMBIGUOUS", name) else name
 
 
+def turn_runs(segments: list[dict]) -> list[list[int]]:
+    """Indexes of the segments, grouped into runs of consecutive segments with one speaker."""
+    runs: list[list[int]] = []
+    for n, seg in enumerate(segments):
+        if runs and segments[runs[-1][-1]]["speaker"] == seg["speaker"]:
+            runs[-1].append(n)
+        else:
+            runs.append([n])
+    return runs
+
+
 def decide_speakers(result: dict, score_span: ScoreSpan) -> dict:
     """Re-decide who said what in the output of Tina's ``process_audio``:
 
@@ -199,7 +210,11 @@ def decide_speakers(result: dict, score_span: ScoreSpan) -> dict:
     2. each diarised speaker named from the scores her pipeline recorded, with ``best_match``
        rather than her rule (her decision is kept under ``voice_matches[label]["verifier"]``);
     3. ``veto``: each line of at least ``MIN_SEGMENT_SECONDS`` is scored on its own clip, and
-       one that clearly names someone else becomes AMBIGUOUS.
+       one that clearly names someone else becomes AMBIGUOUS;
+    4. the same check on each whole turn (``turn_runs``: consecutive lines of one diarised
+       speaker), so a turn Whisper cut into lines too short to check one by one is still
+       checked. A line is credited only if neither its own voice nor its turn's names
+       someone else.
 
     The scores behind every decision stay in the result for the Listener inspector.
     ``score_span(start, end)`` scores that stretch of the recording (``span_scorer``)."""
@@ -223,16 +238,30 @@ def decide_speakers(result: dict, score_span: ScoreSpan) -> dict:
     else:
         aligned = [dict(seg) for seg in result.get("aligned_segments", [])]
 
+    def checkable(name: str, start: float, end: float) -> bool:
+        return name not in ("UNKNOWN", "AMBIGUOUS") and end - start >= MIN_SEGMENT_SECONDS
+
+    # A turn of several lines is also scored as a whole (one line is checked on its own below).
+    turn_of, turn_checks = {}, {}
+    for run in turn_runs(aligned):
+        first, last = aligned[run[0]], aligned[run[-1]]
+        turn = {"start": first["start"], "end": last["end"]}
+        name = names.get(first["speaker"], "UNKNOWN")
+        if len(run) > 1 and checkable(name, turn["start"], turn["end"]):
+            turn_checks[run[0]] = {**turn, "matches": score_span(turn["start"], turn["end"])}
+        turn_of.update(dict.fromkeys(run, run[0]))
+
     segments = []
-    for seg in aligned:
+    for n, seg in enumerate(aligned):
         label = seg["speaker"]
         named = {**seg, "speaker": names.get(label, "UNKNOWN")}
         own = None
-        if named["speaker"] not in ("UNKNOWN", "AMBIGUOUS") and (
-            seg["end"] - seg["start"] >= MIN_SEGMENT_SECONDS
-        ):
+        if checkable(named["speaker"], seg["start"], seg["end"]):
             own = score_span(seg["start"], seg["end"])
         name = veto(named, own)
+        turn = turn_checks.get(turn_of[n])
+        if turn and name == named["speaker"]:
+            name = veto({**named, "start": turn["start"], "end": turn["end"]}, turn["matches"])
         seg["voice_match"] = {
             "name": name,
             "status": "vetoed" if name != named["speaker"] else status_of(name),
@@ -240,6 +269,8 @@ def decide_speakers(result: dict, score_span: ScoreSpan) -> dict:
             # The line's own scores when it was checked, else its diarised speaker's.
             "matches": own if own is not None else speakers.get(label, {}).get("matches", []),
             "scores_from": "line" if own is not None else "speaker",
+            # Its whole turn's scores, when the turn has several lines and was checked.
+            "turn": turn,
         }
         segments.append(
             {

@@ -1,1 +1,3521 @@
-{"id":"02-one-silent","audio_seconds":72.96975,"script":{"id":"02-one-silent","title":"Demo 2 \u00b7 Agents: one student never speaks","case":"Le Yong is on the class list but says nothing. He must get 'no observed participation', never a score of zero.","lines":[{"speaker":"Prof Lim (demo)","text":"Today is about agents and tool calling. An agent is a loop: the model looks at the conversation, chooses a tool, we run the tool, and we feed the result back in. Let's look at the harness from the lab. What is the observation, the obs variable, after we call run tool?","start":0.8,"end":17.18},{"speaker":"Tasmin","text":"It's the output of the tool, so the result, or the error message if the call failed.","start":18.02,"end":22.49},{"speaker":"Prof Lim (demo)","text":"Yes, and why do we return the error to the model instead of crashing?","start":23.43,"end":27.47},{"speaker":"Koh Qing Jia","text":"So the model can see what went wrong and try again with different arguments.","start":28.56,"end":34.39},{"speaker":"Prof Lim (demo)","text":"Good. Now, when would you split one agent into several agents with different tools?","start":35.54,"end":40.39},{"speaker":"Tina","text":"Maybe when the tasks are different, like one agent searches and another one writes, so each prompt stays small.","start":41.53,"end":47.37},{"speaker":"Prof Lim (demo)","text":"That's one reason. Smaller tool lists also mean fewer wrong tool choices. How would you measure whether an agent is using tools well?","start":48.36,"end":56.14},{"speaker":"Tasmin","text":"Check if it called the right tool with the right arguments, and how many steps it needed to finish.","start":57.44,"end":62.72},{"speaker":"Prof Lim (demo)","text":"Tool accuracy and efficiency, good. Alright, for next week read the section on budgets and stopping conditions. Thank you.","start":63.99,"end":72.07}]},"registry":{"demo-professor":"Prof Demo","koh-qing-jia":"Koh Qing Jia","tasmin":"tasmin","tina":"tina","le-yong":"le yong","prof":"prof","demo-prof-lim":"Prof Lim (demo)"},"pipeline":{"language":"en","whisper_segments":[{"start":0.0,"end":6.0,"text":"Today is about agents until calling, an agent is a loop, the model looks at the conversation,"},{"start":6.0,"end":10.0,"text":"chooses a tool, we run the tool, and we feed the result back in."},{"start":10.0,"end":14.0,"text":"Let's look at the harness from the lab, what is the observation?"},{"start":14.0,"end":18.0,"text":"The OBS variable, after we call run tool."},{"start":18.0,"end":23.0,"text":"It's the output of the tool, so the result or the error message if the call failed."},{"start":23.0,"end":28.0,"text":"Yes, and why do we return the error to the model instead of crashing?"},{"start":28.0,"end":35.0,"text":"The model can see what went wrong and try again with different arguments."},{"start":35.0,"end":41.0,"text":"Good, now, when would you split one agent into several agents with different tools?"},{"start":41.0,"end":48.0,"text":"Maybe when the tasks are different like one agent searches and another one writes so each prompt stays small."},{"start":48.0,"end":53.0,"text":"That's one reason, smaller tool lists also mean fewer wrong tool choices."},{"start":53.0,"end":57.0,"text":"How would you measure whether an agent is using tools well?"},{"start":57.0,"end":63.0,"text":"Check if it called the right tool with the right arguments and how many steps it needed to finish."},{"start":63.0,"end":67.0,"text":"Tool accuracy and efficiency, good, all right."},{"start":67.0,"end":71.0,"text":"For next week read the section on budgets and stopping conditions."},{"start":71.0,"end":72.0,"text":"Thank you."}],"aligned_segments":[{"start":0.0,"end":6.0,"speaker":"SPEAKER_03","text":"Today is about agents until calling, an agent is a loop, the model looks at the conversation,"},{"start":6.0,"end":10.0,"speaker":"SPEAKER_03","text":"chooses a tool, we run the tool, and we feed the result back in."},{"start":10.0,"end":14.0,"speaker":"SPEAKER_03","text":"Let's look at the harness from the lab, what is the observation?"},{"start":14.0,"end":18.0,"speaker":"SPEAKER_03","text":"The OBS variable, after we call run tool."},{"start":18.0,"end":23.0,"speaker":"SPEAKER_00","text":"It's the output of the tool, so the result or the error message if the call failed."},{"start":23.0,"end":28.0,"speaker":"SPEAKER_03","text":"Yes, and why do we return the error to the model instead of crashing?"},{"start":28.0,"end":35.0,"speaker":"SPEAKER_02","text":"The model can see what went wrong and try again with different arguments."},{"start":35.0,"end":41.0,"speaker":"SPEAKER_03","text":"Good, now, when would you split one agent into several agents with different tools?"},{"start":41.0,"end":48.0,"speaker":"SPEAKER_01","text":"Maybe when the tasks are different like one agent searches and another one writes so each prompt stays small."},{"start":48.0,"end":53.0,"speaker":"SPEAKER_03","text":"That's one reason, smaller tool lists also mean fewer wrong tool choices."},{"start":53.0,"end":57.0,"speaker":"SPEAKER_03","text":"How would you measure whether an agent is using tools well?"},{"start":57.0,"end":63.0,"speaker":"SPEAKER_00","text":"Check if it called the right tool with the right arguments and how many steps it needed to finish."},{"start":63.0,"end":67.0,"speaker":"SPEAKER_03","text":"Tool accuracy and efficiency, good, all right."},{"start":67.0,"end":71.0,"speaker":"SPEAKER_03","text":"For next week read the section on budgets and stopping conditions."},{"start":71.0,"end":72.0,"speaker":"SPEAKER_03","text":"Thank you."}],"voice_matches":{"SPEAKER_03":{"name":"Prof Lim (demo)","status":"identified","score":0.9554218649864197,"matches":[{"person_id":"demo-prof-lim","name":"Prof Lim (demo)","score":0.9554218649864197,"same_speaker":true},{"person_id":"demo-professor","name":"Prof Demo","score":0.0740731880068779,"same_speaker":false},{"person_id":"tina","name":"tina","score":0.06703279912471771,"same_speaker":false},{"person_id":"prof","name":"prof","score":0.02789531648159027,"same_speaker":false},{"person_id":"tasmin","name":"tasmin","score":-0.0028499821200966835,"same_speaker":false},{"person_id":"le-yong","name":"le yong","score":-0.004685580730438232,"same_speaker":false},{"person_id":"koh-qing-jia","name":"Koh Qing Jia","score":-0.06052640080451965,"same_speaker":false}]},"SPEAKER_00":{"name":"AMBIGUOUS","status":"ambiguous","matches":[{"person_id":"tasmin","name":"tasmin","score":0.8283265829086304,"same_speaker":true},{"person_id":"tina","name":"tina","score":0.2877476215362549,"same_speaker":true},{"person_id":"le-yong","name":"le yong","score":0.08718141913414001,"same_speaker":false},{"person_id":"koh-qing-jia","name":"Koh Qing Jia","score":0.06640159338712692,"same_speaker":false},{"person_id":"demo-prof-lim","name":"Prof Lim (demo)","score":0.042048487812280655,"same_speaker":false},{"person_id":"prof","name":"prof","score":0.027109820395708084,"same_speaker":false},{"person_id":"demo-professor","name":"Prof Demo","score":-0.03393096476793289,"same_speaker":false}]},"SPEAKER_02":{"name":"Koh Qing Jia","status":"identified","score":0.7818779349327087,"matches":[{"person_id":"koh-qing-jia","name":"Koh Qing Jia","score":0.7818779349327087,"same_speaker":true},{"person_id":"tina","name":"tina","score":0.14847515523433685,"same_speaker":false},{"person_id":"demo-professor","name":"Prof Demo","score":0.1260765939950943,"same_speaker":false},{"person_id":"tasmin","name":"tasmin","score":0.08885212242603302,"same_speaker":false},{"person_id":"prof","name":"prof","score":0.08525550365447998,"same_speaker":false},{"person_id":"le-yong","name":"le yong","score":0.07036726176738739,"same_speaker":false},{"person_id":"demo-prof-lim","name":"Prof Lim (demo)","score":-0.014651581645011902,"same_speaker":false}]},"SPEAKER_01":{"name":"tina","status":"identified","score":0.8226892948150635,"matches":[{"person_id":"tina","name":"tina","score":0.8226892948150635,"same_speaker":true},{"person_id":"tasmin","name":"tasmin","score":0.23131516575813293,"same_speaker":false},{"person_id":"koh-qing-jia","name":"Koh Qing Jia","score":0.19366012513637543,"same_speaker":false},{"person_id":"demo-prof-lim","name":"Prof Lim (demo)","score":0.07947230339050293,"same_speaker":false},{"person_id":"prof","name":"prof","score":0.06864131987094879,"same_speaker":false},{"person_id":"le-yong","name":"le yong","score":0.035546645522117615,"same_speaker":false},{"person_id":"demo-professor","name":"Prof Demo","score":-0.011905377730727196,"same_speaker":false}]}},"speaker_identities":{"SPEAKER_03":"Prof Lim (demo)","SPEAKER_00":"AMBIGUOUS","SPEAKER_02":"Koh Qing Jia","SPEAKER_01":"tina"},"segments":[{"start":0.0,"end":18.0,"speaker":"Prof Lim (demo)","original_speaker":"SPEAKER_03","text":"Today is about agents until calling, an agent is a loop, the model looks at the conversation, chooses a tool, we run the tool, and we feed the result back in. Let's look at the harness from the lab, what is the observation? The OBS variable, after we call run tool."},{"start":18.0,"end":23.0,"speaker":"AMBIGUOUS","original_speaker":"SPEAKER_00","text":"It's the output of the tool, so the result or the error message if the call failed."},{"start":23.0,"end":28.0,"speaker":"Prof Lim (demo)","original_speaker":"SPEAKER_03","text":"Yes, and why do we return the error to the model instead of crashing?"},{"start":28.0,"end":35.0,"speaker":"Koh Qing Jia","original_speaker":"SPEAKER_02","text":"The model can see what went wrong and try again with different arguments."},{"start":35.0,"end":41.0,"speaker":"Prof Lim (demo)","original_speaker":"SPEAKER_03","text":"Good, now, when would you split one agent into several agents with different tools?"},{"start":41.0,"end":48.0,"speaker":"tina","original_speaker":"SPEAKER_01","text":"Maybe when the tasks are different like one agent searches and another one writes so each prompt stays small."},{"start":48.0,"end":57.0,"speaker":"Prof Lim (demo)","original_speaker":"SPEAKER_03","text":"That's one reason, smaller tool lists also mean fewer wrong tool choices. How would you measure whether an agent is using tools well?"},{"start":57.0,"end":63.0,"speaker":"AMBIGUOUS","original_speaker":"SPEAKER_00","text":"Check if it called the right tool with the right arguments and how many steps it needed to finish."},{"start":63.0,"end":72.0,"speaker":"Prof Lim (demo)","original_speaker":"SPEAKER_03","text":"Tool accuracy and efficiency, good, all right. For next week read the section on budgets and stopping conditions. Thank you."}],"diarization_turns":[{"start":0.79034375,"end":17.24346875,"speaker":"SPEAKER_03"},{"start":18.32346875,"end":22.508468750000002,"speaker":"SPEAKER_00"},{"start":23.38596875,"end":27.469718750000002,"speaker":"SPEAKER_03"},{"start":28.81971875,"end":34.32096875,"speaker":"SPEAKER_02"},{"start":35.502218750000004,"end":40.39596875,"speaker":"SPEAKER_03"},{"start":41.931593750000005,"end":47.415968750000005,"speaker":"SPEAKER_01"},{"start":48.344093750000006,"end":56.20784375,"speaker":"SPEAKER_03"},{"start":57.81096875,"end":62.75534375,"speaker":"SPEAKER_00"},{"start":63.97034375000001,"end":72.10409375,"speaker":"SPEAKER_03"}],"timings":{"transcription_s":11.271287087118253,"diarization_s":132.9640534638893,"total_s":209.11587261594832}},"segment_matches":[[{"person_id":"demo-prof-lim","name":"Prof Lim (demo)","score":0.9241514205932617,"same_speaker":true},{"person_id":"tina","name":"tina","score":0.06359055638313293,"same_speaker":false},{"person_id":"demo-professor","name":"Prof Demo","score":0.056454893201589584,"same_speaker":false},{"person_id":"tasmin","name":"tasmin","score":0.025869207456707954,"same_speaker":false},{"person_id":"prof","name":"prof","score":0.011502889916300774,"same_speaker":false},{"person_id":"le-yong","name":"le yong","score":-0.014528192579746246,"same_speaker":false},{"person_id":"koh-qing-jia","name":"Koh Qing Jia","score":-0.043961264193058014,"same_speaker":false}],[{"person_id":"demo-prof-lim","name":"Prof Lim (demo)","score":0.8356785774230957,"same_speaker":true},{"person_id":"demo-professor","name":"Prof Demo","score":0.06021325662732124,"same_speaker":false},{"person_id":"tina","name":"tina","score":0.043765291571617126,"same_speaker":false},{"person_id":"le-yong","name":"le yong","score":0.03817318007349968,"same_speaker":false},{"person_id":"prof","name":"prof","score":0.00787346437573433,"same_speaker":false},{"person_id":"koh-qing-jia","name":"Koh Qing Jia","score":-0.01304011233150959,"same_speaker":false},{"person_id":"tasmin","name":"tasmin","score":-0.0300847627222538,"same_speaker":false}],[{"person_id":"demo-prof-lim","name":"Prof Lim (demo)","score":0.8986414670944214,"same_speaker":true},{"person_id":"demo-professor","name":"Prof Demo","score":0.03951214626431465,"same_speaker":false},{"person_id":"le-yong","name":"le yong","score":0.03636239469051361,"same_speaker":false},{"person_id":"tasmin","name":"tasmin","score":0.027657974511384964,"same_speaker":false},{"person_id":"tina","name":"tina","score":0.02500440925359726,"same_speaker":false},{"person_id":"prof","name":"prof","score":0.0038875043392181396,"same_speaker":false},{"person_id":"koh-qing-jia","name":"Koh Qing Jia","score":-0.06263542920351028,"same_speaker":false}],[{"person_id":"demo-prof-lim","name":"Prof Lim (demo)","score":0.7619850635528564,"same_speaker":true},{"person_id":"tina","name":"tina","score":0.10390245169401169,"same_speaker":false},{"person_id":"prof","name":"prof","score":0.06365145742893219,"same_speaker":false},{"person_id":"demo-professor","name":"Prof Demo","score":0.057714443653821945,"same_speaker":false},{"person_id":"le-yong","name":"le yong","score":0.0502171628177166,"same_speaker":false},{"person_id":"tasmin","name":"tasmin","score":0.007556848227977753,"same_speaker":false},{"person_id":"koh-qing-jia","name":"Koh Qing Jia","score":-0.009287774562835693,"same_speaker":false}],[{"person_id":"tasmin","name":"tasmin","score":0.7178609371185303,"same_speaker":true},{"person_id":"tina","name":"tina","score":0.26977285742759705,"same_speaker":true},{"person_id":"koh-qing-jia","name":"Koh Qing Jia","score":0.09997012466192245,"same_speaker":false},{"person_id":"le-yong","name":"le yong","score":0.05953645706176758,"same_speaker":false},{"person_id":"demo-professor","name":"Prof Demo","score":0.004443559795618057,"same_speaker":false},{"person_id":"demo-prof-lim","name":"Prof Lim (demo)","score":-0.02110266499221325,"same_speaker":false},{"person_id":"prof","name":"prof","score":-0.03147100284695625,"same_speaker":false}],[{"person_id":"demo-prof-lim","name":"Prof Lim (demo)","score":0.9038111567497253,"same_speaker":true},{"person_id":"demo-professor","name":"Prof Demo","score":0.060603026300668716,"same_speaker":false},{"person_id":"tina","name":"tina","score":0.05045981705188751,"same_speaker":false},{"person_id":"prof","name":"prof","score":0.02889786660671234,"same_speaker":false},{"person_id":"tasmin","name":"tasmin","score":-0.00449055340141058,"same_speaker":false},{"person_id":"koh-qing-jia","name":"Koh Qing Jia","score":-0.047336921095848083,"same_speaker":false},{"person_id":"le-yong","name":"le yong","score":-0.04771435633301735,"same_speaker":false}],[{"person_id":"koh-qing-jia","name":"Koh Qing Jia","score":0.8070520162582397,"same_speaker":true},{"person_id":"tina","name":"tina","score":0.16155323386192322,"same_speaker":false},{"person_id":"demo-professor","name":"Prof Demo","score":0.11467388272285461,"same_speaker":false},{"person_id":"prof","name":"prof","score":0.09149651229381561,"same_speaker":false},{"person_id":"tasmin","name":"tasmin","score":0.08422951400279999,"same_speaker":false},{"person_id":"le-yong","name":"le yong","score":0.0752352625131607,"same_speaker":false},{"person_id":"demo-prof-lim","name":"Prof Lim (demo)","score":-0.01861349679529667,"same_speaker":false}],[{"person_id":"demo-prof-lim","name":"Prof Lim (demo)","score":0.8356070518493652,"same_speaker":true},{"person_id":"demo-professor","name":"Prof Demo","score":0.1025884598493576,"same_speaker":false},{"person_id":"tina","name":"tina","score":0.06923732161521912,"same_speaker":false},{"person_id":"le-yong","name":"le yong","score":0.02898913249373436,"same_speaker":false},{"person_id":"tasmin","name":"tasmin","score":0.027488254010677338,"same_speaker":false},{"person_id":"koh-qing-jia","name":"Koh Qing Jia","score":0.0003214925527572632,"same_speaker":false},{"person_id":"prof","name":"prof","score":-0.026034055277705193,"same_speaker":false}],[{"person_id":"tina","name":"tina","score":0.8001078367233276,"same_speaker":true},{"person_id":"tasmin","name":"tasmin","score":0.2185831367969513,"same_speaker":false},{"person_id":"koh-qing-jia","name":"Koh Qing Jia","score":0.18262934684753418,"same_speaker":false},{"person_id":"demo-prof-lim","name":"Prof Lim (demo)","score":0.08604176342487335,"same_speaker":false},{"person_id":"prof","name":"prof","score":0.05760866403579712,"same_speaker":false},{"person_id":"le-yong","name":"le yong","score":0.048778630793094635,"same_speaker":false},{"person_id":"demo-professor","name":"Prof Demo","score":0.009232666343450546,"same_speaker":false}],[{"person_id":"demo-prof-lim","name":"Prof Lim (demo)","score":0.9098141193389893,"same_speaker":true},{"person_id":"tina","name":"tina","score":0.06444457173347473,"same_speaker":false},{"person_id":"demo-professor","name":"Prof Demo","score":0.054089467972517014,"same_speaker":false},{"person_id":"prof","name":"prof","score":0.01474100723862648,"same_speaker":false},{"person_id":"tasmin","name":"tasmin","score":-0.02628904953598976,"same_speaker":false},{"person_id":"koh-qing-jia","name":"Koh Qing Jia","score":-0.02926197461783886,"same_speaker":false},{"person_id":"le-yong","name":"le yong","score":-0.03240538761019707,"same_speaker":false}],[{"person_id":"demo-prof-lim","name":"Prof Lim (demo)","score":0.6968979835510254,"same_speaker":true},{"person_id":"tina","name":"tina","score":0.016060899943113327,"same_speaker":false},{"person_id":"prof","name":"prof","score":-0.007821204140782356,"same_speaker":false},{"person_id":"le-yong","name":"le yong","score":-0.01465197466313839,"same_speaker":false},{"person_id":"demo-professor","name":"Prof Demo","score":-0.019129348918795586,"same_speaker":false},{"person_id":"tasmin","name":"tasmin","score":-0.025292977690696716,"same_speaker":false},{"person_id":"koh-qing-jia","name":"Koh Qing Jia","score":-0.03365858644247055,"same_speaker":false}],[{"person_id":"tasmin","name":"tasmin","score":0.7763795852661133,"same_speaker":true},{"person_id":"tina","name":"tina","score":0.33836644887924194,"same_speaker":true},{"person_id":"le-yong","name":"le yong","score":0.10813842713832855,"same_speaker":false},{"person_id":"koh-qing-jia","name":"Koh Qing Jia","score":0.1024608463048935,"same_speaker":false},{"person_id":"prof","name":"prof","score":0.05861787870526314,"same_speaker":false},{"person_id":"demo-prof-lim","name":"Prof Lim (demo)","score":0.02897285483777523,"same_speaker":false},{"person_id":"demo-professor","name":"Prof Demo","score":-0.012281449511647224,"same_speaker":false}],[{"person_id":"demo-prof-lim","name":"Prof Lim (demo)","score":0.8846771717071533,"same_speaker":true},{"person_id":"demo-professor","name":"Prof Demo","score":0.09486792236566544,"same_speaker":false},{"person_id":"tina","name":"tina","score":0.05952407047152519,"same_speaker":false},{"person_id":"prof","name":"prof","score":0.05594760924577713,"same_speaker":false},{"person_id":"koh-qing-jia","name":"Koh Qing Jia","score":0.03398749232292175,"same_speaker":false},{"person_id":"le-yong","name":"le yong","score":0.029248345643281937,"same_speaker":false},{"person_id":"tasmin","name":"tasmin","score":0.00033111218363046646,"same_speaker":false}],[{"person_id":"demo-prof-lim","name":"Prof Lim (demo)","score":0.9114192724227905,"same_speaker":true},{"person_id":"tina","name":"tina","score":0.0808144137263298,"same_speaker":false},{"person_id":"prof","name":"prof","score":0.04931808263063431,"same_speaker":false},{"person_id":"demo-professor","name":"Prof Demo","score":0.042319703847169876,"same_speaker":false},{"person_id":"le-yong","name":"le yong","score":-0.0023673702962696552,"same_speaker":false},{"person_id":"tasmin","name":"tasmin","score":-0.036744751036167145,"same_speaker":false},{"person_id":"koh-qing-jia","name":"Koh Qing Jia","score":-0.0655221939086914,"same_speaker":false}],[{"person_id":"demo-prof-lim","name":"Prof Lim (demo)","score":0.7153663635253906,"same_speaker":true},{"person_id":"demo-professor","name":"Prof Demo","score":0.030876021832227707,"same_speaker":false},{"person_id":"tina","name":"tina","score":0.010223820805549622,"same_speaker":false},{"person_id":"koh-qing-jia","name":"Koh Qing Jia","score":0.0038025565445423126,"same_speaker":false},{"person_id":"prof","name":"prof","score":-0.013171081431210041,"same_speaker":false},{"person_id":"le-yong","name":"le yong","score":-0.030923543497920036,"same_speaker":false},{"person_id":"tasmin","name":"tasmin","score":-0.031560592353343964,"same_speaker":false}]],"segment_scoring_s":7.68449103506282,"line_matches":[[{"person_id":"demo-prof-lim","name":"Prof Lim (demo)","score":0.9322544932365417,"same_speaker":true},{"person_id":"demo-professor","name":"Prof Demo","score":0.06772664934396744,"same_speaker":false},{"person_id":"tina","name":"tina","score":0.062489867210388184,"same_speaker":false},{"person_id":"prof","name":"prof","score":0.027553126215934753,"same_speaker":false},{"person_id":"tasmin","name":"tasmin","score":0.009801500476896763,"same_speaker":false},{"person_id":"le-yong","name":"le yong","score":0.008481724187731743,"same_speaker":false},{"person_id":"koh-qing-jia","name":"Koh Qing Jia","score":-0.05435587465763092,"same_speaker":false}],[{"person_id":"tasmin","name":"tasmin","score":0.7625067830085754,"same_speaker":true},{"person_id":"tina","name":"tina","score":0.21607063710689545,"same_speaker":false},{"person_id":"koh-qing-jia","name":"Koh Qing Jia","score":0.07164192199707031,"same_speaker":false},{"person_id":"le-yong","name":"le yong","score":0.06111868470907211,"same_speaker":false},{"person_id":"demo-prof-lim","name":"Prof Lim (demo)","score":0.017185501754283905,"same_speaker":false},{"person_id":"demo-professor","name":"Prof Demo","score":-0.01899704709649086,"same_speaker":false},{"person_id":"prof","name":"prof","score":-0.032563574612140656,"same_speaker":false}],[{"person_id":"demo-prof-lim","name":"Prof Lim (demo)","score":0.9154413938522339,"same_speaker":true},{"person_id":"demo-professor","name":"Prof Demo","score":0.07093682140111923,"same_speaker":false},{"person_id":"tina","name":"tina","score":0.05329146981239319,"same_speaker":false},{"person_id":"prof","name":"prof","score":0.016288336366415024,"same_speaker":false},{"person_id":"tasmin","name":"tasmin","score":-0.011032994836568832,"same_speaker":false},{"person_id":"le-yong","name":"le yong","score":-0.0700468122959137,"same_speaker":false},{"person_id":"koh-qing-jia","name":"Koh Qing Jia","score":-0.08357009291648865,"same_speaker":false}],[{"person_id":"koh-qing-jia","name":"Koh Qing Jia","score":0.7952180504798889,"same_speaker":true},{"person_id":"tina","name":"tina","score":0.16070830821990967,"same_speaker":false},{"person_id":"demo-professor","name":"Prof Demo","score":0.13242191076278687,"same_speaker":false},{"person_id":"prof","name":"prof","score":0.0938032865524292,"same_speaker":false},{"person_id":"tasmin","name":"tasmin","score":0.08551345765590668,"same_speaker":false},{"person_id":"le-yong","name":"le yong","score":0.07182168960571289,"same_speaker":false},{"person_id":"demo-prof-lim","name":"Prof Lim (demo)","score":-0.013226740062236786,"same_speaker":false}],[{"person_id":"demo-prof-lim","name":"Prof Lim (demo)","score":0.8479799032211304,"same_speaker":true},{"person_id":"demo-professor","name":"Prof Demo","score":0.09823165833950043,"same_speaker":false},{"person_id":"tina","name":"tina","score":0.09024789184331894,"same_speaker":false},{"person_id":"tasmin","name":"tasmin","score":0.035824358463287354,"same_speaker":false},{"person_id":"le-yong","name":"le yong","score":0.010803800076246262,"same_speaker":false},{"person_id":"koh-qing-jia","name":"Koh Qing Jia","score":-0.014283756725490093,"same_speaker":false},{"person_id":"prof","name":"prof","score":-0.04788592830300331,"same_speaker":false}],[{"person_id":"tina","name":"tina","score":0.8336727619171143,"same_speaker":true},{"person_id":"tasmin","name":"tasmin","score":0.23188291490077972,"same_speaker":false},{"person_id":"koh-qing-jia","name":"Koh Qing Jia","score":0.1943100392818451,"same_speaker":false},{"person_id":"demo-prof-lim","name":"Prof Lim (demo)","score":0.0845581591129303,"same_speaker":false},{"person_id":"prof","name":"prof","score":0.05052623152732849,"same_speaker":false},{"person_id":"le-yong","name":"le yong","score":0.03653888404369354,"same_speaker":false},{"person_id":"demo-professor","name":"Prof Demo","score":-0.005598170217126608,"same_speaker":false}],[{"person_id":"demo-prof-lim","name":"Prof Lim (demo)","score":0.9315090179443359,"same_speaker":true},{"person_id":"tina","name":"tina","score":0.044504597783088684,"same_speaker":false},{"person_id":"demo-professor","name":"Prof Demo","score":0.03241414576768875,"same_speaker":false},{"person_id":"prof","name":"prof","score":0.0027826428413391113,"same_speaker":false},{"person_id":"tasmin","name":"tasmin","score":-0.038423895835876465,"same_speaker":false},{"person_id":"le-yong","name":"le yong","score":-0.053230494260787964,"same_speaker":false},{"person_id":"koh-qing-jia","name":"Koh Qing Jia","score":-0.09387242794036865,"same_speaker":false}],[{"person_id":"tasmin","name":"tasmin","score":0.8160678744316101,"same_speaker":true},{"person_id":"tina","name":"tina","score":0.2870156168937683,"same_speaker":true},{"person_id":"le-yong","name":"le yong","score":0.09313219040632248,"same_speaker":false},{"person_id":"koh-qing-jia","name":"Koh Qing Jia","score":0.07019740343093872,"same_speaker":false},{"person_id":"demo-prof-lim","name":"Prof Lim (demo)","score":0.057074058800935745,"same_speaker":false},{"person_id":"prof","name":"prof","score":0.04817497730255127,"same_speaker":false},{"person_id":"demo-professor","name":"Prof Demo","score":-0.010394461452960968,"same_speaker":false}],[{"person_id":"demo-prof-lim","name":"Prof Lim (demo)","score":0.9353551268577576,"same_speaker":true},{"person_id":"tina","name":"tina","score":0.07831528782844543,"same_speaker":false},{"person_id":"demo-professor","name":"Prof Demo","score":0.07710234820842743,"same_speaker":false},{"person_id":"prof","name":"prof","score":0.047706231474876404,"same_speaker":false},{"person_id":"le-yong","name":"le yong","score":0.015262526459991932,"same_speaker":false},{"person_id":"tasmin","name":"tasmin","score":-0.02886785939335823,"same_speaker":false},{"person_id":"koh-qing-jia","name":"Koh Qing Jia","score":-0.02995171584188938,"same_speaker":false}]],"whisper":[{"model":"tiny","beam":5,"seconds":6.080830588936806,"segments":[{"start":0.0,"end":6.5,"text":"Today is about agents until calling, an agent is a loop, the model looks at the conversation,"},{"start":6.5,"end":11.84,"text":"chooses a tool, we run the tool, and we feed the result back in, let's look at the harness"},{"start":11.84,"end":18.44,"text":"from the lab, what is the observation, the ob's variable, after we call run tool."},{"start":18.44,"end":22.96,"text":"Is the output of the tool so the result or the error message if the call failed?"},{"start":22.96,"end":28.88,"text":"Yes, and why do we return the error to the model instead of crashing?"},{"start":28.88,"end":35.6,"text":"The model can see what went wrong and try again with different arguments."},{"start":35.6,"end":42.08,"text":"Good, now, when would you split one agent into several agents with different tools?"},{"start":42.08,"end":46.04,"text":"Maybe when the task are different, like one agent searches and another one right,"},{"start":46.04,"end":48.599999999999994,"text":"so each prompt stays small."},{"start":48.599999999999994,"end":53.599999999999994,"text":"That's one reason, smaller tool lists also mean fewer wrong tool choices, how would"},{"start":53.599999999999994,"end":58.0,"text":"you measure whether an agent is using tools well?"},{"start":58.0,"end":62.0,"text":"Like if it called the right tool with the right arguments and how many steps it needed"},{"start":62.0,"end":64.0,"text":"to finish?"},{"start":64.0,"end":69.6,"text":"Two accuracy and efficiency, good, all right, for next week read the section on budgets"},{"start":69.6,"end":72.0,"text":"and stopping conditions, thank you."}]},{"model":"base","beam":1,"seconds":6.413317417958751,"segments":[{"start":0.0,"end":6.0,"text":"Today is about agents until calling. An agent is a loop. The model looks at the conversation."},{"start":6.0,"end":12.0,"text":"Choose is a tool. We run the tool and we feed the result back in. Let's look at the harness from the lab."},{"start":12.0,"end":17.0,"text":"What is the observation? The OBS variable after we call run tool."},{"start":17.0,"end":23.0,"text":"It's the output of the tool, so the result or the error message if the call failed."},{"start":23.0,"end":28.0,"text":"Yes, and why do we return the error to the model instead of crashing?"},{"start":28.0,"end":35.0,"text":"The model can see what went wrong and try again with different arguments."},{"start":35.0,"end":41.0,"text":"Good, now, when would you split one agent into several agents with different tools?"},{"start":41.0,"end":48.0,"text":"Maybe when the tasks are different like one agent searches in another one right so each prompt stays small."},{"start":48.0,"end":57.0,"text":"That's one reason. Smaller tool lists also mean fewer wrong tool choices. How would you measure whether an agent is using tools well?"},{"start":57.0,"end":64.0,"text":"Check if it called the right tool with the right arguments and how many steps it needed to finish."},{"start":64.0,"end":72.0,"text":"Tool accuracy and efficiency. Good, all right. For next week read the section on budgets and stopping conditions. Thank you."}]},{"model":"base","beam":5,"seconds":10.043063877150416,"segments":[{"start":0.0,"end":6.0,"text":"Today is about agents until calling, an agent is a loop, the model looks at the conversation,"},{"start":6.0,"end":10.0,"text":"chooses a tool, we run the tool, and we feed the result back in."},{"start":10.0,"end":14.0,"text":"Let's look at the harness from the lab, what is the observation?"},{"start":14.0,"end":18.0,"text":"The OBS variable, after we call run tool."},{"start":18.0,"end":23.0,"text":"It's the output of the tool, so the result or the error message if the call failed."},{"start":23.0,"end":28.0,"text":"Yes, and why do we return the error to the model instead of crashing?"},{"start":28.0,"end":35.0,"text":"The model can see what went wrong and try again with different arguments."},{"start":35.0,"end":41.0,"text":"Good, now, when would you split one agent into several agents with different tools?"},{"start":41.0,"end":48.0,"text":"Maybe when the tasks are different like one agent searches and another one writes so each prompt stays small."},{"start":48.0,"end":53.0,"text":"That's one reason, smaller tool lists also mean fewer wrong tool choices."},{"start":53.0,"end":57.0,"text":"How would you measure whether an agent is using tools well?"},{"start":57.0,"end":63.0,"text":"Check if it called the right tool with the right arguments and how many steps it needed to finish."},{"start":63.0,"end":67.0,"text":"Tool accuracy and efficiency, good, all right."},{"start":67.0,"end":71.0,"text":"For next week read the section on budgets and stopping conditions."},{"start":71.0,"end":72.0,"text":"Thank you."}]},{"model":"small","beam":5,"seconds":27.23583487002179,"segments":[{"start":0.0,"end":18.0,"text":"Today is about agents and tool calling. An agent is a loop. The model looks at the conversation, chooses a tool, we run the tool, and we feed the result back in. Let's look at the harness from the lab. What is the observation, the OBS variable, after we call run tool?"},{"start":18.0,"end":23.0,"text":"It's the output of the tool so the result or the error message if the call failed."},{"start":23.0,"end":28.0,"text":"Yes, and why do we return the error to the model instead of crashing?"},{"start":28.0,"end":35.0,"text":"The model can see what went wrong and try again with different arguments."},{"start":35.0,"end":41.0,"text":"Good. Now, when would you split one agent into several agents with different tools?"},{"start":41.0,"end":48.0,"text":"Maybe when the tasks are different like one agent searches and another one writes so each prompt stays small."},{"start":48.0,"end":57.0,"text":"That's one reason. Smaller tool lists also mean fewer wrong tool choices. How would you measure whether an agent is using tools well?"},{"start":57.0,"end":63.0,"text":"Check if it called the right tool with the right arguments and how many steps it needed to finish."},{"start":63.0,"end":72.0,"text":"Tool accuracy and efficiency. Good. Alright. For next week read the section on budgets and stopping conditions. Thank you."}]}],"whisper_words":{"seconds":10.378943674033508,"segments":[{"start":0.5599999999999961,"end":5.8,"text":"Today is about agents until calling, an agent is a loop, the model looks at the conversation,","words":[{"start":0.5599999999999961,"end":1.04,"word":" Today"},{"start":1.04,"end":1.28,"word":" is"},{"start":1.28,"end":1.52,"word":" about"},{"start":1.52,"end":1.84,"word":" agents"},{"start":1.84,"end":2.24,"word":" until"},{"start":2.24,"end":2.7,"word":" calling,"},{"start":3.04,"end":3.24,"word":" an"},{"start":3.24,"end":3.48,"word":" agent"},{"start":3.48,"end":3.74,"word":" is"},{"start":3.74,"end":3.82,"word":" a"},{"start":3.82,"end":3.98,"word":" loop,"},{"start":4.26,"end":4.4,"word":" the"},{"start":4.4,"end":4.64,"word":" model"},{"start":4.64,"end":4.96,"word":" looks"},{"start":4.96,"end":5.12,"word":" at"},{"start":5.12,"end":5.28,"word":" the"},{"start":5.28,"end":5.8,"word":" conversation,"}]},{"start":6.44,"end":10.32,"text":"chooses a tool, we run the tool, and we feed the result back in.","words":[{"start":6.44,"end":6.74,"word":" chooses"},{"start":6.74,"end":7.0,"word":" a"},{"start":7.0,"end":7.26,"word":" tool,"},{"start":7.64,"end":7.74,"word":" we"},{"start":7.74,"end":7.92,"word":" run"},{"start":7.92,"end":8.12,"word":" the"},{"start":8.12,"end":8.4,"word":" tool,"},{"start":8.7,"end":8.92,"word":" and"},{"start":8.92,"end":9.04,"word":" we"},{"start":9.04,"end":9.26,"word":" feed"},{"start":9.26,"end":9.44,"word":" the"},{"start":9.44,"end":9.7,"word":" result"},{"start":9.7,"end":10.02,"word":" back"},{"start":10.02,"end":10.32,"word":" in."}]},{"start":10.68,"end":13.76,"text":"Let's look at the harness from the lab, what is the observation?","words":[{"start":10.68,"end":11.0,"word":" Let's"},{"start":11.0,"end":11.14,"word":" look"},{"start":11.14,"end":11.32,"word":" at"},{"start":11.32,"end":11.48,"word":" the"},{"start":11.48,"end":11.72,"word":" harness"},{"start":11.72,"end":12.0,"word":" from"},{"start":12.0,"end":12.14,"word":" the"},{"start":12.14,"end":12.36,"word":" lab,"},{"start":12.66,"end":12.88,"word":" what"},{"start":12.88,"end":13.04,"word":" is"},{"start":13.04,"end":13.2,"word":" the"},{"start":13.2,"end":13.76,"word":" observation?"}]},{"start":14.3,"end":17.08,"text":"The OBS variable, after we call run tool.","words":[{"start":14.3,"end":14.42,"word":" The"},{"start":14.42,"end":14.66,"word":" OBS"},{"start":14.66,"end":15.18,"word":" variable,"},{"start":15.6,"end":15.9,"word":" after"},{"start":15.9,"end":16.12,"word":" we"},{"start":16.12,"end":16.32,"word":" call"},{"start":16.32,"end":16.62,"word":" run"},{"start":16.62,"end":17.08,"word":" tool."}]},{"start":18.06,"end":22.44,"text":"It's the output of the tool, so the result or the error message if the call failed.","words":[{"start":18.06,"end":18.54,"word":" It's"},{"start":18.54,"end":18.64,"word":" the"},{"start":18.64,"end":18.96,"word":" output"},{"start":18.96,"end":19.2,"word":" of"},{"start":19.2,"end":19.36,"word":" the"},{"start":19.36,"end":19.6,"word":" tool,"},{"start":19.76,"end":19.86,"word":" so"},{"start":19.86,"end":20.02,"word":" the"},{"start":20.02,"end":20.36,"word":" result"},{"start":20.36,"end":20.66,"word":" or"},{"start":20.66,"end":20.86,"word":" the"},{"start":20.86,"end":21.04,"word":" error"},{"start":21.04,"end":21.38,"word":" message"},{"start":21.38,"end":21.62,"word":" if"},{"start":21.62,"end":21.76,"word":" the"},{"start":21.76,"end":21.96,"word":" call"},{"start":21.96,"end":22.44,"word":" failed."}]},{"start":23.219999999999995,"end":27.2,"text":"Yes, and why do we return the error to the model instead of crashing?","words":[{"start":23.219999999999995,"end":23.7,"word":" Yes,"},{"start":24.12,"end":24.32,"word":" and"},{"start":24.32,"end":24.52,"word":" why"},{"start":24.52,"end":24.7,"word":" do"},{"start":24.7,"end":24.86,"word":" we"},{"start":24.86,"end":25.18,"word":" return"},{"start":25.18,"end":25.44,"word":" the"},{"start":25.44,"end":25.62,"word":" error"},{"start":25.62,"end":25.78,"word":" to"},{"start":25.78,"end":25.9,"word":" the"},{"start":25.9,"end":26.14,"word":" model"},{"start":26.14,"end":26.54,"word":" instead"},{"start":26.54,"end":26.8,"word":" of"},{"start":26.8,"end":27.2,"word":" crashing?"}]},{"start":28.259999999999998,"end":34.16,"text":"The model can see what went wrong and try again with different arguments.","words":[{"start":28.259999999999998,"end":28.9,"word":" The"},{"start":28.9,"end":29.18,"word":" model"},{"start":29.18,"end":29.46,"word":" can"},{"start":29.46,"end":29.76,"word":" see"},{"start":29.76,"end":30.3,"word":" what"},{"start":30.3,"end":30.54,"word":" went"},{"start":30.54,"end":30.82,"word":" wrong"},{"start":30.82,"end":31.46,"word":" and"},{"start":31.46,"end":32.24,"word":" try"},{"start":32.24,"end":32.68,"word":" again"},{"start":32.68,"end":33.04,"word":" with"},{"start":33.04,"end":33.48,"word":" different"},{"start":33.48,"end":34.16,"word":" arguments."}]},{"start":35.1,"end":40.12,"text":"Good, now, when would you split one agent into several agents with different tools?","words":[{"start":35.1,"end":35.74,"word":" Good,"},{"start":36.04,"end":36.3,"word":" now,"},{"start":36.66,"end":36.86,"word":" when"},{"start":36.86,"end":36.98,"word":" would"},{"start":36.98,"end":37.14,"word":" you"},{"start":37.14,"end":37.4,"word":" split"},{"start":37.4,"end":37.74,"word":" one"},{"start":37.74,"end":38.0,"word":" agent"},{"start":38.0,"end":38.3,"word":" into"},{"start":38.3,"end":38.7,"word":" several"},{"start":38.7,"end":39.06,"word":" agents"},{"start":39.06,"end":39.32,"word":" with"},{"start":39.32,"end":39.7,"word":" different"},{"start":39.7,"end":40.12,"word":" tools?"}]},{"start":41.5,"end":47.28,"text":"Maybe when the tasks are different like one agent searches and another one writes, so each prompt stays small.","words":[{"start":41.5,"end":42.14,"word":" Maybe"},{"start":42.14,"end":42.36,"word":" when"},{"start":42.36,"end":42.48,"word":" the"},{"start":42.48,"end":42.74,"word":" tasks"},{"start":42.74,"end":43.06,"word":" are"},{"start":43.06,"end":43.42,"word":" different"},{"start":43.42,"end":43.72,"word":" like"},{"start":43.72,"end":43.96,"word":" one"},{"start":43.96,"end":44.32,"word":" agent"},{"start":44.32,"end":44.72,"word":" searches"},{"start":44.72,"end":45.04,"word":" and"},{"start":45.04,"end":45.4,"word":" another"},{"start":45.4,"end":45.7,"word":" one"},{"start":45.7,"end":45.92,"word":" writes,"},{"start":45.96,"end":46.16,"word":" so"},{"start":46.16,"end":46.42,"word":" each"},{"start":46.42,"end":46.62,"word":" prompt"},{"start":46.62,"end":46.94,"word":" stays"},{"start":46.94,"end":47.28,"word":" small."}]},{"start":48.08,"end":52.66,"text":"That's one reason, smaller tool lists also mean fewer wrong tool choices.","words":[{"start":48.08,"end":48.72,"word":" That's"},{"start":48.72,"end":48.86,"word":" one"},{"start":48.86,"end":49.26,"word":" reason,"},{"start":49.68,"end":50.06,"word":" smaller"},{"start":50.06,"end":50.32,"word":" tool"},{"start":50.32,"end":50.58,"word":" lists"},{"start":50.58,"end":51.02,"word":" also"},{"start":51.02,"end":51.26,"word":" mean"},{"start":51.26,"end":51.66,"word":" fewer"},{"start":51.66,"end":51.94,"word":" wrong"},{"start":51.94,"end":52.24,"word":" tool"},{"start":52.24,"end":52.66,"word":" choices."}]},{"start":52.66,"end":55.96,"text":"How would you measure whether an agent is using tools well?","words":[{"start":52.66,"end":53.42,"word":" How"},{"start":53.42,"end":53.6,"word":" would"},{"start":53.6,"end":53.7,"word":" you"},{"start":53.7,"end":53.96,"word":" measure"},{"start":53.96,"end":54.24,"word":" whether"},{"start":54.24,"end":54.44,"word":" an"},{"start":54.44,"end":54.66,"word":" agent"},{"start":54.66,"end":54.92,"word":" is"},{"start":54.92,"end":55.24,"word":" using"},{"start":55.24,"end":55.54,"word":" tools"},{"start":55.54,"end":55.96,"word":" well?"}]},{"start":57.66,"end":62.64,"text":"Check if it called the right tool with the right arguments and how many steps it needed to finish.","words":[{"start":57.66,"end":58.0,"word":" Check"},{"start":58.0,"end":58.2,"word":" if"},{"start":58.2,"end":58.3,"word":" it"},{"start":58.3,"end":58.52,"word":" called"},{"start":58.52,"end":58.74,"word":" the"},{"start":58.74,"end":58.9,"word":" right"},{"start":58.9,"end":59.24,"word":" tool"},{"start":59.24,"end":59.44,"word":" with"},{"start":59.44,"end":59.56,"word":" the"},{"start":59.56,"end":59.76,"word":" right"},{"start":59.76,"end":60.24,"word":" arguments"},{"start":60.24,"end":60.86,"word":" and"},{"start":60.86,"end":61.04,"word":" how"},{"start":61.04,"end":61.22,"word":" many"},{"start":61.22,"end":61.5,"word":" steps"},{"start":61.5,"end":61.7,"word":" it"},{"start":61.7,"end":61.96,"word":" needed"},{"start":61.96,"end":62.18,"word":" to"},{"start":62.18,"end":62.64,"word":" finish."}]},{"start":63.64,"end":70.64,"text":"Tool accuracy and efficiency, good, all right, for next week read the section on budgets and stopping conditions.","words":[{"start":63.64,"end":64.2,"word":" Tool"},{"start":64.2,"end":64.64,"word":" accuracy"},{"start":64.64,"end":64.96,"word":" and"},{"start":64.96,"end":65.54,"word":" efficiency,"},{"start":65.96,"end":66.18,"word":" good,"},{"start":66.48,"end":66.64,"word":" all"},{"start":66.64,"end":66.94,"word":" right,"},{"start":67.34,"end":67.46,"word":" for"},{"start":67.46,"end":67.74,"word":" next"},{"start":67.74,"end":68.06,"word":" week"},{"start":68.06,"end":68.36,"word":" read"},{"start":68.36,"end":68.58,"word":" the"},{"start":68.58,"end":68.94,"word":" section"},{"start":68.94,"end":69.18,"word":" on"},{"start":69.18,"end":69.48,"word":" budgets"},{"start":69.48,"end":69.74,"word":" and"},{"start":69.74,"end":70.12,"word":" stopping"},{"start":70.12,"end":70.64,"word":" conditions."}]},{"start":71.36,"end":71.96,"text":"Thank you.","words":[{"start":71.36,"end":71.56,"word":" Thank"},{"start":71.56,"end":71.96,"word":" you."}]}]},"word_segments":[[0.5599999999999961,5.8],[6.44,10.32],[10.68,13.76],[14.3,17.08],[18.06,22.44],[23.219999999999995,27.2],[28.259999999999998,34.16],[35.1,40.12],[41.5,47.28],[48.08,52.66],[52.66,55.96],[57.66,62.64],[63.64,70.64],[71.36,71.96]],"word_segment_matches":[[{"person_id":"demo-prof-lim","name":"Prof Lim (demo)","score":0.9115346670150757,"same_speaker":true},{"person_id":"tina","name":"tina","score":0.08602979779243469,"same_speaker":false},{"person_id":"demo-professor","name":"Prof Demo","score":0.051973871886730194,"same_speaker":false},{"person_id":"tasmin","name":"tasmin","score":0.02200937271118164,"same_speaker":false},{"person_id":"prof","name":"prof","score":-0.000668094027787447,"same_speaker":false},{"person_id":"le-yong","name":"le yong","score":-0.024879761040210724,"same_speaker":false},{"person_id":"koh-qing-jia","name":"Koh Qing Jia","score":-0.03943708539009094,"same_speaker":false}],[{"person_id":"demo-prof-lim","name":"Prof Lim (demo)","score":0.8594538569450378,"same_speaker":true},{"person_id":"demo-professor","name":"Prof Demo","score":0.09288204461336136,"same_speaker":false},{"person_id":"tina","name":"tina","score":0.05088355764746666,"same_speaker":false},{"person_id":"le-yong","name":"le yong","score":0.023030960932374,"same_speaker":false},{"person_id":"prof","name":"prof","score":0.0013637039810419083,"same_speaker":false},{"person_id":"koh-qing-jia","name":"Koh Qing Jia","score":-0.003826890140771866,"same_speaker":false},{"person_id":"tasmin","name":"tasmin","score":-0.019750984385609627,"same_speaker":false}],[{"person_id":"demo-prof-lim","name":"Prof Lim (demo)","score":0.8962407112121582,"same_speaker":true},{"person_id":"demo-professor","name":"Prof Demo","score":0.04379837587475777,"same_speaker":false},{"person_id":"tasmin","name":"tasmin","score":0.03385782986879349,"same_speaker":false},{"person_id":"tina","name":"tina","score":0.013051047921180725,"same_speaker":false},{"person_id":"le-yong","name":"le yong","score":-0.004058146849274635,"same_speaker":false},{"person_id":"prof","name":"prof","score":-0.03963293135166168,"same_speaker":false},{"person_id":"koh-qing-jia","name":"Koh Qing Jia","score":-0.078055739402771,"same_speaker":false}],[{"person_id":"demo-prof-lim","name":"Prof Lim (demo)","score":0.8024492859840393,"same_speaker":true},{"person_id":"tina","name":"tina","score":0.10438203066587448,"same_speaker":false},{"person_id":"demo-professor","name":"Prof Demo","score":0.07836280763149261,"same_speaker":false},{"person_id":"prof","name":"prof","score":0.03459073230624199,"same_speaker":false},{"person_id":"le-yong","name":"le yong","score":-0.011287716217339039,"same_speaker":false},{"person_id":"tasmin","name":"tasmin","score":-0.013765976764261723,"same_speaker":false},{"person_id":"koh-qing-jia","name":"Koh Qing Jia","score":-0.07727467268705368,"same_speaker":false}],[{"person_id":"tasmin","name":"tasmin","score":0.7667291164398193,"same_speaker":true},{"person_id":"tina","name":"tina","score":0.21692600846290588,"same_speaker":false},{"person_id":"koh-qing-jia","name":"Koh Qing Jia","score":0.06438057124614716,"same_speaker":false},{"person_id":"le-yong","name":"le yong","score":0.058634523302316666,"same_speaker":false},{"person_id":"demo-prof-lim","name":"Prof Lim (demo)","score":0.016424264758825302,"same_speaker":false},{"person_id":"demo-professor","name":"Prof Demo","score":-0.014875536784529686,"same_speaker":false},{"person_id":"prof","name":"prof","score":-0.0314655676484108,"same_speaker":false}],[{"person_id":"demo-prof-lim","name":"Prof Lim (demo)","score":0.9067506790161133,"same_speaker":true},{"person_id":"demo-professor","name":"Prof Demo","score":0.06824883073568344,"same_speaker":false},{"person_id":"tina","name":"tina","score":0.05594921112060547,"same_speaker":false},{"person_id":"prof","name":"prof","score":0.011250192299485207,"same_speaker":false},{"person_id":"tasmin","name":"tasmin","score":-0.015191246755421162,"same_speaker":false},{"person_id":"koh-qing-jia","name":"Koh Qing Jia","score":-0.07460913807153702,"same_speaker":false},{"person_id":"le-yong","name":"le yong","score":-0.09277340769767761,"same_speaker":false}],[{"person_id":"koh-qing-jia","name":"Koh Qing Jia","score":0.7973289489746094,"same_speaker":true},{"person_id":"tina","name":"tina","score":0.1528799682855606,"same_speaker":false},{"person_id":"demo-professor","name":"Prof Demo","score":0.12442470341920853,"same_speaker":false},{"person_id":"le-yong","name":"le yong","score":0.08493330329656601,"same_speaker":false},{"person_id":"tasmin","name":"tasmin","score":0.08474353700876236,"same_speaker":false},{"person_id":"prof","name":"prof","score":0.08393671363592148,"same_speaker":false},{"person_id":"demo-prof-lim","name":"Prof Lim (demo)","score":-0.008180338889360428,"same_speaker":false}],[{"person_id":"demo-prof-lim","name":"Prof Lim (demo)","score":0.8457627892494202,"same_speaker":true},{"person_id":"demo-professor","name":"Prof Demo","score":0.09843598306179047,"same_speaker":false},{"person_id":"tina","name":"tina","score":0.08070589601993561,"same_speaker":false},{"person_id":"tasmin","name":"tasmin","score":0.029807288199663162,"same_speaker":false},{"person_id":"le-yong","name":"le yong","score":0.014985519461333752,"same_speaker":false},{"person_id":"koh-qing-jia","name":"Koh Qing Jia","score":-0.011524830013513565,"same_speaker":false},{"person_id":"prof","name":"prof","score":-0.042012132704257965,"same_speaker":false}],[{"person_id":"tina","name":"tina","score":0.8327963352203369,"same_speaker":true},{"person_id":"tasmin","name":"tasmin","score":0.23223470151424408,"same_speaker":false},{"person_id":"koh-qing-jia","name":"Koh Qing Jia","score":0.19547952711582184,"same_speaker":false},{"person_id":"demo-prof-lim","name":"Prof Lim (demo)","score":0.08271805197000504,"same_speaker":false},{"person_id":"prof","name":"prof","score":0.05082070827484131,"same_speaker":false},{"person_id":"le-yong","name":"le yong","score":0.03587646037340164,"same_speaker":false},{"person_id":"demo-professor","name":"Prof Demo","score":-0.007483657915145159,"same_speaker":false}],[{"person_id":"demo-prof-lim","name":"Prof Lim (demo)","score":0.9016062617301941,"same_speaker":true},{"person_id":"tina","name":"tina","score":0.07045712321996689,"same_speaker":false},{"person_id":"demo-professor","name":"Prof Demo","score":0.042152222245931625,"same_speaker":false},{"person_id":"prof","name":"prof","score":0.008179872296750546,"same_speaker":false},{"person_id":"koh-qing-jia","name":"Koh Qing Jia","score":-0.02202717959880829,"same_speaker":false},{"person_id":"tasmin","name":"tasmin","score":-0.03510286286473274,"same_speaker":false},{"person_id":"le-yong","name":"le yong","score":-0.05036645755171776,"same_speaker":false}],[{"person_id":"demo-prof-lim","name":"Prof Lim (demo)","score":0.8687258362770081,"same_speaker":true},{"person_id":"tina","name":"tina","score":0.004905720241367817,"same_speaker":false},{"person_id":"demo-professor","name":"Prof Demo","score":0.0030049290508031845,"same_speaker":false},{"person_id":"prof","name":"prof","score":-0.008351834490895271,"same_speaker":false},{"person_id":"tasmin","name":"tasmin","score":-0.04635549336671829,"same_speaker":false},{"person_id":"le-yong","name":"le yong","score":-0.055805325508117676,"same_speaker":false},{"person_id":"koh-qing-jia","name":"Koh Qing Jia","score":-0.14211182296276093,"same_speaker":false}],[{"person_id":"tasmin","name":"tasmin","score":0.809106707572937,"same_speaker":true},{"person_id":"tina","name":"tina","score":0.28796398639678955,"same_speaker":true},{"person_id":"le-yong","name":"le yong","score":0.09226052463054657,"same_speaker":false},{"person_id":"koh-qing-jia","name":"Koh Qing Jia","score":0.07244089990854263,"same_speaker":false},{"person_id":"demo-prof-lim","name":"Prof Lim (demo)","score":0.06107147037982941,"same_speaker":false},{"person_id":"prof","name":"prof","score":0.04781016707420349,"same_speaker":false},{"person_id":"demo-professor","name":"Prof Demo","score":-0.012931594625115395,"same_speaker":false}],[{"person_id":"demo-prof-lim","name":"Prof Lim (demo)","score":0.9377229809761047,"same_speaker":true},{"person_id":"tina","name":"tina","score":0.08811233192682266,"same_speaker":false},{"person_id":"demo-professor","name":"Prof Demo","score":0.08419393748044968,"same_speaker":false},{"person_id":"prof","name":"prof","score":0.04720091074705124,"same_speaker":false},{"person_id":"le-yong","name":"le yong","score":0.013967946171760559,"same_speaker":false},{"person_id":"tasmin","name":"tasmin","score":-0.020193619653582573,"same_speaker":false},{"person_id":"koh-qing-jia","name":"Koh Qing Jia","score":-0.03304590284824371,"same_speaker":false}],[{"person_id":"demo-prof-lim","name":"Prof Lim (demo)","score":0.5806844234466553,"same_speaker":true},{"person_id":"demo-professor","name":"Prof Demo","score":0.06153068318963051,"same_speaker":false},{"person_id":"tina","name":"tina","score":0.05855565518140793,"same_speaker":false},{"person_id":"prof","name":"prof","score":0.04778548330068588,"same_speaker":false},{"person_id":"koh-qing-jia","name":"Koh Qing Jia","score":0.04300158843398094,"same_speaker":false},{"person_id":"le-yong","name":"le yong","score":-0.027043431997299194,"same_speaker":false},{"person_id":"tasmin","name":"tasmin","score":-0.08474665880203247,"same_speaker":false}]],"word_segment_scoring_s":5.433742264984176}
+{
+ "id": "02-one-silent",
+ "audio_seconds": 64.001,
+ "script": {
+  "id": "02-one-silent",
+  "title": "Demo 2 \u00b7 Agents: one student never speaks",
+  "case": "Le Yong is on the class list but says nothing. He must get 'no observed participation', never a score of zero.",
+  "lines": [
+   {
+    "speaker": "Prof Wynter",
+    "text": "Today is about agents and tool calling. An agent is a loop: the model looks at the conversation, chooses a tool, we run the tool, and we feed the result back in. Let's look at the harness from the lab. What is the observation, the obs variable, after we call run tool?",
+    "start": 0.8,
+    "end": 13.59
+   },
+   {
+    "speaker": "Tasmin",
+    "text": "It's the output of the tool, so the result, or the error message if the call failed.",
+    "start": 14.42,
+    "end": 18.89
+   },
+   {
+    "speaker": "Prof Wynter",
+    "text": "Yes, and why do we return the error to the model instead of crashing?",
+    "start": 19.84,
+    "end": 23.12
+   },
+   {
+    "speaker": "Koh Qing Jia",
+    "text": "So the model can see what went wrong and try again with different arguments.",
+    "start": 24.21,
+    "end": 30.04
+   },
+   {
+    "speaker": "Prof Wynter",
+    "text": "Good. Now, when would you split one agent into several agents with different tools?",
+    "start": 31.18,
+    "end": 35.13
+   },
+   {
+    "speaker": "Tina",
+    "text": "Maybe when the tasks are different, like one agent searches and another one writes, so each prompt stays small.",
+    "start": 36.27,
+    "end": 42.11
+   },
+   {
+    "speaker": "Prof Wynter",
+    "text": "That's one reason. Smaller tool lists also mean fewer wrong tool choices. How would you measure whether an agent is using tools well?",
+    "start": 43.1,
+    "end": 49.44
+   },
+   {
+    "speaker": "Tasmin",
+    "text": "Check if it called the right tool with the right arguments, and how many steps it needed to finish.",
+    "start": 50.73,
+    "end": 56.01
+   },
+   {
+    "speaker": "Prof Wynter",
+    "text": "Tool accuracy and efficiency, good. Alright, for next week read the section on budgets and stopping conditions. Thank you.",
+    "start": 57.29,
+    "end": 63.1
+   }
+  ]
+ },
+ "registry": {
+  "koh-qing-jia": "Koh Qing Jia",
+  "tasmin": "tasmin",
+  "tina": "tina",
+  "le-yong": "le yong",
+  "prof": "prof"
+ },
+ "pipeline": {
+  "language": "en",
+  "whisper_segments": [
+   {
+    "start": 0.9800000000000013,
+    "end": 8.8,
+    "text": "Today is about agents and tool calling, and agent is a loop, the model looks at the conversation, chooses a tool, we run the tool and we feed the result back in.",
+    "words": [
+     {
+      "start": 0.9800000000000013,
+      "end": 1.38,
+      "word": " Today"
+     },
+     {
+      "start": 1.38,
+      "end": 1.6,
+      "word": " is"
+     },
+     {
+      "start": 1.6,
+      "end": 1.78,
+      "word": " about"
+     },
+     {
+      "start": 1.78,
+      "end": 2.1,
+      "word": " agents"
+     },
+     {
+      "start": 2.1,
+      "end": 2.32,
+      "word": " and"
+     },
+     {
+      "start": 2.32,
+      "end": 2.58,
+      "word": " tool"
+     },
+     {
+      "start": 2.58,
+      "end": 3.0,
+      "word": " calling,"
+     },
+     {
+      "start": 3.24,
+      "end": 3.52,
+      "word": " and"
+     },
+     {
+      "start": 3.52,
+      "end": 3.78,
+      "word": " agent"
+     },
+     {
+      "start": 3.78,
+      "end": 3.96,
+      "word": " is"
+     },
+     {
+      "start": 3.96,
+      "end": 4.06,
+      "word": " a"
+     },
+     {
+      "start": 4.06,
+      "end": 4.2,
+      "word": " loop,"
+     },
+     {
+      "start": 4.32,
+      "end": 4.4,
+      "word": " the"
+     },
+     {
+      "start": 4.4,
+      "end": 4.64,
+      "word": " model"
+     },
+     {
+      "start": 4.64,
+      "end": 4.92,
+      "word": " looks"
+     },
+     {
+      "start": 4.92,
+      "end": 5.04,
+      "word": " at"
+     },
+     {
+      "start": 5.04,
+      "end": 5.16,
+      "word": " the"
+     },
+     {
+      "start": 5.16,
+      "end": 5.58,
+      "word": " conversation,"
+     },
+     {
+      "start": 5.92,
+      "end": 6.14,
+      "word": " chooses"
+     },
+     {
+      "start": 6.14,
+      "end": 6.32,
+      "word": " a"
+     },
+     {
+      "start": 6.32,
+      "end": 6.56,
+      "word": " tool,"
+     },
+     {
+      "start": 6.72,
+      "end": 6.76,
+      "word": " we"
+     },
+     {
+      "start": 6.76,
+      "end": 6.96,
+      "word": " run"
+     },
+     {
+      "start": 6.96,
+      "end": 7.14,
+      "word": " the"
+     },
+     {
+      "start": 7.14,
+      "end": 7.38,
+      "word": " tool"
+     },
+     {
+      "start": 7.38,
+      "end": 7.6,
+      "word": " and"
+     },
+     {
+      "start": 7.6,
+      "end": 7.7,
+      "word": " we"
+     },
+     {
+      "start": 7.7,
+      "end": 7.84,
+      "word": " feed"
+     },
+     {
+      "start": 7.84,
+      "end": 7.98,
+      "word": " the"
+     },
+     {
+      "start": 7.98,
+      "end": 8.22,
+      "word": " result"
+     },
+     {
+      "start": 8.22,
+      "end": 8.48,
+      "word": " back"
+     },
+     {
+      "start": 8.48,
+      "end": 8.8,
+      "word": " in."
+     }
+    ]
+   },
+   {
+    "start": 9.26,
+    "end": 13.44,
+    "text": "Let's look at the harness from the lab. What is the observation? The obs variable after we call run tool.",
+    "words": [
+     {
+      "start": 9.26,
+      "end": 9.42,
+      "word": " Let's"
+     },
+     {
+      "start": 9.42,
+      "end": 9.54,
+      "word": " look"
+     },
+     {
+      "start": 9.54,
+      "end": 9.66,
+      "word": " at"
+     },
+     {
+      "start": 9.66,
+      "end": 9.8,
+      "word": " the"
+     },
+     {
+      "start": 9.8,
+      "end": 9.98,
+      "word": " harness"
+     },
+     {
+      "start": 9.98,
+      "end": 10.18,
+      "word": " from"
+     },
+     {
+      "start": 10.18,
+      "end": 10.3,
+      "word": " the"
+     },
+     {
+      "start": 10.3,
+      "end": 10.42,
+      "word": " lab."
+     },
+     {
+      "start": 10.52,
+      "end": 10.62,
+      "word": " What"
+     },
+     {
+      "start": 10.62,
+      "end": 10.72,
+      "word": " is"
+     },
+     {
+      "start": 10.72,
+      "end": 10.82,
+      "word": " the"
+     },
+     {
+      "start": 10.82,
+      "end": 11.28,
+      "word": " observation?"
+     },
+     {
+      "start": 11.44,
+      "end": 11.54,
+      "word": " The"
+     },
+     {
+      "start": 11.54,
+      "end": 11.72,
+      "word": " obs"
+     },
+     {
+      "start": 11.72,
+      "end": 12.08,
+      "word": " variable"
+     },
+     {
+      "start": 12.08,
+      "end": 12.56,
+      "word": " after"
+     },
+     {
+      "start": 12.56,
+      "end": 12.7,
+      "word": " we"
+     },
+     {
+      "start": 12.7,
+      "end": 12.9,
+      "word": " call"
+     },
+     {
+      "start": 12.9,
+      "end": 13.14,
+      "word": " run"
+     },
+     {
+      "start": 13.14,
+      "end": 13.44,
+      "word": " tool."
+     }
+    ]
+   },
+   {
+    "start": 14.540000000000001,
+    "end": 18.84,
+    "text": "It's the output of the tool, so the result or the error message if the call failed.",
+    "words": [
+     {
+      "start": 14.540000000000001,
+      "end": 14.94,
+      "word": " It's"
+     },
+     {
+      "start": 14.94,
+      "end": 15.04,
+      "word": " the"
+     },
+     {
+      "start": 15.04,
+      "end": 15.38,
+      "word": " output"
+     },
+     {
+      "start": 15.38,
+      "end": 15.62,
+      "word": " of"
+     },
+     {
+      "start": 15.62,
+      "end": 15.76,
+      "word": " the"
+     },
+     {
+      "start": 15.76,
+      "end": 16.02,
+      "word": " tool,"
+     },
+     {
+      "start": 16.2,
+      "end": 16.26,
+      "word": " so"
+     },
+     {
+      "start": 16.26,
+      "end": 16.4,
+      "word": " the"
+     },
+     {
+      "start": 16.4,
+      "end": 16.78,
+      "word": " result"
+     },
+     {
+      "start": 16.78,
+      "end": 17.08,
+      "word": " or"
+     },
+     {
+      "start": 17.08,
+      "end": 17.26,
+      "word": " the"
+     },
+     {
+      "start": 17.26,
+      "end": 17.44,
+      "word": " error"
+     },
+     {
+      "start": 17.44,
+      "end": 17.78,
+      "word": " message"
+     },
+     {
+      "start": 17.78,
+      "end": 18.02,
+      "word": " if"
+     },
+     {
+      "start": 18.02,
+      "end": 18.16,
+      "word": " the"
+     },
+     {
+      "start": 18.16,
+      "end": 18.38,
+      "word": " call"
+     },
+     {
+      "start": 18.38,
+      "end": 18.84,
+      "word": " failed."
+     }
+    ]
+   },
+   {
+    "start": 20.04,
+    "end": 22.9,
+    "text": "Yes, and why do we return the error to the model instead of crashing?",
+    "words": [
+     {
+      "start": 20.04,
+      "end": 20.38,
+      "word": " Yes,"
+     },
+     {
+      "start": 20.5,
+      "end": 20.58,
+      "word": " and"
+     },
+     {
+      "start": 20.58,
+      "end": 20.74,
+      "word": " why"
+     },
+     {
+      "start": 20.74,
+      "end": 20.86,
+      "word": " do"
+     },
+     {
+      "start": 20.86,
+      "end": 20.96,
+      "word": " we"
+     },
+     {
+      "start": 20.96,
+      "end": 21.24,
+      "word": " return"
+     },
+     {
+      "start": 21.24,
+      "end": 21.46,
+      "word": " the"
+     },
+     {
+      "start": 21.46,
+      "end": 21.58,
+      "word": " error"
+     },
+     {
+      "start": 21.58,
+      "end": 21.76,
+      "word": " to"
+     },
+     {
+      "start": 21.76,
+      "end": 21.86,
+      "word": " the"
+     },
+     {
+      "start": 21.86,
+      "end": 22.08,
+      "word": " model"
+     },
+     {
+      "start": 22.08,
+      "end": 22.36,
+      "word": " instead"
+     },
+     {
+      "start": 22.36,
+      "end": 22.54,
+      "word": " of"
+     },
+     {
+      "start": 22.54,
+      "end": 22.9,
+      "word": " crashing?"
+     }
+    ]
+   },
+   {
+    "start": 24.019999999999996,
+    "end": 29.76,
+    "text": "The model can see what went wrong and try again with different arguments.",
+    "words": [
+     {
+      "start": 24.019999999999996,
+      "end": 24.54,
+      "word": " The"
+     },
+     {
+      "start": 24.54,
+      "end": 24.8,
+      "word": " model"
+     },
+     {
+      "start": 24.8,
+      "end": 25.1,
+      "word": " can"
+     },
+     {
+      "start": 25.1,
+      "end": 25.42,
+      "word": " see"
+     },
+     {
+      "start": 25.42,
+      "end": 25.96,
+      "word": " what"
+     },
+     {
+      "start": 25.96,
+      "end": 26.2,
+      "word": " went"
+     },
+     {
+      "start": 26.2,
+      "end": 26.48,
+      "word": " wrong"
+     },
+     {
+      "start": 26.48,
+      "end": 27.18,
+      "word": " and"
+     },
+     {
+      "start": 27.18,
+      "end": 27.9,
+      "word": " try"
+     },
+     {
+      "start": 27.9,
+      "end": 28.32,
+      "word": " again"
+     },
+     {
+      "start": 28.32,
+      "end": 28.72,
+      "word": " with"
+     },
+     {
+      "start": 28.72,
+      "end": 29.12,
+      "word": " different"
+     },
+     {
+      "start": 29.12,
+      "end": 29.76,
+      "word": " arguments."
+     }
+    ]
+   },
+   {
+    "start": 31.32,
+    "end": 34.86,
+    "text": "Now, when would you split one agent into several agents with different tools?",
+    "words": [
+     {
+      "start": 31.32,
+      "end": 31.84,
+      "word": " Now,"
+     },
+     {
+      "start": 32.14,
+      "end": 32.34,
+      "word": " when"
+     },
+     {
+      "start": 32.34,
+      "end": 32.46,
+      "word": " would"
+     },
+     {
+      "start": 32.46,
+      "end": 32.58,
+      "word": " you"
+     },
+     {
+      "start": 32.58,
+      "end": 32.8,
+      "word": " split"
+     },
+     {
+      "start": 32.8,
+      "end": 33.02,
+      "word": " one"
+     },
+     {
+      "start": 33.02,
+      "end": 33.26,
+      "word": " agent"
+     },
+     {
+      "start": 33.26,
+      "end": 33.5,
+      "word": " into"
+     },
+     {
+      "start": 33.5,
+      "end": 33.82,
+      "word": " several"
+     },
+     {
+      "start": 33.82,
+      "end": 34.12,
+      "word": " agents"
+     },
+     {
+      "start": 34.12,
+      "end": 34.32,
+      "word": " with"
+     },
+     {
+      "start": 34.32,
+      "end": 34.56,
+      "word": " different"
+     },
+     {
+      "start": 34.56,
+      "end": 34.86,
+      "word": " tools?"
+     }
+    ]
+   },
+   {
+    "start": 36.46,
+    "end": 42.04,
+    "text": "Maybe when the tasks are different, like one agent searches and another one writes, so each prompt stays small.",
+    "words": [
+     {
+      "start": 36.46,
+      "end": 36.88,
+      "word": " Maybe"
+     },
+     {
+      "start": 36.88,
+      "end": 37.1,
+      "word": " when"
+     },
+     {
+      "start": 37.1,
+      "end": 37.22,
+      "word": " the"
+     },
+     {
+      "start": 37.22,
+      "end": 37.5,
+      "word": " tasks"
+     },
+     {
+      "start": 37.5,
+      "end": 37.8,
+      "word": " are"
+     },
+     {
+      "start": 37.8,
+      "end": 38.16,
+      "word": " different,"
+     },
+     {
+      "start": 38.38,
+      "end": 38.46,
+      "word": " like"
+     },
+     {
+      "start": 38.46,
+      "end": 38.7,
+      "word": " one"
+     },
+     {
+      "start": 38.7,
+      "end": 39.06,
+      "word": " agent"
+     },
+     {
+      "start": 39.06,
+      "end": 39.48,
+      "word": " searches"
+     },
+     {
+      "start": 39.48,
+      "end": 39.78,
+      "word": " and"
+     },
+     {
+      "start": 39.78,
+      "end": 40.14,
+      "word": " another"
+     },
+     {
+      "start": 40.14,
+      "end": 40.46,
+      "word": " one"
+     },
+     {
+      "start": 40.46,
+      "end": 40.68,
+      "word": " writes,"
+     },
+     {
+      "start": 40.8,
+      "end": 40.9,
+      "word": " so"
+     },
+     {
+      "start": 40.9,
+      "end": 41.16,
+      "word": " each"
+     },
+     {
+      "start": 41.16,
+      "end": 41.38,
+      "word": " prompt"
+     },
+     {
+      "start": 41.38,
+      "end": 41.68,
+      "word": " stays"
+     },
+     {
+      "start": 41.68,
+      "end": 42.04,
+      "word": " small."
+     }
+    ]
+   },
+   {
+    "start": 43.28,
+    "end": 49.3,
+    "text": "That's one reason, smaller tool lists also mean fewer wrong tool choices. How would you measure whether an agent is using tools well?",
+    "words": [
+     {
+      "start": 43.28,
+      "end": 43.68,
+      "word": " That's"
+     },
+     {
+      "start": 43.68,
+      "end": 43.78,
+      "word": " one"
+     },
+     {
+      "start": 43.78,
+      "end": 43.98,
+      "word": " reason,"
+     },
+     {
+      "start": 44.22,
+      "end": 44.44,
+      "word": " smaller"
+     },
+     {
+      "start": 44.44,
+      "end": 44.72,
+      "word": " tool"
+     },
+     {
+      "start": 44.72,
+      "end": 44.98,
+      "word": " lists"
+     },
+     {
+      "start": 44.98,
+      "end": 45.26,
+      "word": " also"
+     },
+     {
+      "start": 45.26,
+      "end": 45.48,
+      "word": " mean"
+     },
+     {
+      "start": 45.48,
+      "end": 45.7,
+      "word": " fewer"
+     },
+     {
+      "start": 45.7,
+      "end": 45.96,
+      "word": " wrong"
+     },
+     {
+      "start": 45.96,
+      "end": 46.2,
+      "word": " tool"
+     },
+     {
+      "start": 46.2,
+      "end": 46.6,
+      "word": " choices."
+     },
+     {
+      "start": 47.02,
+      "end": 47.18,
+      "word": " How"
+     },
+     {
+      "start": 47.18,
+      "end": 47.32,
+      "word": " would"
+     },
+     {
+      "start": 47.32,
+      "end": 47.4,
+      "word": " you"
+     },
+     {
+      "start": 47.4,
+      "end": 47.62,
+      "word": " measure"
+     },
+     {
+      "start": 47.62,
+      "end": 47.88,
+      "word": " whether"
+     },
+     {
+      "start": 47.88,
+      "end": 48.06,
+      "word": " an"
+     },
+     {
+      "start": 48.06,
+      "end": 48.3,
+      "word": " agent"
+     },
+     {
+      "start": 48.3,
+      "end": 48.54,
+      "word": " is"
+     },
+     {
+      "start": 48.54,
+      "end": 48.76,
+      "word": " using"
+     },
+     {
+      "start": 48.76,
+      "end": 49.02,
+      "word": " tools"
+     },
+     {
+      "start": 49.02,
+      "end": 49.3,
+      "word": " well?"
+     }
+    ]
+   },
+   {
+    "start": 50.84,
+    "end": 55.94,
+    "text": "Check if it called the right tool with the right arguments and how many steps it needed to finish.",
+    "words": [
+     {
+      "start": 50.84,
+      "end": 51.28,
+      "word": " Check"
+     },
+     {
+      "start": 51.28,
+      "end": 51.5,
+      "word": " if"
+     },
+     {
+      "start": 51.5,
+      "end": 51.6,
+      "word": " it"
+     },
+     {
+      "start": 51.6,
+      "end": 51.82,
+      "word": " called"
+     },
+     {
+      "start": 51.82,
+      "end": 52.04,
+      "word": " the"
+     },
+     {
+      "start": 52.04,
+      "end": 52.2,
+      "word": " right"
+     },
+     {
+      "start": 52.2,
+      "end": 52.52,
+      "word": " tool"
+     },
+     {
+      "start": 52.52,
+      "end": 52.72,
+      "word": " with"
+     },
+     {
+      "start": 52.72,
+      "end": 52.86,
+      "word": " the"
+     },
+     {
+      "start": 52.86,
+      "end": 53.04,
+      "word": " right"
+     },
+     {
+      "start": 53.04,
+      "end": 53.52,
+      "word": " arguments"
+     },
+     {
+      "start": 53.52,
+      "end": 54.16,
+      "word": " and"
+     },
+     {
+      "start": 54.16,
+      "end": 54.34,
+      "word": " how"
+     },
+     {
+      "start": 54.34,
+      "end": 54.52,
+      "word": " many"
+     },
+     {
+      "start": 54.52,
+      "end": 54.78,
+      "word": " steps"
+     },
+     {
+      "start": 54.78,
+      "end": 55.0,
+      "word": " it"
+     },
+     {
+      "start": 55.0,
+      "end": 55.26,
+      "word": " needed"
+     },
+     {
+      "start": 55.26,
+      "end": 55.46,
+      "word": " to"
+     },
+     {
+      "start": 55.46,
+      "end": 55.94,
+      "word": " finish."
+     }
+    ]
+   },
+   {
+    "start": 57.38,
+    "end": 63.04,
+    "text": "Tool accuracy and efficiency good. All right, for next week, read the section on budgets and stopping conditions. Thank you.",
+    "words": [
+     {
+      "start": 57.38,
+      "end": 57.82,
+      "word": " Tool"
+     },
+     {
+      "start": 57.82,
+      "end": 58.24,
+      "word": " accuracy"
+     },
+     {
+      "start": 58.24,
+      "end": 58.58,
+      "word": " and"
+     },
+     {
+      "start": 58.58,
+      "end": 58.92,
+      "word": " efficiency"
+     },
+     {
+      "start": 58.92,
+      "end": 59.36,
+      "word": " good."
+     },
+     {
+      "start": 59.7,
+      "end": 59.7,
+      "word": " All"
+     },
+     {
+      "start": 59.7,
+      "end": 59.82,
+      "word": " right,"
+     },
+     {
+      "start": 59.94,
+      "end": 59.98,
+      "word": " for"
+     },
+     {
+      "start": 59.98,
+      "end": 60.16,
+      "word": " next"
+     },
+     {
+      "start": 60.16,
+      "end": 60.4,
+      "word": " week,"
+     },
+     {
+      "start": 60.46,
+      "end": 60.56,
+      "word": " read"
+     },
+     {
+      "start": 60.56,
+      "end": 60.72,
+      "word": " the"
+     },
+     {
+      "start": 60.72,
+      "end": 60.96,
+      "word": " section"
+     },
+     {
+      "start": 60.96,
+      "end": 61.16,
+      "word": " on"
+     },
+     {
+      "start": 61.16,
+      "end": 61.42,
+      "word": " budgets"
+     },
+     {
+      "start": 61.42,
+      "end": 61.64,
+      "word": " and"
+     },
+     {
+      "start": 61.64,
+      "end": 61.96,
+      "word": " stopping"
+     },
+     {
+      "start": 61.96,
+      "end": 62.4,
+      "word": " conditions."
+     },
+     {
+      "start": 62.72,
+      "end": 62.82,
+      "word": " Thank"
+     },
+     {
+      "start": 62.82,
+      "end": 63.04,
+      "word": " you."
+     }
+    ]
+   }
+  ],
+  "speaker_segments": [
+   {
+    "start": 1.1953437500000001,
+    "end": 13.615343750000001,
+    "speaker": "SPEAKER_03"
+   },
+   {
+    "start": 14.762843750000002,
+    "end": 18.94784375,
+    "speaker": "SPEAKER_00"
+   },
+   {
+    "start": 20.19659375,
+    "end": 23.132843750000003,
+    "speaker": "SPEAKER_03"
+   },
+   {
+    "start": 24.48284375,
+    "end": 29.984093750000003,
+    "speaker": "SPEAKER_01"
+   },
+   {
+    "start": 31.637843750000002,
+    "end": 35.04659375,
+    "speaker": "SPEAKER_03"
+   },
+   {
+    "start": 36.68346875,
+    "end": 42.150968750000004,
+    "speaker": "SPEAKER_02"
+   },
+   {
+    "start": 43.46721875,
+    "end": 49.45784375,
+    "speaker": "SPEAKER_03"
+   },
+   {
+    "start": 51.12846875,
+    "end": 56.039093750000006,
+    "speaker": "SPEAKER_00"
+   },
+   {
+    "start": 57.625343750000006,
+    "end": 63.09284375000001,
+    "speaker": "SPEAKER_03"
+   }
+  ],
+  "aligned_segments": [
+   {
+    "start": 0.9800000000000013,
+    "end": 8.8,
+    "speaker": "SPEAKER_03",
+    "text": "Today is about agents and tool calling, and agent is a loop, the model looks at the conversation, chooses a tool, we run the tool and we feed the result back in."
+   },
+   {
+    "start": 9.26,
+    "end": 13.44,
+    "speaker": "SPEAKER_03",
+    "text": "Let's look at the harness from the lab. What is the observation? The obs variable after we call run tool."
+   },
+   {
+    "start": 14.540000000000001,
+    "end": 18.84,
+    "speaker": "SPEAKER_00",
+    "text": "It's the output of the tool, so the result or the error message if the call failed."
+   },
+   {
+    "start": 20.04,
+    "end": 22.9,
+    "speaker": "SPEAKER_03",
+    "text": "Yes, and why do we return the error to the model instead of crashing?"
+   },
+   {
+    "start": 24.019999999999996,
+    "end": 29.76,
+    "speaker": "SPEAKER_01",
+    "text": "The model can see what went wrong and try again with different arguments."
+   },
+   {
+    "start": 31.32,
+    "end": 34.86,
+    "speaker": "SPEAKER_03",
+    "text": "Now, when would you split one agent into several agents with different tools?"
+   },
+   {
+    "start": 36.46,
+    "end": 42.04,
+    "speaker": "SPEAKER_02",
+    "text": "Maybe when the tasks are different, like one agent searches and another one writes, so each prompt stays small."
+   },
+   {
+    "start": 43.28,
+    "end": 49.3,
+    "speaker": "SPEAKER_03",
+    "text": "That's one reason, smaller tool lists also mean fewer wrong tool choices. How would you measure whether an agent is using tools well?"
+   },
+   {
+    "start": 50.84,
+    "end": 55.94,
+    "speaker": "SPEAKER_00",
+    "text": "Check if it called the right tool with the right arguments and how many steps it needed to finish."
+   },
+   {
+    "start": 57.38,
+    "end": 63.04,
+    "speaker": "SPEAKER_03",
+    "text": "Tool accuracy and efficiency good. All right, for next week, read the section on budgets and stopping conditions. Thank you."
+   }
+  ],
+  "voice_matches": {
+   "SPEAKER_03": {
+    "name": "prof",
+    "status": "identified",
+    "score": 0.8756533265113831,
+    "matches": [
+     {
+      "person_id": "prof",
+      "name": "prof",
+      "score": 0.8756533265113831,
+      "same_speaker": true
+     },
+     {
+      "person_id": "tina",
+      "name": "tina",
+      "score": 0.0702519416809082,
+      "same_speaker": false
+     },
+     {
+      "person_id": "koh-qing-jia",
+      "name": "Koh Qing Jia",
+      "score": 0.06680584698915482,
+      "same_speaker": false
+     },
+     {
+      "person_id": "tasmin",
+      "name": "tasmin",
+      "score": 0.05966625362634659,
+      "same_speaker": false
+     },
+     {
+      "person_id": "le-yong",
+      "name": "le yong",
+      "score": -0.07370685786008835,
+      "same_speaker": false
+     }
+    ]
+   },
+   "SPEAKER_00": {
+    "name": "AMBIGUOUS",
+    "status": "ambiguous",
+    "matches": [
+     {
+      "person_id": "tasmin",
+      "name": "tasmin",
+      "score": 0.8306361436843872,
+      "same_speaker": true
+     },
+     {
+      "person_id": "tina",
+      "name": "tina",
+      "score": 0.27773651480674744,
+      "same_speaker": true
+     },
+     {
+      "person_id": "le-yong",
+      "name": "le yong",
+      "score": 0.07786949723958969,
+      "same_speaker": false
+     },
+     {
+      "person_id": "koh-qing-jia",
+      "name": "Koh Qing Jia",
+      "score": 0.06028951331973076,
+      "same_speaker": false
+     },
+     {
+      "person_id": "prof",
+      "name": "prof",
+      "score": 0.018874214962124825,
+      "same_speaker": false
+     }
+    ]
+   },
+   "SPEAKER_01": {
+    "name": "Koh Qing Jia",
+    "status": "identified",
+    "score": 0.7788819670677185,
+    "matches": [
+     {
+      "person_id": "koh-qing-jia",
+      "name": "Koh Qing Jia",
+      "score": 0.7788819670677185,
+      "same_speaker": true
+     },
+     {
+      "person_id": "tina",
+      "name": "tina",
+      "score": 0.15585912764072418,
+      "same_speaker": false
+     },
+     {
+      "person_id": "tasmin",
+      "name": "tasmin",
+      "score": 0.09011963754892349,
+      "same_speaker": false
+     },
+     {
+      "person_id": "prof",
+      "name": "prof",
+      "score": 0.08778893202543259,
+      "same_speaker": false
+     },
+     {
+      "person_id": "le-yong",
+      "name": "le yong",
+      "score": 0.0707477405667305,
+      "same_speaker": false
+     }
+    ]
+   },
+   "SPEAKER_02": {
+    "name": "tina",
+    "status": "identified",
+    "score": 0.8273617029190063,
+    "matches": [
+     {
+      "person_id": "tina",
+      "name": "tina",
+      "score": 0.8273617029190063,
+      "same_speaker": true
+     },
+     {
+      "person_id": "tasmin",
+      "name": "tasmin",
+      "score": 0.2324286848306656,
+      "same_speaker": false
+     },
+     {
+      "person_id": "koh-qing-jia",
+      "name": "Koh Qing Jia",
+      "score": 0.18693387508392334,
+      "same_speaker": false
+     },
+     {
+      "person_id": "prof",
+      "name": "prof",
+      "score": 0.05540655553340912,
+      "same_speaker": false
+     },
+     {
+      "person_id": "le-yong",
+      "name": "le yong",
+      "score": 0.028532901778817177,
+      "same_speaker": false
+     }
+    ]
+   }
+  },
+  "speaker_identities": {
+   "SPEAKER_03": "prof",
+   "SPEAKER_00": "AMBIGUOUS",
+   "SPEAKER_01": "Koh Qing Jia",
+   "SPEAKER_02": "tina"
+  },
+  "segments": [
+   {
+    "start": 0.9800000000000013,
+    "end": 13.44,
+    "speaker": "prof",
+    "original_speaker": "SPEAKER_03",
+    "text": "Today is about agents and tool calling, and agent is a loop, the model looks at the conversation, chooses a tool, we run the tool and we feed the result back in. Let's look at the harness from the lab. What is the observation? The obs variable after we call run tool."
+   },
+   {
+    "start": 14.540000000000001,
+    "end": 18.84,
+    "speaker": "AMBIGUOUS",
+    "original_speaker": "SPEAKER_00",
+    "text": "It's the output of the tool, so the result or the error message if the call failed."
+   },
+   {
+    "start": 20.04,
+    "end": 22.9,
+    "speaker": "prof",
+    "original_speaker": "SPEAKER_03",
+    "text": "Yes, and why do we return the error to the model instead of crashing?"
+   },
+   {
+    "start": 24.019999999999996,
+    "end": 29.76,
+    "speaker": "Koh Qing Jia",
+    "original_speaker": "SPEAKER_01",
+    "text": "The model can see what went wrong and try again with different arguments."
+   },
+   {
+    "start": 31.32,
+    "end": 34.86,
+    "speaker": "prof",
+    "original_speaker": "SPEAKER_03",
+    "text": "Now, when would you split one agent into several agents with different tools?"
+   },
+   {
+    "start": 36.46,
+    "end": 42.04,
+    "speaker": "tina",
+    "original_speaker": "SPEAKER_02",
+    "text": "Maybe when the tasks are different, like one agent searches and another one writes, so each prompt stays small."
+   },
+   {
+    "start": 43.28,
+    "end": 49.3,
+    "speaker": "prof",
+    "original_speaker": "SPEAKER_03",
+    "text": "That's one reason, smaller tool lists also mean fewer wrong tool choices. How would you measure whether an agent is using tools well?"
+   },
+   {
+    "start": 50.84,
+    "end": 55.94,
+    "speaker": "AMBIGUOUS",
+    "original_speaker": "SPEAKER_00",
+    "text": "Check if it called the right tool with the right arguments and how many steps it needed to finish."
+   },
+   {
+    "start": 57.38,
+    "end": 63.04,
+    "speaker": "prof",
+    "original_speaker": "SPEAKER_03",
+    "text": "Tool accuracy and efficiency good. All right, for next week, read the section on budgets and stopping conditions. Thank you."
+   }
+  ],
+  "diarization_turns": [
+   {
+    "start": 1.1953437500000001,
+    "end": 13.615343750000001,
+    "speaker": "SPEAKER_03"
+   },
+   {
+    "start": 14.762843750000002,
+    "end": 18.94784375,
+    "speaker": "SPEAKER_00"
+   },
+   {
+    "start": 20.19659375,
+    "end": 23.132843750000003,
+    "speaker": "SPEAKER_03"
+   },
+   {
+    "start": 24.48284375,
+    "end": 29.984093750000003,
+    "speaker": "SPEAKER_01"
+   },
+   {
+    "start": 31.637843750000002,
+    "end": 35.04659375,
+    "speaker": "SPEAKER_03"
+   },
+   {
+    "start": 36.68346875,
+    "end": 42.150968750000004,
+    "speaker": "SPEAKER_02"
+   },
+   {
+    "start": 43.46721875,
+    "end": 49.45784375,
+    "speaker": "SPEAKER_03"
+   },
+   {
+    "start": 51.12846875,
+    "end": 56.039093750000006,
+    "speaker": "SPEAKER_00"
+   },
+   {
+    "start": 57.625343750000006,
+    "end": 63.09284375000001,
+    "speaker": "SPEAKER_03"
+   }
+  ],
+  "timings": {
+   "transcription_s": 6.769510544138029,
+   "diarization_s": 79.80622086208314,
+   "total_s": 108.40092633198947
+  }
+ },
+ "segment_matches": [
+  [
+   {
+    "person_id": "prof",
+    "name": "prof",
+    "score": 0.8527605533599854,
+    "same_speaker": true
+   },
+   {
+    "person_id": "tasmin",
+    "name": "tasmin",
+    "score": 0.08221524208784103,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tina",
+    "name": "tina",
+    "score": 0.07358574867248535,
+    "same_speaker": false
+   },
+   {
+    "person_id": "koh-qing-jia",
+    "name": "Koh Qing Jia",
+    "score": 0.04891730844974518,
+    "same_speaker": false
+   },
+   {
+    "person_id": "le-yong",
+    "name": "le yong",
+    "score": -0.06670600175857544,
+    "same_speaker": false
+   }
+  ],
+  [
+   {
+    "person_id": "prof",
+    "name": "prof",
+    "score": 0.8219736218452454,
+    "same_speaker": true
+   },
+   {
+    "person_id": "koh-qing-jia",
+    "name": "Koh Qing Jia",
+    "score": 0.06287113577127457,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tina",
+    "name": "tina",
+    "score": 0.04593405872583389,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tasmin",
+    "name": "tasmin",
+    "score": 0.027854308485984802,
+    "same_speaker": false
+   },
+   {
+    "person_id": "le-yong",
+    "name": "le yong",
+    "score": -0.05697139352560043,
+    "same_speaker": false
+   }
+  ],
+  [
+   {
+    "person_id": "tasmin",
+    "name": "tasmin",
+    "score": 0.7636768817901611,
+    "same_speaker": true
+   },
+   {
+    "person_id": "tina",
+    "name": "tina",
+    "score": 0.23317557573318481,
+    "same_speaker": false
+   },
+   {
+    "person_id": "koh-qing-jia",
+    "name": "Koh Qing Jia",
+    "score": 0.07651801407337189,
+    "same_speaker": false
+   },
+   {
+    "person_id": "le-yong",
+    "name": "le yong",
+    "score": 0.0501764640212059,
+    "same_speaker": false
+   },
+   {
+    "person_id": "prof",
+    "name": "prof",
+    "score": -0.03809240460395813,
+    "same_speaker": false
+   }
+  ],
+  [
+   {
+    "person_id": "prof",
+    "name": "prof",
+    "score": 0.8114651441574097,
+    "same_speaker": true
+   },
+   {
+    "person_id": "tina",
+    "name": "tina",
+    "score": 0.05482831969857216,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tasmin",
+    "name": "tasmin",
+    "score": 0.02576589211821556,
+    "same_speaker": false
+   },
+   {
+    "person_id": "koh-qing-jia",
+    "name": "Koh Qing Jia",
+    "score": 0.011502728797495365,
+    "same_speaker": false
+   },
+   {
+    "person_id": "le-yong",
+    "name": "le yong",
+    "score": -0.06123805791139603,
+    "same_speaker": false
+   }
+  ],
+  [
+   {
+    "person_id": "koh-qing-jia",
+    "name": "Koh Qing Jia",
+    "score": 0.7727484107017517,
+    "same_speaker": true
+   },
+   {
+    "person_id": "tina",
+    "name": "tina",
+    "score": 0.1437063366174698,
+    "same_speaker": false
+   },
+   {
+    "person_id": "le-yong",
+    "name": "le yong",
+    "score": 0.08961048722267151,
+    "same_speaker": false
+   },
+   {
+    "person_id": "prof",
+    "name": "prof",
+    "score": 0.0872066542506218,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tasmin",
+    "name": "tasmin",
+    "score": 0.08179318159818649,
+    "same_speaker": false
+   }
+  ],
+  [
+   {
+    "person_id": "prof",
+    "name": "prof",
+    "score": 0.8179346323013306,
+    "same_speaker": true
+   },
+   {
+    "person_id": "koh-qing-jia",
+    "name": "Koh Qing Jia",
+    "score": 0.06804151087999344,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tina",
+    "name": "tina",
+    "score": 0.06007048860192299,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tasmin",
+    "name": "tasmin",
+    "score": 0.031364742666482925,
+    "same_speaker": false
+   },
+   {
+    "person_id": "le-yong",
+    "name": "le yong",
+    "score": -0.10605865716934204,
+    "same_speaker": false
+   }
+  ],
+  [
+   {
+    "person_id": "tina",
+    "name": "tina",
+    "score": 0.8312718272209167,
+    "same_speaker": true
+   },
+   {
+    "person_id": "tasmin",
+    "name": "tasmin",
+    "score": 0.22719645500183105,
+    "same_speaker": false
+   },
+   {
+    "person_id": "koh-qing-jia",
+    "name": "Koh Qing Jia",
+    "score": 0.19424831867218018,
+    "same_speaker": false
+   },
+   {
+    "person_id": "prof",
+    "name": "prof",
+    "score": 0.062367916107177734,
+    "same_speaker": false
+   },
+   {
+    "person_id": "le-yong",
+    "name": "le yong",
+    "score": 0.029599055647850037,
+    "same_speaker": false
+   }
+  ],
+  [
+   {
+    "person_id": "prof",
+    "name": "prof",
+    "score": 0.8378089666366577,
+    "same_speaker": true
+   },
+   {
+    "person_id": "koh-qing-jia",
+    "name": "Koh Qing Jia",
+    "score": 0.11561887711286545,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tasmin",
+    "name": "tasmin",
+    "score": 0.09071078151464462,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tina",
+    "name": "tina",
+    "score": 0.08062773942947388,
+    "same_speaker": false
+   },
+   {
+    "person_id": "le-yong",
+    "name": "le yong",
+    "score": -0.05276470258831978,
+    "same_speaker": false
+   }
+  ],
+  [
+   {
+    "person_id": "tasmin",
+    "name": "tasmin",
+    "score": 0.81429523229599,
+    "same_speaker": true
+   },
+   {
+    "person_id": "tina",
+    "name": "tina",
+    "score": 0.29539352655410767,
+    "same_speaker": true
+   },
+   {
+    "person_id": "le-yong",
+    "name": "le yong",
+    "score": 0.07867111265659332,
+    "same_speaker": false
+   },
+   {
+    "person_id": "prof",
+    "name": "prof",
+    "score": 0.07035379111766815,
+    "same_speaker": false
+   },
+   {
+    "person_id": "koh-qing-jia",
+    "name": "Koh Qing Jia",
+    "score": 0.05779974162578583,
+    "same_speaker": false
+   }
+  ],
+  [
+   {
+    "person_id": "prof",
+    "name": "prof",
+    "score": 0.820205569267273,
+    "same_speaker": true
+   },
+   {
+    "person_id": "tina",
+    "name": "tina",
+    "score": 0.07579857856035233,
+    "same_speaker": false
+   },
+   {
+    "person_id": "koh-qing-jia",
+    "name": "Koh Qing Jia",
+    "score": 0.0751025378704071,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tasmin",
+    "name": "tasmin",
+    "score": 0.054136596620082855,
+    "same_speaker": false
+   },
+   {
+    "person_id": "le-yong",
+    "name": "le yong",
+    "score": -0.049893226474523544,
+    "same_speaker": false
+   }
+  ]
+ ],
+ "segment_scoring_s": 1.535725248977542,
+ "line_matches": [
+  [
+   {
+    "person_id": "prof",
+    "name": "prof",
+    "score": 0.8696836829185486,
+    "same_speaker": true
+   },
+   {
+    "person_id": "tasmin",
+    "name": "tasmin",
+    "score": 0.0743679478764534,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tina",
+    "name": "tina",
+    "score": 0.062223922461271286,
+    "same_speaker": false
+   },
+   {
+    "person_id": "koh-qing-jia",
+    "name": "Koh Qing Jia",
+    "score": 0.05544183775782585,
+    "same_speaker": false
+   },
+   {
+    "person_id": "le-yong",
+    "name": "le yong",
+    "score": -0.06864931434392929,
+    "same_speaker": false
+   }
+  ],
+  [
+   {
+    "person_id": "tasmin",
+    "name": "tasmin",
+    "score": 0.7606396675109863,
+    "same_speaker": true
+   },
+   {
+    "person_id": "tina",
+    "name": "tina",
+    "score": 0.231870636343956,
+    "same_speaker": false
+   },
+   {
+    "person_id": "koh-qing-jia",
+    "name": "Koh Qing Jia",
+    "score": 0.07892192900180817,
+    "same_speaker": false
+   },
+   {
+    "person_id": "le-yong",
+    "name": "le yong",
+    "score": 0.051097169518470764,
+    "same_speaker": false
+   },
+   {
+    "person_id": "prof",
+    "name": "prof",
+    "score": -0.04166974872350693,
+    "same_speaker": false
+   }
+  ],
+  [
+   {
+    "person_id": "prof",
+    "name": "prof",
+    "score": 0.8173798322677612,
+    "same_speaker": true
+   },
+   {
+    "person_id": "tina",
+    "name": "tina",
+    "score": 0.06866250932216644,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tasmin",
+    "name": "tasmin",
+    "score": 0.03866805136203766,
+    "same_speaker": false
+   },
+   {
+    "person_id": "koh-qing-jia",
+    "name": "Koh Qing Jia",
+    "score": 0.030440472066402435,
+    "same_speaker": false
+   },
+   {
+    "person_id": "le-yong",
+    "name": "le yong",
+    "score": -0.06313685327768326,
+    "same_speaker": false
+   }
+  ],
+  [
+   {
+    "person_id": "koh-qing-jia",
+    "name": "Koh Qing Jia",
+    "score": 0.778921902179718,
+    "same_speaker": true
+   },
+   {
+    "person_id": "tina",
+    "name": "tina",
+    "score": 0.14856985211372375,
+    "same_speaker": false
+   },
+   {
+    "person_id": "prof",
+    "name": "prof",
+    "score": 0.09770190715789795,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tasmin",
+    "name": "tasmin",
+    "score": 0.08807757496833801,
+    "same_speaker": false
+   },
+   {
+    "person_id": "le-yong",
+    "name": "le yong",
+    "score": 0.08584041148424149,
+    "same_speaker": false
+   }
+  ],
+  [
+   {
+    "person_id": "prof",
+    "name": "prof",
+    "score": 0.8217074275016785,
+    "same_speaker": true
+   },
+   {
+    "person_id": "koh-qing-jia",
+    "name": "Koh Qing Jia",
+    "score": 0.06769303232431412,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tina",
+    "name": "tina",
+    "score": 0.06713934987783432,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tasmin",
+    "name": "tasmin",
+    "score": 0.03222440928220749,
+    "same_speaker": false
+   },
+   {
+    "person_id": "le-yong",
+    "name": "le yong",
+    "score": -0.10500996559858322,
+    "same_speaker": false
+   }
+  ],
+  [
+   {
+    "person_id": "tina",
+    "name": "tina",
+    "score": 0.8318856358528137,
+    "same_speaker": true
+   },
+   {
+    "person_id": "tasmin",
+    "name": "tasmin",
+    "score": 0.22789865732192993,
+    "same_speaker": false
+   },
+   {
+    "person_id": "koh-qing-jia",
+    "name": "Koh Qing Jia",
+    "score": 0.19191256165504456,
+    "same_speaker": false
+   },
+   {
+    "person_id": "prof",
+    "name": "prof",
+    "score": 0.05996125191450119,
+    "same_speaker": false
+   },
+   {
+    "person_id": "le-yong",
+    "name": "le yong",
+    "score": 0.03472418710589409,
+    "same_speaker": false
+   }
+  ],
+  [
+   {
+    "person_id": "prof",
+    "name": "prof",
+    "score": 0.8435565829277039,
+    "same_speaker": true
+   },
+   {
+    "person_id": "koh-qing-jia",
+    "name": "Koh Qing Jia",
+    "score": 0.11859053373336792,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tasmin",
+    "name": "tasmin",
+    "score": 0.08957026898860931,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tina",
+    "name": "tina",
+    "score": 0.08525144308805466,
+    "same_speaker": false
+   },
+   {
+    "person_id": "le-yong",
+    "name": "le yong",
+    "score": -0.052032873034477234,
+    "same_speaker": false
+   }
+  ],
+  [
+   {
+    "person_id": "tasmin",
+    "name": "tasmin",
+    "score": 0.8162988424301147,
+    "same_speaker": true
+   },
+   {
+    "person_id": "tina",
+    "name": "tina",
+    "score": 0.2974124550819397,
+    "same_speaker": true
+   },
+   {
+    "person_id": "le-yong",
+    "name": "le yong",
+    "score": 0.08051757514476776,
+    "same_speaker": false
+   },
+   {
+    "person_id": "prof",
+    "name": "prof",
+    "score": 0.07128394395112991,
+    "same_speaker": false
+   },
+   {
+    "person_id": "koh-qing-jia",
+    "name": "Koh Qing Jia",
+    "score": 0.06025264039635658,
+    "same_speaker": false
+   }
+  ],
+  [
+   {
+    "person_id": "prof",
+    "name": "prof",
+    "score": 0.822056770324707,
+    "same_speaker": true
+   },
+   {
+    "person_id": "koh-qing-jia",
+    "name": "Koh Qing Jia",
+    "score": 0.07611224800348282,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tina",
+    "name": "tina",
+    "score": 0.07525654137134552,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tasmin",
+    "name": "tasmin",
+    "score": 0.05538054555654526,
+    "same_speaker": false
+   },
+   {
+    "person_id": "le-yong",
+    "name": "le yong",
+    "score": -0.05006910115480423,
+    "same_speaker": false
+   }
+  ]
+ ],
+ "whisper_words": {
+  "seconds": 6.100157434819266,
+  "segments": [
+   {
+    "start": 0.9800000000000013,
+    "end": 8.8,
+    "text": "Today is about agents and tool calling, and agent is a loop, the model looks at the conversation, chooses a tool, we run the tool and we feed the result back in.",
+    "words": [
+     {
+      "start": 0.9800000000000013,
+      "end": 1.38,
+      "word": " Today"
+     },
+     {
+      "start": 1.38,
+      "end": 1.6,
+      "word": " is"
+     },
+     {
+      "start": 1.6,
+      "end": 1.78,
+      "word": " about"
+     },
+     {
+      "start": 1.78,
+      "end": 2.1,
+      "word": " agents"
+     },
+     {
+      "start": 2.1,
+      "end": 2.32,
+      "word": " and"
+     },
+     {
+      "start": 2.32,
+      "end": 2.58,
+      "word": " tool"
+     },
+     {
+      "start": 2.58,
+      "end": 3.0,
+      "word": " calling,"
+     },
+     {
+      "start": 3.24,
+      "end": 3.52,
+      "word": " and"
+     },
+     {
+      "start": 3.52,
+      "end": 3.78,
+      "word": " agent"
+     },
+     {
+      "start": 3.78,
+      "end": 3.96,
+      "word": " is"
+     },
+     {
+      "start": 3.96,
+      "end": 4.06,
+      "word": " a"
+     },
+     {
+      "start": 4.06,
+      "end": 4.2,
+      "word": " loop,"
+     },
+     {
+      "start": 4.32,
+      "end": 4.4,
+      "word": " the"
+     },
+     {
+      "start": 4.4,
+      "end": 4.64,
+      "word": " model"
+     },
+     {
+      "start": 4.64,
+      "end": 4.92,
+      "word": " looks"
+     },
+     {
+      "start": 4.92,
+      "end": 5.04,
+      "word": " at"
+     },
+     {
+      "start": 5.04,
+      "end": 5.16,
+      "word": " the"
+     },
+     {
+      "start": 5.16,
+      "end": 5.58,
+      "word": " conversation,"
+     },
+     {
+      "start": 5.92,
+      "end": 6.14,
+      "word": " chooses"
+     },
+     {
+      "start": 6.14,
+      "end": 6.32,
+      "word": " a"
+     },
+     {
+      "start": 6.32,
+      "end": 6.56,
+      "word": " tool,"
+     },
+     {
+      "start": 6.72,
+      "end": 6.76,
+      "word": " we"
+     },
+     {
+      "start": 6.76,
+      "end": 6.96,
+      "word": " run"
+     },
+     {
+      "start": 6.96,
+      "end": 7.14,
+      "word": " the"
+     },
+     {
+      "start": 7.14,
+      "end": 7.38,
+      "word": " tool"
+     },
+     {
+      "start": 7.38,
+      "end": 7.6,
+      "word": " and"
+     },
+     {
+      "start": 7.6,
+      "end": 7.7,
+      "word": " we"
+     },
+     {
+      "start": 7.7,
+      "end": 7.84,
+      "word": " feed"
+     },
+     {
+      "start": 7.84,
+      "end": 7.98,
+      "word": " the"
+     },
+     {
+      "start": 7.98,
+      "end": 8.22,
+      "word": " result"
+     },
+     {
+      "start": 8.22,
+      "end": 8.48,
+      "word": " back"
+     },
+     {
+      "start": 8.48,
+      "end": 8.8,
+      "word": " in."
+     }
+    ]
+   },
+   {
+    "start": 9.26,
+    "end": 13.44,
+    "text": "Let's look at the harness from the lab. What is the observation? The obs variable after we call run tool.",
+    "words": [
+     {
+      "start": 9.26,
+      "end": 9.42,
+      "word": " Let's"
+     },
+     {
+      "start": 9.42,
+      "end": 9.54,
+      "word": " look"
+     },
+     {
+      "start": 9.54,
+      "end": 9.66,
+      "word": " at"
+     },
+     {
+      "start": 9.66,
+      "end": 9.8,
+      "word": " the"
+     },
+     {
+      "start": 9.8,
+      "end": 9.98,
+      "word": " harness"
+     },
+     {
+      "start": 9.98,
+      "end": 10.18,
+      "word": " from"
+     },
+     {
+      "start": 10.18,
+      "end": 10.3,
+      "word": " the"
+     },
+     {
+      "start": 10.3,
+      "end": 10.42,
+      "word": " lab."
+     },
+     {
+      "start": 10.52,
+      "end": 10.62,
+      "word": " What"
+     },
+     {
+      "start": 10.62,
+      "end": 10.72,
+      "word": " is"
+     },
+     {
+      "start": 10.72,
+      "end": 10.82,
+      "word": " the"
+     },
+     {
+      "start": 10.82,
+      "end": 11.28,
+      "word": " observation?"
+     },
+     {
+      "start": 11.44,
+      "end": 11.54,
+      "word": " The"
+     },
+     {
+      "start": 11.54,
+      "end": 11.72,
+      "word": " obs"
+     },
+     {
+      "start": 11.72,
+      "end": 12.08,
+      "word": " variable"
+     },
+     {
+      "start": 12.08,
+      "end": 12.56,
+      "word": " after"
+     },
+     {
+      "start": 12.56,
+      "end": 12.7,
+      "word": " we"
+     },
+     {
+      "start": 12.7,
+      "end": 12.9,
+      "word": " call"
+     },
+     {
+      "start": 12.9,
+      "end": 13.14,
+      "word": " run"
+     },
+     {
+      "start": 13.14,
+      "end": 13.44,
+      "word": " tool."
+     }
+    ]
+   },
+   {
+    "start": 14.540000000000001,
+    "end": 18.84,
+    "text": "It's the output of the tool, so the result or the error message if the call failed.",
+    "words": [
+     {
+      "start": 14.540000000000001,
+      "end": 14.94,
+      "word": " It's"
+     },
+     {
+      "start": 14.94,
+      "end": 15.04,
+      "word": " the"
+     },
+     {
+      "start": 15.04,
+      "end": 15.38,
+      "word": " output"
+     },
+     {
+      "start": 15.38,
+      "end": 15.62,
+      "word": " of"
+     },
+     {
+      "start": 15.62,
+      "end": 15.76,
+      "word": " the"
+     },
+     {
+      "start": 15.76,
+      "end": 16.02,
+      "word": " tool,"
+     },
+     {
+      "start": 16.2,
+      "end": 16.26,
+      "word": " so"
+     },
+     {
+      "start": 16.26,
+      "end": 16.4,
+      "word": " the"
+     },
+     {
+      "start": 16.4,
+      "end": 16.78,
+      "word": " result"
+     },
+     {
+      "start": 16.78,
+      "end": 17.08,
+      "word": " or"
+     },
+     {
+      "start": 17.08,
+      "end": 17.26,
+      "word": " the"
+     },
+     {
+      "start": 17.26,
+      "end": 17.44,
+      "word": " error"
+     },
+     {
+      "start": 17.44,
+      "end": 17.78,
+      "word": " message"
+     },
+     {
+      "start": 17.78,
+      "end": 18.02,
+      "word": " if"
+     },
+     {
+      "start": 18.02,
+      "end": 18.16,
+      "word": " the"
+     },
+     {
+      "start": 18.16,
+      "end": 18.38,
+      "word": " call"
+     },
+     {
+      "start": 18.38,
+      "end": 18.84,
+      "word": " failed."
+     }
+    ]
+   },
+   {
+    "start": 20.04,
+    "end": 22.9,
+    "text": "Yes, and why do we return the error to the model instead of crashing?",
+    "words": [
+     {
+      "start": 20.04,
+      "end": 20.38,
+      "word": " Yes,"
+     },
+     {
+      "start": 20.5,
+      "end": 20.58,
+      "word": " and"
+     },
+     {
+      "start": 20.58,
+      "end": 20.74,
+      "word": " why"
+     },
+     {
+      "start": 20.74,
+      "end": 20.86,
+      "word": " do"
+     },
+     {
+      "start": 20.86,
+      "end": 20.96,
+      "word": " we"
+     },
+     {
+      "start": 20.96,
+      "end": 21.24,
+      "word": " return"
+     },
+     {
+      "start": 21.24,
+      "end": 21.46,
+      "word": " the"
+     },
+     {
+      "start": 21.46,
+      "end": 21.58,
+      "word": " error"
+     },
+     {
+      "start": 21.58,
+      "end": 21.76,
+      "word": " to"
+     },
+     {
+      "start": 21.76,
+      "end": 21.86,
+      "word": " the"
+     },
+     {
+      "start": 21.86,
+      "end": 22.08,
+      "word": " model"
+     },
+     {
+      "start": 22.08,
+      "end": 22.36,
+      "word": " instead"
+     },
+     {
+      "start": 22.36,
+      "end": 22.54,
+      "word": " of"
+     },
+     {
+      "start": 22.54,
+      "end": 22.9,
+      "word": " crashing?"
+     }
+    ]
+   },
+   {
+    "start": 24.019999999999996,
+    "end": 29.76,
+    "text": "The model can see what went wrong and try again with different arguments.",
+    "words": [
+     {
+      "start": 24.019999999999996,
+      "end": 24.54,
+      "word": " The"
+     },
+     {
+      "start": 24.54,
+      "end": 24.8,
+      "word": " model"
+     },
+     {
+      "start": 24.8,
+      "end": 25.1,
+      "word": " can"
+     },
+     {
+      "start": 25.1,
+      "end": 25.42,
+      "word": " see"
+     },
+     {
+      "start": 25.42,
+      "end": 25.96,
+      "word": " what"
+     },
+     {
+      "start": 25.96,
+      "end": 26.2,
+      "word": " went"
+     },
+     {
+      "start": 26.2,
+      "end": 26.48,
+      "word": " wrong"
+     },
+     {
+      "start": 26.48,
+      "end": 27.18,
+      "word": " and"
+     },
+     {
+      "start": 27.18,
+      "end": 27.9,
+      "word": " try"
+     },
+     {
+      "start": 27.9,
+      "end": 28.32,
+      "word": " again"
+     },
+     {
+      "start": 28.32,
+      "end": 28.72,
+      "word": " with"
+     },
+     {
+      "start": 28.72,
+      "end": 29.12,
+      "word": " different"
+     },
+     {
+      "start": 29.12,
+      "end": 29.76,
+      "word": " arguments."
+     }
+    ]
+   },
+   {
+    "start": 31.32,
+    "end": 34.86,
+    "text": "Now, when would you split one agent into several agents with different tools?",
+    "words": [
+     {
+      "start": 31.32,
+      "end": 31.84,
+      "word": " Now,"
+     },
+     {
+      "start": 32.14,
+      "end": 32.34,
+      "word": " when"
+     },
+     {
+      "start": 32.34,
+      "end": 32.46,
+      "word": " would"
+     },
+     {
+      "start": 32.46,
+      "end": 32.58,
+      "word": " you"
+     },
+     {
+      "start": 32.58,
+      "end": 32.8,
+      "word": " split"
+     },
+     {
+      "start": 32.8,
+      "end": 33.02,
+      "word": " one"
+     },
+     {
+      "start": 33.02,
+      "end": 33.26,
+      "word": " agent"
+     },
+     {
+      "start": 33.26,
+      "end": 33.5,
+      "word": " into"
+     },
+     {
+      "start": 33.5,
+      "end": 33.82,
+      "word": " several"
+     },
+     {
+      "start": 33.82,
+      "end": 34.12,
+      "word": " agents"
+     },
+     {
+      "start": 34.12,
+      "end": 34.32,
+      "word": " with"
+     },
+     {
+      "start": 34.32,
+      "end": 34.56,
+      "word": " different"
+     },
+     {
+      "start": 34.56,
+      "end": 34.86,
+      "word": " tools?"
+     }
+    ]
+   },
+   {
+    "start": 36.46,
+    "end": 42.04,
+    "text": "Maybe when the tasks are different, like one agent searches and another one writes, so each prompt stays small.",
+    "words": [
+     {
+      "start": 36.46,
+      "end": 36.88,
+      "word": " Maybe"
+     },
+     {
+      "start": 36.88,
+      "end": 37.1,
+      "word": " when"
+     },
+     {
+      "start": 37.1,
+      "end": 37.22,
+      "word": " the"
+     },
+     {
+      "start": 37.22,
+      "end": 37.5,
+      "word": " tasks"
+     },
+     {
+      "start": 37.5,
+      "end": 37.8,
+      "word": " are"
+     },
+     {
+      "start": 37.8,
+      "end": 38.16,
+      "word": " different,"
+     },
+     {
+      "start": 38.38,
+      "end": 38.46,
+      "word": " like"
+     },
+     {
+      "start": 38.46,
+      "end": 38.7,
+      "word": " one"
+     },
+     {
+      "start": 38.7,
+      "end": 39.06,
+      "word": " agent"
+     },
+     {
+      "start": 39.06,
+      "end": 39.48,
+      "word": " searches"
+     },
+     {
+      "start": 39.48,
+      "end": 39.78,
+      "word": " and"
+     },
+     {
+      "start": 39.78,
+      "end": 40.14,
+      "word": " another"
+     },
+     {
+      "start": 40.14,
+      "end": 40.46,
+      "word": " one"
+     },
+     {
+      "start": 40.46,
+      "end": 40.68,
+      "word": " writes,"
+     },
+     {
+      "start": 40.8,
+      "end": 40.9,
+      "word": " so"
+     },
+     {
+      "start": 40.9,
+      "end": 41.16,
+      "word": " each"
+     },
+     {
+      "start": 41.16,
+      "end": 41.38,
+      "word": " prompt"
+     },
+     {
+      "start": 41.38,
+      "end": 41.68,
+      "word": " stays"
+     },
+     {
+      "start": 41.68,
+      "end": 42.04,
+      "word": " small."
+     }
+    ]
+   },
+   {
+    "start": 43.28,
+    "end": 49.3,
+    "text": "That's one reason, smaller tool lists also mean fewer wrong tool choices. How would you measure whether an agent is using tools well?",
+    "words": [
+     {
+      "start": 43.28,
+      "end": 43.68,
+      "word": " That's"
+     },
+     {
+      "start": 43.68,
+      "end": 43.78,
+      "word": " one"
+     },
+     {
+      "start": 43.78,
+      "end": 43.98,
+      "word": " reason,"
+     },
+     {
+      "start": 44.22,
+      "end": 44.44,
+      "word": " smaller"
+     },
+     {
+      "start": 44.44,
+      "end": 44.72,
+      "word": " tool"
+     },
+     {
+      "start": 44.72,
+      "end": 44.98,
+      "word": " lists"
+     },
+     {
+      "start": 44.98,
+      "end": 45.26,
+      "word": " also"
+     },
+     {
+      "start": 45.26,
+      "end": 45.48,
+      "word": " mean"
+     },
+     {
+      "start": 45.48,
+      "end": 45.7,
+      "word": " fewer"
+     },
+     {
+      "start": 45.7,
+      "end": 45.96,
+      "word": " wrong"
+     },
+     {
+      "start": 45.96,
+      "end": 46.2,
+      "word": " tool"
+     },
+     {
+      "start": 46.2,
+      "end": 46.6,
+      "word": " choices."
+     },
+     {
+      "start": 47.02,
+      "end": 47.18,
+      "word": " How"
+     },
+     {
+      "start": 47.18,
+      "end": 47.32,
+      "word": " would"
+     },
+     {
+      "start": 47.32,
+      "end": 47.4,
+      "word": " you"
+     },
+     {
+      "start": 47.4,
+      "end": 47.62,
+      "word": " measure"
+     },
+     {
+      "start": 47.62,
+      "end": 47.88,
+      "word": " whether"
+     },
+     {
+      "start": 47.88,
+      "end": 48.06,
+      "word": " an"
+     },
+     {
+      "start": 48.06,
+      "end": 48.3,
+      "word": " agent"
+     },
+     {
+      "start": 48.3,
+      "end": 48.54,
+      "word": " is"
+     },
+     {
+      "start": 48.54,
+      "end": 48.76,
+      "word": " using"
+     },
+     {
+      "start": 48.76,
+      "end": 49.02,
+      "word": " tools"
+     },
+     {
+      "start": 49.02,
+      "end": 49.3,
+      "word": " well?"
+     }
+    ]
+   },
+   {
+    "start": 50.84,
+    "end": 55.94,
+    "text": "Check if it called the right tool with the right arguments and how many steps it needed to finish.",
+    "words": [
+     {
+      "start": 50.84,
+      "end": 51.28,
+      "word": " Check"
+     },
+     {
+      "start": 51.28,
+      "end": 51.5,
+      "word": " if"
+     },
+     {
+      "start": 51.5,
+      "end": 51.6,
+      "word": " it"
+     },
+     {
+      "start": 51.6,
+      "end": 51.82,
+      "word": " called"
+     },
+     {
+      "start": 51.82,
+      "end": 52.04,
+      "word": " the"
+     },
+     {
+      "start": 52.04,
+      "end": 52.2,
+      "word": " right"
+     },
+     {
+      "start": 52.2,
+      "end": 52.52,
+      "word": " tool"
+     },
+     {
+      "start": 52.52,
+      "end": 52.72,
+      "word": " with"
+     },
+     {
+      "start": 52.72,
+      "end": 52.86,
+      "word": " the"
+     },
+     {
+      "start": 52.86,
+      "end": 53.04,
+      "word": " right"
+     },
+     {
+      "start": 53.04,
+      "end": 53.52,
+      "word": " arguments"
+     },
+     {
+      "start": 53.52,
+      "end": 54.16,
+      "word": " and"
+     },
+     {
+      "start": 54.16,
+      "end": 54.34,
+      "word": " how"
+     },
+     {
+      "start": 54.34,
+      "end": 54.52,
+      "word": " many"
+     },
+     {
+      "start": 54.52,
+      "end": 54.78,
+      "word": " steps"
+     },
+     {
+      "start": 54.78,
+      "end": 55.0,
+      "word": " it"
+     },
+     {
+      "start": 55.0,
+      "end": 55.26,
+      "word": " needed"
+     },
+     {
+      "start": 55.26,
+      "end": 55.46,
+      "word": " to"
+     },
+     {
+      "start": 55.46,
+      "end": 55.94,
+      "word": " finish."
+     }
+    ]
+   },
+   {
+    "start": 57.38,
+    "end": 63.04,
+    "text": "Tool accuracy and efficiency good. All right, for next week, read the section on budgets and stopping conditions. Thank you.",
+    "words": [
+     {
+      "start": 57.38,
+      "end": 57.82,
+      "word": " Tool"
+     },
+     {
+      "start": 57.82,
+      "end": 58.24,
+      "word": " accuracy"
+     },
+     {
+      "start": 58.24,
+      "end": 58.58,
+      "word": " and"
+     },
+     {
+      "start": 58.58,
+      "end": 58.92,
+      "word": " efficiency"
+     },
+     {
+      "start": 58.92,
+      "end": 59.36,
+      "word": " good."
+     },
+     {
+      "start": 59.7,
+      "end": 59.7,
+      "word": " All"
+     },
+     {
+      "start": 59.7,
+      "end": 59.82,
+      "word": " right,"
+     },
+     {
+      "start": 59.94,
+      "end": 59.98,
+      "word": " for"
+     },
+     {
+      "start": 59.98,
+      "end": 60.16,
+      "word": " next"
+     },
+     {
+      "start": 60.16,
+      "end": 60.4,
+      "word": " week,"
+     },
+     {
+      "start": 60.46,
+      "end": 60.56,
+      "word": " read"
+     },
+     {
+      "start": 60.56,
+      "end": 60.72,
+      "word": " the"
+     },
+     {
+      "start": 60.72,
+      "end": 60.96,
+      "word": " section"
+     },
+     {
+      "start": 60.96,
+      "end": 61.16,
+      "word": " on"
+     },
+     {
+      "start": 61.16,
+      "end": 61.42,
+      "word": " budgets"
+     },
+     {
+      "start": 61.42,
+      "end": 61.64,
+      "word": " and"
+     },
+     {
+      "start": 61.64,
+      "end": 61.96,
+      "word": " stopping"
+     },
+     {
+      "start": 61.96,
+      "end": 62.4,
+      "word": " conditions."
+     },
+     {
+      "start": 62.72,
+      "end": 62.82,
+      "word": " Thank"
+     },
+     {
+      "start": 62.82,
+      "end": 63.04,
+      "word": " you."
+     }
+    ]
+   }
+  ]
+ },
+ "word_segments": [
+  [
+   0.9800000000000013,
+   8.8
+  ],
+  [
+   9.26,
+   13.44
+  ],
+  [
+   14.540000000000001,
+   18.84
+  ],
+  [
+   20.04,
+   22.9
+  ],
+  [
+   24.019999999999996,
+   29.76
+  ],
+  [
+   31.32,
+   34.86
+  ],
+  [
+   36.46,
+   42.04
+  ],
+  [
+   43.28,
+   49.3
+  ],
+  [
+   50.84,
+   55.94
+  ],
+  [
+   57.38,
+   63.04
+  ]
+ ],
+ "word_segment_matches": [
+  [
+   {
+    "person_id": "prof",
+    "name": "prof",
+    "score": 0.8527605533599854,
+    "same_speaker": true
+   },
+   {
+    "person_id": "tasmin",
+    "name": "tasmin",
+    "score": 0.08221524208784103,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tina",
+    "name": "tina",
+    "score": 0.07358574867248535,
+    "same_speaker": false
+   },
+   {
+    "person_id": "koh-qing-jia",
+    "name": "Koh Qing Jia",
+    "score": 0.04891730844974518,
+    "same_speaker": false
+   },
+   {
+    "person_id": "le-yong",
+    "name": "le yong",
+    "score": -0.06670600175857544,
+    "same_speaker": false
+   }
+  ],
+  [
+   {
+    "person_id": "prof",
+    "name": "prof",
+    "score": 0.8219736218452454,
+    "same_speaker": true
+   },
+   {
+    "person_id": "koh-qing-jia",
+    "name": "Koh Qing Jia",
+    "score": 0.06287113577127457,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tina",
+    "name": "tina",
+    "score": 0.04593405872583389,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tasmin",
+    "name": "tasmin",
+    "score": 0.027854308485984802,
+    "same_speaker": false
+   },
+   {
+    "person_id": "le-yong",
+    "name": "le yong",
+    "score": -0.05697139352560043,
+    "same_speaker": false
+   }
+  ],
+  [
+   {
+    "person_id": "tasmin",
+    "name": "tasmin",
+    "score": 0.7636768817901611,
+    "same_speaker": true
+   },
+   {
+    "person_id": "tina",
+    "name": "tina",
+    "score": 0.23317557573318481,
+    "same_speaker": false
+   },
+   {
+    "person_id": "koh-qing-jia",
+    "name": "Koh Qing Jia",
+    "score": 0.07651801407337189,
+    "same_speaker": false
+   },
+   {
+    "person_id": "le-yong",
+    "name": "le yong",
+    "score": 0.0501764640212059,
+    "same_speaker": false
+   },
+   {
+    "person_id": "prof",
+    "name": "prof",
+    "score": -0.03809240460395813,
+    "same_speaker": false
+   }
+  ],
+  [
+   {
+    "person_id": "prof",
+    "name": "prof",
+    "score": 0.8114651441574097,
+    "same_speaker": true
+   },
+   {
+    "person_id": "tina",
+    "name": "tina",
+    "score": 0.05482831969857216,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tasmin",
+    "name": "tasmin",
+    "score": 0.02576589211821556,
+    "same_speaker": false
+   },
+   {
+    "person_id": "koh-qing-jia",
+    "name": "Koh Qing Jia",
+    "score": 0.011502728797495365,
+    "same_speaker": false
+   },
+   {
+    "person_id": "le-yong",
+    "name": "le yong",
+    "score": -0.06123805791139603,
+    "same_speaker": false
+   }
+  ],
+  [
+   {
+    "person_id": "koh-qing-jia",
+    "name": "Koh Qing Jia",
+    "score": 0.7727484107017517,
+    "same_speaker": true
+   },
+   {
+    "person_id": "tina",
+    "name": "tina",
+    "score": 0.1437063366174698,
+    "same_speaker": false
+   },
+   {
+    "person_id": "le-yong",
+    "name": "le yong",
+    "score": 0.08961048722267151,
+    "same_speaker": false
+   },
+   {
+    "person_id": "prof",
+    "name": "prof",
+    "score": 0.0872066542506218,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tasmin",
+    "name": "tasmin",
+    "score": 0.08179318159818649,
+    "same_speaker": false
+   }
+  ],
+  [
+   {
+    "person_id": "prof",
+    "name": "prof",
+    "score": 0.8179346323013306,
+    "same_speaker": true
+   },
+   {
+    "person_id": "koh-qing-jia",
+    "name": "Koh Qing Jia",
+    "score": 0.06804151087999344,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tina",
+    "name": "tina",
+    "score": 0.06007048860192299,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tasmin",
+    "name": "tasmin",
+    "score": 0.031364742666482925,
+    "same_speaker": false
+   },
+   {
+    "person_id": "le-yong",
+    "name": "le yong",
+    "score": -0.10605865716934204,
+    "same_speaker": false
+   }
+  ],
+  [
+   {
+    "person_id": "tina",
+    "name": "tina",
+    "score": 0.8312718272209167,
+    "same_speaker": true
+   },
+   {
+    "person_id": "tasmin",
+    "name": "tasmin",
+    "score": 0.22719645500183105,
+    "same_speaker": false
+   },
+   {
+    "person_id": "koh-qing-jia",
+    "name": "Koh Qing Jia",
+    "score": 0.19424831867218018,
+    "same_speaker": false
+   },
+   {
+    "person_id": "prof",
+    "name": "prof",
+    "score": 0.062367916107177734,
+    "same_speaker": false
+   },
+   {
+    "person_id": "le-yong",
+    "name": "le yong",
+    "score": 0.029599055647850037,
+    "same_speaker": false
+   }
+  ],
+  [
+   {
+    "person_id": "prof",
+    "name": "prof",
+    "score": 0.8378089666366577,
+    "same_speaker": true
+   },
+   {
+    "person_id": "koh-qing-jia",
+    "name": "Koh Qing Jia",
+    "score": 0.11561887711286545,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tasmin",
+    "name": "tasmin",
+    "score": 0.09071078151464462,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tina",
+    "name": "tina",
+    "score": 0.08062773942947388,
+    "same_speaker": false
+   },
+   {
+    "person_id": "le-yong",
+    "name": "le yong",
+    "score": -0.05276470258831978,
+    "same_speaker": false
+   }
+  ],
+  [
+   {
+    "person_id": "tasmin",
+    "name": "tasmin",
+    "score": 0.81429523229599,
+    "same_speaker": true
+   },
+   {
+    "person_id": "tina",
+    "name": "tina",
+    "score": 0.29539352655410767,
+    "same_speaker": true
+   },
+   {
+    "person_id": "le-yong",
+    "name": "le yong",
+    "score": 0.07867111265659332,
+    "same_speaker": false
+   },
+   {
+    "person_id": "prof",
+    "name": "prof",
+    "score": 0.07035379111766815,
+    "same_speaker": false
+   },
+   {
+    "person_id": "koh-qing-jia",
+    "name": "Koh Qing Jia",
+    "score": 0.05779974162578583,
+    "same_speaker": false
+   }
+  ],
+  [
+   {
+    "person_id": "prof",
+    "name": "prof",
+    "score": 0.820205569267273,
+    "same_speaker": true
+   },
+   {
+    "person_id": "tina",
+    "name": "tina",
+    "score": 0.07579857856035233,
+    "same_speaker": false
+   },
+   {
+    "person_id": "koh-qing-jia",
+    "name": "Koh Qing Jia",
+    "score": 0.0751025378704071,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tasmin",
+    "name": "tasmin",
+    "score": 0.054136596620082855,
+    "same_speaker": false
+   },
+   {
+    "person_id": "le-yong",
+    "name": "le yong",
+    "score": -0.049893226474523544,
+    "same_speaker": false
+   }
+  ]
+ ],
+ "word_segment_scoring_s": 1.5330958291888237,
+ "turn_spans": [
+  [
+   0.9800000000000013,
+   13.44
+  ]
+ ],
+ "turn_matches": [
+  [
+   {
+    "person_id": "prof",
+    "name": "prof",
+    "score": 0.867891252040863,
+    "same_speaker": true
+   },
+   {
+    "person_id": "tasmin",
+    "name": "tasmin",
+    "score": 0.07305532693862915,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tina",
+    "name": "tina",
+    "score": 0.06220630928874016,
+    "same_speaker": false
+   },
+   {
+    "person_id": "koh-qing-jia",
+    "name": "Koh Qing Jia",
+    "score": 0.055097877979278564,
+    "same_speaker": false
+   },
+   {
+    "person_id": "le-yong",
+    "name": "le yong",
+    "score": -0.06852266192436218,
+    "same_speaker": false
+   }
+  ]
+ ]
+}

@@ -1,1 +1,5651 @@
-{"id":"01-everyone","audio_seconds":106.561875,"script":{"id":"01-everyone","title":"Demo 1 \u00b7 Agentic RAG: everyone takes part","case":"Baseline: all four students speak, with a mix of strong, partly right and thin answers.","lines":[{"speaker":"Prof Lim (demo)","text":"Good afternoon everyone. Today we continue with retrieval augmented generation, and specifically what makes retrieval agentic. Last week you built a pipeline that embeds the question, fetches the top few chunks, and answers. Let me start simple. Why do we split documents into chunks at all, instead of embedding the whole slide deck?","start":0.8,"end":21.71},{"speaker":"Koh Qing Jia","text":"Because one embedding for a whole deck averages everything together, so it can't match a specific question. Smaller chunks keep each idea separate, and they also fit in the context window.","start":22.6,"end":37.04},{"speaker":"Prof Lim (demo)","text":"Good. And why would we overlap the chunks?","start":37.95,"end":40.49},{"speaker":"Tasmin","text":"So a sentence that gets cut at the boundary still appears whole in the next chunk.","start":41.37,"end":45.74},{"speaker":"Prof Lim (demo)","text":"Exactly. Now, in our lab we combined keyword search with vector search. What does each one catch that the other misses?","start":46.89,"end":54.51},{"speaker":"Tina","text":"Keyword search catches exact terms like a function name, and vectors catch meaning even if the words are different.","start":55.66,"end":61.71},{"speaker":"Prof Lim (demo)","text":"Right, and we merged the two ranked lists with reciprocal rank fusion. So here is the real question for today. In a fixed pipeline we always retrieve once. What does an agent do differently?","start":62.48,"end":74.1},{"speaker":"Le Yong","text":"The agent can decide to search again. If the passages it got back are not relevant, it rewrites the query and retrieves again, and it can stop when the evidence is good enough.","start":74.98,"end":87.19},{"speaker":"Prof Lim (demo)","text":"That is the corrective loop, yes. Any cost to doing that?","start":88.04,"end":91.74},{"speaker":"Koh Qing Jia","text":"It's slower and it uses more tokens, so you need a limit on how many times it can retry.","start":92.81,"end":99.56},{"speaker":"Prof Lim (demo)","text":"Good. Remember that trade off for the project. We will pick this up next week with evaluation.","start":100.42,"end":105.83}]},"registry":{"demo-professor":"Prof Demo","koh-qing-jia":"Koh Qing Jia","tasmin":"tasmin","tina":"tina","le-yong":"le yong","prof":"prof","demo-prof-lim":"Prof Lim (demo)"},"pipeline":{"language":"en","whisper_segments":[{"start":0.0,"end":6.72,"text":"Good afternoon everyone. Today we continue with retrieval augmented generation and specifically"},{"start":6.72,"end":12.0,"text":"what makes retrieval agentic. Last week you built a pipeline that embeds the question,"},{"start":12.0,"end":18.04,"text":"fetches the top few chunks and answers. Let me start simple, why do we split documents"},{"start":18.04,"end":23.12,"text":"into chunks at all instead of embedding the whole slide deck?"},{"start":23.12,"end":29.68,"text":"Because one embedding for a whole deck averages everything together so it can't match a specific"},{"start":29.68,"end":36.88,"text":"question. Smaller chunks keep each idea separate and they also fit in the context window."},{"start":36.88,"end":43.92,"text":"Good and why would we overlap the chunks? So a sentence that gets cut at the boundary"},{"start":43.92,"end":50.480000000000004,"text":"still appears whole in the next chunk. Exactly, now in our lab we combine keyword search"},{"start":50.480000000000004,"end":54.24,"text":"with vector search. What does each one catch that the other misses?"},{"start":54.96,"end":61.04,"text":"Keyword search catches exact terms like a function name and vectors catch meaning even if the words"},{"start":61.04,"end":67.44,"text":"are different. Right and we merged the two rank lists with reciprocal rank fusion. So here is the"},{"start":67.44,"end":73.92,"text":"real question for today. In a fixed pipeline we always retrieve once. What does an agent do differently?"},{"start":75.6,"end":81.12,"text":"The agent can decide to search again. If the passages it got back are not relevant,"},{"start":81.68,"end":87.04,"text":"it rewrites the query and retrieves again and it can stop when the evidence is good enough."},{"start":87.92,"end":91.52000000000001,"text":"That is the corrective loop. Yes, any cost to doing that?"},{"start":92.96000000000001,"end":99.36000000000001,"text":"It's slower and it uses more tokens so you need a limit on how many times it can retray."},{"start":100.32000000000001,"end":105.60000000000001,"text":"Good, remember that trade-off for the project. We will pick this up next week with evaluation."}],"aligned_segments":[{"start":0.0,"end":6.72,"speaker":"SPEAKER_02","text":"Good afternoon everyone. Today we continue with retrieval augmented generation and specifically"},{"start":6.72,"end":12.0,"speaker":"SPEAKER_02","text":"what makes retrieval agentic. Last week you built a pipeline that embeds the question,"},{"start":12.0,"end":18.04,"speaker":"SPEAKER_02","text":"fetches the top few chunks and answers. Let me start simple, why do we split documents"},{"start":18.04,"end":23.12,"speaker":"SPEAKER_02","text":"into chunks at all instead of embedding the whole slide deck?"},{"start":23.12,"end":29.68,"speaker":"SPEAKER_04","text":"Because one embedding for a whole deck averages everything together so it can't match a specific"},{"start":29.68,"end":36.88,"speaker":"SPEAKER_04","text":"question. Smaller chunks keep each idea separate and they also fit in the context window."},{"start":36.88,"end":43.92,"speaker":"SPEAKER_02","text":"Good and why would we overlap the chunks? So a sentence that gets cut at the boundary"},{"start":43.92,"end":50.480000000000004,"speaker":"SPEAKER_02","text":"still appears whole in the next chunk. Exactly, now in our lab we combine keyword search"},{"start":50.480000000000004,"end":54.24,"speaker":"SPEAKER_02","text":"with vector search. What does each one catch that the other misses?"},{"start":54.96,"end":61.04,"speaker":"SPEAKER_01","text":"Keyword search catches exact terms like a function name and vectors catch meaning even if the words"},{"start":61.04,"end":67.44,"speaker":"SPEAKER_02","text":"are different. Right and we merged the two rank lists with reciprocal rank fusion. So here is the"},{"start":67.44,"end":73.92,"speaker":"SPEAKER_02","text":"real question for today. In a fixed pipeline we always retrieve once. What does an agent do differently?"},{"start":75.6,"end":81.12,"speaker":"SPEAKER_03","text":"The agent can decide to search again. If the passages it got back are not relevant,"},{"start":81.68,"end":87.04,"speaker":"SPEAKER_03","text":"it rewrites the query and retrieves again and it can stop when the evidence is good enough."},{"start":87.92,"end":91.52000000000001,"speaker":"SPEAKER_02","text":"That is the corrective loop. Yes, any cost to doing that?"},{"start":92.96000000000001,"end":99.36000000000001,"speaker":"SPEAKER_04","text":"It's slower and it uses more tokens so you need a limit on how many times it can retray."},{"start":100.32000000000001,"end":105.60000000000001,"speaker":"SPEAKER_02","text":"Good, remember that trade-off for the project. We will pick this up next week with evaluation."}],"voice_matches":{"SPEAKER_02":{"name":"Prof Lim (demo)","status":"identified","score":0.9651265144348145,"matches":[{"person_id":"demo-prof-lim","name":"Prof Lim (demo)","score":0.9651265144348145,"same_speaker":true},{"person_id":"demo-professor","name":"Prof Demo","score":0.0686265379190445,"same_speaker":false},{"person_id":"tina","name":"tina","score":0.05383563041687012,"same_speaker":false},{"person_id":"prof","name":"prof","score":0.024855269119143486,"same_speaker":false},{"person_id":"tasmin","name":"tasmin","score":-0.014906821772456169,"same_speaker":false},{"person_id":"le-yong","name":"le yong","score":-0.027991965413093567,"same_speaker":false},{"person_id":"koh-qing-jia","name":"Koh Qing Jia","score":-0.06293445825576782,"same_speaker":false}]},"SPEAKER_04":{"name":"Koh Qing Jia","status":"identified","score":0.8142420649528503,"matches":[{"person_id":"koh-qing-jia","name":"Koh Qing Jia","score":0.8142420649528503,"same_speaker":true},{"person_id":"tina","name":"tina","score":0.15520614385604858,"same_speaker":false},{"person_id":"tasmin","name":"tasmin","score":0.1062578409910202,"same_speaker":false},{"person_id":"demo-professor","name":"Prof Demo","score":0.06810081750154495,"same_speaker":false},{"person_id":"prof","name":"prof","score":0.0632709413766861,"same_speaker":false},{"person_id":"le-yong","name":"le yong","score":0.0414118692278862,"same_speaker":false},{"person_id":"demo-prof-lim","name":"Prof Lim (demo)","score":0.02586696296930313,"same_speaker":false}]},"SPEAKER_00":{"name":"AMBIGUOUS","status":"ambiguous","matches":[{"person_id":"tasmin","name":"tasmin","score":0.78865647315979,"same_speaker":true},{"person_id":"tina","name":"tina","score":0.27012866735458374,"same_speaker":true},{"person_id":"le-yong","name":"le yong","score":0.10121151804924011,"same_speaker":false},{"person_id":"koh-qing-jia","name":"Koh Qing Jia","score":0.09302999079227448,"same_speaker":false},{"person_id":"demo-professor","name":"Prof Demo","score":0.05663267523050308,"same_speaker":false},{"person_id":"prof","name":"prof","score":0.03329849615693092,"same_speaker":false},{"person_id":"demo-prof-lim","name":"Prof Lim (demo)","score":0.029439641162753105,"same_speaker":false}]},"SPEAKER_01":{"name":"AMBIGUOUS","status":"ambiguous","matches":[{"person_id":"tina","name":"tina","score":0.8250898122787476,"same_speaker":true},{"person_id":"tasmin","name":"tasmin","score":0.25017476081848145,"same_speaker":true},{"person_id":"koh-qing-jia","name":"Koh Qing Jia","score":0.1507464051246643,"same_speaker":false},{"person_id":"le-yong","name":"le yong","score":0.06559968739748001,"same_speaker":false},{"person_id":"prof","name":"prof","score":0.06327810883522034,"same_speaker":false},{"person_id":"demo-prof-lim","name":"Prof Lim (demo)","score":0.021780937910079956,"same_speaker":false},{"person_id":"demo-professor","name":"Prof Demo","score":0.012416219338774681,"same_speaker":false}]},"SPEAKER_03":{"name":"le yong","status":"identified","score":0.7739115953445435,"matches":[{"person_id":"le-yong","name":"le yong","score":0.7739115953445435,"same_speaker":true},{"person_id":"koh-qing-jia","name":"Koh Qing Jia","score":0.19191013276576996,"same_speaker":false},{"person_id":"demo-professor","name":"Prof Demo","score":0.10803520679473877,"same_speaker":false},{"person_id":"tasmin","name":"tasmin","score":0.07533839344978333,"same_speaker":false},{"person_id":"prof","name":"prof","score":0.031013716012239456,"same_speaker":false},{"person_id":"tina","name":"tina","score":-0.007325554266571999,"same_speaker":false},{"person_id":"demo-prof-lim","name":"Prof Lim (demo)","score":-0.017628692090511322,"same_speaker":false}]}},"speaker_identities":{"SPEAKER_02":"Prof Lim (demo)","SPEAKER_04":"Koh Qing Jia","SPEAKER_00":"AMBIGUOUS","SPEAKER_01":"AMBIGUOUS","SPEAKER_03":"le yong"},"segments":[{"start":0.0,"end":23.12,"speaker":"Prof Lim (demo)","original_speaker":"SPEAKER_02","text":"Good afternoon everyone. Today we continue with retrieval augmented generation and specifically what makes retrieval agentic. Last week you built a pipeline that embeds the question, fetches the top few chunks and answers. Let me start simple, why do we split documents into chunks at all instead of embedding the whole slide deck?"},{"start":23.12,"end":36.88,"speaker":"Koh Qing Jia","original_speaker":"SPEAKER_04","text":"Because one embedding for a whole deck averages everything together so it can't match a specific question. Smaller chunks keep each idea separate and they also fit in the context window."},{"start":36.88,"end":54.24,"speaker":"Prof Lim (demo)","original_speaker":"SPEAKER_02","text":"Good and why would we overlap the chunks? So a sentence that gets cut at the boundary still appears whole in the next chunk. Exactly, now in our lab we combine keyword search with vector search. What does each one catch that the other misses?"},{"start":54.96,"end":61.04,"speaker":"AMBIGUOUS","original_speaker":"SPEAKER_01","text":"Keyword search catches exact terms like a function name and vectors catch meaning even if the words"},{"start":61.04,"end":73.92,"speaker":"Prof Lim (demo)","original_speaker":"SPEAKER_02","text":"are different. Right and we merged the two rank lists with reciprocal rank fusion. So here is the real question for today. In a fixed pipeline we always retrieve once. What does an agent do differently?"},{"start":75.6,"end":87.04,"speaker":"le yong","original_speaker":"SPEAKER_03","text":"The agent can decide to search again. If the passages it got back are not relevant, it rewrites the query and retrieves again and it can stop when the evidence is good enough."},{"start":87.92,"end":91.52000000000001,"speaker":"Prof Lim (demo)","original_speaker":"SPEAKER_02","text":"That is the corrective loop. Yes, any cost to doing that?"},{"start":92.96000000000001,"end":99.36000000000001,"speaker":"Koh Qing Jia","original_speaker":"SPEAKER_04","text":"It's slower and it uses more tokens so you need a limit on how many times it can retray."},{"start":100.32000000000001,"end":105.60000000000001,"speaker":"Prof Lim (demo)","original_speaker":"SPEAKER_02","text":"Good, remember that trade-off for the project. We will pick this up next week with evaluation."}],"diarization_turns":[{"start":0.79034375,"end":21.664718750000002,"speaker":"SPEAKER_02"},{"start":22.829093750000002,"end":37.088468750000004,"speaker":"SPEAKER_04"},{"start":37.932218750000004,"end":40.49721875,"speaker":"SPEAKER_02"},{"start":41.74596875,"end":45.74534375,"speaker":"SPEAKER_00"},{"start":46.84221875,"end":54.53721875,"speaker":"SPEAKER_02"},{"start":56.00534375,"end":61.69221875,"speaker":"SPEAKER_01"},{"start":62.45159375,"end":74.12909375000001,"speaker":"SPEAKER_02"},{"start":75.78284375,"end":78.28034375,"speaker":"SPEAKER_03"},{"start":78.93846875,"end":87.19034375000001,"speaker":"SPEAKER_03"},{"start":88.03409375000001,"end":91.74659375,"speaker":"SPEAKER_02"},{"start":93.07971875000001,"end":99.55971875,"speaker":"SPEAKER_04"},{"start":100.38659375,"end":105.80346875000001,"speaker":"SPEAKER_02"}],"timings":{"transcription_s":15.12077668402344,"diarization_s":210.16818832582794,"total_s":324.9594746869989}},"segment_matches":[[{"person_id":"demo-prof-lim","name":"Prof Lim (demo)","score":0.892474353313446,"same_speaker":true},{"person_id":"demo-professor","name":"Prof Demo","score":0.04883966222405434,"same_speaker":false},{"person_id":"tina","name":"tina","score":0.04733578488230705,"same_speaker":false},{"person_id":"prof","name":"prof","score":0.01684066280722618,"same_speaker":false},{"person_id":"tasmin","name":"tasmin","score":-0.012853553518652916,"same_speaker":false},{"person_id":"koh-qing-jia","name":"Koh Qing Jia","score":-0.05133288353681564,"same_speaker":false},{"person_id":"le-yong","name":"le yong","score":-0.05246495455503464,"same_speaker":false}],[{"person_id":"demo-prof-lim","name":"Prof Lim (demo)","score":0.9432601928710938,"same_speaker":true},{"person_id":"demo-professor","name":"Prof Demo","score":0.05698029696941376,"same_speaker":false},{"person_id":"tina","name":"tina","score":0.045265037566423416,"same_speaker":false},{"person_id":"prof","name":"prof","score":0.014410028234124184,"same_speaker":false},{"person_id":"tasmin","name":"tasmin","score":-0.019015751779079437,"same_speaker":false},{"person_id":"koh-qing-jia","name":"Koh Qing Jia","score":-0.034251585602760315,"same_speaker":false},{"person_id":"le-yong","name":"le yong","score":-0.045859385281801224,"same_speaker":false}],[{"person_id":"demo-prof-lim","name":"Prof Lim (demo)","score":0.9372598528862,"same_speaker":true},{"person_id":"demo-professor","name":"Prof Demo","score":0.14123347401618958,"same_speaker":false},{"person_id":"tina","name":"tina","score":0.07757526636123657,"same_speaker":false},{"person_id":"prof","name":"prof","score":0.05089469254016876,"same_speaker":false},{"person_id":"tasmin","name":"tasmin","score":0.017313962802290916,"same_speaker":false},{"person_id":"le-yong","name":"le yong","score":-0.0059251561760902405,"same_speaker":false},{"person_id":"koh-qing-jia","name":"Koh Qing Jia","score":-0.009695295244455338,"same_speaker":false}],[{"person_id":"demo-prof-lim","name":"Prof Lim (demo)","score":0.8973788619041443,"same_speaker":true},{"person_id":"demo-professor","name":"Prof Demo","score":0.08624447882175446,"same_speaker":false},{"person_id":"prof","name":"prof","score":0.083380788564682,"same_speaker":false},{"person_id":"tina","name":"tina","score":0.04991266131401062,"same_speaker":false},{"person_id":"koh-qing-jia","name":"Koh Qing Jia","score":0.029643692076206207,"same_speaker":false},{"person_id":"le-yong","name":"le yong","score":0.02153385803103447,"same_speaker":false},{"person_id":"tasmin","name":"tasmin","score":-0.004953672178089619,"same_speaker":false}],[{"person_id":"koh-qing-jia","name":"Koh Qing Jia","score":0.7493749856948853,"same_speaker":true},{"person_id":"tina","name":"tina","score":0.18962407112121582,"same_speaker":false},{"person_id":"tasmin","name":"tasmin","score":0.11126772314310074,"same_speaker":false},{"person_id":"prof","name":"prof","score":0.08742396533489227,"same_speaker":false},{"person_id":"demo-professor","name":"Prof Demo","score":0.05769278109073639,"same_speaker":false},{"person_id":"le-yong","name":"le yong","score":0.01722075790166855,"same_speaker":false},{"person_id":"demo-prof-lim","name":"Prof Lim (demo)","score":0.012991631403565407,"same_speaker":false}],[{"person_id":"koh-qing-jia","name":"Koh Qing Jia","score":0.7841359972953796,"same_speaker":true},{"person_id":"tina","name":"tina","score":0.10450033843517303,"same_speaker":false},{"person_id":"demo-prof-lim","name":"Prof Lim (demo)","score":0.0735306590795517,"same_speaker":false},{"person_id":"demo-professor","name":"Prof Demo","score":0.06754783540964127,"same_speaker":false},{"person_id":"le-yong","name":"le yong","score":0.05994882434606552,"same_speaker":false},{"person_id":"tasmin","name":"tasmin","score":0.058769870549440384,"same_speaker":false},{"person_id":"prof","name":"prof","score":0.05002185329794884,"same_speaker":false}],[{"person_id":"demo-prof-lim","name":"Prof Lim (demo)","score":0.5145261287689209,"same_speaker":true},{"person_id":"tasmin","name":"tasmin","score":0.1988452672958374,"same_speaker":false},{"person_id":"tina","name":"tina","score":0.12417170405387878,"same_speaker":false},{"person_id":"prof","name":"prof","score":0.12159675359725952,"same_speaker":false},{"person_id":"koh-qing-jia","name":"Koh Qing Jia","score":0.11230543255805969,"same_speaker":false},{"person_id":"demo-professor","name":"Prof Demo","score":0.09607337415218353,"same_speaker":false},{"person_id":"le-yong","name":"le yong","score":0.04515691474080086,"same_speaker":false}],[{"person_id":"demo-prof-lim","name":"Prof Lim (demo)","score":0.7570717930793762,"same_speaker":true},{"person_id":"tasmin","name":"tasmin","score":0.09603561460971832,"same_speaker":false},{"person_id":"tina","name":"tina","score":0.08333024382591248,"same_speaker":false},{"person_id":"koh-qing-jia","name":"Koh Qing Jia","score":0.06621143966913223,"same_speaker":false},{"person_id":"demo-professor","name":"Prof Demo","score":0.051695410162210464,"same_speaker":false},{"person_id":"prof","name":"prof","score":0.02610660344362259,"same_speaker":false},{"person_id":"le-yong","name":"le yong","score":0.004586199298501015,"same_speaker":false}],[{"person_id":"demo-prof-lim","name":"Prof Lim (demo)","score":0.915820300579071,"same_speaker":true},{"person_id":"demo-professor","name":"Prof Demo","score":0.04868507385253906,"same_speaker":false},{"person_id":"tina","name":"tina","score":0.024224787950515747,"same_speaker":false},{"person_id":"tasmin","name":"tasmin","score":0.008223634213209152,"same_speaker":false},{"person_id":"prof","name":"prof","score":-0.0014608325436711311,"same_speaker":false},{"person_id":"le-yong","name":"le yong","score":-0.045370474457740784,"same_speaker":false},{"person_id":"koh-qing-jia","name":"Koh Qing Jia","score":-0.08903298527002335,"same_speaker":false}],[{"person_id":"tina","name":"tina","score":0.8549026250839233,"same_speaker":true},{"person_id":"tasmin","name":"tasmin","score":0.28084951639175415,"same_speaker":true},{"person_id":"koh-qing-jia","name":"Koh Qing Jia","score":0.14155644178390503,"same_speaker":false},{"person_id":"le-yong","name":"le yong","score":0.0708305761218071,"same_speaker":false},{"person_id":"prof","name":"prof","score":0.03946675360202789,"same_speaker":false},{"person_id":"demo-prof-lim","name":"Prof Lim (demo)","score":0.010315220803022385,"same_speaker":false},{"person_id":"demo-professor","name":"Prof Demo","score":0.0085554588586092,"same_speaker":false}],[{"person_id":"demo-prof-lim","name":"Prof Lim (demo)","score":0.9082655906677246,"same_speaker":true},{"person_id":"demo-professor","name":"Prof Demo","score":0.07024993002414703,"same_speaker":false},{"person_id":"tina","name":"tina","score":0.04069619998335838,"same_speaker":false},{"person_id":"prof","name":"prof","score":0.027933917939662933,"same_speaker":false},{"person_id":"le-yong","name":"le yong","score":-0.00040670810267329216,"same_speaker":false},{"person_id":"tasmin","name":"tasmin","score":-0.01707133650779724,"same_speaker":false},{"person_id":"koh-qing-jia","name":"Koh Qing Jia","score":-0.0685463547706604,"same_speaker":false}],[{"person_id":"demo-prof-lim","name":"Prof Lim (demo)","score":0.9157814383506775,"same_speaker":true},{"person_id":"tina","name":"tina","score":0.06004415452480316,"same_speaker":false},{"person_id":"demo-professor","name":"Prof Demo","score":0.055623121559619904,"same_speaker":false},{"person_id":"prof","name":"prof","score":0.006847048178315163,"same_speaker":false},{"person_id":"tasmin","name":"tasmin","score":-0.02048208750784397,"same_speaker":false},{"person_id":"le-yong","name":"le yong","score":-0.027280058711767197,"same_speaker":false},{"person_id":"koh-qing-jia","name":"Koh Qing Jia","score":-0.0423746220767498,"same_speaker":false}],[{"person_id":"le-yong","name":"le yong","score":0.7886754870414734,"same_speaker":true},{"person_id":"koh-qing-jia","name":"Koh Qing Jia","score":0.20359094440937042,"same_speaker":false},{"person_id":"demo-professor","name":"Prof Demo","score":0.0950736254453659,"same_speaker":false},{"person_id":"tasmin","name":"tasmin","score":0.08174498379230499,"same_speaker":false},{"person_id":"prof","name":"prof","score":0.03931271284818649,"same_speaker":false},{"person_id":"tina","name":"tina","score":-0.009391948580741882,"same_speaker":false},{"person_id":"demo-prof-lim","name":"Prof Lim (demo)","score":-0.02077599987387657,"same_speaker":false}],[{"person_id":"le-yong","name":"le yong","score":0.7238649129867554,"same_speaker":true},{"person_id":"koh-qing-jia","name":"Koh Qing Jia","score":0.19698700308799744,"same_speaker":false},{"person_id":"demo-professor","name":"Prof Demo","score":0.12169461697340012,"same_speaker":false},{"person_id":"tasmin","name":"tasmin","score":0.06910449266433716,"same_speaker":false},{"person_id":"prof","name":"prof","score":0.026122011244297028,"same_speaker":false},{"person_id":"demo-prof-lim","name":"Prof Lim (demo)","score":-0.0108861792832613,"same_speaker":false},{"person_id":"tina","name":"tina","score":-0.021607890725135803,"same_speaker":false}],[{"person_id":"demo-prof-lim","name":"Prof Lim (demo)","score":0.904902458190918,"same_speaker":true},{"person_id":"demo-professor","name":"Prof Demo","score":0.08434747159481049,"same_speaker":false},{"person_id":"prof","name":"prof","score":0.04218071699142456,"same_speaker":false},{"person_id":"tina","name":"tina","score":0.027400515973567963,"same_speaker":false},{"person_id":"le-yong","name":"le yong","score":0.017663097009062767,"same_speaker":false},{"person_id":"tasmin","name":"tasmin","score":-0.013759664259850979,"same_speaker":false},{"person_id":"koh-qing-jia","name":"Koh Qing Jia","score":-0.07607141882181168,"same_speaker":false}],[{"person_id":"koh-qing-jia","name":"Koh Qing Jia","score":0.7914937138557434,"same_speaker":true},{"person_id":"tina","name":"tina","score":0.16538865864276886,"same_speaker":false},{"person_id":"tasmin","name":"tasmin","score":0.1002136841416359,"same_speaker":false},{"person_id":"le-yong","name":"le yong","score":0.0595223605632782,"same_speaker":false},{"person_id":"demo-professor","name":"Prof Demo","score":0.040966153144836426,"same_speaker":false},{"person_id":"prof","name":"prof","score":0.019251666963100433,"same_speaker":false},{"person_id":"demo-prof-lim","name":"Prof Lim (demo)","score":-0.014307597652077675,"same_speaker":false}],[{"person_id":"demo-prof-lim","name":"Prof Lim (demo)","score":0.8968156576156616,"same_speaker":true},{"person_id":"demo-professor","name":"Prof Demo","score":0.05979888141155243,"same_speaker":false},{"person_id":"tina","name":"tina","score":0.05253174528479576,"same_speaker":false},{"person_id":"prof","name":"prof","score":0.0019118227064609528,"same_speaker":false},{"person_id":"tasmin","name":"tasmin","score":-0.02408318966627121,"same_speaker":false},{"person_id":"le-yong","name":"le yong","score":-0.04571458324790001,"same_speaker":false},{"person_id":"koh-qing-jia","name":"Koh Qing Jia","score":-0.11087128520011902,"same_speaker":false}]],"segment_scoring_s":25.555640797130764,"line_matches":[[{"person_id":"demo-prof-lim","name":"Prof Lim (demo)","score":0.9629586338996887,"same_speaker":true},{"person_id":"demo-professor","name":"Prof Demo","score":0.08472339808940887,"same_speaker":false},{"person_id":"tina","name":"tina","score":0.05387987196445465,"same_speaker":false},{"person_id":"prof","name":"prof","score":0.034714072942733765,"same_speaker":false},{"person_id":"tasmin","name":"tasmin","score":-0.006909103132784367,"same_speaker":false},{"person_id":"le-yong","name":"le yong","score":-0.036227863281965256,"same_speaker":false},{"person_id":"koh-qing-jia","name":"Koh Qing Jia","score":-0.043327491730451584,"same_speaker":false}],[{"person_id":"koh-qing-jia","name":"Koh Qing Jia","score":0.7966697216033936,"same_speaker":true},{"person_id":"tina","name":"tina","score":0.14292532205581665,"same_speaker":false},{"person_id":"tasmin","name":"tasmin","score":0.10095822811126709,"same_speaker":false},{"person_id":"prof","name":"prof","score":0.07634183019399643,"same_speaker":false},{"person_id":"demo-professor","name":"Prof Demo","score":0.0711188092827797,"same_speaker":false},{"person_id":"demo-prof-lim","name":"Prof Lim (demo)","score":0.04834908992052078,"same_speaker":false},{"person_id":"le-yong","name":"le yong","score":0.039440419524908066,"same_speaker":false}],[{"person_id":"demo-prof-lim","name":"Prof Lim (demo)","score":0.8866928815841675,"same_speaker":true},{"person_id":"tina","name":"tina","score":0.09239178150892258,"same_speaker":false},{"person_id":"demo-professor","name":"Prof Demo","score":0.07703739404678345,"same_speaker":false},{"person_id":"prof","name":"prof","score":0.0014094123616814613,"same_speaker":false},{"person_id":"le-yong","name":"le yong","score":-0.004364674910902977,"same_speaker":false},{"person_id":"koh-qing-jia","name":"Koh Qing Jia","score":-0.016475025564432144,"same_speaker":false},{"person_id":"tasmin","name":"tasmin","score":-0.03358457237482071,"same_speaker":false}],[{"person_id":"tasmin","name":"tasmin","score":0.8110784888267517,"same_speaker":true},{"person_id":"tina","name":"tina","score":0.25654274225234985,"same_speaker":true},{"person_id":"koh-qing-jia","name":"Koh Qing Jia","score":0.08875405788421631,"same_speaker":false},{"person_id":"le-yong","name":"le yong","score":0.08508870750665665,"same_speaker":false},{"person_id":"demo-professor","name":"Prof Demo","score":0.049689605832099915,"same_speaker":false},{"person_id":"prof","name":"prof","score":0.03828407824039459,"same_speaker":false},{"person_id":"demo-prof-lim","name":"Prof Lim (demo)","score":0.014669172465801239,"same_speaker":false}],[{"person_id":"demo-prof-lim","name":"Prof Lim (demo)","score":0.9423677921295166,"same_speaker":true},{"person_id":"demo-professor","name":"Prof Demo","score":0.03823002427816391,"same_speaker":false},{"person_id":"tina","name":"tina","score":0.02856273017823696,"same_speaker":false},{"person_id":"prof","name":"prof","score":0.005543636158108711,"same_speaker":false},{"person_id":"tasmin","name":"tasmin","score":-0.00961940549314022,"same_speaker":false},{"person_id":"le-yong","name":"le yong","score":-0.04115680605173111,"same_speaker":false},{"person_id":"koh-qing-jia","name":"Koh Qing Jia","score":-0.06561394035816193,"same_speaker":false}],[{"person_id":"tina","name":"tina","score":0.8434135913848877,"same_speaker":true},{"person_id":"tasmin","name":"tasmin","score":0.26106584072113037,"same_speaker":true},{"person_id":"koh-qing-jia","name":"Koh Qing Jia","score":0.15226799249649048,"same_speaker":false},{"person_id":"prof","name":"prof","score":0.07046337425708771,"same_speaker":false},{"person_id":"le-yong","name":"le yong","score":0.0637306347489357,"same_speaker":false},{"person_id":"demo-professor","name":"Prof Demo","score":0.008193174377083778,"same_speaker":false},{"person_id":"demo-prof-lim","name":"Prof Lim (demo)","score":0.004917081445455551,"same_speaker":false}],[{"person_id":"demo-prof-lim","name":"Prof Lim (demo)","score":0.9412400722503662,"same_speaker":true},{"person_id":"tina","name":"tina","score":0.07078937441110611,"same_speaker":false},{"person_id":"demo-professor","name":"Prof Demo","score":0.0602496974170208,"same_speaker":false},{"person_id":"prof","name":"prof","score":0.012844320386648178,"same_speaker":false},{"person_id":"le-yong","name":"le yong","score":-0.015091245993971825,"same_speaker":false},{"person_id":"tasmin","name":"tasmin","score":-0.01745978184044361,"same_speaker":false},{"person_id":"koh-qing-jia","name":"Koh Qing Jia","score":-0.05681857466697693,"same_speaker":false}],[{"person_id":"le-yong","name":"le yong","score":0.7809126973152161,"same_speaker":true},{"person_id":"koh-qing-jia","name":"Koh Qing Jia","score":0.19827260076999664,"same_speaker":false},{"person_id":"demo-professor","name":"Prof Demo","score":0.10993534326553345,"same_speaker":false},{"person_id":"tasmin","name":"tasmin","score":0.07553180307149887,"same_speaker":false},{"person_id":"prof","name":"prof","score":0.038641393184661865,"same_speaker":false},{"person_id":"demo-prof-lim","name":"Prof Lim (demo)","score":-0.013080939650535583,"same_speaker":false},{"person_id":"tina","name":"tina","score":-0.017648806795477867,"same_speaker":false}],[{"person_id":"demo-prof-lim","name":"Prof Lim (demo)","score":0.9025406241416931,"same_speaker":true},{"person_id":"demo-professor","name":"Prof Demo","score":0.09198174625635147,"same_speaker":false},{"person_id":"prof","name":"prof","score":0.038124073296785355,"same_speaker":false},{"person_id":"le-yong","name":"le yong","score":0.032024987041950226,"same_speaker":false},{"person_id":"tina","name":"tina","score":0.025817640125751495,"same_speaker":false},{"person_id":"tasmin","name":"tasmin","score":-0.016170699149370193,"same_speaker":false},{"person_id":"koh-qing-jia","name":"Koh Qing Jia","score":-0.07351532578468323,"same_speaker":false}],[{"person_id":"koh-qing-jia","name":"Koh Qing Jia","score":0.8013778328895569,"same_speaker":true},{"person_id":"tina","name":"tina","score":0.16619481146335602,"same_speaker":false},{"person_id":"tasmin","name":"tasmin","score":0.10155152529478073,"same_speaker":false},{"person_id":"le-yong","name":"le yong","score":0.0642247349023819,"same_speaker":false},{"person_id":"demo-professor","name":"Prof Demo","score":0.04752732813358307,"same_speaker":false},{"person_id":"prof","name":"prof","score":0.02740342728793621,"same_speaker":false},{"person_id":"demo-prof-lim","name":"Prof Lim (demo)","score":-0.012401843443512917,"same_speaker":false}],[{"person_id":"demo-prof-lim","name":"Prof Lim (demo)","score":0.8989394903182983,"same_speaker":true},{"person_id":"demo-professor","name":"Prof Demo","score":0.05413474887609482,"same_speaker":false},{"person_id":"tina","name":"tina","score":0.047575630247592926,"same_speaker":false},{"person_id":"prof","name":"prof","score":0.014450924471020699,"same_speaker":false},{"person_id":"tasmin","name":"tasmin","score":-0.029742756858468056,"same_speaker":false},{"person_id":"le-yong","name":"le yong","score":-0.035544343292713165,"same_speaker":false},{"person_id":"koh-qing-jia","name":"Koh Qing Jia","score":-0.09951469302177429,"same_speaker":false}]],"whisper":[{"model":"tiny","beam":5,"seconds":8.861463440116495,"segments":[{"start":0.0,"end":6.72,"text":"Good afternoon everyone, today we continue with retrieval augmented generation, and specifically"},{"start":6.72,"end":11.96,"text":"what makes retrieval agentic, last week you built a pipeline that embeds the question,"},{"start":11.96,"end":18.04,"text":"fetches the top few chunks, and answers, let me start simple, why do we split documents"},{"start":18.04,"end":23.12,"text":"into chunks at all instead of embedding the whole slide deck?"},{"start":23.12,"end":28.88,"text":"Because one embedding for a whole deck averages everything together so it can't match"},{"start":28.88,"end":35.879999999999995,"text":"a specific question, smaller chunks keep each idea separate, and they also fit in"},{"start":35.879999999999995,"end":37.879999999999995,"text":"the context window."},{"start":37.879999999999995,"end":41.879999999999995,"text":"Good, and why would we overlap the chunks?"},{"start":41.879999999999995,"end":46.879999999999995,"text":"So a sentence that gets cut at the boundary still appears holding the next chunk."},{"start":46.879999999999995,"end":52.879999999999995,"text":"Exactly, now, in our lab we combine keyword search with vector search, what does each one"},{"start":52.879999999999995,"end":55.879999999999995,"text":"catch that the other misses?"},{"start":55.88,"end":60.68,"text":"Keywords search catches exact terms like a function name, and vectors catch meaning even if"},{"start":60.68,"end":62.88,"text":"the words are different."},{"start":62.88,"end":66.88,"text":"Right, and we merge the two ranked lists with reciprocal rank fusion."},{"start":66.88,"end":72.48,"text":"So here is the real question for today, in a fixed pipeline we always retrieve ones."},{"start":72.48,"end":75.88,"text":"What does an agent do differently?"},{"start":75.88,"end":79.08,"text":"The agent can decide to search again."},{"start":79.08,"end":84.88,"text":"If the passages it got back are not relevant, it rewrites the query and retrieves again,"},{"start":84.88,"end":87.88,"text":"and it can stop when the evidence is good enough."},{"start":87.88,"end":91.88,"text":"That is the corrective loop, yes, any cost to doing that."},{"start":91.88,"end":99.88,"text":"It's slower and it uses more tokens so you need a limit on how many times it can retrieve."},{"start":99.88,"end":102.88,"text":"Good, remember that trade-off for the project."},{"start":102.88,"end":105.88,"text":"We will pick this up next week with evaluation."}]},{"model":"base","beam":1,"seconds":8.887760856887326,"segments":[{"start":0.0,"end":6.72,"text":"Good afternoon everyone! Today we continue with retrieval augmented generation and specifically"},{"start":6.72,"end":12.0,"text":"what makes retrieval agentic. Last week you built a pipeline that embeds the question,"},{"start":12.0,"end":18.04,"text":"fetches the top few chunks and answers. Let me start simple, why do we split documents"},{"start":18.04,"end":23.12,"text":"into chunks at all instead of embedding the whole slide deck?"},{"start":23.12,"end":29.68,"text":"Because one embedding for a whole deck averages everything together so it can't match a specific"},{"start":29.68,"end":36.96,"text":"question. Smaller chunks keep each idea separate and they also fit in the context window."},{"start":36.96,"end":43.92,"text":"Good, and why would we overlap the chunks? So a sentence that gets cut at the boundary"},{"start":43.92,"end":50.480000000000004,"text":"still appears hole in the next chunk? Exactly, now, in our lab we combine keyword search"},{"start":50.480000000000004,"end":54.24,"text":"with vector search. What does each one catch that the other misses?"},{"start":54.4,"end":61.04,"text":"Keyword search catches exact terms like a function name and vectors catch meaning even if the words"},{"start":61.04,"end":67.52000000000001,"text":"are different. Right, and we merged the two rank lists with reciprocal rank fusion. So here is the"},{"start":67.52000000000001,"end":73.92,"text":"real question for today. In a fixed pipeline we always retrieve once. What does an agent do differently?"},{"start":73.92,"end":81.12,"text":"The agent can decide to search again. If the passages it got back are not relevant,"},{"start":81.68,"end":87.04,"text":"it re-rides the query and retrieves again and it can stop when the evidence is good enough."},{"start":87.92,"end":91.52000000000001,"text":"That is the corrective loop. Yes, any cost to doing that?"},{"start":92.96000000000001,"end":99.36000000000001,"text":"It's slower and it uses more tokens so you need a limit on how many times it can retray."},{"start":100.32000000000001,"end":105.60000000000001,"text":"Good, remember that trade-off for the project. We will pick this up next week with evaluation."}]},{"model":"base","beam":5,"seconds":14.768402236048132,"segments":[{"start":0.0,"end":6.72,"text":"Good afternoon everyone. Today we continue with retrieval augmented generation and specifically"},{"start":6.72,"end":12.0,"text":"what makes retrieval agentic. Last week you built a pipeline that embeds the question,"},{"start":12.0,"end":18.04,"text":"fetches the top few chunks and answers. Let me start simple, why do we split documents"},{"start":18.04,"end":23.12,"text":"into chunks at all instead of embedding the whole slide deck?"},{"start":23.12,"end":29.68,"text":"Because one embedding for a whole deck averages everything together so it can't match a specific"},{"start":29.68,"end":36.88,"text":"question. Smaller chunks keep each idea separate and they also fit in the context window."},{"start":36.88,"end":43.92,"text":"Good and why would we overlap the chunks? So a sentence that gets cut at the boundary"},{"start":43.92,"end":50.480000000000004,"text":"still appears whole in the next chunk. Exactly, now in our lab we combine keyword search"},{"start":50.480000000000004,"end":54.24,"text":"with vector search. What does each one catch that the other misses?"},{"start":54.96,"end":61.04,"text":"Keyword search catches exact terms like a function name and vectors catch meaning even if the words"},{"start":61.04,"end":67.44,"text":"are different. Right and we merged the two rank lists with reciprocal rank fusion. So here is the"},{"start":67.44,"end":73.92,"text":"real question for today. In a fixed pipeline we always retrieve once. What does an agent do differently?"},{"start":75.6,"end":81.12,"text":"The agent can decide to search again. If the passages it got back are not relevant,"},{"start":81.68,"end":87.04,"text":"it rewrites the query and retrieves again and it can stop when the evidence is good enough."},{"start":87.92,"end":91.52000000000001,"text":"That is the corrective loop. Yes, any cost to doing that?"},{"start":92.96000000000001,"end":99.36000000000001,"text":"It's slower and it uses more tokens so you need a limit on how many times it can retray."},{"start":100.32000000000001,"end":105.60000000000001,"text":"Good, remember that trade-off for the project. We will pick this up next week with evaluation."}]},{"model":"small","beam":5,"seconds":37.104848359012976,"segments":[{"start":0.0,"end":9.0,"text":"Good afternoon everyone. Today we continue with retrieval augmented generation, and specifically what makes retrieval agentic."},{"start":9.0,"end":16.0,"text":"Last week you built a pipeline that embeds the question, fetches the top few chunks, and answers. Let me start simple."},{"start":16.0,"end":22.0,"text":"Why do we split documents into chunks at all, instead of embedding the whole slide deck?"},{"start":22.0,"end":30.0,"text":"Because one embedding for a whole deck averages everything together, so it can't match a specific question."},{"start":30.0,"end":37.0,"text":"Smaller chunks keep each idea separate, and they also fit in the context window."},{"start":37.0,"end":41.0,"text":"Good, and why would we overlap the chunks?"},{"start":41.0,"end":46.0,"text":"So a sentence that gets cut at the boundary still appears whole in the next chunk."},{"start":46.0,"end":55.0,"text":"Exactly. Now, in our lab we combined keyword search with vector search. What does each one catch that the other misses?"},{"start":55.0,"end":62.0,"text":"Keyword search catches exact terms like a function name, and vectors catch meaning even if the words are different."},{"start":62.0,"end":69.0,"text":"Right, and we merged the two rank lists with reciprocal rank fusion. So here is the real question for today."},{"start":69.0,"end":75.0,"text":"In a fixed pipeline we always retrieve once. What does an agent do differently?"},{"start":75.0,"end":87.0,"text":"The agent can decide to search again. If the passages it got back are not relevant, it rewrites the query and retrieves again, and it can stop when the evidence is good enough."},{"start":87.0,"end":92.0,"text":"That is the corrective loop. Yes, any cost to doing that?"},{"start":92.0,"end":100.0,"text":"It's slower and it uses more tokens, so you need a limit on how many times it can retray."},{"start":100.0,"end":106.0,"text":"Good, remember that trade off for the project. We will pick this up next week with evaluation."}]}],"whisper_words":{"seconds":14.77705211401917,"segments":[{"start":0.0,"end":6.56,"text":"Good afternoon everyone. Today we continue with retrieval augmented generation and specifically","words":[{"start":0.0,"end":0.96,"word":" Good"},{"start":0.96,"end":1.38,"word":" afternoon"},{"start":1.38,"end":2.12,"word":" everyone."},{"start":2.6,"end":2.82,"word":" Today"},{"start":2.82,"end":3.02,"word":" we"},{"start":3.02,"end":3.48,"word":" continue"},{"start":3.48,"end":3.72,"word":" with"},{"start":3.72,"end":4.14,"word":" retrieval"},{"start":4.14,"end":4.6,"word":" augmented"},{"start":4.6,"end":5.38,"word":" generation"},{"start":5.38,"end":5.9,"word":" and"},{"start":5.9,"end":6.56,"word":" specifically"}]},{"start":6.56,"end":11.6,"text":"what makes retrieval agentic. Last week you built a pipeline that embeds the question,","words":[{"start":6.56,"end":6.96,"word":" what"},{"start":6.96,"end":7.2,"word":" makes"},{"start":7.2,"end":7.76,"word":" retrieval"},{"start":7.76,"end":8.48,"word":" agentic."},{"start":8.74,"end":8.9,"word":" Last"},{"start":8.9,"end":9.22,"word":" week"},{"start":9.22,"end":9.44,"word":" you"},{"start":9.44,"end":9.64,"word":" built"},{"start":9.64,"end":9.9,"word":" a"},{"start":9.9,"end":10.12,"word":" pipeline"},{"start":10.12,"end":10.54,"word":" that"},{"start":10.54,"end":10.98,"word":" embeds"},{"start":10.98,"end":11.06,"word":" the"},{"start":11.06,"end":11.6,"word":" question,"}]},{"start":11.94,"end":17.92,"text":"fetches the top few chunks and answers. Let me start simple, why do we split documents","words":[{"start":11.94,"end":12.28,"word":" fetches"},{"start":12.28,"end":12.48,"word":" the"},{"start":12.48,"end":12.7,"word":" top"},{"start":12.7,"end":12.98,"word":" few"},{"start":12.98,"end":13.32,"word":" chunks"},{"start":13.32,"end":14.02,"word":" and"},{"start":14.02,"end":14.4,"word":" answers."},{"start":15.02,"end":15.12,"word":" Let"},{"start":15.12,"end":15.32,"word":" me"},{"start":15.32,"end":15.68,"word":" start"},{"start":15.68,"end":16.14,"word":" simple,"},{"start":16.46,"end":16.74,"word":" why"},{"start":16.74,"end":16.92,"word":" do"},{"start":16.92,"end":17.1,"word":" we"},{"start":17.1,"end":17.36,"word":" split"},{"start":17.36,"end":17.92,"word":" documents"}]},{"start":17.92,"end":21.5,"text":"into chunks at all instead of embedding the whole slide deck?","words":[{"start":17.92,"end":18.32,"word":" into"},{"start":18.32,"end":18.58,"word":" chunks"},{"start":18.58,"end":18.88,"word":" at"},{"start":18.88,"end":19.12,"word":" all"},{"start":19.12,"end":19.78,"word":" instead"},{"start":19.78,"end":20.02,"word":" of"},{"start":20.02,"end":20.42,"word":" embedding"},{"start":20.42,"end":20.62,"word":" the"},{"start":20.62,"end":20.78,"word":" whole"},{"start":20.78,"end":21.18,"word":" slide"},{"start":21.18,"end":21.5,"word":" deck?"}]},{"start":22.4,"end":29.64,"text":"Because one embedding for a whole deck averages everything together so it can't match a specific","words":[{"start":22.4,"end":23.08,"word":" Because"},{"start":23.08,"end":23.52,"word":" one"},{"start":23.52,"end":24.24,"word":" embedding"},{"start":24.24,"end":24.54,"word":" for"},{"start":24.54,"end":24.86,"word":" a"},{"start":24.86,"end":25.1,"word":" whole"},{"start":25.1,"end":25.4,"word":" deck"},{"start":25.4,"end":26.04,"word":" averages"},{"start":26.04,"end":26.72,"word":" everything"},{"start":26.72,"end":27.42,"word":" together"},{"start":27.42,"end":28.0,"word":" so"},{"start":28.0,"end":28.16,"word":" it"},{"start":28.16,"end":28.52,"word":" can't"},{"start":28.52,"end":28.86,"word":" match"},{"start":28.86,"end":29.04,"word":" a"},{"start":29.04,"end":29.64,"word":" specific"}]},{"start":29.64,"end":36.92,"text":"question. Smaller chunks keep each idea separate and they also fit in the context window.","words":[{"start":29.64,"end":30.26,"word":" question."},{"start":31.16,"end":31.6,"word":" Smaller"},{"start":31.6,"end":31.92,"word":" chunks"},{"start":31.92,"end":32.42,"word":" keep"},{"start":32.42,"end":32.76,"word":" each"},{"start":32.76,"end":33.06,"word":" idea"},{"start":33.06,"end":33.54,"word":" separate"},{"start":33.54,"end":34.66,"word":" and"},{"start":34.66,"end":34.82,"word":" they"},{"start":34.82,"end":35.16,"word":" also"},{"start":35.16,"end":35.44,"word":" fit"},{"start":35.44,"end":35.84,"word":" in"},{"start":35.84,"end":35.96,"word":" the"},{"start":35.96,"end":36.34,"word":" context"},{"start":36.34,"end":36.92,"word":" window."}]},{"start":37.54,"end":43.9,"text":"Good, and why would we overlap the chunks? So a sentence that gets cut at the boundary","words":[{"start":37.54,"end":38.14,"word":" Good,"},{"start":38.44,"end":38.62,"word":" and"},{"start":38.62,"end":38.84,"word":" why"},{"start":38.84,"end":38.98,"word":" would"},{"start":38.98,"end":39.14,"word":" we"},{"start":39.14,"end":39.52,"word":" overlap"},{"start":39.52,"end":39.78,"word":" the"},{"start":39.78,"end":40.28,"word":" chunks?"},{"start":41.6,"end":41.96,"word":" So"},{"start":41.96,"end":42.12,"word":" a"},{"start":42.12,"end":42.36,"word":" sentence"},{"start":42.36,"end":42.7,"word":" that"},{"start":42.7,"end":42.9,"word":" gets"},{"start":42.9,"end":43.24,"word":" cut"},{"start":43.24,"end":43.46,"word":" at"},{"start":43.46,"end":43.6,"word":" the"},{"start":43.6,"end":43.9,"word":" boundary"}]},{"start":43.9,"end":50.4,"text":"still appears hole in the next chunk? Exactly, now in our lab we combine keyword search","words":[{"start":43.9,"end":44.24,"word":" still"},{"start":44.24,"end":44.54,"word":" appears"},{"start":44.54,"end":44.82,"word":" hole"},{"start":44.82,"end":44.96,"word":" in"},{"start":44.96,"end":45.04,"word":" the"},{"start":45.04,"end":45.26,"word":" next"},{"start":45.26,"end":45.68,"word":" chunk?"},{"start":46.58,"end":47.22,"word":" Exactly,"},{"start":47.8,"end":48.1,"word":" now"},{"start":48.1,"end":48.56,"word":" in"},{"start":48.56,"end":48.72,"word":" our"},{"start":48.72,"end":48.98,"word":" lab"},{"start":48.98,"end":49.18,"word":" we"},{"start":49.18,"end":49.56,"word":" combine"},{"start":49.56,"end":50.02,"word":" keyword"},{"start":50.02,"end":50.4,"word":" search"}]},{"start":50.4,"end":54.18,"text":"with vector search. What does each one catch that the other misses?","words":[{"start":50.4,"end":50.76,"word":" with"},{"start":50.76,"end":51.02,"word":" vector"},{"start":51.02,"end":51.52,"word":" search."},{"start":51.98,"end":52.14,"word":" What"},{"start":52.14,"end":52.38,"word":" does"},{"start":52.38,"end":52.62,"word":" each"},{"start":52.62,"end":52.86,"word":" one"},{"start":52.86,"end":53.24,"word":" catch"},{"start":53.24,"end":53.44,"word":" that"},{"start":53.44,"end":53.6,"word":" the"},{"start":53.6,"end":53.82,"word":" other"},{"start":53.82,"end":54.18,"word":" misses?"}]},{"start":55.74,"end":61.04,"text":"Keyword search catches exact terms like a function name and vectors catch meaning even if the words","words":[{"start":55.74,"end":56.34,"word":" Keyword"},{"start":56.34,"end":56.58,"word":" search"},{"start":56.58,"end":56.96,"word":" catches"},{"start":56.96,"end":57.4,"word":" exact"},{"start":57.4,"end":57.7,"word":" terms"},{"start":57.7,"end":57.86,"word":" like"},{"start":57.86,"end":58.0,"word":" a"},{"start":58.0,"end":58.34,"word":" function"},{"start":58.34,"end":58.7,"word":" name"},{"start":58.7,"end":59.24,"word":" and"},{"start":59.24,"end":59.54,"word":" vectors"},{"start":59.54,"end":59.82,"word":" catch"},{"start":59.82,"end":60.14,"word":" meaning"},{"start":60.14,"end":60.54,"word":" even"},{"start":60.54,"end":60.72,"word":" if"},{"start":60.72,"end":60.84,"word":" the"},{"start":60.84,"end":61.04,"word":" words"}]},{"start":61.04,"end":67.44,"text":"are different. Right, and we merged the two rank lists with reciprocal rank fusion. So here is","words":[{"start":61.04,"end":61.22,"word":" are"},{"start":61.22,"end":61.6,"word":" different."},{"start":62.1,"end":62.7,"word":" Right,"},{"start":63.04,"end":63.28,"word":" and"},{"start":63.28,"end":63.4,"word":" we"},{"start":63.4,"end":63.7,"word":" merged"},{"start":63.7,"end":63.9,"word":" the"},{"start":63.9,"end":64.1,"word":" two"},{"start":64.1,"end":64.32,"word":" rank"},{"start":64.32,"end":64.66,"word":" lists"},{"start":64.66,"end":64.98,"word":" with"},{"start":64.98,"end":65.5,"word":" reciprocal"},{"start":65.5,"end":65.88,"word":" rank"},{"start":65.88,"end":66.36,"word":" fusion."},{"start":66.74,"end":66.98,"word":" So"},{"start":66.98,"end":67.24,"word":" here"},{"start":67.24,"end":67.44,"word":" is"}]},{"start":67.44,"end":73.86,"text":"the real question for today. In a fixed pipeline we always retrieve once. What does an agent do differently?","words":[{"start":67.44,"end":67.54,"word":" the"},{"start":67.54,"end":67.8,"word":" real"},{"start":67.8,"end":68.28,"word":" question"},{"start":68.28,"end":68.56,"word":" for"},{"start":68.56,"end":68.9,"word":" today."},{"start":69.36,"end":69.46,"word":" In"},{"start":69.46,"end":69.56,"word":" a"},{"start":69.56,"end":69.92,"word":" fixed"},{"start":69.92,"end":70.34,"word":" pipeline"},{"start":70.34,"end":70.62,"word":" we"},{"start":70.62,"end":70.92,"word":" always"},{"start":70.92,"end":71.36,"word":" retrieve"},{"start":71.36,"end":71.8,"word":" once."},{"start":72.3,"end":72.48,"word":" What"},{"start":72.48,"end":72.7,"word":" does"},{"start":72.7,"end":72.88,"word":" an"},{"start":72.88,"end":73.08,"word":" agent"},{"start":73.08,"end":73.36,"word":" do"},{"start":73.36,"end":73.86,"word":" differently?"}]},{"start":75.30000000000001,"end":81.04,"text":"The agent can decide to search again. If the passages it got back are not relevant,","words":[{"start":75.30000000000001,"end":75.9,"word":" The"},{"start":75.9,"end":76.22,"word":" agent"},{"start":76.22,"end":76.46,"word":" can"},{"start":76.46,"end":76.96,"word":" decide"},{"start":76.96,"end":77.34,"word":" to"},{"start":77.34,"end":77.6,"word":" search"},{"start":77.6,"end":77.94,"word":" again."},{"start":78.5,"end":79.1,"word":" If"},{"start":79.1,"end":79.2,"word":" the"},{"start":79.2,"end":79.56,"word":" passages"},{"start":79.56,"end":79.8,"word":" it"},{"start":79.8,"end":79.92,"word":" got"},{"start":79.92,"end":80.16,"word":" back"},{"start":80.16,"end":80.38,"word":" are"},{"start":80.38,"end":80.56,"word":" not"},{"start":80.56,"end":81.04,"word":" relevant,"}]},{"start":81.68,"end":87.08,"text":"it rewrites the query and retrieves again and it can stop when the evidence is good enough.","words":[{"start":81.6,"end":81.88,"word":" it"},{"start":81.88,"end":82.56,"word":" rewrites"},{"start":82.56,"end":82.76,"word":" the"},{"start":82.76,"end":83.0,"word":" query"},{"start":83.0,"end":83.4,"word":" and"},{"start":83.4,"end":83.86,"word":" retrieves"},{"start":83.86,"end":84.2,"word":" again"},{"start":84.2,"end":85.0,"word":" and"},{"start":85.0,"end":85.08,"word":" it"},{"start":85.08,"end":85.24,"word":" can"},{"start":85.24,"end":85.56,"word":" stop"},{"start":85.56,"end":85.84,"word":" when"},{"start":85.84,"end":86.0,"word":" the"},{"start":86.0,"end":86.32,"word":" evidence"},{"start":86.32,"end":86.58,"word":" is"},{"start":86.58,"end":86.74,"word":" good"},{"start":86.74,"end":87.08,"word":" enough."}]},{"start":87.82,"end":91.56,"text":"That is the corrective loop. Yes, any cost to doing that?","words":[{"start":87.82,"end":88.22,"word":" That"},{"start":88.22,"end":88.36,"word":" is"},{"start":88.36,"end":88.52,"word":" the"},{"start":88.52,"end":89.04,"word":" corrective"},{"start":89.04,"end":89.24,"word":" loop."},{"start":89.58,"end":89.82,"word":" Yes,"},{"start":90.38,"end":90.56,"word":" any"},{"start":90.56,"end":90.82,"word":" cost"},{"start":90.82,"end":91.0,"word":" to"},{"start":91.0,"end":91.26,"word":" doing"},{"start":91.26,"end":91.56,"word":" that?"}]},{"start":92.8,"end":99.36,"text":"It's slower and it uses more tokens so you need a limit on how many times it can retray.","words":[{"start":92.8,"end":93.36,"word":" It's"},{"start":93.36,"end":93.68,"word":" slower"},{"start":93.68,"end":93.96,"word":" and"},{"start":93.96,"end":94.08,"word":" it"},{"start":94.08,"end":94.38,"word":" uses"},{"start":94.38,"end":95.02,"word":" more"},{"start":95.02,"end":95.54,"word":" tokens"},{"start":95.54,"end":96.36,"word":" so"},{"start":96.36,"end":96.5,"word":" you"},{"start":96.5,"end":96.72,"word":" need"},{"start":96.72,"end":96.9,"word":" a"},{"start":96.9,"end":97.22,"word":" limit"},{"start":97.22,"end":97.54,"word":" on"},{"start":97.54,"end":97.74,"word":" how"},{"start":97.74,"end":97.94,"word":" many"},{"start":97.94,"end":98.34,"word":" times"},{"start":98.34,"end":98.6,"word":" it"},{"start":98.6,"end":98.84,"word":" can"},{"start":98.84,"end":99.36,"word":" retray."}]},{"start":100.28,"end":105.46,"text":"Good, remember that trade-off for the project. We will pick this up next week with evaluation.","words":[{"start":100.28,"end":100.64,"word":" Good,"},{"start":100.92,"end":101.26,"word":" remember"},{"start":101.26,"end":101.52,"word":" that"},{"start":101.52,"end":101.82,"word":" trade"},{"start":101.82,"end":101.98,"word":"-off"},{"start":101.98,"end":102.2,"word":" for"},{"start":102.2,"end":102.3,"word":" the"},{"start":102.3,"end":102.7,"word":" project."},{"start":103.14,"end":103.3,"word":" We"},{"start":103.3,"end":103.42,"word":" will"},{"start":103.42,"end":103.62,"word":" pick"},{"start":103.62,"end":103.86,"word":" this"},{"start":103.86,"end":104.06,"word":" up"},{"start":104.06,"end":104.4,"word":" next"},{"start":104.4,"end":104.66,"word":" week"},{"start":104.66,"end":104.94,"word":" with"},{"start":104.94,"end":105.46,"word":" evaluation."}]}]},"word_segments":[[0.0,6.56],[6.56,11.6],[11.94,17.92],[17.92,21.5],[22.4,29.64],[29.64,36.92],[37.54,40.28],[41.6,43.9],[43.9,45.68],[46.58,50.4],[50.4,54.18],[55.74,61.04],[61.04,61.6],[62.1,67.44],[67.44,73.86],[75.30000000000001,81.04],[81.6,87.08],[87.82,91.56],[92.8,99.36],[100.28,105.46]],"word_segment_matches":[[{"person_id":"demo-prof-lim","name":"Prof Lim (demo)","score":0.8880661725997925,"same_speaker":true},{"person_id":"tina","name":"tina","score":0.055725082755088806,"same_speaker":false},{"person_id":"demo-professor","name":"Prof Demo","score":0.046752624213695526,"same_speaker":false},{"person_id":"prof","name":"prof","score":0.014105399139225483,"same_speaker":false},{"person_id":"tasmin","name":"tasmin","score":-0.018055498600006104,"same_speaker":false},{"person_id":"le-yong","name":"le yong","score":-0.0410003587603569,"same_speaker":false},{"person_id":"koh-qing-jia","name":"Koh Qing Jia","score":-0.04599819332361221,"same_speaker":false}],[{"person_id":"demo-prof-lim","name":"Prof Lim (demo)","score":0.9396886229515076,"same_speaker":true},{"person_id":"demo-professor","name":"Prof Demo","score":0.053915198892354965,"same_speaker":false},{"person_id":"tina","name":"tina","score":0.04203815758228302,"same_speaker":false},{"person_id":"prof","name":"prof","score":0.006237337365746498,"same_speaker":false},{"person_id":"tasmin","name":"tasmin","score":-0.01183423213660717,"same_speaker":false},{"person_id":"koh-qing-jia","name":"Koh Qing Jia","score":-0.04284869134426117,"same_speaker":false},{"person_id":"le-yong","name":"le yong","score":-0.07389446347951889,"same_speaker":false}],[{"person_id":"demo-prof-lim","name":"Prof Lim (demo)","score":0.9303300976753235,"same_speaker":true},{"person_id":"demo-professor","name":"Prof Demo","score":0.14075346291065216,"same_speaker":false},{"person_id":"tina","name":"tina","score":0.0811062678694725,"same_speaker":false},{"person_id":"prof","name":"prof","score":0.05286430940032005,"same_speaker":false},{"person_id":"tasmin","name":"tasmin","score":0.02444959431886673,"same_speaker":false},{"person_id":"le-yong","name":"le yong","score":-0.0055574532598257065,"same_speaker":false},{"person_id":"koh-qing-jia","name":"Koh Qing Jia","score":-0.016821332275867462,"same_speaker":false}],[{"person_id":"demo-prof-lim","name":"Prof Lim (demo)","score":0.9429422616958618,"same_speaker":true},{"person_id":"demo-professor","name":"Prof Demo","score":0.07167801260948181,"same_speaker":false},{"person_id":"tina","name":"tina","score":0.016912177205085754,"same_speaker":false},{"person_id":"prof","name":"prof","score":0.010642067529261112,"same_speaker":false},{"person_id":"tasmin","name":"tasmin","score":-0.02399304509162903,"same_speaker":false},{"person_id":"le-yong","name":"le yong","score":-0.038711972534656525,"same_speaker":false},{"person_id":"koh-qing-jia","name":"Koh Qing Jia","score":-0.046765636652708054,"same_speaker":false}],[{"person_id":"koh-qing-jia","name":"Koh Qing Jia","score":0.7553132176399231,"same_speaker":true},{"person_id":"tina","name":"tina","score":0.18629835546016693,"same_speaker":false},{"person_id":"tasmin","name":"tasmin","score":0.12040426582098007,"same_speaker":false},{"person_id":"prof","name":"prof","score":0.09321777522563934,"same_speaker":false},{"person_id":"demo-professor","name":"Prof Demo","score":0.06568241119384766,"same_speaker":false},{"person_id":"le-yong","name":"le yong","score":0.02916157990694046,"same_speaker":false},{"person_id":"demo-prof-lim","name":"Prof Lim (demo)","score":0.023631049320101738,"same_speaker":false}],[{"person_id":"koh-qing-jia","name":"Koh Qing Jia","score":0.7837091684341431,"same_speaker":true},{"person_id":"tina","name":"tina","score":0.10472796857357025,"same_speaker":false},{"person_id":"demo-prof-lim","name":"Prof Lim (demo)","score":0.07040006667375565,"same_speaker":false},{"person_id":"demo-professor","name":"Prof Demo","score":0.06928567588329315,"same_speaker":false},{"person_id":"le-yong","name":"le yong","score":0.059965770691633224,"same_speaker":false},{"person_id":"tasmin","name":"tasmin","score":0.057824984192848206,"same_speaker":false},{"person_id":"prof","name":"prof","score":0.04734941944479942,"same_speaker":false}],[{"person_id":"demo-prof-lim","name":"Prof Lim (demo)","score":0.8563723564147949,"same_speaker":true},{"person_id":"demo-professor","name":"Prof Demo","score":0.08216386288404465,"same_speaker":false},{"person_id":"tina","name":"tina","score":0.049605127424001694,"same_speaker":false},{"person_id":"prof","name":"prof","score":0.010012498125433922,"same_speaker":false},{"person_id":"le-yong","name":"le yong","score":-0.004088902845978737,"same_speaker":false},{"person_id":"koh-qing-jia","name":"Koh Qing Jia","score":-0.015897762030363083,"same_speaker":false},{"person_id":"tasmin","name":"tasmin","score":-0.02696184068918228,"same_speaker":false}],[{"person_id":"tasmin","name":"tasmin","score":0.7408989071846008,"same_speaker":true},{"person_id":"tina","name":"tina","score":0.2546621263027191,"same_speaker":true},{"person_id":"le-yong","name":"le yong","score":0.08321572095155716,"same_speaker":false},{"person_id":"prof","name":"prof","score":0.07891006767749786,"same_speaker":false},{"person_id":"demo-professor","name":"Prof Demo","score":0.07276030629873276,"same_speaker":false},{"person_id":"koh-qing-jia","name":"Koh Qing Jia","score":0.04975277557969093,"same_speaker":false},{"person_id":"demo-prof-lim","name":"Prof Lim (demo)","score":0.005995871499180794,"same_speaker":false}],[{"person_id":"tasmin","name":"tasmin","score":0.7497028112411499,"same_speaker":true},{"person_id":"tina","name":"tina","score":0.2435653805732727,"same_speaker":false},{"person_id":"koh-qing-jia","name":"Koh Qing Jia","score":0.0915922299027443,"same_speaker":false},{"person_id":"le-yong","name":"le yong","score":0.06486920267343521,"same_speaker":false},{"person_id":"demo-professor","name":"Prof Demo","score":0.05013247951865196,"same_speaker":false},{"person_id":"demo-prof-lim","name":"Prof Lim (demo)","score":0.029214031994342804,"same_speaker":false},{"person_id":"prof","name":"prof","score":0.005888316780328751,"same_speaker":false}],[{"person_id":"demo-prof-lim","name":"Prof Lim (demo)","score":0.8760759234428406,"same_speaker":true},{"person_id":"tina","name":"tina","score":0.046957165002822876,"same_speaker":false},{"person_id":"prof","name":"prof","score":0.03682544827461243,"same_speaker":false},{"person_id":"demo-professor","name":"Prof Demo","score":0.020537640899419785,"same_speaker":false},{"person_id":"koh-qing-jia","name":"Koh Qing Jia","score":0.016684170812368393,"same_speaker":false},{"person_id":"tasmin","name":"tasmin","score":-0.028856053948402405,"same_speaker":false},{"person_id":"le-yong","name":"le yong","score":-0.03138478100299835,"same_speaker":false}],[{"person_id":"demo-prof-lim","name":"Prof Lim (demo)","score":0.9088293313980103,"same_speaker":true},{"person_id":"demo-professor","name":"Prof Demo","score":0.046320363879203796,"same_speaker":false},{"person_id":"tina","name":"tina","score":0.03560355678200722,"same_speaker":false},{"person_id":"tasmin","name":"tasmin","score":0.007545312866568565,"same_speaker":false},{"person_id":"prof","name":"prof","score":-0.009328329935669899,"same_speaker":false},{"person_id":"le-yong","name":"le yong","score":-0.045208998024463654,"same_speaker":false},{"person_id":"koh-qing-jia","name":"Koh Qing Jia","score":-0.0880044475197792,"same_speaker":false}],[{"person_id":"tina","name":"tina","score":0.8383998870849609,"same_speaker":true},{"person_id":"tasmin","name":"tasmin","score":0.27431344985961914,"same_speaker":true},{"person_id":"koh-qing-jia","name":"Koh Qing Jia","score":0.14360836148262024,"same_speaker":false},{"person_id":"le-yong","name":"le yong","score":0.06981240957975388,"same_speaker":false},{"person_id":"prof","name":"prof","score":0.05947286635637283,"same_speaker":false},{"person_id":"demo-professor","name":"Prof Demo","score":0.02031547576189041,"same_speaker":false},{"person_id":"demo-prof-lim","name":"Prof Lim (demo)","score":0.010715681128203869,"same_speaker":false}],[{"person_id":"tina","name":"tina","score":0.43060410022735596,"same_speaker":true},{"person_id":"koh-qing-jia","name":"Koh Qing Jia","score":0.11125478148460388,"same_speaker":false},{"person_id":"le-yong","name":"le yong","score":0.10822343826293945,"same_speaker":false},{"person_id":"prof","name":"prof","score":0.037857264280319214,"same_speaker":false},{"person_id":"tasmin","name":"tasmin","score":0.028744764626026154,"same_speaker":false},{"person_id":"demo-prof-lim","name":"Prof Lim (demo)","score":0.006823062896728516,"same_speaker":false},{"person_id":"demo-professor","name":"Prof Demo","score":-0.009078490547835827,"same_speaker":false}],[{"person_id":"demo-prof-lim","name":"Prof Lim (demo)","score":0.9086555242538452,"same_speaker":true},{"person_id":"demo-professor","name":"Prof Demo","score":0.07588832080364227,"same_speaker":false},{"person_id":"tina","name":"tina","score":0.05659931153059006,"same_speaker":false},{"person_id":"prof","name":"prof","score":0.028156541287899017,"same_speaker":false},{"person_id":"le-yong","name":"le yong","score":0.0017333594150841236,"same_speaker":false},{"person_id":"tasmin","name":"tasmin","score":-0.007095979526638985,"same_speaker":false},{"person_id":"koh-qing-jia","name":"Koh Qing Jia","score":-0.07318995893001556,"same_speaker":false}],[{"person_id":"demo-prof-lim","name":"Prof Lim (demo)","score":0.9186021089553833,"same_speaker":true},{"person_id":"tina","name":"tina","score":0.060000427067279816,"same_speaker":false},{"person_id":"demo-professor","name":"Prof Demo","score":0.0564521886408329,"same_speaker":false},{"person_id":"prof","name":"prof","score":0.0024521946907043457,"same_speaker":false},{"person_id":"tasmin","name":"tasmin","score":-0.02283889800310135,"same_speaker":false},{"person_id":"le-yong","name":"le yong","score":-0.023101918399333954,"same_speaker":false},{"person_id":"koh-qing-jia","name":"Koh Qing Jia","score":-0.04198802635073662,"same_speaker":false}],[{"person_id":"le-yong","name":"le yong","score":0.7902863025665283,"same_speaker":true},{"person_id":"koh-qing-jia","name":"Koh Qing Jia","score":0.19855816662311554,"same_speaker":false},{"person_id":"demo-professor","name":"Prof Demo","score":0.0945451408624649,"same_speaker":false},{"person_id":"tasmin","name":"tasmin","score":0.08507246524095535,"same_speaker":false},{"person_id":"prof","name":"prof","score":0.04155176877975464,"same_speaker":false},{"person_id":"tina","name":"tina","score":-0.011635269038379192,"same_speaker":false},{"person_id":"demo-prof-lim","name":"Prof Lim (demo)","score":-0.025089405477046967,"same_speaker":false}],[{"person_id":"le-yong","name":"le yong","score":0.7286931872367859,"same_speaker":true},{"person_id":"koh-qing-jia","name":"Koh Qing Jia","score":0.19029246270656586,"same_speaker":false},{"person_id":"demo-professor","name":"Prof Demo","score":0.12577174603939056,"same_speaker":false},{"person_id":"tasmin","name":"tasmin","score":0.06712282449007034,"same_speaker":false},{"person_id":"prof","name":"prof","score":0.029006803408265114,"same_speaker":false},{"person_id":"demo-prof-lim","name":"Prof Lim (demo)","score":-0.009351263754069805,"same_speaker":false},{"person_id":"tina","name":"tina","score":-0.022216133773326874,"same_speaker":false}],[{"person_id":"demo-prof-lim","name":"Prof Lim (demo)","score":0.9036061763763428,"same_speaker":true},{"person_id":"demo-professor","name":"Prof Demo","score":0.08228138089179993,"same_speaker":false},{"person_id":"prof","name":"prof","score":0.04562767222523689,"same_speaker":false},{"person_id":"tina","name":"tina","score":0.023357123136520386,"same_speaker":false},{"person_id":"le-yong","name":"le yong","score":0.018333084881305695,"same_speaker":false},{"person_id":"tasmin","name":"tasmin","score":-0.012173579074442387,"same_speaker":false},{"person_id":"koh-qing-jia","name":"Koh Qing Jia","score":-0.07443372160196304,"same_speaker":false}],[{"person_id":"koh-qing-jia","name":"Koh Qing Jia","score":0.795828104019165,"same_speaker":true},{"person_id":"tina","name":"tina","score":0.16571617126464844,"same_speaker":false},{"person_id":"tasmin","name":"tasmin","score":0.10135364532470703,"same_speaker":false},{"person_id":"le-yong","name":"le yong","score":0.06243966147303581,"same_speaker":false},{"person_id":"demo-professor","name":"Prof Demo","score":0.04382577911019325,"same_speaker":false},{"person_id":"prof","name":"prof","score":0.0233076810836792,"same_speaker":false},{"person_id":"demo-prof-lim","name":"Prof Lim (demo)","score":-0.011807646602392197,"same_speaker":false}],[{"person_id":"demo-prof-lim","name":"Prof Lim (demo)","score":0.8858729004859924,"same_speaker":true},{"person_id":"demo-professor","name":"Prof Demo","score":0.05936780571937561,"same_speaker":false},{"person_id":"tina","name":"tina","score":0.05835626274347305,"same_speaker":false},{"person_id":"prof","name":"prof","score":0.0020311339758336544,"same_speaker":false},{"person_id":"tasmin","name":"tasmin","score":-0.029288096353411674,"same_speaker":false},{"person_id":"le-yong","name":"le yong","score":-0.03915241360664368,"same_speaker":false},{"person_id":"koh-qing-jia","name":"Koh Qing Jia","score":-0.09254014492034912,"same_speaker":false}]],"word_segment_scoring_s":9.261833522003144}
+{
+ "id": "01-everyone",
+ "audio_seconds": 94.6306875,
+ "script": {
+  "id": "01-everyone",
+  "title": "Demo 1 \u00b7 Agentic RAG: everyone takes part",
+  "case": "Baseline: all four students speak, with a mix of strong, partly right and thin answers.",
+  "lines": [
+   {
+    "speaker": "Prof Wynter",
+    "text": "Good afternoon everyone. Today we continue with retrieval augmented generation, and specifically what makes retrieval agentic. Last week you built a pipeline that embeds the question, fetches the top few chunks, and answers. Let me start simple. Why do we split documents into chunks at all, instead of embedding the whole slide deck?",
+    "start": 0.8,
+    "end": 16.75
+   },
+   {
+    "speaker": "Koh Qing Jia",
+    "text": "Because one embedding for a whole deck averages everything together, so it can't match a specific question. Smaller chunks keep each idea separate, and they also fit in the context window.",
+    "start": 17.63,
+    "end": 32.08
+   },
+   {
+    "speaker": "Prof Wynter",
+    "text": "Good. And why would we overlap the chunks?",
+    "start": 32.98,
+    "end": 34.98
+   },
+   {
+    "speaker": "Tasmin",
+    "text": "So a sentence that gets cut at the boundary still appears whole in the next chunk.",
+    "start": 35.86,
+    "end": 40.22
+   },
+   {
+    "speaker": "Prof Wynter",
+    "text": "Exactly. Now, in our lab we combined keyword search with vector search. What does each one catch that the other misses?",
+    "start": 41.37,
+    "end": 47.05
+   },
+   {
+    "speaker": "Tina",
+    "text": "Keyword search catches exact terms like a function name, and vectors catch meaning even if the words are different.",
+    "start": 48.2,
+    "end": 54.25
+   },
+   {
+    "speaker": "Prof Wynter",
+    "text": "Right, and we merged the two ranked lists with reciprocal rank fusion. So here is the real question for today. In a fixed pipeline we always retrieve once. What does an agent do differently?",
+    "start": 55.02,
+    "end": 64.08
+   },
+   {
+    "speaker": "Le Yong",
+    "text": "The agent can decide to search again. If the passages it got back are not relevant, it rewrites the query and retrieves again, and it can stop when the evidence is good enough.",
+    "start": 64.96,
+    "end": 77.17
+   },
+   {
+    "speaker": "Prof Wynter",
+    "text": "That is the corrective loop, yes. Any cost to doing that?",
+    "start": 78.02,
+    "end": 80.73
+   },
+   {
+    "speaker": "Koh Qing Jia",
+    "text": "It's slower and it uses more tokens, so you need a limit on how many times it can retry.",
+    "start": 81.8,
+    "end": 88.55
+   },
+   {
+    "speaker": "Prof Wynter",
+    "text": "Good. Remember that trade off for the project. We will pick this up next week with evaluation.",
+    "start": 89.41,
+    "end": 93.89
+   }
+  ]
+ },
+ "registry": {
+  "koh-qing-jia": "Koh Qing Jia",
+  "tasmin": "tasmin",
+  "tina": "tina",
+  "le-yong": "le yong",
+  "prof": "prof"
+ },
+ "pipeline": {
+  "language": "en",
+  "whisper_segments": [
+   {
+    "start": 0.6999999999999977,
+    "end": 5.1,
+    "text": "Good afternoon everyone. Today we continue with retrieval augmented generation and specifically",
+    "words": [
+     {
+      "start": 0.6999999999999977,
+      "end": 1.26,
+      "word": " Good"
+     },
+     {
+      "start": 1.26,
+      "end": 1.58,
+      "word": " afternoon"
+     },
+     {
+      "start": 1.58,
+      "end": 2.04,
+      "word": " everyone."
+     },
+     {
+      "start": 2.26,
+      "end": 2.38,
+      "word": " Today"
+     },
+     {
+      "start": 2.38,
+      "end": 2.52,
+      "word": " we"
+     },
+     {
+      "start": 2.52,
+      "end": 2.9,
+      "word": " continue"
+     },
+     {
+      "start": 2.9,
+      "end": 3.1,
+      "word": " with"
+     },
+     {
+      "start": 3.1,
+      "end": 3.46,
+      "word": " retrieval"
+     },
+     {
+      "start": 3.46,
+      "end": 3.72,
+      "word": " augmented"
+     },
+     {
+      "start": 3.72,
+      "end": 4.32,
+      "word": " generation"
+     },
+     {
+      "start": 4.32,
+      "end": 4.56,
+      "word": " and"
+     },
+     {
+      "start": 4.56,
+      "end": 5.1,
+      "word": " specifically"
+     }
+    ]
+   },
+   {
+    "start": 5.1,
+    "end": 9.3,
+    "text": "what makes retrieval agentech. Last week you built a pipeline that embeds the question",
+    "words": [
+     {
+      "start": 5.1,
+      "end": 5.38,
+      "word": " what"
+     },
+     {
+      "start": 5.38,
+      "end": 5.54,
+      "word": " makes"
+     },
+     {
+      "start": 5.54,
+      "end": 6.08,
+      "word": " retrieval"
+     },
+     {
+      "start": 6.08,
+      "end": 6.62,
+      "word": " agentech."
+     },
+     {
+      "start": 6.8,
+      "end": 6.92,
+      "word": " Last"
+     },
+     {
+      "start": 6.92,
+      "end": 7.22,
+      "word": " week"
+     },
+     {
+      "start": 7.22,
+      "end": 7.44,
+      "word": " you"
+     },
+     {
+      "start": 7.44,
+      "end": 7.66,
+      "word": " built"
+     },
+     {
+      "start": 7.66,
+      "end": 7.9,
+      "word": " a"
+     },
+     {
+      "start": 7.9,
+      "end": 8.2,
+      "word": " pipeline"
+     },
+     {
+      "start": 8.2,
+      "end": 8.48,
+      "word": " that"
+     },
+     {
+      "start": 8.48,
+      "end": 8.86,
+      "word": " embeds"
+     },
+     {
+      "start": 8.86,
+      "end": 8.94,
+      "word": " the"
+     },
+     {
+      "start": 8.94,
+      "end": 9.3,
+      "word": " question"
+     }
+    ]
+   },
+   {
+    "start": 9.3,
+    "end": 13.56,
+    "text": "fetches the top few chunks and answers. Let me start simple. Why do we split documents",
+    "words": [
+     {
+      "start": 9.3,
+      "end": 9.64,
+      "word": " fetches"
+     },
+     {
+      "start": 9.64,
+      "end": 9.8,
+      "word": " the"
+     },
+     {
+      "start": 9.8,
+      "end": 9.98,
+      "word": " top"
+     },
+     {
+      "start": 9.98,
+      "end": 10.24,
+      "word": " few"
+     },
+     {
+      "start": 10.24,
+      "end": 10.5,
+      "word": " chunks"
+     },
+     {
+      "start": 10.5,
+      "end": 10.76,
+      "word": " and"
+     },
+     {
+      "start": 10.76,
+      "end": 11.1,
+      "word": " answers."
+     },
+     {
+      "start": 11.28,
+      "end": 11.28,
+      "word": " Let"
+     },
+     {
+      "start": 11.28,
+      "end": 11.36,
+      "word": " me"
+     },
+     {
+      "start": 11.36,
+      "end": 11.58,
+      "word": " start"
+     },
+     {
+      "start": 11.58,
+      "end": 12.02,
+      "word": " simple."
+     },
+     {
+      "start": 12.4,
+      "end": 12.5,
+      "word": " Why"
+     },
+     {
+      "start": 12.5,
+      "end": 12.62,
+      "word": " do"
+     },
+     {
+      "start": 12.62,
+      "end": 12.72,
+      "word": " we"
+     },
+     {
+      "start": 12.72,
+      "end": 13.04,
+      "word": " split"
+     },
+     {
+      "start": 13.04,
+      "end": 13.56,
+      "word": " documents"
+     }
+    ]
+   },
+   {
+    "start": 13.56,
+    "end": 16.66,
+    "text": "into chunks at all instead of embedding the whole slide deck?",
+    "words": [
+     {
+      "start": 13.56,
+      "end": 13.86,
+      "word": " into"
+     },
+     {
+      "start": 13.86,
+      "end": 14.12,
+      "word": " chunks"
+     },
+     {
+      "start": 14.12,
+      "end": 14.34,
+      "word": " at"
+     },
+     {
+      "start": 14.34,
+      "end": 14.52,
+      "word": " all"
+     },
+     {
+      "start": 14.52,
+      "end": 15.08,
+      "word": " instead"
+     },
+     {
+      "start": 15.08,
+      "end": 15.28,
+      "word": " of"
+     },
+     {
+      "start": 15.28,
+      "end": 15.7,
+      "word": " embedding"
+     },
+     {
+      "start": 15.7,
+      "end": 15.86,
+      "word": " the"
+     },
+     {
+      "start": 15.86,
+      "end": 16.02,
+      "word": " whole"
+     },
+     {
+      "start": 16.02,
+      "end": 16.38,
+      "word": " slide"
+     },
+     {
+      "start": 16.38,
+      "end": 16.66,
+      "word": " deck?"
+     }
+    ]
+   },
+   {
+    "start": 17.54,
+    "end": 24.64,
+    "text": "Because one embedding for a whole deck averages everything together so it can't match a specific",
+    "words": [
+     {
+      "start": 17.54,
+      "end": 18.1,
+      "word": " Because"
+     },
+     {
+      "start": 18.1,
+      "end": 18.54,
+      "word": " one"
+     },
+     {
+      "start": 18.54,
+      "end": 19.28,
+      "word": " embedding"
+     },
+     {
+      "start": 19.28,
+      "end": 19.56,
+      "word": " for"
+     },
+     {
+      "start": 19.56,
+      "end": 19.9,
+      "word": " a"
+     },
+     {
+      "start": 19.9,
+      "end": 20.14,
+      "word": " whole"
+     },
+     {
+      "start": 20.14,
+      "end": 20.44,
+      "word": " deck"
+     },
+     {
+      "start": 20.44,
+      "end": 21.1,
+      "word": " averages"
+     },
+     {
+      "start": 21.1,
+      "end": 21.8,
+      "word": " everything"
+     },
+     {
+      "start": 21.8,
+      "end": 22.48,
+      "word": " together"
+     },
+     {
+      "start": 22.48,
+      "end": 23.04,
+      "word": " so"
+     },
+     {
+      "start": 23.04,
+      "end": 23.2,
+      "word": " it"
+     },
+     {
+      "start": 23.2,
+      "end": 23.56,
+      "word": " can't"
+     },
+     {
+      "start": 23.56,
+      "end": 23.9,
+      "word": " match"
+     },
+     {
+      "start": 23.9,
+      "end": 24.08,
+      "word": " a"
+     },
+     {
+      "start": 24.08,
+      "end": 24.64,
+      "word": " specific"
+     }
+    ]
+   },
+   {
+    "start": 24.64,
+    "end": 31.94,
+    "text": "question. Smaller chunks keep each idea separate and they also fit in the context window.",
+    "words": [
+     {
+      "start": 24.64,
+      "end": 25.28,
+      "word": " question."
+     },
+     {
+      "start": 26.2,
+      "end": 26.64,
+      "word": " Smaller"
+     },
+     {
+      "start": 26.64,
+      "end": 26.92,
+      "word": " chunks"
+     },
+     {
+      "start": 26.92,
+      "end": 27.44,
+      "word": " keep"
+     },
+     {
+      "start": 27.44,
+      "end": 27.78,
+      "word": " each"
+     },
+     {
+      "start": 27.78,
+      "end": 28.08,
+      "word": " idea"
+     },
+     {
+      "start": 28.08,
+      "end": 28.56,
+      "word": " separate"
+     },
+     {
+      "start": 28.56,
+      "end": 29.68,
+      "word": " and"
+     },
+     {
+      "start": 29.68,
+      "end": 29.84,
+      "word": " they"
+     },
+     {
+      "start": 29.84,
+      "end": 30.18,
+      "word": " also"
+     },
+     {
+      "start": 30.18,
+      "end": 30.48,
+      "word": " fit"
+     },
+     {
+      "start": 30.48,
+      "end": 30.86,
+      "word": " in"
+     },
+     {
+      "start": 30.86,
+      "end": 30.98,
+      "word": " the"
+     },
+     {
+      "start": 30.98,
+      "end": 31.38,
+      "word": " context"
+     },
+     {
+      "start": 31.38,
+      "end": 31.94,
+      "word": " window."
+     }
+    ]
+   },
+   {
+    "start": 32.92,
+    "end": 38.4,
+    "text": "Good and why would we overlap the chunks? So a sentence that gets cut at the boundary",
+    "words": [
+     {
+      "start": 32.92,
+      "end": 33.48,
+      "word": " Good"
+     },
+     {
+      "start": 33.48,
+      "end": 33.6,
+      "word": " and"
+     },
+     {
+      "start": 33.6,
+      "end": 33.78,
+      "word": " why"
+     },
+     {
+      "start": 33.78,
+      "end": 33.92,
+      "word": " would"
+     },
+     {
+      "start": 33.92,
+      "end": 34.02,
+      "word": " we"
+     },
+     {
+      "start": 34.02,
+      "end": 34.32,
+      "word": " overlap"
+     },
+     {
+      "start": 34.32,
+      "end": 34.5,
+      "word": " the"
+     },
+     {
+      "start": 34.5,
+      "end": 34.76,
+      "word": " chunks?"
+     },
+     {
+      "start": 36.26,
+      "end": 36.44,
+      "word": " So"
+     },
+     {
+      "start": 36.44,
+      "end": 36.6,
+      "word": " a"
+     },
+     {
+      "start": 36.6,
+      "end": 36.84,
+      "word": " sentence"
+     },
+     {
+      "start": 36.84,
+      "end": 37.18,
+      "word": " that"
+     },
+     {
+      "start": 37.18,
+      "end": 37.38,
+      "word": " gets"
+     },
+     {
+      "start": 37.38,
+      "end": 37.72,
+      "word": " cut"
+     },
+     {
+      "start": 37.72,
+      "end": 37.94,
+      "word": " at"
+     },
+     {
+      "start": 37.94,
+      "end": 38.08,
+      "word": " the"
+     },
+     {
+      "start": 38.08,
+      "end": 38.4,
+      "word": " boundary"
+     }
+    ]
+   },
+   {
+    "start": 38.4,
+    "end": 44.28,
+    "text": "still appears hole in the next chunk. Exactly. Now in our lab we combine keyword search",
+    "words": [
+     {
+      "start": 38.4,
+      "end": 38.74,
+      "word": " still"
+     },
+     {
+      "start": 38.74,
+      "end": 39.0,
+      "word": " appears"
+     },
+     {
+      "start": 39.0,
+      "end": 39.3,
+      "word": " hole"
+     },
+     {
+      "start": 39.3,
+      "end": 39.44,
+      "word": " in"
+     },
+     {
+      "start": 39.44,
+      "end": 39.52,
+      "word": " the"
+     },
+     {
+      "start": 39.52,
+      "end": 39.76,
+      "word": " next"
+     },
+     {
+      "start": 39.76,
+      "end": 40.14,
+      "word": " chunk."
+     },
+     {
+      "start": 41.48,
+      "end": 42.04,
+      "word": " Exactly."
+     },
+     {
+      "start": 42.58,
+      "end": 42.72,
+      "word": " Now"
+     },
+     {
+      "start": 42.72,
+      "end": 42.92,
+      "word": " in"
+     },
+     {
+      "start": 42.92,
+      "end": 43.04,
+      "word": " our"
+     },
+     {
+      "start": 43.04,
+      "end": 43.24,
+      "word": " lab"
+     },
+     {
+      "start": 43.24,
+      "end": 43.4,
+      "word": " we"
+     },
+     {
+      "start": 43.4,
+      "end": 43.66,
+      "word": " combine"
+     },
+     {
+      "start": 43.66,
+      "end": 44.0,
+      "word": " keyword"
+     },
+     {
+      "start": 44.0,
+      "end": 44.28,
+      "word": " search"
+     }
+    ]
+   },
+   {
+    "start": 44.28,
+    "end": 46.8,
+    "text": "with vector search. What does each one catch that the other misses?",
+    "words": [
+     {
+      "start": 44.28,
+      "end": 44.58,
+      "word": " with"
+     },
+     {
+      "start": 44.58,
+      "end": 44.76,
+      "word": " vector"
+     },
+     {
+      "start": 44.76,
+      "end": 45.08,
+      "word": " search."
+     },
+     {
+      "start": 45.32,
+      "end": 45.4,
+      "word": " What"
+     },
+     {
+      "start": 45.4,
+      "end": 45.52,
+      "word": " does"
+     },
+     {
+      "start": 45.52,
+      "end": 45.7,
+      "word": " each"
+     },
+     {
+      "start": 45.7,
+      "end": 45.86,
+      "word": " one"
+     },
+     {
+      "start": 45.86,
+      "end": 46.1,
+      "word": " catch"
+     },
+     {
+      "start": 46.1,
+      "end": 46.28,
+      "word": " that"
+     },
+     {
+      "start": 46.28,
+      "end": 46.38,
+      "word": " the"
+     },
+     {
+      "start": 46.38,
+      "end": 46.56,
+      "word": " other"
+     },
+     {
+      "start": 46.56,
+      "end": 46.8,
+      "word": " misses?"
+     }
+    ]
+   },
+   {
+    "start": 48.32,
+    "end": 53.08,
+    "text": "Keyword search catches exact terms like a function name and vectors catch meaning even",
+    "words": [
+     {
+      "start": 48.32,
+      "end": 48.88,
+      "word": " Keyword"
+     },
+     {
+      "start": 48.88,
+      "end": 49.12,
+      "word": " search"
+     },
+     {
+      "start": 49.12,
+      "end": 49.5,
+      "word": " catches"
+     },
+     {
+      "start": 49.5,
+      "end": 49.94,
+      "word": " exact"
+     },
+     {
+      "start": 49.94,
+      "end": 50.22,
+      "word": " terms"
+     },
+     {
+      "start": 50.22,
+      "end": 50.38,
+      "word": " like"
+     },
+     {
+      "start": 50.38,
+      "end": 50.54,
+      "word": " a"
+     },
+     {
+      "start": 50.54,
+      "end": 50.88,
+      "word": " function"
+     },
+     {
+      "start": 50.88,
+      "end": 51.2,
+      "word": " name"
+     },
+     {
+      "start": 51.2,
+      "end": 51.78,
+      "word": " and"
+     },
+     {
+      "start": 51.78,
+      "end": 52.06,
+      "word": " vectors"
+     },
+     {
+      "start": 52.06,
+      "end": 52.34,
+      "word": " catch"
+     },
+     {
+      "start": 52.34,
+      "end": 52.68,
+      "word": " meaning"
+     },
+     {
+      "start": 52.68,
+      "end": 53.08,
+      "word": " even"
+     }
+    ]
+   },
+   {
+    "start": 53.08,
+    "end": 57.74,
+    "text": "if the words are different. Right and we merged the two rank lists with reciprocal",
+    "words": [
+     {
+      "start": 53.08,
+      "end": 53.24,
+      "word": " if"
+     },
+     {
+      "start": 53.24,
+      "end": 53.38,
+      "word": " the"
+     },
+     {
+      "start": 53.38,
+      "end": 53.56,
+      "word": " words"
+     },
+     {
+      "start": 53.56,
+      "end": 53.78,
+      "word": " are"
+     },
+     {
+      "start": 53.78,
+      "end": 54.12,
+      "word": " different."
+     },
+     {
+      "start": 55.02,
+      "end": 55.52,
+      "word": " Right"
+     },
+     {
+      "start": 55.52,
+      "end": 55.7,
+      "word": " and"
+     },
+     {
+      "start": 55.7,
+      "end": 55.78,
+      "word": " we"
+     },
+     {
+      "start": 55.78,
+      "end": 56.02,
+      "word": " merged"
+     },
+     {
+      "start": 56.02,
+      "end": 56.34,
+      "word": " the"
+     },
+     {
+      "start": 56.34,
+      "end": 56.5,
+      "word": " two"
+     },
+     {
+      "start": 56.5,
+      "end": 56.64,
+      "word": " rank"
+     },
+     {
+      "start": 56.64,
+      "end": 56.88,
+      "word": " lists"
+     },
+     {
+      "start": 56.88,
+      "end": 57.2,
+      "word": " with"
+     },
+     {
+      "start": 57.2,
+      "end": 57.74,
+      "word": " reciprocal"
+     }
+    ]
+   },
+   {
+    "start": 57.74,
+    "end": 62.2,
+    "text": "rank fusion so here is the real question for today. A fixed pipeline we always retrieve",
+    "words": [
+     {
+      "start": 57.74,
+      "end": 58.16,
+      "word": " rank"
+     },
+     {
+      "start": 58.16,
+      "end": 58.5,
+      "word": " fusion"
+     },
+     {
+      "start": 58.5,
+      "end": 58.76,
+      "word": " so"
+     },
+     {
+      "start": 58.76,
+      "end": 58.94,
+      "word": " here"
+     },
+     {
+      "start": 58.94,
+      "end": 59.1,
+      "word": " is"
+     },
+     {
+      "start": 59.1,
+      "end": 59.18,
+      "word": " the"
+     },
+     {
+      "start": 59.18,
+      "end": 59.34,
+      "word": " real"
+     },
+     {
+      "start": 59.34,
+      "end": 59.74,
+      "word": " question"
+     },
+     {
+      "start": 59.74,
+      "end": 59.92,
+      "word": " for"
+     },
+     {
+      "start": 59.92,
+      "end": 60.26,
+      "word": " today."
+     },
+     {
+      "start": 60.74,
+      "end": 60.76,
+      "word": " A"
+     },
+     {
+      "start": 60.76,
+      "end": 60.98,
+      "word": " fixed"
+     },
+     {
+      "start": 60.98,
+      "end": 61.34,
+      "word": " pipeline"
+     },
+     {
+      "start": 61.34,
+      "end": 61.58,
+      "word": " we"
+     },
+     {
+      "start": 61.58,
+      "end": 61.82,
+      "word": " always"
+     },
+     {
+      "start": 61.82,
+      "end": 62.2,
+      "word": " retrieve"
+     }
+    ]
+   },
+   {
+    "start": 62.2,
+    "end": 69.18,
+    "text": "once what does an agent do differently? The agent can decide to search again. If the",
+    "words": [
+     {
+      "start": 62.2,
+      "end": 62.5,
+      "word": " once"
+     },
+     {
+      "start": 62.5,
+      "end": 62.64,
+      "word": " what"
+     },
+     {
+      "start": 62.64,
+      "end": 62.76,
+      "word": " does"
+     },
+     {
+      "start": 62.76,
+      "end": 62.9,
+      "word": " an"
+     },
+     {
+      "start": 62.9,
+      "end": 63.1,
+      "word": " agent"
+     },
+     {
+      "start": 63.1,
+      "end": 63.36,
+      "word": " do"
+     },
+     {
+      "start": 63.36,
+      "end": 63.86,
+      "word": " differently?"
+     },
+     {
+      "start": 65.54,
+      "end": 65.88,
+      "word": " The"
+     },
+     {
+      "start": 65.88,
+      "end": 66.22,
+      "word": " agent"
+     },
+     {
+      "start": 66.22,
+      "end": 66.44,
+      "word": " can"
+     },
+     {
+      "start": 66.44,
+      "end": 66.92,
+      "word": " decide"
+     },
+     {
+      "start": 66.92,
+      "end": 67.32,
+      "word": " to"
+     },
+     {
+      "start": 67.32,
+      "end": 67.56,
+      "word": " search"
+     },
+     {
+      "start": 67.56,
+      "end": 67.94,
+      "word": " again."
+     },
+     {
+      "start": 68.96,
+      "end": 69.08,
+      "word": " If"
+     },
+     {
+      "start": 69.08,
+      "end": 69.18,
+      "word": " the"
+     }
+    ]
+   },
+   {
+    "start": 69.18,
+    "end": 75.22,
+    "text": "passages it got back are not relevant it rewrites the query and retrieves again and it can",
+    "words": [
+     {
+      "start": 69.18,
+      "end": 69.54,
+      "word": " passages"
+     },
+     {
+      "start": 69.54,
+      "end": 69.78,
+      "word": " it"
+     },
+     {
+      "start": 69.78,
+      "end": 69.9,
+      "word": " got"
+     },
+     {
+      "start": 69.9,
+      "end": 70.14,
+      "word": " back"
+     },
+     {
+      "start": 70.14,
+      "end": 70.36,
+      "word": " are"
+     },
+     {
+      "start": 70.36,
+      "end": 70.54,
+      "word": " not"
+     },
+     {
+      "start": 70.54,
+      "end": 71.02,
+      "word": " relevant"
+     },
+     {
+      "start": 71.02,
+      "end": 71.9,
+      "word": " it"
+     },
+     {
+      "start": 71.9,
+      "end": 72.5,
+      "word": " rewrites"
+     },
+     {
+      "start": 72.5,
+      "end": 72.74,
+      "word": " the"
+     },
+     {
+      "start": 72.74,
+      "end": 73.04,
+      "word": " query"
+     },
+     {
+      "start": 73.04,
+      "end": 73.36,
+      "word": " and"
+     },
+     {
+      "start": 73.36,
+      "end": 73.84,
+      "word": " retrieves"
+     },
+     {
+      "start": 73.84,
+      "end": 74.18,
+      "word": " again"
+     },
+     {
+      "start": 74.18,
+      "end": 74.96,
+      "word": " and"
+     },
+     {
+      "start": 74.96,
+      "end": 75.06,
+      "word": " it"
+     },
+     {
+      "start": 75.06,
+      "end": 75.22,
+      "word": " can"
+     }
+    ]
+   },
+   {
+    "start": 75.22,
+    "end": 80.46,
+    "text": "stop when the evidence is good enough. That is the corrective loop yes any cost to doing",
+    "words": [
+     {
+      "start": 75.22,
+      "end": 75.56,
+      "word": " stop"
+     },
+     {
+      "start": 75.56,
+      "end": 75.84,
+      "word": " when"
+     },
+     {
+      "start": 75.84,
+      "end": 75.98,
+      "word": " the"
+     },
+     {
+      "start": 75.98,
+      "end": 76.3,
+      "word": " evidence"
+     },
+     {
+      "start": 76.3,
+      "end": 76.56,
+      "word": " is"
+     },
+     {
+      "start": 76.56,
+      "end": 76.74,
+      "word": " good"
+     },
+     {
+      "start": 76.74,
+      "end": 77.1,
+      "word": " enough."
+     },
+     {
+      "start": 78.14,
+      "end": 78.54,
+      "word": " That"
+     },
+     {
+      "start": 78.54,
+      "end": 78.64,
+      "word": " is"
+     },
+     {
+      "start": 78.64,
+      "end": 78.78,
+      "word": " the"
+     },
+     {
+      "start": 78.78,
+      "end": 79.22,
+      "word": " corrective"
+     },
+     {
+      "start": 79.22,
+      "end": 79.34,
+      "word": " loop"
+     },
+     {
+      "start": 79.34,
+      "end": 79.62,
+      "word": " yes"
+     },
+     {
+      "start": 79.62,
+      "end": 79.88,
+      "word": " any"
+     },
+     {
+      "start": 79.88,
+      "end": 80.1,
+      "word": " cost"
+     },
+     {
+      "start": 80.1,
+      "end": 80.26,
+      "word": " to"
+     },
+     {
+      "start": 80.26,
+      "end": 80.46,
+      "word": " doing"
+     }
+    ]
+   },
+   {
+    "start": 80.46,
+    "end": 87.84,
+    "text": "that? It's slower and it uses more tokens so you need a limit on how many times it can",
+    "words": [
+     {
+      "start": 80.46,
+      "end": 80.66,
+      "word": " that?"
+     },
+     {
+      "start": 81.78,
+      "end": 82.36,
+      "word": " It's"
+     },
+     {
+      "start": 82.36,
+      "end": 82.7,
+      "word": " slower"
+     },
+     {
+      "start": 82.7,
+      "end": 82.96,
+      "word": " and"
+     },
+     {
+      "start": 82.96,
+      "end": 83.08,
+      "word": " it"
+     },
+     {
+      "start": 83.08,
+      "end": 83.38,
+      "word": " uses"
+     },
+     {
+      "start": 83.38,
+      "end": 84.04,
+      "word": " more"
+     },
+     {
+      "start": 84.04,
+      "end": 84.54,
+      "word": " tokens"
+     },
+     {
+      "start": 84.54,
+      "end": 85.36,
+      "word": " so"
+     },
+     {
+      "start": 85.36,
+      "end": 85.5,
+      "word": " you"
+     },
+     {
+      "start": 85.5,
+      "end": 85.72,
+      "word": " need"
+     },
+     {
+      "start": 85.72,
+      "end": 85.9,
+      "word": " a"
+     },
+     {
+      "start": 85.9,
+      "end": 86.2,
+      "word": " limit"
+     },
+     {
+      "start": 86.2,
+      "end": 86.54,
+      "word": " on"
+     },
+     {
+      "start": 86.54,
+      "end": 86.72,
+      "word": " how"
+     },
+     {
+      "start": 86.72,
+      "end": 86.94,
+      "word": " many"
+     },
+     {
+      "start": 86.94,
+      "end": 87.32,
+      "word": " times"
+     },
+     {
+      "start": 87.32,
+      "end": 87.6,
+      "word": " it"
+     },
+     {
+      "start": 87.6,
+      "end": 87.84,
+      "word": " can"
+     }
+    ]
+   },
+   {
+    "start": 87.84,
+    "end": 93.02,
+    "text": "retrain. Good remember that trade off for the project we will pick this up next week with",
+    "words": [
+     {
+      "start": 87.84,
+      "end": 88.36,
+      "word": " retrain."
+     },
+     {
+      "start": 89.58,
+      "end": 90.0,
+      "word": " Good"
+     },
+     {
+      "start": 90.0,
+      "end": 90.22,
+      "word": " remember"
+     },
+     {
+      "start": 90.22,
+      "end": 90.4,
+      "word": " that"
+     },
+     {
+      "start": 90.4,
+      "end": 90.6,
+      "word": " trade"
+     },
+     {
+      "start": 90.6,
+      "end": 90.84,
+      "word": " off"
+     },
+     {
+      "start": 90.84,
+      "end": 91.0,
+      "word": " for"
+     },
+     {
+      "start": 91.0,
+      "end": 91.08,
+      "word": " the"
+     },
+     {
+      "start": 91.08,
+      "end": 91.44,
+      "word": " project"
+     },
+     {
+      "start": 91.44,
+      "end": 91.68,
+      "word": " we"
+     },
+     {
+      "start": 91.68,
+      "end": 91.78,
+      "word": " will"
+     },
+     {
+      "start": 91.78,
+      "end": 91.98,
+      "word": " pick"
+     },
+     {
+      "start": 91.98,
+      "end": 92.18,
+      "word": " this"
+     },
+     {
+      "start": 92.18,
+      "end": 92.34,
+      "word": " up"
+     },
+     {
+      "start": 92.34,
+      "end": 92.6,
+      "word": " next"
+     },
+     {
+      "start": 92.6,
+      "end": 92.82,
+      "word": " week"
+     },
+     {
+      "start": 92.82,
+      "end": 93.02,
+      "word": " with"
+     }
+    ]
+   },
+   {
+    "start": 93.02,
+    "end": 93.64,
+    "text": "evaluation.",
+    "words": [
+     {
+      "start": 93.02,
+      "end": 93.64,
+      "word": " evaluation."
+     }
+    ]
+   }
+  ],
+  "speaker_segments": [
+   {
+    "start": 1.17846875,
+    "end": 16.73721875,
+    "speaker": "SPEAKER_02"
+   },
+   {
+    "start": 17.867843750000002,
+    "end": 32.07659375,
+    "speaker": "SPEAKER_03"
+   },
+   {
+    "start": 33.37596875,
+    "end": 34.94534375,
+    "speaker": "SPEAKER_02"
+   },
+   {
+    "start": 36.27846875,
+    "end": 40.19346875,
+    "speaker": "SPEAKER_01"
+   },
+   {
+    "start": 41.729093750000004,
+    "end": 47.02784375,
+    "speaker": "SPEAKER_02"
+   },
+   {
+    "start": 48.563468750000006,
+    "end": 51.36471875,
+    "speaker": "SPEAKER_00"
+   },
+   {
+    "start": 51.617843750000006,
+    "end": 54.23346875,
+    "speaker": "SPEAKER_00"
+   },
+   {
+    "start": 55.36409375,
+    "end": 60.54471875,
+    "speaker": "SPEAKER_02"
+   },
+   {
+    "start": 60.578468750000006,
+    "end": 64.07159375,
+    "speaker": "SPEAKER_02"
+   },
+   {
+    "start": 65.77596875,
+    "end": 68.05409375,
+    "speaker": "SPEAKER_04"
+   },
+   {
+    "start": 68.93159375,
+    "end": 77.18346875,
+    "speaker": "SPEAKER_04"
+   },
+   {
+    "start": 78.36471875000001,
+    "end": 80.74409375,
+    "speaker": "SPEAKER_02"
+   },
+   {
+    "start": 82.07721875,
+    "end": 88.55721875,
+    "speaker": "SPEAKER_03"
+   },
+   {
+    "start": 89.82284375,
+    "end": 93.83909375,
+    "speaker": "SPEAKER_02"
+   }
+  ],
+  "aligned_segments": [
+   {
+    "start": 0.6999999999999977,
+    "end": 5.1,
+    "speaker": "SPEAKER_02",
+    "text": "Good afternoon everyone. Today we continue with retrieval augmented generation and specifically"
+   },
+   {
+    "start": 5.1,
+    "end": 9.3,
+    "speaker": "SPEAKER_02",
+    "text": "what makes retrieval agentech. Last week you built a pipeline that embeds the question"
+   },
+   {
+    "start": 9.3,
+    "end": 13.56,
+    "speaker": "SPEAKER_02",
+    "text": "fetches the top few chunks and answers. Let me start simple. Why do we split documents"
+   },
+   {
+    "start": 13.56,
+    "end": 16.66,
+    "speaker": "SPEAKER_02",
+    "text": "into chunks at all instead of embedding the whole slide deck?"
+   },
+   {
+    "start": 17.54,
+    "end": 24.64,
+    "speaker": "SPEAKER_03",
+    "text": "Because one embedding for a whole deck averages everything together so it can't match a specific"
+   },
+   {
+    "start": 24.64,
+    "end": 31.94,
+    "speaker": "SPEAKER_03",
+    "text": "question. Smaller chunks keep each idea separate and they also fit in the context window."
+   },
+   {
+    "start": 32.92,
+    "end": 38.4,
+    "speaker": "SPEAKER_01",
+    "text": "Good and why would we overlap the chunks? So a sentence that gets cut at the boundary"
+   },
+   {
+    "start": 38.4,
+    "end": 44.28,
+    "speaker": "SPEAKER_02",
+    "text": "still appears hole in the next chunk. Exactly. Now in our lab we combine keyword search"
+   },
+   {
+    "start": 44.28,
+    "end": 46.8,
+    "speaker": "SPEAKER_02",
+    "text": "with vector search. What does each one catch that the other misses?"
+   },
+   {
+    "start": 48.32,
+    "end": 53.08,
+    "speaker": "SPEAKER_00",
+    "text": "Keyword search catches exact terms like a function name and vectors catch meaning even"
+   },
+   {
+    "start": 53.08,
+    "end": 57.74,
+    "speaker": "SPEAKER_02",
+    "text": "if the words are different. Right and we merged the two rank lists with reciprocal"
+   },
+   {
+    "start": 57.74,
+    "end": 62.2,
+    "speaker": "SPEAKER_02",
+    "text": "rank fusion so here is the real question for today. A fixed pipeline we always retrieve"
+   },
+   {
+    "start": 62.2,
+    "end": 69.18,
+    "speaker": "SPEAKER_04",
+    "text": "once what does an agent do differently? The agent can decide to search again. If the"
+   },
+   {
+    "start": 69.18,
+    "end": 75.22,
+    "speaker": "SPEAKER_04",
+    "text": "passages it got back are not relevant it rewrites the query and retrieves again and it can"
+   },
+   {
+    "start": 75.22,
+    "end": 80.46,
+    "speaker": "SPEAKER_02",
+    "text": "stop when the evidence is good enough. That is the corrective loop yes any cost to doing"
+   },
+   {
+    "start": 80.46,
+    "end": 87.84,
+    "speaker": "SPEAKER_03",
+    "text": "that? It's slower and it uses more tokens so you need a limit on how many times it can"
+   },
+   {
+    "start": 87.84,
+    "end": 93.02,
+    "speaker": "SPEAKER_02",
+    "text": "retrain. Good remember that trade off for the project we will pick this up next week with"
+   },
+   {
+    "start": 93.02,
+    "end": 93.64,
+    "speaker": "SPEAKER_02",
+    "text": "evaluation."
+   }
+  ],
+  "voice_matches": {
+   "SPEAKER_02": {
+    "name": "prof",
+    "status": "identified",
+    "score": 0.8744852542877197,
+    "matches": [
+     {
+      "person_id": "prof",
+      "name": "prof",
+      "score": 0.8744852542877197,
+      "same_speaker": true
+     },
+     {
+      "person_id": "tina",
+      "name": "tina",
+      "score": 0.06997652351856232,
+      "same_speaker": false
+     },
+     {
+      "person_id": "tasmin",
+      "name": "tasmin",
+      "score": 0.06472700089216232,
+      "same_speaker": false
+     },
+     {
+      "person_id": "koh-qing-jia",
+      "name": "Koh Qing Jia",
+      "score": 0.05326968431472778,
+      "same_speaker": false
+     },
+     {
+      "person_id": "le-yong",
+      "name": "le yong",
+      "score": -0.06707100570201874,
+      "same_speaker": false
+     }
+    ]
+   },
+   "SPEAKER_03": {
+    "name": "Koh Qing Jia",
+    "status": "identified",
+    "score": 0.8121287822723389,
+    "matches": [
+     {
+      "person_id": "koh-qing-jia",
+      "name": "Koh Qing Jia",
+      "score": 0.8121287822723389,
+      "same_speaker": true
+     },
+     {
+      "person_id": "tina",
+      "name": "tina",
+      "score": 0.14742295444011688,
+      "same_speaker": false
+     },
+     {
+      "person_id": "tasmin",
+      "name": "tasmin",
+      "score": 0.09657002985477448,
+      "same_speaker": false
+     },
+     {
+      "person_id": "prof",
+      "name": "prof",
+      "score": 0.07297933101654053,
+      "same_speaker": false
+     },
+     {
+      "person_id": "le-yong",
+      "name": "le yong",
+      "score": 0.04286181181669235,
+      "same_speaker": false
+     }
+    ]
+   },
+   "SPEAKER_01": {
+    "name": "AMBIGUOUS",
+    "status": "ambiguous",
+    "matches": [
+     {
+      "person_id": "tasmin",
+      "name": "tasmin",
+      "score": 0.7831072807312012,
+      "same_speaker": true
+     },
+     {
+      "person_id": "tina",
+      "name": "tina",
+      "score": 0.280251145362854,
+      "same_speaker": true
+     },
+     {
+      "person_id": "le-yong",
+      "name": "le yong",
+      "score": 0.08965960144996643,
+      "same_speaker": false
+     },
+     {
+      "person_id": "koh-qing-jia",
+      "name": "Koh Qing Jia",
+      "score": 0.08049878478050232,
+      "same_speaker": false
+     },
+     {
+      "person_id": "prof",
+      "name": "prof",
+      "score": 0.043987251818180084,
+      "same_speaker": false
+     }
+    ]
+   },
+   "SPEAKER_00": {
+    "name": "tina",
+    "status": "identified",
+    "score": 0.8245478868484497,
+    "matches": [
+     {
+      "person_id": "tina",
+      "name": "tina",
+      "score": 0.8245478868484497,
+      "same_speaker": true
+     },
+     {
+      "person_id": "tasmin",
+      "name": "tasmin",
+      "score": 0.23973610997200012,
+      "same_speaker": false
+     },
+     {
+      "person_id": "koh-qing-jia",
+      "name": "Koh Qing Jia",
+      "score": 0.15650352835655212,
+      "same_speaker": false
+     },
+     {
+      "person_id": "prof",
+      "name": "prof",
+      "score": 0.08135601133108139,
+      "same_speaker": false
+     },
+     {
+      "person_id": "le-yong",
+      "name": "le yong",
+      "score": 0.0755733996629715,
+      "same_speaker": false
+     }
+    ]
+   },
+   "SPEAKER_04": {
+    "name": "le yong",
+    "status": "identified",
+    "score": 0.7750963568687439,
+    "matches": [
+     {
+      "person_id": "le-yong",
+      "name": "le yong",
+      "score": 0.7750963568687439,
+      "same_speaker": true
+     },
+     {
+      "person_id": "koh-qing-jia",
+      "name": "Koh Qing Jia",
+      "score": 0.19024018943309784,
+      "same_speaker": false
+     },
+     {
+      "person_id": "tasmin",
+      "name": "tasmin",
+      "score": 0.07198850810527802,
+      "same_speaker": false
+     },
+     {
+      "person_id": "prof",
+      "name": "prof",
+      "score": 0.027163580060005188,
+      "same_speaker": false
+     },
+     {
+      "person_id": "tina",
+      "name": "tina",
+      "score": -0.0076863449066877365,
+      "same_speaker": false
+     }
+    ]
+   }
+  },
+  "speaker_identities": {
+   "SPEAKER_02": "prof",
+   "SPEAKER_03": "Koh Qing Jia",
+   "SPEAKER_01": "AMBIGUOUS",
+   "SPEAKER_00": "tina",
+   "SPEAKER_04": "le yong"
+  },
+  "segments": [
+   {
+    "start": 0.6999999999999977,
+    "end": 16.66,
+    "speaker": "prof",
+    "original_speaker": "SPEAKER_02",
+    "text": "Good afternoon everyone. Today we continue with retrieval augmented generation and specifically what makes retrieval agentech. Last week you built a pipeline that embeds the question fetches the top few chunks and answers. Let me start simple. Why do we split documents into chunks at all instead of embedding the whole slide deck?"
+   },
+   {
+    "start": 17.54,
+    "end": 31.94,
+    "speaker": "Koh Qing Jia",
+    "original_speaker": "SPEAKER_03",
+    "text": "Because one embedding for a whole deck averages everything together so it can't match a specific question. Smaller chunks keep each idea separate and they also fit in the context window."
+   },
+   {
+    "start": 32.92,
+    "end": 38.4,
+    "speaker": "AMBIGUOUS",
+    "original_speaker": "SPEAKER_01",
+    "text": "Good and why would we overlap the chunks? So a sentence that gets cut at the boundary"
+   },
+   {
+    "start": 38.4,
+    "end": 46.8,
+    "speaker": "prof",
+    "original_speaker": "SPEAKER_02",
+    "text": "still appears hole in the next chunk. Exactly. Now in our lab we combine keyword search with vector search. What does each one catch that the other misses?"
+   },
+   {
+    "start": 48.32,
+    "end": 53.08,
+    "speaker": "tina",
+    "original_speaker": "SPEAKER_00",
+    "text": "Keyword search catches exact terms like a function name and vectors catch meaning even"
+   },
+   {
+    "start": 53.08,
+    "end": 62.2,
+    "speaker": "prof",
+    "original_speaker": "SPEAKER_02",
+    "text": "if the words are different. Right and we merged the two rank lists with reciprocal rank fusion so here is the real question for today. A fixed pipeline we always retrieve"
+   },
+   {
+    "start": 62.2,
+    "end": 75.22,
+    "speaker": "le yong",
+    "original_speaker": "SPEAKER_04",
+    "text": "once what does an agent do differently? The agent can decide to search again. If the passages it got back are not relevant it rewrites the query and retrieves again and it can"
+   },
+   {
+    "start": 75.22,
+    "end": 80.46,
+    "speaker": "prof",
+    "original_speaker": "SPEAKER_02",
+    "text": "stop when the evidence is good enough. That is the corrective loop yes any cost to doing"
+   },
+   {
+    "start": 80.46,
+    "end": 87.84,
+    "speaker": "Koh Qing Jia",
+    "original_speaker": "SPEAKER_03",
+    "text": "that? It's slower and it uses more tokens so you need a limit on how many times it can"
+   },
+   {
+    "start": 87.84,
+    "end": 93.64,
+    "speaker": "prof",
+    "original_speaker": "SPEAKER_02",
+    "text": "retrain. Good remember that trade off for the project we will pick this up next week with evaluation."
+   }
+  ],
+  "diarization_turns": [
+   {
+    "start": 1.17846875,
+    "end": 16.73721875,
+    "speaker": "SPEAKER_02"
+   },
+   {
+    "start": 17.867843750000002,
+    "end": 32.07659375,
+    "speaker": "SPEAKER_03"
+   },
+   {
+    "start": 33.37596875,
+    "end": 34.94534375,
+    "speaker": "SPEAKER_02"
+   },
+   {
+    "start": 36.27846875,
+    "end": 40.19346875,
+    "speaker": "SPEAKER_01"
+   },
+   {
+    "start": 41.729093750000004,
+    "end": 47.02784375,
+    "speaker": "SPEAKER_02"
+   },
+   {
+    "start": 48.563468750000006,
+    "end": 51.36471875,
+    "speaker": "SPEAKER_00"
+   },
+   {
+    "start": 51.617843750000006,
+    "end": 54.23346875,
+    "speaker": "SPEAKER_00"
+   },
+   {
+    "start": 55.36409375,
+    "end": 60.54471875,
+    "speaker": "SPEAKER_02"
+   },
+   {
+    "start": 60.578468750000006,
+    "end": 64.07159375,
+    "speaker": "SPEAKER_02"
+   },
+   {
+    "start": 65.77596875,
+    "end": 68.05409375,
+    "speaker": "SPEAKER_04"
+   },
+   {
+    "start": 68.93159375,
+    "end": 77.18346875,
+    "speaker": "SPEAKER_04"
+   },
+   {
+    "start": 78.36471875000001,
+    "end": 80.74409375,
+    "speaker": "SPEAKER_02"
+   },
+   {
+    "start": 82.07721875,
+    "end": 88.55721875,
+    "speaker": "SPEAKER_03"
+   },
+   {
+    "start": 89.82284375,
+    "end": 93.83909375,
+    "speaker": "SPEAKER_02"
+   }
+  ],
+  "timings": {
+   "transcription_s": 10.566889545181766,
+   "diarization_s": 122.54092319891788,
+   "total_s": 162.35665027680807
+  }
+ },
+ "segment_matches": [
+  [
+   {
+    "person_id": "prof",
+    "name": "prof",
+    "score": 0.7715428471565247,
+    "same_speaker": true
+   },
+   {
+    "person_id": "tina",
+    "name": "tina",
+    "score": 0.02869383990764618,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tasmin",
+    "name": "tasmin",
+    "score": 0.0002960190176963806,
+    "same_speaker": false
+   },
+   {
+    "person_id": "koh-qing-jia",
+    "name": "Koh Qing Jia",
+    "score": -0.004376904107630253,
+    "same_speaker": false
+   },
+   {
+    "person_id": "le-yong",
+    "name": "le yong",
+    "score": -0.11932897567749023,
+    "same_speaker": false
+   }
+  ],
+  [
+   {
+    "person_id": "prof",
+    "name": "prof",
+    "score": 0.7888928055763245,
+    "same_speaker": true
+   },
+   {
+    "person_id": "koh-qing-jia",
+    "name": "Koh Qing Jia",
+    "score": 0.1262330263853073,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tasmin",
+    "name": "tasmin",
+    "score": 0.10946060717105865,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tina",
+    "name": "tina",
+    "score": 0.08271654695272446,
+    "same_speaker": false
+   },
+   {
+    "person_id": "le-yong",
+    "name": "le yong",
+    "score": -0.05641592666506767,
+    "same_speaker": false
+   }
+  ],
+  [
+   {
+    "person_id": "prof",
+    "name": "prof",
+    "score": 0.784768283367157,
+    "same_speaker": true
+   },
+   {
+    "person_id": "tasmin",
+    "name": "tasmin",
+    "score": 0.08414062857627869,
+    "same_speaker": false
+   },
+   {
+    "person_id": "koh-qing-jia",
+    "name": "Koh Qing Jia",
+    "score": 0.06842615455389023,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tina",
+    "name": "tina",
+    "score": 0.05535035580396652,
+    "same_speaker": false
+   },
+   {
+    "person_id": "le-yong",
+    "name": "le yong",
+    "score": -0.057406287640333176,
+    "same_speaker": false
+   }
+  ],
+  [
+   {
+    "person_id": "prof",
+    "name": "prof",
+    "score": 0.7419889569282532,
+    "same_speaker": true
+   },
+   {
+    "person_id": "tasmin",
+    "name": "tasmin",
+    "score": 0.1263999044895172,
+    "same_speaker": false
+   },
+   {
+    "person_id": "koh-qing-jia",
+    "name": "Koh Qing Jia",
+    "score": 0.09767812490463257,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tina",
+    "name": "tina",
+    "score": 0.08456844836473465,
+    "same_speaker": false
+   },
+   {
+    "person_id": "le-yong",
+    "name": "le yong",
+    "score": -0.03267613425850868,
+    "same_speaker": false
+   }
+  ],
+  [
+   {
+    "person_id": "koh-qing-jia",
+    "name": "Koh Qing Jia",
+    "score": 0.7483282089233398,
+    "same_speaker": true
+   },
+   {
+    "person_id": "tina",
+    "name": "tina",
+    "score": 0.19070862233638763,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tasmin",
+    "name": "tasmin",
+    "score": 0.11899935454130173,
+    "same_speaker": false
+   },
+   {
+    "person_id": "prof",
+    "name": "prof",
+    "score": 0.10314828157424927,
+    "same_speaker": false
+   },
+   {
+    "person_id": "le-yong",
+    "name": "le yong",
+    "score": 0.012159276753664017,
+    "same_speaker": false
+   }
+  ],
+  [
+   {
+    "person_id": "koh-qing-jia",
+    "name": "Koh Qing Jia",
+    "score": 0.7779701948165894,
+    "same_speaker": true
+   },
+   {
+    "person_id": "tina",
+    "name": "tina",
+    "score": 0.1065330058336258,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tasmin",
+    "name": "tasmin",
+    "score": 0.061919089406728745,
+    "same_speaker": false
+   },
+   {
+    "person_id": "le-yong",
+    "name": "le yong",
+    "score": 0.05385107174515724,
+    "same_speaker": false
+   },
+   {
+    "person_id": "prof",
+    "name": "prof",
+    "score": 0.04729920253157616,
+    "same_speaker": false
+   }
+  ],
+  [
+   {
+    "person_id": "prof",
+    "name": "prof",
+    "score": 0.5096821188926697,
+    "same_speaker": true
+   },
+   {
+    "person_id": "tasmin",
+    "name": "tasmin",
+    "score": 0.48288023471832275,
+    "same_speaker": true
+   },
+   {
+    "person_id": "tina",
+    "name": "tina",
+    "score": 0.15067729353904724,
+    "same_speaker": false
+   },
+   {
+    "person_id": "koh-qing-jia",
+    "name": "Koh Qing Jia",
+    "score": 0.08595801144838333,
+    "same_speaker": false
+   },
+   {
+    "person_id": "le-yong",
+    "name": "le yong",
+    "score": 0.048566222190856934,
+    "same_speaker": false
+   }
+  ],
+  [
+   {
+    "person_id": "prof",
+    "name": "prof",
+    "score": 0.6712740659713745,
+    "same_speaker": true
+   },
+   {
+    "person_id": "tasmin",
+    "name": "tasmin",
+    "score": 0.3397805988788605,
+    "same_speaker": true
+   },
+   {
+    "person_id": "tina",
+    "name": "tina",
+    "score": 0.1156497672200203,
+    "same_speaker": false
+   },
+   {
+    "person_id": "koh-qing-jia",
+    "name": "Koh Qing Jia",
+    "score": 0.10688328742980957,
+    "same_speaker": false
+   },
+   {
+    "person_id": "le-yong",
+    "name": "le yong",
+    "score": 0.06407280266284943,
+    "same_speaker": false
+   }
+  ],
+  [
+   {
+    "person_id": "prof",
+    "name": "prof",
+    "score": 0.734839141368866,
+    "same_speaker": true
+   },
+   {
+    "person_id": "tina",
+    "name": "tina",
+    "score": 0.06751102954149246,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tasmin",
+    "name": "tasmin",
+    "score": 0.03554829582571983,
+    "same_speaker": false
+   },
+   {
+    "person_id": "koh-qing-jia",
+    "name": "Koh Qing Jia",
+    "score": -8.995924144983292e-05,
+    "same_speaker": false
+   },
+   {
+    "person_id": "le-yong",
+    "name": "le yong",
+    "score": -0.08513753861188889,
+    "same_speaker": false
+   }
+  ],
+  [
+   {
+    "person_id": "tina",
+    "name": "tina",
+    "score": 0.8090136647224426,
+    "same_speaker": true
+   },
+   {
+    "person_id": "tasmin",
+    "name": "tasmin",
+    "score": 0.27544310688972473,
+    "same_speaker": true
+   },
+   {
+    "person_id": "koh-qing-jia",
+    "name": "Koh Qing Jia",
+    "score": 0.13602891564369202,
+    "same_speaker": false
+   },
+   {
+    "person_id": "le-yong",
+    "name": "le yong",
+    "score": 0.08093906939029694,
+    "same_speaker": false
+   },
+   {
+    "person_id": "prof",
+    "name": "prof",
+    "score": 0.05419943854212761,
+    "same_speaker": false
+   }
+  ],
+  [
+   {
+    "person_id": "prof",
+    "name": "prof",
+    "score": 0.5356239080429077,
+    "same_speaker": true
+   },
+   {
+    "person_id": "tina",
+    "name": "tina",
+    "score": 0.31207600235939026,
+    "same_speaker": true
+   },
+   {
+    "person_id": "koh-qing-jia",
+    "name": "Koh Qing Jia",
+    "score": 0.13485251367092133,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tasmin",
+    "name": "tasmin",
+    "score": 0.09201867878437042,
+    "same_speaker": false
+   },
+   {
+    "person_id": "le-yong",
+    "name": "le yong",
+    "score": -0.0410422757267952,
+    "same_speaker": false
+   }
+  ],
+  [
+   {
+    "person_id": "prof",
+    "name": "prof",
+    "score": 0.8000367283821106,
+    "same_speaker": true
+   },
+   {
+    "person_id": "tina",
+    "name": "tina",
+    "score": 0.13072480261325836,
+    "same_speaker": false
+   },
+   {
+    "person_id": "koh-qing-jia",
+    "name": "Koh Qing Jia",
+    "score": 0.07174241542816162,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tasmin",
+    "name": "tasmin",
+    "score": 0.050579991191625595,
+    "same_speaker": false
+   },
+   {
+    "person_id": "le-yong",
+    "name": "le yong",
+    "score": -0.09525986760854721,
+    "same_speaker": false
+   }
+  ],
+  [
+   {
+    "person_id": "le-yong",
+    "name": "le yong",
+    "score": 0.5954098701477051,
+    "same_speaker": true
+   },
+   {
+    "person_id": "koh-qing-jia",
+    "name": "Koh Qing Jia",
+    "score": 0.2693229913711548,
+    "same_speaker": true
+   },
+   {
+    "person_id": "prof",
+    "name": "prof",
+    "score": 0.2008541226387024,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tasmin",
+    "name": "tasmin",
+    "score": 0.09556178003549576,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tina",
+    "name": "tina",
+    "score": 0.059833645820617676,
+    "same_speaker": false
+   }
+  ],
+  [
+   {
+    "person_id": "le-yong",
+    "name": "le yong",
+    "score": 0.7604613900184631,
+    "same_speaker": true
+   },
+   {
+    "person_id": "koh-qing-jia",
+    "name": "Koh Qing Jia",
+    "score": 0.22111254930496216,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tasmin",
+    "name": "tasmin",
+    "score": 0.06843549758195877,
+    "same_speaker": false
+   },
+   {
+    "person_id": "prof",
+    "name": "prof",
+    "score": 0.03464158624410629,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tina",
+    "name": "tina",
+    "score": 0.00147236417979002,
+    "same_speaker": false
+   }
+  ],
+  [
+   {
+    "person_id": "le-yong",
+    "name": "le yong",
+    "score": 0.5330438017845154,
+    "same_speaker": true
+   },
+   {
+    "person_id": "prof",
+    "name": "prof",
+    "score": 0.37421122193336487,
+    "same_speaker": true
+   },
+   {
+    "person_id": "koh-qing-jia",
+    "name": "Koh Qing Jia",
+    "score": 0.17156344652175903,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tasmin",
+    "name": "tasmin",
+    "score": 0.1308857500553131,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tina",
+    "name": "tina",
+    "score": 0.05062122642993927,
+    "same_speaker": false
+   }
+  ],
+  [
+   {
+    "person_id": "koh-qing-jia",
+    "name": "Koh Qing Jia",
+    "score": 0.8143084049224854,
+    "same_speaker": true
+   },
+   {
+    "person_id": "tina",
+    "name": "tina",
+    "score": 0.1529264748096466,
+    "same_speaker": false
+   },
+   {
+    "person_id": "le-yong",
+    "name": "le yong",
+    "score": 0.0790024846792221,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tasmin",
+    "name": "tasmin",
+    "score": 0.07651770114898682,
+    "same_speaker": false
+   },
+   {
+    "person_id": "prof",
+    "name": "prof",
+    "score": 0.056294601410627365,
+    "same_speaker": false
+   }
+  ],
+  [
+   {
+    "person_id": "prof",
+    "name": "prof",
+    "score": 0.7459554076194763,
+    "same_speaker": true
+   },
+   {
+    "person_id": "tasmin",
+    "name": "tasmin",
+    "score": 0.11343207210302353,
+    "same_speaker": false
+   },
+   {
+    "person_id": "koh-qing-jia",
+    "name": "Koh Qing Jia",
+    "score": 0.10896956920623779,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tina",
+    "name": "tina",
+    "score": 0.09953270852565765,
+    "same_speaker": false
+   },
+   {
+    "person_id": "le-yong",
+    "name": "le yong",
+    "score": 0.029771072790026665,
+    "same_speaker": false
+   }
+  ],
+  [
+   {
+    "person_id": "prof",
+    "name": "prof",
+    "score": 0.5468162298202515,
+    "same_speaker": true
+   },
+   {
+    "person_id": "tasmin",
+    "name": "tasmin",
+    "score": 0.07489843666553497,
+    "same_speaker": false
+   },
+   {
+    "person_id": "koh-qing-jia",
+    "name": "Koh Qing Jia",
+    "score": 0.0387539267539978,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tina",
+    "name": "tina",
+    "score": 0.014966420829296112,
+    "same_speaker": false
+   },
+   {
+    "person_id": "le-yong",
+    "name": "le yong",
+    "score": -0.053996000438928604,
+    "same_speaker": false
+   }
+  ]
+ ],
+ "segment_scoring_s": 6.596289005829021,
+ "line_matches": [
+  [
+   {
+    "person_id": "prof",
+    "name": "prof",
+    "score": 0.8458867073059082,
+    "same_speaker": true
+   },
+   {
+    "person_id": "koh-qing-jia",
+    "name": "Koh Qing Jia",
+    "score": 0.07730253040790558,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tasmin",
+    "name": "tasmin",
+    "score": 0.0732608512043953,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tina",
+    "name": "tina",
+    "score": 0.06969074159860611,
+    "same_speaker": false
+   },
+   {
+    "person_id": "le-yong",
+    "name": "le yong",
+    "score": -0.0828346461057663,
+    "same_speaker": false
+   }
+  ],
+  [
+   {
+    "person_id": "koh-qing-jia",
+    "name": "Koh Qing Jia",
+    "score": 0.7945149540901184,
+    "same_speaker": true
+   },
+   {
+    "person_id": "tina",
+    "name": "tina",
+    "score": 0.14556220173835754,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tasmin",
+    "name": "tasmin",
+    "score": 0.1027907133102417,
+    "same_speaker": false
+   },
+   {
+    "person_id": "prof",
+    "name": "prof",
+    "score": 0.08233872056007385,
+    "same_speaker": false
+   },
+   {
+    "person_id": "le-yong",
+    "name": "le yong",
+    "score": 0.03530470281839371,
+    "same_speaker": false
+   }
+  ],
+  [
+   {
+    "person_id": "prof",
+    "name": "prof",
+    "score": 0.7374389171600342,
+    "same_speaker": true
+   },
+   {
+    "person_id": "tina",
+    "name": "tina",
+    "score": 0.06250553578138351,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tasmin",
+    "name": "tasmin",
+    "score": 0.0530533492565155,
+    "same_speaker": false
+   },
+   {
+    "person_id": "koh-qing-jia",
+    "name": "Koh Qing Jia",
+    "score": 0.028219152241945267,
+    "same_speaker": false
+   },
+   {
+    "person_id": "le-yong",
+    "name": "le yong",
+    "score": 0.000940173864364624,
+    "same_speaker": false
+   }
+  ],
+  [
+   {
+    "person_id": "tasmin",
+    "name": "tasmin",
+    "score": 0.7984322905540466,
+    "same_speaker": true
+   },
+   {
+    "person_id": "tina",
+    "name": "tina",
+    "score": 0.2647632658481598,
+    "same_speaker": true
+   },
+   {
+    "person_id": "le-yong",
+    "name": "le yong",
+    "score": 0.09659072011709213,
+    "same_speaker": false
+   },
+   {
+    "person_id": "koh-qing-jia",
+    "name": "Koh Qing Jia",
+    "score": 0.09153773635625839,
+    "same_speaker": false
+   },
+   {
+    "person_id": "prof",
+    "name": "prof",
+    "score": 0.04328816011548042,
+    "same_speaker": false
+   }
+  ],
+  [
+   {
+    "person_id": "prof",
+    "name": "prof",
+    "score": 0.8269749879837036,
+    "same_speaker": true
+   },
+   {
+    "person_id": "tina",
+    "name": "tina",
+    "score": 0.02339746057987213,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tasmin",
+    "name": "tasmin",
+    "score": 0.014721207320690155,
+    "same_speaker": false
+   },
+   {
+    "person_id": "koh-qing-jia",
+    "name": "Koh Qing Jia",
+    "score": 0.004842760041356087,
+    "same_speaker": false
+   },
+   {
+    "person_id": "le-yong",
+    "name": "le yong",
+    "score": -0.10048633813858032,
+    "same_speaker": false
+   }
+  ],
+  [
+   {
+    "person_id": "tina",
+    "name": "tina",
+    "score": 0.8404971957206726,
+    "same_speaker": true
+   },
+   {
+    "person_id": "tasmin",
+    "name": "tasmin",
+    "score": 0.25889161229133606,
+    "same_speaker": true
+   },
+   {
+    "person_id": "koh-qing-jia",
+    "name": "Koh Qing Jia",
+    "score": 0.14968188107013702,
+    "same_speaker": false
+   },
+   {
+    "person_id": "prof",
+    "name": "prof",
+    "score": 0.07272815704345703,
+    "same_speaker": false
+   },
+   {
+    "person_id": "le-yong",
+    "name": "le yong",
+    "score": 0.06261570751667023,
+    "same_speaker": false
+   }
+  ],
+  [
+   {
+    "person_id": "prof",
+    "name": "prof",
+    "score": 0.8222686052322388,
+    "same_speaker": true
+   },
+   {
+    "person_id": "tina",
+    "name": "tina",
+    "score": 0.10630463063716888,
+    "same_speaker": false
+   },
+   {
+    "person_id": "koh-qing-jia",
+    "name": "Koh Qing Jia",
+    "score": 0.06367765367031097,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tasmin",
+    "name": "tasmin",
+    "score": 0.044914960861206055,
+    "same_speaker": false
+   },
+   {
+    "person_id": "le-yong",
+    "name": "le yong",
+    "score": -0.1063242107629776,
+    "same_speaker": false
+   }
+  ],
+  [
+   {
+    "person_id": "le-yong",
+    "name": "le yong",
+    "score": 0.7792264819145203,
+    "same_speaker": true
+   },
+   {
+    "person_id": "koh-qing-jia",
+    "name": "Koh Qing Jia",
+    "score": 0.1939745843410492,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tasmin",
+    "name": "tasmin",
+    "score": 0.07225847989320755,
+    "same_speaker": false
+   },
+   {
+    "person_id": "prof",
+    "name": "prof",
+    "score": 0.04165517911314964,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tina",
+    "name": "tina",
+    "score": -0.018352877348661423,
+    "same_speaker": false
+   }
+  ],
+  [
+   {
+    "person_id": "prof",
+    "name": "prof",
+    "score": 0.8165815472602844,
+    "same_speaker": true
+   },
+   {
+    "person_id": "tina",
+    "name": "tina",
+    "score": 0.0908905565738678,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tasmin",
+    "name": "tasmin",
+    "score": 0.041364263743162155,
+    "same_speaker": false
+   },
+   {
+    "person_id": "koh-qing-jia",
+    "name": "Koh Qing Jia",
+    "score": 0.03412201255559921,
+    "same_speaker": false
+   },
+   {
+    "person_id": "le-yong",
+    "name": "le yong",
+    "score": -0.0034877993166446686,
+    "same_speaker": false
+   }
+  ],
+  [
+   {
+    "person_id": "koh-qing-jia",
+    "name": "Koh Qing Jia",
+    "score": 0.8013778328895569,
+    "same_speaker": true
+   },
+   {
+    "person_id": "tina",
+    "name": "tina",
+    "score": 0.16619481146335602,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tasmin",
+    "name": "tasmin",
+    "score": 0.10155152529478073,
+    "same_speaker": false
+   },
+   {
+    "person_id": "le-yong",
+    "name": "le yong",
+    "score": 0.0642247349023819,
+    "same_speaker": false
+   },
+   {
+    "person_id": "prof",
+    "name": "prof",
+    "score": 0.02740342728793621,
+    "same_speaker": false
+   }
+  ],
+  [
+   {
+    "person_id": "prof",
+    "name": "prof",
+    "score": 0.8530793190002441,
+    "same_speaker": true
+   },
+   {
+    "person_id": "tasmin",
+    "name": "tasmin",
+    "score": 0.09337053447961807,
+    "same_speaker": false
+   },
+   {
+    "person_id": "koh-qing-jia",
+    "name": "Koh Qing Jia",
+    "score": 0.07574760913848877,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tina",
+    "name": "tina",
+    "score": 0.06454367935657501,
+    "same_speaker": false
+   },
+   {
+    "person_id": "le-yong",
+    "name": "le yong",
+    "score": -0.051289983093738556,
+    "same_speaker": false
+   }
+  ]
+ ],
+ "whisper_words": {
+  "seconds": 9.834537180839106,
+  "segments": [
+   {
+    "start": 0.6999999999999977,
+    "end": 5.1,
+    "text": "Good afternoon everyone. Today we continue with retrieval augmented generation and specifically",
+    "words": [
+     {
+      "start": 0.6999999999999977,
+      "end": 1.26,
+      "word": " Good"
+     },
+     {
+      "start": 1.26,
+      "end": 1.58,
+      "word": " afternoon"
+     },
+     {
+      "start": 1.58,
+      "end": 2.04,
+      "word": " everyone."
+     },
+     {
+      "start": 2.26,
+      "end": 2.38,
+      "word": " Today"
+     },
+     {
+      "start": 2.38,
+      "end": 2.52,
+      "word": " we"
+     },
+     {
+      "start": 2.52,
+      "end": 2.9,
+      "word": " continue"
+     },
+     {
+      "start": 2.9,
+      "end": 3.1,
+      "word": " with"
+     },
+     {
+      "start": 3.1,
+      "end": 3.46,
+      "word": " retrieval"
+     },
+     {
+      "start": 3.46,
+      "end": 3.72,
+      "word": " augmented"
+     },
+     {
+      "start": 3.72,
+      "end": 4.32,
+      "word": " generation"
+     },
+     {
+      "start": 4.32,
+      "end": 4.56,
+      "word": " and"
+     },
+     {
+      "start": 4.56,
+      "end": 5.1,
+      "word": " specifically"
+     }
+    ]
+   },
+   {
+    "start": 5.1,
+    "end": 9.3,
+    "text": "what makes retrieval agentech. Last week you built a pipeline that embeds the question",
+    "words": [
+     {
+      "start": 5.1,
+      "end": 5.38,
+      "word": " what"
+     },
+     {
+      "start": 5.38,
+      "end": 5.54,
+      "word": " makes"
+     },
+     {
+      "start": 5.54,
+      "end": 6.08,
+      "word": " retrieval"
+     },
+     {
+      "start": 6.08,
+      "end": 6.62,
+      "word": " agentech."
+     },
+     {
+      "start": 6.8,
+      "end": 6.92,
+      "word": " Last"
+     },
+     {
+      "start": 6.92,
+      "end": 7.22,
+      "word": " week"
+     },
+     {
+      "start": 7.22,
+      "end": 7.44,
+      "word": " you"
+     },
+     {
+      "start": 7.44,
+      "end": 7.66,
+      "word": " built"
+     },
+     {
+      "start": 7.66,
+      "end": 7.9,
+      "word": " a"
+     },
+     {
+      "start": 7.9,
+      "end": 8.2,
+      "word": " pipeline"
+     },
+     {
+      "start": 8.2,
+      "end": 8.48,
+      "word": " that"
+     },
+     {
+      "start": 8.48,
+      "end": 8.86,
+      "word": " embeds"
+     },
+     {
+      "start": 8.86,
+      "end": 8.94,
+      "word": " the"
+     },
+     {
+      "start": 8.94,
+      "end": 9.3,
+      "word": " question"
+     }
+    ]
+   },
+   {
+    "start": 9.3,
+    "end": 13.56,
+    "text": "fetches the top few chunks and answers. Let me start simple. Why do we split documents",
+    "words": [
+     {
+      "start": 9.3,
+      "end": 9.64,
+      "word": " fetches"
+     },
+     {
+      "start": 9.64,
+      "end": 9.8,
+      "word": " the"
+     },
+     {
+      "start": 9.8,
+      "end": 9.98,
+      "word": " top"
+     },
+     {
+      "start": 9.98,
+      "end": 10.24,
+      "word": " few"
+     },
+     {
+      "start": 10.24,
+      "end": 10.5,
+      "word": " chunks"
+     },
+     {
+      "start": 10.5,
+      "end": 10.76,
+      "word": " and"
+     },
+     {
+      "start": 10.76,
+      "end": 11.1,
+      "word": " answers."
+     },
+     {
+      "start": 11.28,
+      "end": 11.28,
+      "word": " Let"
+     },
+     {
+      "start": 11.28,
+      "end": 11.36,
+      "word": " me"
+     },
+     {
+      "start": 11.36,
+      "end": 11.58,
+      "word": " start"
+     },
+     {
+      "start": 11.58,
+      "end": 12.02,
+      "word": " simple."
+     },
+     {
+      "start": 12.4,
+      "end": 12.5,
+      "word": " Why"
+     },
+     {
+      "start": 12.5,
+      "end": 12.62,
+      "word": " do"
+     },
+     {
+      "start": 12.62,
+      "end": 12.72,
+      "word": " we"
+     },
+     {
+      "start": 12.72,
+      "end": 13.04,
+      "word": " split"
+     },
+     {
+      "start": 13.04,
+      "end": 13.56,
+      "word": " documents"
+     }
+    ]
+   },
+   {
+    "start": 13.56,
+    "end": 16.66,
+    "text": "into chunks at all instead of embedding the whole slide deck?",
+    "words": [
+     {
+      "start": 13.56,
+      "end": 13.86,
+      "word": " into"
+     },
+     {
+      "start": 13.86,
+      "end": 14.12,
+      "word": " chunks"
+     },
+     {
+      "start": 14.12,
+      "end": 14.34,
+      "word": " at"
+     },
+     {
+      "start": 14.34,
+      "end": 14.52,
+      "word": " all"
+     },
+     {
+      "start": 14.52,
+      "end": 15.08,
+      "word": " instead"
+     },
+     {
+      "start": 15.08,
+      "end": 15.28,
+      "word": " of"
+     },
+     {
+      "start": 15.28,
+      "end": 15.7,
+      "word": " embedding"
+     },
+     {
+      "start": 15.7,
+      "end": 15.86,
+      "word": " the"
+     },
+     {
+      "start": 15.86,
+      "end": 16.02,
+      "word": " whole"
+     },
+     {
+      "start": 16.02,
+      "end": 16.38,
+      "word": " slide"
+     },
+     {
+      "start": 16.38,
+      "end": 16.66,
+      "word": " deck?"
+     }
+    ]
+   },
+   {
+    "start": 17.54,
+    "end": 24.64,
+    "text": "Because one embedding for a whole deck averages everything together so it can't match a specific",
+    "words": [
+     {
+      "start": 17.54,
+      "end": 18.1,
+      "word": " Because"
+     },
+     {
+      "start": 18.1,
+      "end": 18.54,
+      "word": " one"
+     },
+     {
+      "start": 18.54,
+      "end": 19.28,
+      "word": " embedding"
+     },
+     {
+      "start": 19.28,
+      "end": 19.56,
+      "word": " for"
+     },
+     {
+      "start": 19.56,
+      "end": 19.9,
+      "word": " a"
+     },
+     {
+      "start": 19.9,
+      "end": 20.14,
+      "word": " whole"
+     },
+     {
+      "start": 20.14,
+      "end": 20.44,
+      "word": " deck"
+     },
+     {
+      "start": 20.44,
+      "end": 21.1,
+      "word": " averages"
+     },
+     {
+      "start": 21.1,
+      "end": 21.8,
+      "word": " everything"
+     },
+     {
+      "start": 21.8,
+      "end": 22.48,
+      "word": " together"
+     },
+     {
+      "start": 22.48,
+      "end": 23.04,
+      "word": " so"
+     },
+     {
+      "start": 23.04,
+      "end": 23.2,
+      "word": " it"
+     },
+     {
+      "start": 23.2,
+      "end": 23.56,
+      "word": " can't"
+     },
+     {
+      "start": 23.56,
+      "end": 23.9,
+      "word": " match"
+     },
+     {
+      "start": 23.9,
+      "end": 24.08,
+      "word": " a"
+     },
+     {
+      "start": 24.08,
+      "end": 24.64,
+      "word": " specific"
+     }
+    ]
+   },
+   {
+    "start": 24.64,
+    "end": 31.94,
+    "text": "question. Smaller chunks keep each idea separate and they also fit in the context window.",
+    "words": [
+     {
+      "start": 24.64,
+      "end": 25.28,
+      "word": " question."
+     },
+     {
+      "start": 26.2,
+      "end": 26.64,
+      "word": " Smaller"
+     },
+     {
+      "start": 26.64,
+      "end": 26.92,
+      "word": " chunks"
+     },
+     {
+      "start": 26.92,
+      "end": 27.44,
+      "word": " keep"
+     },
+     {
+      "start": 27.44,
+      "end": 27.78,
+      "word": " each"
+     },
+     {
+      "start": 27.78,
+      "end": 28.08,
+      "word": " idea"
+     },
+     {
+      "start": 28.08,
+      "end": 28.56,
+      "word": " separate"
+     },
+     {
+      "start": 28.56,
+      "end": 29.68,
+      "word": " and"
+     },
+     {
+      "start": 29.68,
+      "end": 29.84,
+      "word": " they"
+     },
+     {
+      "start": 29.84,
+      "end": 30.18,
+      "word": " also"
+     },
+     {
+      "start": 30.18,
+      "end": 30.48,
+      "word": " fit"
+     },
+     {
+      "start": 30.48,
+      "end": 30.86,
+      "word": " in"
+     },
+     {
+      "start": 30.86,
+      "end": 30.98,
+      "word": " the"
+     },
+     {
+      "start": 30.98,
+      "end": 31.38,
+      "word": " context"
+     },
+     {
+      "start": 31.38,
+      "end": 31.94,
+      "word": " window."
+     }
+    ]
+   },
+   {
+    "start": 32.92,
+    "end": 38.4,
+    "text": "Good and why would we overlap the chunks? So a sentence that gets cut at the boundary",
+    "words": [
+     {
+      "start": 32.92,
+      "end": 33.48,
+      "word": " Good"
+     },
+     {
+      "start": 33.48,
+      "end": 33.6,
+      "word": " and"
+     },
+     {
+      "start": 33.6,
+      "end": 33.78,
+      "word": " why"
+     },
+     {
+      "start": 33.78,
+      "end": 33.92,
+      "word": " would"
+     },
+     {
+      "start": 33.92,
+      "end": 34.02,
+      "word": " we"
+     },
+     {
+      "start": 34.02,
+      "end": 34.32,
+      "word": " overlap"
+     },
+     {
+      "start": 34.32,
+      "end": 34.5,
+      "word": " the"
+     },
+     {
+      "start": 34.5,
+      "end": 34.76,
+      "word": " chunks?"
+     },
+     {
+      "start": 36.26,
+      "end": 36.44,
+      "word": " So"
+     },
+     {
+      "start": 36.44,
+      "end": 36.6,
+      "word": " a"
+     },
+     {
+      "start": 36.6,
+      "end": 36.84,
+      "word": " sentence"
+     },
+     {
+      "start": 36.84,
+      "end": 37.18,
+      "word": " that"
+     },
+     {
+      "start": 37.18,
+      "end": 37.38,
+      "word": " gets"
+     },
+     {
+      "start": 37.38,
+      "end": 37.72,
+      "word": " cut"
+     },
+     {
+      "start": 37.72,
+      "end": 37.94,
+      "word": " at"
+     },
+     {
+      "start": 37.94,
+      "end": 38.08,
+      "word": " the"
+     },
+     {
+      "start": 38.08,
+      "end": 38.4,
+      "word": " boundary"
+     }
+    ]
+   },
+   {
+    "start": 38.4,
+    "end": 44.28,
+    "text": "still appears hole in the next chunk. Exactly. Now in our lab we combine keyword search",
+    "words": [
+     {
+      "start": 38.4,
+      "end": 38.74,
+      "word": " still"
+     },
+     {
+      "start": 38.74,
+      "end": 39.0,
+      "word": " appears"
+     },
+     {
+      "start": 39.0,
+      "end": 39.3,
+      "word": " hole"
+     },
+     {
+      "start": 39.3,
+      "end": 39.44,
+      "word": " in"
+     },
+     {
+      "start": 39.44,
+      "end": 39.52,
+      "word": " the"
+     },
+     {
+      "start": 39.52,
+      "end": 39.76,
+      "word": " next"
+     },
+     {
+      "start": 39.76,
+      "end": 40.14,
+      "word": " chunk."
+     },
+     {
+      "start": 41.48,
+      "end": 42.04,
+      "word": " Exactly."
+     },
+     {
+      "start": 42.58,
+      "end": 42.72,
+      "word": " Now"
+     },
+     {
+      "start": 42.72,
+      "end": 42.92,
+      "word": " in"
+     },
+     {
+      "start": 42.92,
+      "end": 43.04,
+      "word": " our"
+     },
+     {
+      "start": 43.04,
+      "end": 43.24,
+      "word": " lab"
+     },
+     {
+      "start": 43.24,
+      "end": 43.4,
+      "word": " we"
+     },
+     {
+      "start": 43.4,
+      "end": 43.66,
+      "word": " combine"
+     },
+     {
+      "start": 43.66,
+      "end": 44.0,
+      "word": " keyword"
+     },
+     {
+      "start": 44.0,
+      "end": 44.28,
+      "word": " search"
+     }
+    ]
+   },
+   {
+    "start": 44.28,
+    "end": 46.8,
+    "text": "with vector search. What does each one catch that the other misses?",
+    "words": [
+     {
+      "start": 44.28,
+      "end": 44.58,
+      "word": " with"
+     },
+     {
+      "start": 44.58,
+      "end": 44.76,
+      "word": " vector"
+     },
+     {
+      "start": 44.76,
+      "end": 45.08,
+      "word": " search."
+     },
+     {
+      "start": 45.32,
+      "end": 45.4,
+      "word": " What"
+     },
+     {
+      "start": 45.4,
+      "end": 45.52,
+      "word": " does"
+     },
+     {
+      "start": 45.52,
+      "end": 45.7,
+      "word": " each"
+     },
+     {
+      "start": 45.7,
+      "end": 45.86,
+      "word": " one"
+     },
+     {
+      "start": 45.86,
+      "end": 46.1,
+      "word": " catch"
+     },
+     {
+      "start": 46.1,
+      "end": 46.28,
+      "word": " that"
+     },
+     {
+      "start": 46.28,
+      "end": 46.38,
+      "word": " the"
+     },
+     {
+      "start": 46.38,
+      "end": 46.56,
+      "word": " other"
+     },
+     {
+      "start": 46.56,
+      "end": 46.8,
+      "word": " misses?"
+     }
+    ]
+   },
+   {
+    "start": 48.32,
+    "end": 53.08,
+    "text": "Keyword search catches exact terms like a function name and vectors catch meaning even",
+    "words": [
+     {
+      "start": 48.32,
+      "end": 48.88,
+      "word": " Keyword"
+     },
+     {
+      "start": 48.88,
+      "end": 49.12,
+      "word": " search"
+     },
+     {
+      "start": 49.12,
+      "end": 49.5,
+      "word": " catches"
+     },
+     {
+      "start": 49.5,
+      "end": 49.94,
+      "word": " exact"
+     },
+     {
+      "start": 49.94,
+      "end": 50.22,
+      "word": " terms"
+     },
+     {
+      "start": 50.22,
+      "end": 50.38,
+      "word": " like"
+     },
+     {
+      "start": 50.38,
+      "end": 50.54,
+      "word": " a"
+     },
+     {
+      "start": 50.54,
+      "end": 50.88,
+      "word": " function"
+     },
+     {
+      "start": 50.88,
+      "end": 51.2,
+      "word": " name"
+     },
+     {
+      "start": 51.2,
+      "end": 51.78,
+      "word": " and"
+     },
+     {
+      "start": 51.78,
+      "end": 52.06,
+      "word": " vectors"
+     },
+     {
+      "start": 52.06,
+      "end": 52.34,
+      "word": " catch"
+     },
+     {
+      "start": 52.34,
+      "end": 52.68,
+      "word": " meaning"
+     },
+     {
+      "start": 52.68,
+      "end": 53.08,
+      "word": " even"
+     }
+    ]
+   },
+   {
+    "start": 53.08,
+    "end": 57.74,
+    "text": "if the words are different. Right and we merged the two rank lists with reciprocal",
+    "words": [
+     {
+      "start": 53.08,
+      "end": 53.24,
+      "word": " if"
+     },
+     {
+      "start": 53.24,
+      "end": 53.38,
+      "word": " the"
+     },
+     {
+      "start": 53.38,
+      "end": 53.56,
+      "word": " words"
+     },
+     {
+      "start": 53.56,
+      "end": 53.78,
+      "word": " are"
+     },
+     {
+      "start": 53.78,
+      "end": 54.12,
+      "word": " different."
+     },
+     {
+      "start": 55.02,
+      "end": 55.52,
+      "word": " Right"
+     },
+     {
+      "start": 55.52,
+      "end": 55.7,
+      "word": " and"
+     },
+     {
+      "start": 55.7,
+      "end": 55.78,
+      "word": " we"
+     },
+     {
+      "start": 55.78,
+      "end": 56.02,
+      "word": " merged"
+     },
+     {
+      "start": 56.02,
+      "end": 56.34,
+      "word": " the"
+     },
+     {
+      "start": 56.34,
+      "end": 56.5,
+      "word": " two"
+     },
+     {
+      "start": 56.5,
+      "end": 56.64,
+      "word": " rank"
+     },
+     {
+      "start": 56.64,
+      "end": 56.88,
+      "word": " lists"
+     },
+     {
+      "start": 56.88,
+      "end": 57.2,
+      "word": " with"
+     },
+     {
+      "start": 57.2,
+      "end": 57.74,
+      "word": " reciprocal"
+     }
+    ]
+   },
+   {
+    "start": 57.74,
+    "end": 62.2,
+    "text": "rank fusion so here is the real question for today. A fixed pipeline we always retrieve",
+    "words": [
+     {
+      "start": 57.74,
+      "end": 58.16,
+      "word": " rank"
+     },
+     {
+      "start": 58.16,
+      "end": 58.5,
+      "word": " fusion"
+     },
+     {
+      "start": 58.5,
+      "end": 58.76,
+      "word": " so"
+     },
+     {
+      "start": 58.76,
+      "end": 58.94,
+      "word": " here"
+     },
+     {
+      "start": 58.94,
+      "end": 59.1,
+      "word": " is"
+     },
+     {
+      "start": 59.1,
+      "end": 59.18,
+      "word": " the"
+     },
+     {
+      "start": 59.18,
+      "end": 59.34,
+      "word": " real"
+     },
+     {
+      "start": 59.34,
+      "end": 59.74,
+      "word": " question"
+     },
+     {
+      "start": 59.74,
+      "end": 59.92,
+      "word": " for"
+     },
+     {
+      "start": 59.92,
+      "end": 60.26,
+      "word": " today."
+     },
+     {
+      "start": 60.74,
+      "end": 60.76,
+      "word": " A"
+     },
+     {
+      "start": 60.76,
+      "end": 60.98,
+      "word": " fixed"
+     },
+     {
+      "start": 60.98,
+      "end": 61.34,
+      "word": " pipeline"
+     },
+     {
+      "start": 61.34,
+      "end": 61.58,
+      "word": " we"
+     },
+     {
+      "start": 61.58,
+      "end": 61.82,
+      "word": " always"
+     },
+     {
+      "start": 61.82,
+      "end": 62.2,
+      "word": " retrieve"
+     }
+    ]
+   },
+   {
+    "start": 62.2,
+    "end": 69.18,
+    "text": "once what does an agent do differently? The agent can decide to search again. If the",
+    "words": [
+     {
+      "start": 62.2,
+      "end": 62.5,
+      "word": " once"
+     },
+     {
+      "start": 62.5,
+      "end": 62.64,
+      "word": " what"
+     },
+     {
+      "start": 62.64,
+      "end": 62.76,
+      "word": " does"
+     },
+     {
+      "start": 62.76,
+      "end": 62.9,
+      "word": " an"
+     },
+     {
+      "start": 62.9,
+      "end": 63.1,
+      "word": " agent"
+     },
+     {
+      "start": 63.1,
+      "end": 63.36,
+      "word": " do"
+     },
+     {
+      "start": 63.36,
+      "end": 63.86,
+      "word": " differently?"
+     },
+     {
+      "start": 65.54,
+      "end": 65.88,
+      "word": " The"
+     },
+     {
+      "start": 65.88,
+      "end": 66.22,
+      "word": " agent"
+     },
+     {
+      "start": 66.22,
+      "end": 66.44,
+      "word": " can"
+     },
+     {
+      "start": 66.44,
+      "end": 66.92,
+      "word": " decide"
+     },
+     {
+      "start": 66.92,
+      "end": 67.32,
+      "word": " to"
+     },
+     {
+      "start": 67.32,
+      "end": 67.56,
+      "word": " search"
+     },
+     {
+      "start": 67.56,
+      "end": 67.94,
+      "word": " again."
+     },
+     {
+      "start": 68.96,
+      "end": 69.08,
+      "word": " If"
+     },
+     {
+      "start": 69.08,
+      "end": 69.18,
+      "word": " the"
+     }
+    ]
+   },
+   {
+    "start": 69.18,
+    "end": 75.22,
+    "text": "passages it got back are not relevant it rewrites the query and retrieves again and it can",
+    "words": [
+     {
+      "start": 69.18,
+      "end": 69.54,
+      "word": " passages"
+     },
+     {
+      "start": 69.54,
+      "end": 69.78,
+      "word": " it"
+     },
+     {
+      "start": 69.78,
+      "end": 69.9,
+      "word": " got"
+     },
+     {
+      "start": 69.9,
+      "end": 70.14,
+      "word": " back"
+     },
+     {
+      "start": 70.14,
+      "end": 70.36,
+      "word": " are"
+     },
+     {
+      "start": 70.36,
+      "end": 70.54,
+      "word": " not"
+     },
+     {
+      "start": 70.54,
+      "end": 71.02,
+      "word": " relevant"
+     },
+     {
+      "start": 71.02,
+      "end": 71.9,
+      "word": " it"
+     },
+     {
+      "start": 71.9,
+      "end": 72.5,
+      "word": " rewrites"
+     },
+     {
+      "start": 72.5,
+      "end": 72.74,
+      "word": " the"
+     },
+     {
+      "start": 72.74,
+      "end": 73.04,
+      "word": " query"
+     },
+     {
+      "start": 73.04,
+      "end": 73.36,
+      "word": " and"
+     },
+     {
+      "start": 73.36,
+      "end": 73.84,
+      "word": " retrieves"
+     },
+     {
+      "start": 73.84,
+      "end": 74.18,
+      "word": " again"
+     },
+     {
+      "start": 74.18,
+      "end": 74.96,
+      "word": " and"
+     },
+     {
+      "start": 74.96,
+      "end": 75.06,
+      "word": " it"
+     },
+     {
+      "start": 75.06,
+      "end": 75.22,
+      "word": " can"
+     }
+    ]
+   },
+   {
+    "start": 75.22,
+    "end": 80.46,
+    "text": "stop when the evidence is good enough. That is the corrective loop yes any cost to doing",
+    "words": [
+     {
+      "start": 75.22,
+      "end": 75.56,
+      "word": " stop"
+     },
+     {
+      "start": 75.56,
+      "end": 75.84,
+      "word": " when"
+     },
+     {
+      "start": 75.84,
+      "end": 75.98,
+      "word": " the"
+     },
+     {
+      "start": 75.98,
+      "end": 76.3,
+      "word": " evidence"
+     },
+     {
+      "start": 76.3,
+      "end": 76.56,
+      "word": " is"
+     },
+     {
+      "start": 76.56,
+      "end": 76.74,
+      "word": " good"
+     },
+     {
+      "start": 76.74,
+      "end": 77.1,
+      "word": " enough."
+     },
+     {
+      "start": 78.14,
+      "end": 78.54,
+      "word": " That"
+     },
+     {
+      "start": 78.54,
+      "end": 78.64,
+      "word": " is"
+     },
+     {
+      "start": 78.64,
+      "end": 78.78,
+      "word": " the"
+     },
+     {
+      "start": 78.78,
+      "end": 79.22,
+      "word": " corrective"
+     },
+     {
+      "start": 79.22,
+      "end": 79.34,
+      "word": " loop"
+     },
+     {
+      "start": 79.34,
+      "end": 79.62,
+      "word": " yes"
+     },
+     {
+      "start": 79.62,
+      "end": 79.88,
+      "word": " any"
+     },
+     {
+      "start": 79.88,
+      "end": 80.1,
+      "word": " cost"
+     },
+     {
+      "start": 80.1,
+      "end": 80.26,
+      "word": " to"
+     },
+     {
+      "start": 80.26,
+      "end": 80.46,
+      "word": " doing"
+     }
+    ]
+   },
+   {
+    "start": 80.46,
+    "end": 87.84,
+    "text": "that? It's slower and it uses more tokens so you need a limit on how many times it can",
+    "words": [
+     {
+      "start": 80.46,
+      "end": 80.66,
+      "word": " that?"
+     },
+     {
+      "start": 81.78,
+      "end": 82.36,
+      "word": " It's"
+     },
+     {
+      "start": 82.36,
+      "end": 82.7,
+      "word": " slower"
+     },
+     {
+      "start": 82.7,
+      "end": 82.96,
+      "word": " and"
+     },
+     {
+      "start": 82.96,
+      "end": 83.08,
+      "word": " it"
+     },
+     {
+      "start": 83.08,
+      "end": 83.38,
+      "word": " uses"
+     },
+     {
+      "start": 83.38,
+      "end": 84.04,
+      "word": " more"
+     },
+     {
+      "start": 84.04,
+      "end": 84.54,
+      "word": " tokens"
+     },
+     {
+      "start": 84.54,
+      "end": 85.36,
+      "word": " so"
+     },
+     {
+      "start": 85.36,
+      "end": 85.5,
+      "word": " you"
+     },
+     {
+      "start": 85.5,
+      "end": 85.72,
+      "word": " need"
+     },
+     {
+      "start": 85.72,
+      "end": 85.9,
+      "word": " a"
+     },
+     {
+      "start": 85.9,
+      "end": 86.2,
+      "word": " limit"
+     },
+     {
+      "start": 86.2,
+      "end": 86.54,
+      "word": " on"
+     },
+     {
+      "start": 86.54,
+      "end": 86.72,
+      "word": " how"
+     },
+     {
+      "start": 86.72,
+      "end": 86.94,
+      "word": " many"
+     },
+     {
+      "start": 86.94,
+      "end": 87.32,
+      "word": " times"
+     },
+     {
+      "start": 87.32,
+      "end": 87.6,
+      "word": " it"
+     },
+     {
+      "start": 87.6,
+      "end": 87.84,
+      "word": " can"
+     }
+    ]
+   },
+   {
+    "start": 87.84,
+    "end": 93.02,
+    "text": "retrain. Good remember that trade off for the project we will pick this up next week with",
+    "words": [
+     {
+      "start": 87.84,
+      "end": 88.36,
+      "word": " retrain."
+     },
+     {
+      "start": 89.58,
+      "end": 90.0,
+      "word": " Good"
+     },
+     {
+      "start": 90.0,
+      "end": 90.22,
+      "word": " remember"
+     },
+     {
+      "start": 90.22,
+      "end": 90.4,
+      "word": " that"
+     },
+     {
+      "start": 90.4,
+      "end": 90.6,
+      "word": " trade"
+     },
+     {
+      "start": 90.6,
+      "end": 90.84,
+      "word": " off"
+     },
+     {
+      "start": 90.84,
+      "end": 91.0,
+      "word": " for"
+     },
+     {
+      "start": 91.0,
+      "end": 91.08,
+      "word": " the"
+     },
+     {
+      "start": 91.08,
+      "end": 91.44,
+      "word": " project"
+     },
+     {
+      "start": 91.44,
+      "end": 91.68,
+      "word": " we"
+     },
+     {
+      "start": 91.68,
+      "end": 91.78,
+      "word": " will"
+     },
+     {
+      "start": 91.78,
+      "end": 91.98,
+      "word": " pick"
+     },
+     {
+      "start": 91.98,
+      "end": 92.18,
+      "word": " this"
+     },
+     {
+      "start": 92.18,
+      "end": 92.34,
+      "word": " up"
+     },
+     {
+      "start": 92.34,
+      "end": 92.6,
+      "word": " next"
+     },
+     {
+      "start": 92.6,
+      "end": 92.82,
+      "word": " week"
+     },
+     {
+      "start": 92.82,
+      "end": 93.02,
+      "word": " with"
+     }
+    ]
+   },
+   {
+    "start": 93.02,
+    "end": 93.64,
+    "text": "evaluation.",
+    "words": [
+     {
+      "start": 93.02,
+      "end": 93.64,
+      "word": " evaluation."
+     }
+    ]
+   }
+  ]
+ },
+ "word_segments": [
+  [
+   0.6999999999999977,
+   5.1
+  ],
+  [
+   5.1,
+   9.3
+  ],
+  [
+   9.3,
+   13.56
+  ],
+  [
+   13.56,
+   16.66
+  ],
+  [
+   17.54,
+   24.64
+  ],
+  [
+   24.64,
+   31.94
+  ],
+  [
+   32.92,
+   34.76
+  ],
+  [
+   36.26,
+   38.4
+  ],
+  [
+   38.4,
+   40.14
+  ],
+  [
+   41.48,
+   44.28
+  ],
+  [
+   44.28,
+   46.8
+  ],
+  [
+   48.32,
+   53.08
+  ],
+  [
+   53.08,
+   54.12
+  ],
+  [
+   55.02,
+   57.74
+  ],
+  [
+   57.74,
+   62.2
+  ],
+  [
+   62.2,
+   63.86
+  ],
+  [
+   65.54,
+   69.18
+  ],
+  [
+   69.18,
+   75.22
+  ],
+  [
+   75.22,
+   77.1
+  ],
+  [
+   78.14,
+   80.46
+  ],
+  [
+   80.46,
+   80.66
+  ],
+  [
+   81.78,
+   87.84
+  ],
+  [
+   87.84,
+   88.36
+  ],
+  [
+   89.58,
+   93.02
+  ],
+  [
+   93.02,
+   93.64
+  ]
+ ],
+ "word_segment_matches": [
+  [
+   {
+    "person_id": "prof",
+    "name": "prof",
+    "score": 0.7715428471565247,
+    "same_speaker": true
+   },
+   {
+    "person_id": "tina",
+    "name": "tina",
+    "score": 0.02869383990764618,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tasmin",
+    "name": "tasmin",
+    "score": 0.0002960190176963806,
+    "same_speaker": false
+   },
+   {
+    "person_id": "koh-qing-jia",
+    "name": "Koh Qing Jia",
+    "score": -0.004376904107630253,
+    "same_speaker": false
+   },
+   {
+    "person_id": "le-yong",
+    "name": "le yong",
+    "score": -0.11932897567749023,
+    "same_speaker": false
+   }
+  ],
+  [
+   {
+    "person_id": "prof",
+    "name": "prof",
+    "score": 0.7888928055763245,
+    "same_speaker": true
+   },
+   {
+    "person_id": "koh-qing-jia",
+    "name": "Koh Qing Jia",
+    "score": 0.1262330263853073,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tasmin",
+    "name": "tasmin",
+    "score": 0.10946060717105865,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tina",
+    "name": "tina",
+    "score": 0.08271654695272446,
+    "same_speaker": false
+   },
+   {
+    "person_id": "le-yong",
+    "name": "le yong",
+    "score": -0.05641592666506767,
+    "same_speaker": false
+   }
+  ],
+  [
+   {
+    "person_id": "prof",
+    "name": "prof",
+    "score": 0.784768283367157,
+    "same_speaker": true
+   },
+   {
+    "person_id": "tasmin",
+    "name": "tasmin",
+    "score": 0.08414062857627869,
+    "same_speaker": false
+   },
+   {
+    "person_id": "koh-qing-jia",
+    "name": "Koh Qing Jia",
+    "score": 0.06842615455389023,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tina",
+    "name": "tina",
+    "score": 0.05535035580396652,
+    "same_speaker": false
+   },
+   {
+    "person_id": "le-yong",
+    "name": "le yong",
+    "score": -0.057406287640333176,
+    "same_speaker": false
+   }
+  ],
+  [
+   {
+    "person_id": "prof",
+    "name": "prof",
+    "score": 0.7419889569282532,
+    "same_speaker": true
+   },
+   {
+    "person_id": "tasmin",
+    "name": "tasmin",
+    "score": 0.1263999044895172,
+    "same_speaker": false
+   },
+   {
+    "person_id": "koh-qing-jia",
+    "name": "Koh Qing Jia",
+    "score": 0.09767812490463257,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tina",
+    "name": "tina",
+    "score": 0.08456844836473465,
+    "same_speaker": false
+   },
+   {
+    "person_id": "le-yong",
+    "name": "le yong",
+    "score": -0.03267613425850868,
+    "same_speaker": false
+   }
+  ],
+  [
+   {
+    "person_id": "koh-qing-jia",
+    "name": "Koh Qing Jia",
+    "score": 0.7483282089233398,
+    "same_speaker": true
+   },
+   {
+    "person_id": "tina",
+    "name": "tina",
+    "score": 0.19070862233638763,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tasmin",
+    "name": "tasmin",
+    "score": 0.11899935454130173,
+    "same_speaker": false
+   },
+   {
+    "person_id": "prof",
+    "name": "prof",
+    "score": 0.10314828157424927,
+    "same_speaker": false
+   },
+   {
+    "person_id": "le-yong",
+    "name": "le yong",
+    "score": 0.012159276753664017,
+    "same_speaker": false
+   }
+  ],
+  [
+   {
+    "person_id": "koh-qing-jia",
+    "name": "Koh Qing Jia",
+    "score": 0.7779701948165894,
+    "same_speaker": true
+   },
+   {
+    "person_id": "tina",
+    "name": "tina",
+    "score": 0.1065330058336258,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tasmin",
+    "name": "tasmin",
+    "score": 0.061919089406728745,
+    "same_speaker": false
+   },
+   {
+    "person_id": "le-yong",
+    "name": "le yong",
+    "score": 0.05385107174515724,
+    "same_speaker": false
+   },
+   {
+    "person_id": "prof",
+    "name": "prof",
+    "score": 0.04729920253157616,
+    "same_speaker": false
+   }
+  ],
+  [
+   {
+    "person_id": "prof",
+    "name": "prof",
+    "score": 0.7202070951461792,
+    "same_speaker": true
+   },
+   {
+    "person_id": "koh-qing-jia",
+    "name": "Koh Qing Jia",
+    "score": 0.02914271131157875,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tina",
+    "name": "tina",
+    "score": 0.026796717196702957,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tasmin",
+    "name": "tasmin",
+    "score": 0.020046986639499664,
+    "same_speaker": false
+   },
+   {
+    "person_id": "le-yong",
+    "name": "le yong",
+    "score": -0.012632330879569054,
+    "same_speaker": false
+   }
+  ],
+  [
+   {
+    "person_id": "tasmin",
+    "name": "tasmin",
+    "score": 0.7137554287910461,
+    "same_speaker": true
+   },
+   {
+    "person_id": "tina",
+    "name": "tina",
+    "score": 0.26402339339256287,
+    "same_speaker": true
+   },
+   {
+    "person_id": "le-yong",
+    "name": "le yong",
+    "score": 0.08855455368757248,
+    "same_speaker": false
+   },
+   {
+    "person_id": "prof",
+    "name": "prof",
+    "score": 0.052791718393564224,
+    "same_speaker": false
+   },
+   {
+    "person_id": "koh-qing-jia",
+    "name": "Koh Qing Jia",
+    "score": 0.029540810734033585,
+    "same_speaker": false
+   }
+  ],
+  [
+   {
+    "person_id": "tasmin",
+    "name": "tasmin",
+    "score": 0.7057520747184753,
+    "same_speaker": true
+   },
+   {
+    "person_id": "tina",
+    "name": "tina",
+    "score": 0.23098400235176086,
+    "same_speaker": false
+   },
+   {
+    "person_id": "koh-qing-jia",
+    "name": "Koh Qing Jia",
+    "score": 0.09072316437959671,
+    "same_speaker": false
+   },
+   {
+    "person_id": "le-yong",
+    "name": "le yong",
+    "score": 0.07423637807369232,
+    "same_speaker": false
+   },
+   {
+    "person_id": "prof",
+    "name": "prof",
+    "score": 0.003140132874250412,
+    "same_speaker": false
+   }
+  ],
+  [
+   {
+    "person_id": "prof",
+    "name": "prof",
+    "score": 0.7911465167999268,
+    "same_speaker": true
+   },
+   {
+    "person_id": "koh-qing-jia",
+    "name": "Koh Qing Jia",
+    "score": -0.002268456853926182,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tasmin",
+    "name": "tasmin",
+    "score": -0.008947756141424179,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tina",
+    "name": "tina",
+    "score": -0.025533102452754974,
+    "same_speaker": false
+   },
+   {
+    "person_id": "le-yong",
+    "name": "le yong",
+    "score": -0.07665936648845673,
+    "same_speaker": false
+   }
+  ],
+  [
+   {
+    "person_id": "prof",
+    "name": "prof",
+    "score": 0.734839141368866,
+    "same_speaker": true
+   },
+   {
+    "person_id": "tina",
+    "name": "tina",
+    "score": 0.06751102954149246,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tasmin",
+    "name": "tasmin",
+    "score": 0.03554829582571983,
+    "same_speaker": false
+   },
+   {
+    "person_id": "koh-qing-jia",
+    "name": "Koh Qing Jia",
+    "score": -8.995924144983292e-05,
+    "same_speaker": false
+   },
+   {
+    "person_id": "le-yong",
+    "name": "le yong",
+    "score": -0.08513753861188889,
+    "same_speaker": false
+   }
+  ],
+  [
+   {
+    "person_id": "tina",
+    "name": "tina",
+    "score": 0.8090136647224426,
+    "same_speaker": true
+   },
+   {
+    "person_id": "tasmin",
+    "name": "tasmin",
+    "score": 0.27544310688972473,
+    "same_speaker": true
+   },
+   {
+    "person_id": "koh-qing-jia",
+    "name": "Koh Qing Jia",
+    "score": 0.13602891564369202,
+    "same_speaker": false
+   },
+   {
+    "person_id": "le-yong",
+    "name": "le yong",
+    "score": 0.08093906939029694,
+    "same_speaker": false
+   },
+   {
+    "person_id": "prof",
+    "name": "prof",
+    "score": 0.05419943854212761,
+    "same_speaker": false
+   }
+  ],
+  [
+   {
+    "person_id": "tina",
+    "name": "tina",
+    "score": 0.6059881448745728,
+    "same_speaker": true
+   },
+   {
+    "person_id": "koh-qing-jia",
+    "name": "Koh Qing Jia",
+    "score": 0.1477251648902893,
+    "same_speaker": false
+   },
+   {
+    "person_id": "prof",
+    "name": "prof",
+    "score": 0.11409793794155121,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tasmin",
+    "name": "tasmin",
+    "score": 0.08637186884880066,
+    "same_speaker": false
+   },
+   {
+    "person_id": "le-yong",
+    "name": "le yong",
+    "score": 0.046678319573402405,
+    "same_speaker": false
+   }
+  ],
+  [
+   {
+    "person_id": "prof",
+    "name": "prof",
+    "score": 0.7599506974220276,
+    "same_speaker": true
+   },
+   {
+    "person_id": "tina",
+    "name": "tina",
+    "score": 0.09486060589551926,
+    "same_speaker": false
+   },
+   {
+    "person_id": "koh-qing-jia",
+    "name": "Koh Qing Jia",
+    "score": 0.08291083574295044,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tasmin",
+    "name": "tasmin",
+    "score": 0.04926784336566925,
+    "same_speaker": false
+   },
+   {
+    "person_id": "le-yong",
+    "name": "le yong",
+    "score": -0.07335777580738068,
+    "same_speaker": false
+   }
+  ],
+  [
+   {
+    "person_id": "prof",
+    "name": "prof",
+    "score": 0.8000367283821106,
+    "same_speaker": true
+   },
+   {
+    "person_id": "tina",
+    "name": "tina",
+    "score": 0.13072480261325836,
+    "same_speaker": false
+   },
+   {
+    "person_id": "koh-qing-jia",
+    "name": "Koh Qing Jia",
+    "score": 0.07174241542816162,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tasmin",
+    "name": "tasmin",
+    "score": 0.050579991191625595,
+    "same_speaker": false
+   },
+   {
+    "person_id": "le-yong",
+    "name": "le yong",
+    "score": -0.09525986760854721,
+    "same_speaker": false
+   }
+  ],
+  [
+   {
+    "person_id": "prof",
+    "name": "prof",
+    "score": 0.6635200381278992,
+    "same_speaker": true
+   },
+   {
+    "person_id": "koh-qing-jia",
+    "name": "Koh Qing Jia",
+    "score": 0.057314954698085785,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tina",
+    "name": "tina",
+    "score": 0.03619025647640228,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tasmin",
+    "name": "tasmin",
+    "score": 0.012698052451014519,
+    "same_speaker": false
+   },
+   {
+    "person_id": "le-yong",
+    "name": "le yong",
+    "score": -0.09614551067352295,
+    "same_speaker": false
+   }
+  ],
+  [
+   {
+    "person_id": "le-yong",
+    "name": "le yong",
+    "score": 0.7393105030059814,
+    "same_speaker": true
+   },
+   {
+    "person_id": "koh-qing-jia",
+    "name": "Koh Qing Jia",
+    "score": 0.22402428090572357,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tasmin",
+    "name": "tasmin",
+    "score": 0.05053111910820007,
+    "same_speaker": false
+   },
+   {
+    "person_id": "prof",
+    "name": "prof",
+    "score": 0.0341062918305397,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tina",
+    "name": "tina",
+    "score": -0.008203532546758652,
+    "same_speaker": false
+   }
+  ],
+  [
+   {
+    "person_id": "le-yong",
+    "name": "le yong",
+    "score": 0.7604613900184631,
+    "same_speaker": true
+   },
+   {
+    "person_id": "koh-qing-jia",
+    "name": "Koh Qing Jia",
+    "score": 0.22111254930496216,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tasmin",
+    "name": "tasmin",
+    "score": 0.06843549758195877,
+    "same_speaker": false
+   },
+   {
+    "person_id": "prof",
+    "name": "prof",
+    "score": 0.03464158624410629,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tina",
+    "name": "tina",
+    "score": 0.00147236417979002,
+    "same_speaker": false
+   }
+  ],
+  [
+   {
+    "person_id": "le-yong",
+    "name": "le yong",
+    "score": 0.7125914692878723,
+    "same_speaker": true
+   },
+   {
+    "person_id": "koh-qing-jia",
+    "name": "Koh Qing Jia",
+    "score": 0.11243162304162979,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tasmin",
+    "name": "tasmin",
+    "score": 0.07741908729076385,
+    "same_speaker": false
+   },
+   {
+    "person_id": "prof",
+    "name": "prof",
+    "score": 0.011749913915991783,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tina",
+    "name": "tina",
+    "score": -0.05530931428074837,
+    "same_speaker": false
+   }
+  ],
+  [
+   {
+    "person_id": "prof",
+    "name": "prof",
+    "score": 0.813696026802063,
+    "same_speaker": true
+   },
+   {
+    "person_id": "tina",
+    "name": "tina",
+    "score": 0.10247689485549927,
+    "same_speaker": false
+   },
+   {
+    "person_id": "koh-qing-jia",
+    "name": "Koh Qing Jia",
+    "score": 0.04184389114379883,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tasmin",
+    "name": "tasmin",
+    "score": 0.03842370584607124,
+    "same_speaker": false
+   },
+   {
+    "person_id": "le-yong",
+    "name": "le yong",
+    "score": 0.015014354139566422,
+    "same_speaker": false
+   }
+  ],
+  null,
+  [
+   {
+    "person_id": "koh-qing-jia",
+    "name": "Koh Qing Jia",
+    "score": 0.8006377220153809,
+    "same_speaker": true
+   },
+   {
+    "person_id": "tina",
+    "name": "tina",
+    "score": 0.15848121047019958,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tasmin",
+    "name": "tasmin",
+    "score": 0.09708542376756668,
+    "same_speaker": false
+   },
+   {
+    "person_id": "le-yong",
+    "name": "le yong",
+    "score": 0.06980421394109726,
+    "same_speaker": false
+   },
+   {
+    "person_id": "prof",
+    "name": "prof",
+    "score": 0.022550715133547783,
+    "same_speaker": false
+   }
+  ],
+  [
+   {
+    "person_id": "koh-qing-jia",
+    "name": "Koh Qing Jia",
+    "score": 0.3082195818424225,
+    "same_speaker": true
+   },
+   {
+    "person_id": "tina",
+    "name": "tina",
+    "score": 0.13836511969566345,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tasmin",
+    "name": "tasmin",
+    "score": 0.13558530807495117,
+    "same_speaker": false
+   },
+   {
+    "person_id": "le-yong",
+    "name": "le yong",
+    "score": 0.025894053280353546,
+    "same_speaker": false
+   },
+   {
+    "person_id": "prof",
+    "name": "prof",
+    "score": -0.031904589384794235,
+    "same_speaker": false
+   }
+  ],
+  [
+   {
+    "person_id": "prof",
+    "name": "prof",
+    "score": 0.8384151458740234,
+    "same_speaker": true
+   },
+   {
+    "person_id": "tasmin",
+    "name": "tasmin",
+    "score": 0.10032138228416443,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tina",
+    "name": "tina",
+    "score": 0.06482326239347458,
+    "same_speaker": false
+   },
+   {
+    "person_id": "koh-qing-jia",
+    "name": "Koh Qing Jia",
+    "score": 0.06202951446175575,
+    "same_speaker": false
+   },
+   {
+    "person_id": "le-yong",
+    "name": "le yong",
+    "score": -0.04342055320739746,
+    "same_speaker": false
+   }
+  ],
+  [
+   {
+    "person_id": "prof",
+    "name": "prof",
+    "score": 0.5468162298202515,
+    "same_speaker": true
+   },
+   {
+    "person_id": "tasmin",
+    "name": "tasmin",
+    "score": 0.07489843666553497,
+    "same_speaker": false
+   },
+   {
+    "person_id": "koh-qing-jia",
+    "name": "Koh Qing Jia",
+    "score": 0.0387539267539978,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tina",
+    "name": "tina",
+    "score": 0.014966420829296112,
+    "same_speaker": false
+   },
+   {
+    "person_id": "le-yong",
+    "name": "le yong",
+    "score": -0.053996000438928604,
+    "same_speaker": false
+   }
+  ]
+ ],
+ "word_segment_scoring_s": 2.9725746288895607,
+ "turn_spans": [
+  [
+   0.6999999999999977,
+   16.66
+  ],
+  [
+   17.54,
+   31.94
+  ],
+  [
+   36.26,
+   40.14
+  ],
+  [
+   41.48,
+   46.8
+  ],
+  [
+   48.32,
+   54.12
+  ],
+  [
+   55.02,
+   63.86
+  ],
+  [
+   65.54,
+   77.1
+  ],
+  [
+   78.14,
+   80.66
+  ],
+  [
+   81.78,
+   88.36
+  ],
+  [
+   89.58,
+   93.64
+  ]
+ ],
+ "turn_matches": [
+  [
+   {
+    "person_id": "prof",
+    "name": "prof",
+    "score": 0.8465994000434875,
+    "same_speaker": true
+   },
+   {
+    "person_id": "koh-qing-jia",
+    "name": "Koh Qing Jia",
+    "score": 0.07624087482690811,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tasmin",
+    "name": "tasmin",
+    "score": 0.07268184423446655,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tina",
+    "name": "tina",
+    "score": 0.0706818699836731,
+    "same_speaker": false
+   },
+   {
+    "person_id": "le-yong",
+    "name": "le yong",
+    "score": -0.08121733367443085,
+    "same_speaker": false
+   }
+  ],
+  [
+   {
+    "person_id": "koh-qing-jia",
+    "name": "Koh Qing Jia",
+    "score": 0.7946855425834656,
+    "same_speaker": true
+   },
+   {
+    "person_id": "tina",
+    "name": "tina",
+    "score": 0.14620435237884521,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tasmin",
+    "name": "tasmin",
+    "score": 0.10272835195064545,
+    "same_speaker": false
+   },
+   {
+    "person_id": "prof",
+    "name": "prof",
+    "score": 0.08291647583246231,
+    "same_speaker": false
+   },
+   {
+    "person_id": "le-yong",
+    "name": "le yong",
+    "score": 0.0355389341711998,
+    "same_speaker": false
+   }
+  ],
+  [
+   {
+    "person_id": "tasmin",
+    "name": "tasmin",
+    "score": 0.7781533598899841,
+    "same_speaker": true
+   },
+   {
+    "person_id": "tina",
+    "name": "tina",
+    "score": 0.2781469523906708,
+    "same_speaker": true
+   },
+   {
+    "person_id": "le-yong",
+    "name": "le yong",
+    "score": 0.090537428855896,
+    "same_speaker": false
+   },
+   {
+    "person_id": "koh-qing-jia",
+    "name": "Koh Qing Jia",
+    "score": 0.08595569431781769,
+    "same_speaker": false
+   },
+   {
+    "person_id": "prof",
+    "name": "prof",
+    "score": 0.035133134573698044,
+    "same_speaker": false
+   }
+  ],
+  [
+   {
+    "person_id": "prof",
+    "name": "prof",
+    "score": 0.833859920501709,
+    "same_speaker": true
+   },
+   {
+    "person_id": "tina",
+    "name": "tina",
+    "score": 0.01655217632651329,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tasmin",
+    "name": "tasmin",
+    "score": 0.01340056024491787,
+    "same_speaker": false
+   },
+   {
+    "person_id": "koh-qing-jia",
+    "name": "Koh Qing Jia",
+    "score": 0.009941844269633293,
+    "same_speaker": false
+   },
+   {
+    "person_id": "le-yong",
+    "name": "le yong",
+    "score": -0.09559637308120728,
+    "same_speaker": false
+   }
+  ],
+  [
+   {
+    "person_id": "tina",
+    "name": "tina",
+    "score": 0.8324917554855347,
+    "same_speaker": true
+   },
+   {
+    "person_id": "tasmin",
+    "name": "tasmin",
+    "score": 0.2554648220539093,
+    "same_speaker": true
+   },
+   {
+    "person_id": "koh-qing-jia",
+    "name": "Koh Qing Jia",
+    "score": 0.14445433020591736,
+    "same_speaker": false
+   },
+   {
+    "person_id": "prof",
+    "name": "prof",
+    "score": 0.0716525986790657,
+    "same_speaker": false
+   },
+   {
+    "person_id": "le-yong",
+    "name": "le yong",
+    "score": 0.06704656034708023,
+    "same_speaker": false
+   }
+  ],
+  [
+   {
+    "person_id": "prof",
+    "name": "prof",
+    "score": 0.8265991806983948,
+    "same_speaker": true
+   },
+   {
+    "person_id": "tina",
+    "name": "tina",
+    "score": 0.10749934613704681,
+    "same_speaker": false
+   },
+   {
+    "person_id": "koh-qing-jia",
+    "name": "Koh Qing Jia",
+    "score": 0.06836298108100891,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tasmin",
+    "name": "tasmin",
+    "score": 0.0436711311340332,
+    "same_speaker": false
+   },
+   {
+    "person_id": "le-yong",
+    "name": "le yong",
+    "score": -0.10506542026996613,
+    "same_speaker": false
+   }
+  ],
+  [
+   {
+    "person_id": "le-yong",
+    "name": "le yong",
+    "score": 0.7793512940406799,
+    "same_speaker": true
+   },
+   {
+    "person_id": "koh-qing-jia",
+    "name": "Koh Qing Jia",
+    "score": 0.19413360953330994,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tasmin",
+    "name": "tasmin",
+    "score": 0.07025650888681412,
+    "same_speaker": false
+   },
+   {
+    "person_id": "prof",
+    "name": "prof",
+    "score": 0.041342221200466156,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tina",
+    "name": "tina",
+    "score": -0.01878068596124649,
+    "same_speaker": false
+   }
+  ],
+  [
+   {
+    "person_id": "prof",
+    "name": "prof",
+    "score": 0.816523015499115,
+    "same_speaker": true
+   },
+   {
+    "person_id": "tina",
+    "name": "tina",
+    "score": 0.10130913555622101,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tasmin",
+    "name": "tasmin",
+    "score": 0.046487729996442795,
+    "same_speaker": false
+   },
+   {
+    "person_id": "koh-qing-jia",
+    "name": "Koh Qing Jia",
+    "score": 0.04506999999284744,
+    "same_speaker": false
+   },
+   {
+    "person_id": "le-yong",
+    "name": "le yong",
+    "score": 0.011246081441640854,
+    "same_speaker": false
+   }
+  ],
+  [
+   {
+    "person_id": "koh-qing-jia",
+    "name": "Koh Qing Jia",
+    "score": 0.7968701720237732,
+    "same_speaker": true
+   },
+   {
+    "person_id": "tina",
+    "name": "tina",
+    "score": 0.1650572419166565,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tasmin",
+    "name": "tasmin",
+    "score": 0.10132386535406113,
+    "same_speaker": false
+   },
+   {
+    "person_id": "le-yong",
+    "name": "le yong",
+    "score": 0.06348258256912231,
+    "same_speaker": false
+   },
+   {
+    "person_id": "prof",
+    "name": "prof",
+    "score": 0.024775035679340363,
+    "same_speaker": false
+   }
+  ],
+  [
+   {
+    "person_id": "prof",
+    "name": "prof",
+    "score": 0.8471925854682922,
+    "same_speaker": true
+   },
+   {
+    "person_id": "tasmin",
+    "name": "tasmin",
+    "score": 0.10011163353919983,
+    "same_speaker": false
+   },
+   {
+    "person_id": "koh-qing-jia",
+    "name": "Koh Qing Jia",
+    "score": 0.0701775848865509,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tina",
+    "name": "tina",
+    "score": 0.06237500160932541,
+    "same_speaker": false
+   },
+   {
+    "person_id": "le-yong",
+    "name": "le yong",
+    "score": -0.04985484480857849,
+    "same_speaker": false
+   }
+  ]
+ ]
+}

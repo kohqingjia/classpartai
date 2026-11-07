@@ -1,1 +1,5275 @@
-{"id":"06-dominant","audio_seconds":97.6094375,"script":{"id":"06-dominant","title":"Demo 6 \u00b7 Transformers: one student dominates","case":"Qing Jia speaks at length; the others give one or two short answers. Length alone must not earn marks; short but correct answers still count.","lines":[{"speaker":"Prof Lim (demo)","text":"Today we look inside the transformer. What problem does self attention solve compared with a recurrent network?","start":0.8,"end":7.11},{"speaker":"Koh Qing Jia","text":"A recurrent network processes tokens one at a time, so information from early tokens has to survive many steps and it's hard to parallelise. Self attention lets every token look at every other token directly in one step, so long range dependencies are easier and you can train on the whole sequence in parallel on a GPU, which is why transformers scaled so well.","start":8.3,"end":35.63},{"speaker":"Prof Lim (demo)","text":"Good. What are the query, key and value?","start":36.37,"end":38.99},{"speaker":"Koh Qing Jia","text":"Each token is projected into a query, a key and a value. You take the dot product of a query with all the keys, scale it, apply a softmax to get attention weights, and then take the weighted sum of the values. And with multiple heads you do this several times in parallel so different heads can focus on different relationships, like syntax in one head and coreference in another.","start":40.04,"end":68.77},{"speaker":"Prof Lim (demo)","text":"Why do we divide by the square root of the key dimension?","start":69.86,"end":73.05},{"speaker":"Tina","text":"So the softmax doesn't saturate.","start":74.07,"end":75.74},{"speaker":"Prof Lim (demo)","text":"Yes. And since attention has no notion of order, what do we add?","start":76.82,"end":81.03},{"speaker":"Tasmin","text":"We add positional encodings.","start":82.05,"end":83.53},{"speaker":"Prof Lim (demo)","text":"Correct. Le Yong, encoder or decoder, which one uses masking?","start":84.27,"end":88.96},{"speaker":"Le Yong","text":"The decoder, so a token can't attend to future tokens.","start":89.67,"end":93.4},{"speaker":"Prof Lim (demo)","text":"Good. That's the core of the architecture.","start":94.34,"end":96.76}]},"registry":{"demo-professor":"Prof Demo","koh-qing-jia":"Koh Qing Jia","tasmin":"tasmin","tina":"tina","le-yong":"le yong","prof":"prof","demo-prof-lim":"Prof Lim (demo)"},"pipeline":{"language":"en","whisper_segments":[{"start":0.0,"end":3.0,"text":"Today we look inside the transformer."},{"start":3.0,"end":8.0,"text":"What problem does self-attention solve compared with a recurrent network?"},{"start":8.0,"end":13.0,"text":"Aerie recurrent network processes tokens one at a time."},{"start":13.0,"end":19.0,"text":"So information from early tokens has to survive many steps and it's hard to parallelize."},{"start":19.0,"end":25.0,"text":"Self-attention lets every token look at every other token directly in one step."},{"start":25.0,"end":33.0,"text":"So long-range dependencies are easier and you can train on the whole sequence in parallel on a GPU,"},{"start":33.0,"end":36.0,"text":"which is why transformer scaled so well."},{"start":36.0,"end":38.0,"text":"Good. What are the query?"},{"start":38.0,"end":40.0,"text":"Key and value."},{"start":40.0,"end":45.0,"text":"Each token is projected into a query, a key and a value."},{"start":45.0,"end":53.0,"text":"You take the dot product of a query with all the keys, scale it, apply a softmax to get attention weights,"},{"start":53.0,"end":57.0,"text":"and then take the weighted sum of the values."},{"start":57.0,"end":70.0,"text":"And with multiple heads you do this several times in parallel so different heads can focus on different relationships like syntax in one head and co-reference in another."},{"start":70.0,"end":74.0,"text":"Why do we divide by the square root of the key dimension?"},{"start":74.0,"end":77.0,"text":"So the softmax doesn't saturate."},{"start":77.0,"end":82.0,"text":"Yes, and since attention has no notion of order, what do we add?"},{"start":82.0,"end":84.0,"text":"We add position encodings."},{"start":84.0,"end":90.0,"text":"Correct, Le Young, encoder or decoder, which one uses masking?"},{"start":90.0,"end":94.0,"text":"The decoder so a token can't attend to future tokens."},{"start":94.0,"end":97.0,"text":"Good, that's the core of the architecture."}],"aligned_segments":[{"start":0.0,"end":3.0,"speaker":"SPEAKER_02","text":"Today we look inside the transformer."},{"start":3.0,"end":8.0,"speaker":"SPEAKER_02","text":"What problem does self-attention solve compared with a recurrent network?"},{"start":8.0,"end":13.0,"speaker":"SPEAKER_03","text":"Aerie recurrent network processes tokens one at a time."},{"start":13.0,"end":19.0,"speaker":"SPEAKER_03","text":"So information from early tokens has to survive many steps and it's hard to parallelize."},{"start":19.0,"end":25.0,"speaker":"SPEAKER_03","text":"Self-attention lets every token look at every other token directly in one step."},{"start":25.0,"end":33.0,"speaker":"SPEAKER_03","text":"So long-range dependencies are easier and you can train on the whole sequence in parallel on a GPU,"},{"start":33.0,"end":36.0,"speaker":"SPEAKER_03","text":"which is why transformer scaled so well."},{"start":36.0,"end":38.0,"speaker":"SPEAKER_02","text":"Good. What are the query?"},{"start":38.0,"end":40.0,"speaker":"SPEAKER_02","text":"Key and value."},{"start":40.0,"end":45.0,"speaker":"SPEAKER_03","text":"Each token is projected into a query, a key and a value."},{"start":45.0,"end":53.0,"speaker":"SPEAKER_03","text":"You take the dot product of a query with all the keys, scale it, apply a softmax to get attention weights,"},{"start":53.0,"end":57.0,"speaker":"SPEAKER_03","text":"and then take the weighted sum of the values."},{"start":57.0,"end":70.0,"speaker":"SPEAKER_03","text":"And with multiple heads you do this several times in parallel so different heads can focus on different relationships like syntax in one head and co-reference in another."},{"start":70.0,"end":74.0,"speaker":"SPEAKER_02","text":"Why do we divide by the square root of the key dimension?"},{"start":74.0,"end":77.0,"speaker":"SPEAKER_00","text":"So the softmax doesn't saturate."},{"start":77.0,"end":82.0,"speaker":"SPEAKER_02","text":"Yes, and since attention has no notion of order, what do we add?"},{"start":82.0,"end":84.0,"speaker":"SPEAKER_00","text":"We add position encodings."},{"start":84.0,"end":90.0,"speaker":"SPEAKER_02","text":"Correct, Le Young, encoder or decoder, which one uses masking?"},{"start":90.0,"end":94.0,"speaker":"SPEAKER_01","text":"The decoder so a token can't attend to future tokens."},{"start":94.0,"end":97.0,"speaker":"SPEAKER_02","text":"Good, that's the core of the architecture."}],"voice_matches":{"SPEAKER_02":{"name":"Prof Lim (demo)","status":"identified","score":0.9596477150917053,"matches":[{"person_id":"demo-prof-lim","name":"Prof Lim (demo)","score":0.9596477150917053,"same_speaker":true},{"person_id":"tina","name":"tina","score":0.06677459180355072,"same_speaker":false},{"person_id":"demo-professor","name":"Prof Demo","score":0.058939751237630844,"same_speaker":false},{"person_id":"prof","name":"prof","score":0.002871757373213768,"same_speaker":false},{"person_id":"le-yong","name":"le yong","score":-0.021171197295188904,"same_speaker":false},{"person_id":"tasmin","name":"tasmin","score":-0.027637643739581108,"same_speaker":false},{"person_id":"koh-qing-jia","name":"Koh Qing Jia","score":-0.06099286675453186,"same_speaker":false}]},"SPEAKER_03":{"name":"Koh Qing Jia","status":"identified","score":0.8366014957427979,"matches":[{"person_id":"koh-qing-jia","name":"Koh Qing Jia","score":0.8366014957427979,"same_speaker":true},{"person_id":"tina","name":"tina","score":0.14018242061138153,"same_speaker":false},{"person_id":"demo-professor","name":"Prof Demo","score":0.1211404949426651,"same_speaker":false},{"person_id":"prof","name":"prof","score":0.08148255199193954,"same_speaker":false},{"person_id":"tasmin","name":"tasmin","score":0.07437393814325333,"same_speaker":false},{"person_id":"le-yong","name":"le yong","score":0.037355996668338776,"same_speaker":false},{"person_id":"demo-prof-lim","name":"Prof Lim (demo)","score":0.03698623180389404,"same_speaker":false}]},"SPEAKER_00":{"name":"AMBIGUOUS","status":"ambiguous","matches":[{"person_id":"tina","name":"tina","score":0.6771457195281982,"same_speaker":true},{"person_id":"tasmin","name":"tasmin","score":0.3674483299255371,"same_speaker":true},{"person_id":"koh-qing-jia","name":"Koh Qing Jia","score":0.19724592566490173,"same_speaker":false},{"person_id":"prof","name":"prof","score":0.10670475661754608,"same_speaker":false},{"person_id":"demo-professor","name":"Prof Demo","score":0.04688050225377083,"same_speaker":false},{"person_id":"demo-prof-lim","name":"Prof Lim (demo)","score":0.019553687423467636,"same_speaker":false},{"person_id":"le-yong","name":"le yong","score":0.018134120851755142,"same_speaker":false}]},"SPEAKER_01":{"name":"le yong","status":"identified","score":0.7495135068893433,"matches":[{"person_id":"le-yong","name":"le yong","score":0.7495135068893433,"same_speaker":true},{"person_id":"koh-qing-jia","name":"Koh Qing Jia","score":0.1896946132183075,"same_speaker":false},{"person_id":"tasmin","name":"tasmin","score":0.10775456577539444,"same_speaker":false},{"person_id":"demo-professor","name":"Prof Demo","score":0.0650535374879837,"same_speaker":false},{"person_id":"prof","name":"prof","score":0.0038234752137213945,"same_speaker":false},{"person_id":"tina","name":"tina","score":0.0011908002197742462,"same_speaker":false},{"person_id":"demo-prof-lim","name":"Prof Lim (demo)","score":-0.03324592486023903,"same_speaker":false}]}},"speaker_identities":{"SPEAKER_02":"Prof Lim (demo)","SPEAKER_03":"Koh Qing Jia","SPEAKER_00":"AMBIGUOUS","SPEAKER_01":"le yong"},"segments":[{"start":0.0,"end":8.0,"speaker":"Prof Lim (demo)","original_speaker":"SPEAKER_02","text":"Today we look inside the transformer. What problem does self-attention solve compared with a recurrent network?"},{"start":8.0,"end":36.0,"speaker":"Koh Qing Jia","original_speaker":"SPEAKER_03","text":"Aerie recurrent network processes tokens one at a time. So information from early tokens has to survive many steps and it's hard to parallelize. Self-attention lets every token look at every other token directly in one step. So long-range dependencies are easier and you can train on the whole sequence in parallel on a GPU, which is why transformer scaled so well."},{"start":36.0,"end":40.0,"speaker":"Prof Lim (demo)","original_speaker":"SPEAKER_02","text":"Good. What are the query? Key and value."},{"start":40.0,"end":70.0,"speaker":"Koh Qing Jia","original_speaker":"SPEAKER_03","text":"Each token is projected into a query, a key and a value. You take the dot product of a query with all the keys, scale it, apply a softmax to get attention weights, and then take the weighted sum of the values. And with multiple heads you do this several times in parallel so different heads can focus on different relationships like syntax in one head and co-reference in another."},{"start":70.0,"end":74.0,"speaker":"Prof Lim (demo)","original_speaker":"SPEAKER_02","text":"Why do we divide by the square root of the key dimension?"},{"start":74.0,"end":77.0,"speaker":"AMBIGUOUS","original_speaker":"SPEAKER_00","text":"So the softmax doesn't saturate."},{"start":77.0,"end":82.0,"speaker":"Prof Lim (demo)","original_speaker":"SPEAKER_02","text":"Yes, and since attention has no notion of order, what do we add?"},{"start":82.0,"end":84.0,"speaker":"AMBIGUOUS","original_speaker":"SPEAKER_00","text":"We add position encodings."},{"start":84.0,"end":90.0,"speaker":"Prof Lim (demo)","original_speaker":"SPEAKER_02","text":"Correct, Le Young, encoder or decoder, which one uses masking?"},{"start":90.0,"end":94.0,"speaker":"le yong","original_speaker":"SPEAKER_01","text":"The decoder so a token can't attend to future tokens."},{"start":94.0,"end":97.0,"speaker":"Prof Lim (demo)","original_speaker":"SPEAKER_02","text":"Good, that's the core of the architecture."}],"diarization_turns":[{"start":0.8072187500000001,"end":7.050968750000001,"speaker":"SPEAKER_02"},{"start":8.56971875,"end":35.65409375,"speaker":"SPEAKER_03"},{"start":36.345968750000004,"end":39.01221875,"speaker":"SPEAKER_02"},{"start":40.41284375,"end":68.71221875,"speaker":"SPEAKER_03"},{"start":69.85971875,"end":73.04909375,"speaker":"SPEAKER_02"},{"start":74.29784375,"end":75.78284375,"speaker":"SPEAKER_00"},{"start":76.77846875,"end":81.06471875000001,"speaker":"SPEAKER_02"},{"start":82.29659375,"end":83.59596875000001,"speaker":"SPEAKER_00"},{"start":84.25409375000001,"end":88.96221875,"speaker":"SPEAKER_02"},{"start":90.19409375000001,"end":93.43409375,"speaker":"SPEAKER_01"},{"start":94.32846875,"end":96.77534375,"speaker":"SPEAKER_02"}],"timings":{"transcription_s":14.60585590195842,"diarization_s":174.6628559809178,"total_s":260.4306699791923}},"segment_matches":[[{"person_id":"demo-prof-lim","name":"Prof Lim (demo)","score":0.8668327331542969,"same_speaker":true},{"person_id":"demo-professor","name":"Prof Demo","score":0.08672446012496948,"same_speaker":false},{"person_id":"prof","name":"prof","score":0.07858597487211227,"same_speaker":false},{"person_id":"tina","name":"tina","score":0.07595636695623398,"same_speaker":false},{"person_id":"le-yong","name":"le yong","score":-0.02379181794822216,"same_speaker":false},{"person_id":"tasmin","name":"tasmin","score":-0.031641069799661636,"same_speaker":false},{"person_id":"koh-qing-jia","name":"Koh Qing Jia","score":-0.07950430363416672,"same_speaker":false}],[{"person_id":"demo-prof-lim","name":"Prof Lim (demo)","score":0.8612111806869507,"same_speaker":true},{"person_id":"tina","name":"tina","score":0.11057526618242264,"same_speaker":false},{"person_id":"demo-professor","name":"Prof Demo","score":0.059052567929029465,"same_speaker":false},{"person_id":"le-yong","name":"le yong","score":0.0031518111936748028,"same_speaker":false},{"person_id":"prof","name":"prof","score":-0.000351964496076107,"same_speaker":false},{"person_id":"tasmin","name":"tasmin","score":-0.004408234730362892,"same_speaker":false},{"person_id":"koh-qing-jia","name":"Koh Qing Jia","score":-0.050339773297309875,"same_speaker":false}],[{"person_id":"koh-qing-jia","name":"Koh Qing Jia","score":0.753305971622467,"same_speaker":true},{"person_id":"tina","name":"tina","score":0.12034738808870316,"same_speaker":false},{"person_id":"tasmin","name":"tasmin","score":0.08840534836053848,"same_speaker":false},{"person_id":"prof","name":"prof","score":0.07113803923130035,"same_speaker":false},{"person_id":"demo-professor","name":"Prof Demo","score":0.058238543570041656,"same_speaker":false},{"person_id":"demo-prof-lim","name":"Prof Lim (demo)","score":0.03752906247973442,"same_speaker":false},{"person_id":"le-yong","name":"le yong","score":0.03082762286067009,"same_speaker":false}],[{"person_id":"koh-qing-jia","name":"Koh Qing Jia","score":0.8053486943244934,"same_speaker":true},{"person_id":"demo-professor","name":"Prof Demo","score":0.14178547263145447,"same_speaker":false},{"person_id":"tina","name":"tina","score":0.1291300654411316,"same_speaker":false},{"person_id":"le-yong","name":"le yong","score":0.07726239413022995,"same_speaker":false},{"person_id":"tasmin","name":"tasmin","score":0.07262329757213593,"same_speaker":false},{"person_id":"prof","name":"prof","score":0.05597897991538048,"same_speaker":false},{"person_id":"demo-prof-lim","name":"Prof Lim (demo)","score":0.04843565449118614,"same_speaker":false}],[{"person_id":"koh-qing-jia","name":"Koh Qing Jia","score":0.7680504322052002,"same_speaker":true},{"person_id":"tina","name":"tina","score":0.13339917361736298,"same_speaker":false},{"person_id":"prof","name":"prof","score":0.12774063646793365,"same_speaker":false},{"person_id":"demo-professor","name":"Prof Demo","score":0.12284649163484573,"same_speaker":false},{"person_id":"tasmin","name":"tasmin","score":0.08160381019115448,"same_speaker":false},{"person_id":"le-yong","name":"le yong","score":0.04106862097978592,"same_speaker":false},{"person_id":"demo-prof-lim","name":"Prof Lim (demo)","score":0.031068015843629837,"same_speaker":false}],[{"person_id":"koh-qing-jia","name":"Koh Qing Jia","score":0.8146972060203552,"same_speaker":true},{"person_id":"tina","name":"tina","score":0.19015412032604218,"same_speaker":false},{"person_id":"demo-professor","name":"Prof Demo","score":0.15917235612869263,"same_speaker":false},{"person_id":"tasmin","name":"tasmin","score":0.08847200870513916,"same_speaker":false},{"person_id":"le-yong","name":"le yong","score":0.056921571493148804,"same_speaker":false},{"person_id":"demo-prof-lim","name":"Prof Lim (demo)","score":0.05441104620695114,"same_speaker":false},{"person_id":"prof","name":"prof","score":0.023495787754654884,"same_speaker":false}],[{"person_id":"koh-qing-jia","name":"Koh Qing Jia","score":0.6028538942337036,"same_speaker":true},{"person_id":"tina","name":"tina","score":0.1814562827348709,"same_speaker":false},{"person_id":"prof","name":"prof","score":0.10113774240016937,"same_speaker":false},{"person_id":"demo-professor","name":"Prof Demo","score":0.07467769086360931,"same_speaker":false},{"person_id":"tasmin","name":"tasmin","score":0.050422318279743195,"same_speaker":false},{"person_id":"demo-prof-lim","name":"Prof Lim (demo)","score":0.008330240845680237,"same_speaker":false},{"person_id":"le-yong","name":"le yong","score":-0.12492581456899643,"same_speaker":false}],[{"person_id":"demo-prof-lim","name":"Prof Lim (demo)","score":0.5330241918563843,"same_speaker":true},{"person_id":"demo-professor","name":"Prof Demo","score":0.10395903140306473,"same_speaker":false},{"person_id":"le-yong","name":"le yong","score":0.08292027562856674,"same_speaker":false},{"person_id":"tasmin","name":"tasmin","score":0.046972695738077164,"same_speaker":false},{"person_id":"prof","name":"prof","score":0.02611006423830986,"same_speaker":false},{"person_id":"tina","name":"tina","score":0.023123543709516525,"same_speaker":false},{"person_id":"koh-qing-jia","name":"Koh Qing Jia","score":-0.06527429819107056,"same_speaker":false}],[{"person_id":"demo-prof-lim","name":"Prof Lim (demo)","score":0.46336403489112854,"same_speaker":true},{"person_id":"prof","name":"prof","score":0.08687199652194977,"same_speaker":false},{"person_id":"tasmin","name":"tasmin","score":0.03852806240320206,"same_speaker":false},{"person_id":"le-yong","name":"le yong","score":0.02284003235399723,"same_speaker":false},{"person_id":"tina","name":"tina","score":0.01984703727066517,"same_speaker":false},{"person_id":"koh-qing-jia","name":"Koh Qing Jia","score":0.007320396602153778,"same_speaker":false},{"person_id":"demo-professor","name":"Prof Demo","score":-0.034141045063734055,"same_speaker":false}],[{"person_id":"koh-qing-jia","name":"Koh Qing Jia","score":0.7238655090332031,"same_speaker":true},{"person_id":"tina","name":"tina","score":0.12860262393951416,"same_speaker":false},{"person_id":"demo-professor","name":"Prof Demo","score":0.07323335111141205,"same_speaker":false},{"person_id":"prof","name":"prof","score":0.07042345404624939,"same_speaker":false},{"person_id":"tasmin","name":"tasmin","score":0.04757078364491463,"same_speaker":false},{"person_id":"le-yong","name":"le yong","score":0.038757409900426865,"same_speaker":false},{"person_id":"demo-prof-lim","name":"Prof Lim (demo)","score":0.0030179228633642197,"same_speaker":false}],[{"person_id":"koh-qing-jia","name":"Koh Qing Jia","score":0.7790010571479797,"same_speaker":true},{"person_id":"demo-professor","name":"Prof Demo","score":0.15239852666854858,"same_speaker":false},{"person_id":"prof","name":"prof","score":0.0927198976278305,"same_speaker":false},{"person_id":"tina","name":"tina","score":0.06543666124343872,"same_speaker":false},{"person_id":"demo-prof-lim","name":"Prof Lim (demo)","score":0.05416293814778328,"same_speaker":false},{"person_id":"tasmin","name":"tasmin","score":0.028086526319384575,"same_speaker":false},{"person_id":"le-yong","name":"le yong","score":0.01868760958313942,"same_speaker":false}],[{"person_id":"koh-qing-jia","name":"Koh Qing Jia","score":0.7969586849212646,"same_speaker":true},{"person_id":"demo-professor","name":"Prof Demo","score":0.10812340676784515,"same_speaker":false},{"person_id":"tina","name":"tina","score":0.10778453946113586,"same_speaker":false},{"person_id":"tasmin","name":"tasmin","score":0.09278558939695358,"same_speaker":false},{"person_id":"prof","name":"prof","score":0.08969970047473907,"same_speaker":false},{"person_id":"le-yong","name":"le yong","score":0.06461980938911438,"same_speaker":false},{"person_id":"demo-prof-lim","name":"Prof Lim (demo)","score":-0.05613837018609047,"same_speaker":false}],[{"person_id":"koh-qing-jia","name":"Koh Qing Jia","score":0.7748492360115051,"same_speaker":true},{"person_id":"tina","name":"tina","score":0.16079670190811157,"same_speaker":false},{"person_id":"prof","name":"prof","score":0.09433287382125854,"same_speaker":false},{"person_id":"demo-professor","name":"Prof Demo","score":0.09236465394496918,"same_speaker":false},{"person_id":"tasmin","name":"tasmin","score":0.06700734049081802,"same_speaker":false},{"person_id":"demo-prof-lim","name":"Prof Lim (demo)","score":0.06381281465291977,"same_speaker":false},{"person_id":"le-yong","name":"le yong","score":0.05377807468175888,"same_speaker":false}],[{"person_id":"demo-prof-lim","name":"Prof Lim (demo)","score":0.8237091302871704,"same_speaker":true},{"person_id":"le-yong","name":"le yong","score":0.04179345443844795,"same_speaker":false},{"person_id":"demo-professor","name":"Prof Demo","score":0.03722305968403816,"same_speaker":false},{"person_id":"tina","name":"tina","score":0.030935395509004593,"same_speaker":false},{"person_id":"koh-qing-jia","name":"Koh Qing Jia","score":0.02191377431154251,"same_speaker":false},{"person_id":"prof","name":"prof","score":0.0058969128876924515,"same_speaker":false},{"person_id":"tasmin","name":"tasmin","score":-0.07098023593425751,"same_speaker":false}],[{"person_id":"tina","name":"tina","score":0.6321812868118286,"same_speaker":true},{"person_id":"koh-qing-jia","name":"Koh Qing Jia","score":0.20293931663036346,"same_speaker":false},{"person_id":"tasmin","name":"tasmin","score":0.20274806022644043,"same_speaker":false},{"person_id":"demo-professor","name":"Prof Demo","score":0.07875296473503113,"same_speaker":false},{"person_id":"le-yong","name":"le yong","score":0.07688786089420319,"same_speaker":false},{"person_id":"prof","name":"prof","score":0.051843851804733276,"same_speaker":false},{"person_id":"demo-prof-lim","name":"Prof Lim (demo)","score":0.023731324821710587,"same_speaker":false}],[{"person_id":"demo-prof-lim","name":"Prof Lim (demo)","score":0.8850804567337036,"same_speaker":true},{"person_id":"demo-professor","name":"Prof Demo","score":0.03799412399530411,"same_speaker":false},{"person_id":"le-yong","name":"le yong","score":0.027872359380126,"same_speaker":false},{"person_id":"prof","name":"prof","score":0.016471974551677704,"same_speaker":false},{"person_id":"tina","name":"tina","score":0.015513535588979721,"same_speaker":false},{"person_id":"koh-qing-jia","name":"Koh Qing Jia","score":-0.032861366868019104,"same_speaker":false},{"person_id":"tasmin","name":"tasmin","score":-0.03727731853723526,"same_speaker":false}],[{"person_id":"tasmin","name":"tasmin","score":0.6237111687660217,"same_speaker":true},{"person_id":"tina","name":"tina","score":0.35129228234291077,"same_speaker":true},{"person_id":"koh-qing-jia","name":"Koh Qing Jia","score":0.08148398250341415,"same_speaker":false},{"person_id":"le-yong","name":"le yong","score":0.08018545061349869,"same_speaker":false},{"person_id":"prof","name":"prof","score":0.045849502086639404,"same_speaker":false},{"person_id":"demo-prof-lim","name":"Prof Lim (demo)","score":-0.002599777653813362,"same_speaker":false},{"person_id":"demo-professor","name":"Prof Demo","score":-0.009425492957234383,"same_speaker":false}],[{"person_id":"demo-prof-lim","name":"Prof Lim (demo)","score":0.8804079294204712,"same_speaker":true},{"person_id":"demo-professor","name":"Prof Demo","score":0.06060191988945007,"same_speaker":false},{"person_id":"tina","name":"tina","score":0.057561904191970825,"same_speaker":false},{"person_id":"prof","name":"prof","score":0.040881507098674774,"same_speaker":false},{"person_id":"tasmin","name":"tasmin","score":0.02393491193652153,"same_speaker":false},{"person_id":"le-yong","name":"le yong","score":-0.016841160133481026,"same_speaker":false},{"person_id":"koh-qing-jia","name":"Koh Qing Jia","score":-0.0368732251226902,"same_speaker":false}],[{"person_id":"le-yong","name":"le yong","score":0.6220793724060059,"same_speaker":true},{"person_id":"koh-qing-jia","name":"Koh Qing Jia","score":0.259636789560318,"same_speaker":true},{"person_id":"tasmin","name":"tasmin","score":0.06259872764348984,"same_speaker":false},{"person_id":"demo-professor","name":"Prof Demo","score":0.06044731289148331,"same_speaker":false},{"person_id":"prof","name":"prof","score":0.05891304463148117,"same_speaker":false},{"person_id":"tina","name":"tina","score":-0.006933778524398804,"same_speaker":false},{"person_id":"demo-prof-lim","name":"Prof Lim (demo)","score":-0.03955640271306038,"same_speaker":false}],[{"person_id":"demo-prof-lim","name":"Prof Lim (demo)","score":0.7755993604660034,"same_speaker":true},{"person_id":"tina","name":"tina","score":0.06597162038087845,"same_speaker":false},{"person_id":"tasmin","name":"tasmin","score":0.03662336990237236,"same_speaker":false},{"person_id":"demo-professor","name":"Prof Demo","score":0.014762024395167828,"same_speaker":false},{"person_id":"le-yong","name":"le yong","score":0.010430962778627872,"same_speaker":false},{"person_id":"prof","name":"prof","score":-0.0032878583297133446,"same_speaker":false},{"person_id":"koh-qing-jia","name":"Koh Qing Jia","score":-0.054023098200559616,"same_speaker":false}]],"segment_scoring_s":7.918572436785325,"line_matches":[[{"person_id":"demo-prof-lim","name":"Prof Lim (demo)","score":0.9294230937957764,"same_speaker":true},{"person_id":"tina","name":"tina","score":0.10897465795278549,"same_speaker":false},{"person_id":"demo-professor","name":"Prof Demo","score":0.07123202830553055,"same_speaker":false},{"person_id":"prof","name":"prof","score":0.012942103669047356,"same_speaker":false},{"person_id":"le-yong","name":"le yong","score":-0.015425746329128742,"same_speaker":false},{"person_id":"tasmin","name":"tasmin","score":-0.021169085055589676,"same_speaker":false},{"person_id":"koh-qing-jia","name":"Koh Qing Jia","score":-0.09025987982749939,"same_speaker":false}],[{"person_id":"koh-qing-jia","name":"Koh Qing Jia","score":0.8397771716117859,"same_speaker":true},{"person_id":"tina","name":"tina","score":0.1573314368724823,"same_speaker":false},{"person_id":"demo-professor","name":"Prof Demo","score":0.12473534792661667,"same_speaker":false},{"person_id":"tasmin","name":"tasmin","score":0.09132120013237,"same_speaker":false},{"person_id":"prof","name":"prof","score":0.07197704166173935,"same_speaker":false},{"person_id":"demo-prof-lim","name":"Prof Lim (demo)","score":0.04064201936125755,"same_speaker":false},{"person_id":"le-yong","name":"le yong","score":0.03195469081401825,"same_speaker":false}],[{"person_id":"demo-prof-lim","name":"Prof Lim (demo)","score":0.7500526905059814,"same_speaker":true},{"person_id":"demo-professor","name":"Prof Demo","score":0.07390152662992477,"same_speaker":false},{"person_id":"prof","name":"prof","score":0.04999849572777748,"same_speaker":false},{"person_id":"tina","name":"tina","score":0.012698804959654808,"same_speaker":false},{"person_id":"tasmin","name":"tasmin","score":-0.025785595178604126,"same_speaker":false},{"person_id":"le-yong","name":"le yong","score":-0.03547060489654541,"same_speaker":false},{"person_id":"koh-qing-jia","name":"Koh Qing Jia","score":-0.07515910267829895,"same_speaker":false}],[{"person_id":"koh-qing-jia","name":"Koh Qing Jia","score":0.8252777457237244,"same_speaker":true},{"person_id":"tina","name":"tina","score":0.12486454844474792,"same_speaker":false},{"person_id":"demo-professor","name":"Prof Demo","score":0.12030574679374695,"same_speaker":false},{"person_id":"prof","name":"prof","score":0.092573381960392,"same_speaker":false},{"person_id":"tasmin","name":"tasmin","score":0.055134907364845276,"same_speaker":false},{"person_id":"le-yong","name":"le yong","score":0.0448155403137207,"same_speaker":false},{"person_id":"demo-prof-lim","name":"Prof Lim (demo)","score":0.02740807831287384,"same_speaker":false}],[{"person_id":"demo-prof-lim","name":"Prof Lim (demo)","score":0.8825163841247559,"same_speaker":true},{"person_id":"demo-professor","name":"Prof Demo","score":0.03610299155116081,"same_speaker":false},{"person_id":"tina","name":"tina","score":0.026739683002233505,"same_speaker":false},{"person_id":"prof","name":"prof","score":-0.017491856589913368,"same_speaker":false},{"person_id":"le-yong","name":"le yong","score":-0.023704994469881058,"same_speaker":false},{"person_id":"koh-qing-jia","name":"Koh Qing Jia","score":-0.04909013956785202,"same_speaker":false},{"person_id":"tasmin","name":"tasmin","score":-0.07965169101953506,"same_speaker":false}],[{"person_id":"tina","name":"tina","score":0.7046793699264526,"same_speaker":true},{"person_id":"koh-qing-jia","name":"Koh Qing Jia","score":0.192249596118927,"same_speaker":false},{"person_id":"prof","name":"prof","score":0.14634184539318085,"same_speaker":false},{"person_id":"tasmin","name":"tasmin","score":0.09662498533725739,"same_speaker":false},{"person_id":"demo-professor","name":"Prof Demo","score":0.06128646805882454,"same_speaker":false},{"person_id":"le-yong","name":"le yong","score":0.04288806766271591,"same_speaker":false},{"person_id":"demo-prof-lim","name":"Prof Lim (demo)","score":0.024617662653326988,"same_speaker":false}],[{"person_id":"demo-prof-lim","name":"Prof Lim (demo)","score":0.9028342962265015,"same_speaker":true},{"person_id":"demo-professor","name":"Prof Demo","score":0.03165046498179436,"same_speaker":false},{"person_id":"tina","name":"tina","score":0.0071283383294939995,"same_speaker":false},{"person_id":"le-yong","name":"le yong","score":0.001101706176996231,"same_speaker":false},{"person_id":"prof","name":"prof","score":-0.008338531479239464,"same_speaker":false},{"person_id":"tasmin","name":"tasmin","score":-0.05480179935693741,"same_speaker":false},{"person_id":"koh-qing-jia","name":"Koh Qing Jia","score":-0.05868500471115112,"same_speaker":false}],[{"person_id":"tasmin","name":"tasmin","score":0.7171741724014282,"same_speaker":true},{"person_id":"tina","name":"tina","score":0.3219347894191742,"same_speaker":true},{"person_id":"prof","name":"prof","score":0.04423830285668373,"same_speaker":false},{"person_id":"le-yong","name":"le yong","score":0.04254172742366791,"same_speaker":false},{"person_id":"koh-qing-jia","name":"Koh Qing Jia","score":0.02201012708246708,"same_speaker":false},{"person_id":"demo-prof-lim","name":"Prof Lim (demo)","score":0.01440513040870428,"same_speaker":false},{"person_id":"demo-professor","name":"Prof Demo","score":0.0008000358939170837,"same_speaker":false}],[{"person_id":"demo-prof-lim","name":"Prof Lim (demo)","score":0.8866746425628662,"same_speaker":true},{"person_id":"tina","name":"tina","score":0.08074826002120972,"same_speaker":false},{"person_id":"demo-professor","name":"Prof Demo","score":0.0762508362531662,"same_speaker":false},{"person_id":"tasmin","name":"tasmin","score":0.030117487534880638,"same_speaker":false},{"person_id":"prof","name":"prof","score":0.004364538937807083,"same_speaker":false},{"person_id":"le-yong","name":"le yong","score":-0.025510329753160477,"same_speaker":false},{"person_id":"koh-qing-jia","name":"Koh Qing Jia","score":-0.054432205855846405,"same_speaker":false}],[{"person_id":"le-yong","name":"le yong","score":0.7504678964614868,"same_speaker":true},{"person_id":"koh-qing-jia","name":"Koh Qing Jia","score":0.1798080950975418,"same_speaker":false},{"person_id":"tasmin","name":"tasmin","score":0.10014317184686661,"same_speaker":false},{"person_id":"demo-professor","name":"Prof Demo","score":0.05842181295156479,"same_speaker":false},{"person_id":"prof","name":"prof","score":0.020297031849622726,"same_speaker":false},{"person_id":"tina","name":"tina","score":-0.007244884967803955,"same_speaker":false},{"person_id":"demo-prof-lim","name":"Prof Lim (demo)","score":-0.022634800523519516,"same_speaker":false}],[{"person_id":"demo-prof-lim","name":"Prof Lim (demo)","score":0.7921515107154846,"same_speaker":true},{"person_id":"tina","name":"tina","score":0.08413733541965485,"same_speaker":false},{"person_id":"tasmin","name":"tasmin","score":0.019165130332112312,"same_speaker":false},{"person_id":"demo-professor","name":"Prof Demo","score":0.012984856963157654,"same_speaker":false},{"person_id":"le-yong","name":"le yong","score":-0.009875232353806496,"same_speaker":false},{"person_id":"prof","name":"prof","score":-0.029758334159851074,"same_speaker":false},{"person_id":"koh-qing-jia","name":"Koh Qing Jia","score":-0.08247065544128418,"same_speaker":false}]],"whisper":[{"model":"tiny","beam":5,"seconds":7.247574215987697,"segments":[{"start":0.0,"end":3.0,"text":"Today we look inside the transformer."},{"start":3.0,"end":8.0,"text":"What problem does self-attention solve compared with a recurrent network?"},{"start":8.0,"end":13.0,"text":"Erie recurrent network processes tokens one at a time."},{"start":13.0,"end":19.0,"text":"So information from early tokens has to survive many steps and it's hard to parallelise."},{"start":19.0,"end":25.0,"text":"Self-attention lets every token look at every other token directly in one step."},{"start":25.0,"end":36.0,"text":"So long range dependencies are easier and you can train on the whole sequence in parallel on a GPU which is why transformer scaled so well."},{"start":36.0,"end":38.0,"text":"Good. What are the query?"},{"start":38.0,"end":40.0,"text":"He and value."},{"start":40.0,"end":45.0,"text":"Each token is projected into a query, a key and a value."},{"start":45.0,"end":53.0,"text":"You take the dot product of a query with all the keys, scale it, apply a softmax to get attention weights."},{"start":53.0,"end":57.0,"text":"And then take the weighted sum of the values."},{"start":57.0,"end":69.0,"text":"And with multiple heads you do this several times in parallel so different heads can focus on different relationships like syntax in one head and co reference in another."},{"start":69.0,"end":74.0,"text":"Why do we divide by the square root of the key dimension?"},{"start":74.0,"end":76.0,"text":"So the softmax doesn't saturate."},{"start":76.0,"end":82.0,"text":"Yes, and since attention has no notion of order, what do we add?"},{"start":82.0,"end":84.0,"text":"We add position in codeings."},{"start":84.0,"end":90.0,"text":"Correct, low-young, encoder or decoder, which one uses masking?"},{"start":90.0,"end":94.0,"text":"The decoder so a token can't attend to future tokens."},{"start":94.0,"end":98.0,"text":"Good. That's the core of the architecture."}]},{"model":"base","beam":1,"seconds":8.800109458854422,"segments":[{"start":0.0,"end":3.0,"text":"Today we look inside the transformer."},{"start":3.0,"end":8.0,"text":"What problem does self-attention solve compared with a recurrent network?"},{"start":8.0,"end":13.0,"text":"Aerie recurrent network processes tokens one at a time."},{"start":13.0,"end":19.0,"text":"So information from early tokens has to survive many steps and it's hard to parallelize."},{"start":19.0,"end":25.0,"text":"Self-attention lets every token look at every other token directly in one step."},{"start":25.0,"end":32.0,"text":"So long-range dependencies are easier and you can train on the whole sequence in parallel on a GPU."},{"start":32.0,"end":36.0,"text":"Which is why transformer scaled so well."},{"start":36.0,"end":40.0,"text":"Good. What are the query? Key and value."},{"start":40.0,"end":45.0,"text":"Each token is projected into a query, a key and a value."},{"start":45.0,"end":53.0,"text":"You take the dot product of a query with all the keys, scale it, apply a softmax to get attention weights,"},{"start":53.0,"end":57.0,"text":"and then take the weighted sum of the values."},{"start":57.0,"end":65.0,"text":"And with multiple heads you do this several times in parallel so different heads can focus on different relationships,"},{"start":65.0,"end":70.0,"text":"like syntax in one head and co-reference in another."},{"start":70.0,"end":74.0,"text":"Why do we divide by the square root of the key dimension?"},{"start":74.0,"end":77.0,"text":"So the softmax doesn't saturate?"},{"start":77.0,"end":82.0,"text":"Yes, and since attention has no notion of order, what do we add?"},{"start":82.0,"end":84.0,"text":"We add position encodings."},{"start":84.0,"end":90.0,"text":"Correct, Le Young, encoder or decoder, which one uses masking?"},{"start":90.0,"end":94.0,"text":"The decoder so a token can't attend to future tokens."},{"start":94.0,"end":97.0,"text":"Good, that's the core of the architecture."}]},{"model":"base","beam":5,"seconds":12.989305543946102,"segments":[{"start":0.0,"end":3.0,"text":"Today we look inside the transformer."},{"start":3.0,"end":8.0,"text":"What problem does self-attention solve compared with a recurrent network?"},{"start":8.0,"end":13.0,"text":"Aerie recurrent network processes tokens one at a time."},{"start":13.0,"end":19.0,"text":"So information from early tokens has to survive many steps and it's hard to parallelize."},{"start":19.0,"end":25.0,"text":"Self-attention lets every token look at every other token directly in one step."},{"start":25.0,"end":33.0,"text":"So long-range dependencies are easier and you can train on the whole sequence in parallel on a GPU,"},{"start":33.0,"end":36.0,"text":"which is why transformer scaled so well."},{"start":36.0,"end":38.0,"text":"Good. What are the query?"},{"start":38.0,"end":40.0,"text":"Key and value."},{"start":40.0,"end":45.0,"text":"Each token is projected into a query, a key and a value."},{"start":45.0,"end":53.0,"text":"You take the dot product of a query with all the keys, scale it, apply a softmax to get attention weights,"},{"start":53.0,"end":57.0,"text":"and then take the weighted sum of the values."},{"start":57.0,"end":70.0,"text":"And with multiple heads you do this several times in parallel so different heads can focus on different relationships like syntax in one head and co-reference in another."},{"start":70.0,"end":74.0,"text":"Why do we divide by the square root of the key dimension?"},{"start":74.0,"end":77.0,"text":"So the softmax doesn't saturate."},{"start":77.0,"end":82.0,"text":"Yes, and since attention has no notion of order, what do we add?"},{"start":82.0,"end":84.0,"text":"We add position encodings."},{"start":84.0,"end":90.0,"text":"Correct, Le Young, encoder or decoder, which one uses masking?"},{"start":90.0,"end":94.0,"text":"The decoder so a token can't attend to future tokens."},{"start":94.0,"end":97.0,"text":"Good, that's the core of the architecture."}]},{"model":"small","beam":5,"seconds":29.497649166034535,"segments":[{"start":0.0,"end":5.08,"text":"Today we look inside the transformer. What problem does self-attention solve"},{"start":5.08,"end":12.0,"text":"compared with a recurrent network? Every recurrent network processes tokens one"},{"start":12.0,"end":17.12,"text":"at a time so information from early tokens has to survive many steps and"},{"start":17.12,"end":22.400000000000002,"text":"it's hard to parallelize. Self-attention lets every token look at every other"},{"start":22.400000000000002,"end":28.92,"text":"token directly in one step so long-range dependencies are easier and you can"},{"start":28.92,"end":34.2,"text":"train on the whole sequence in parallel on a GPU which is why transformers"},{"start":34.2,"end":41.84,"text":"scaled so well. Good. What are the query? Key and value. Each token is projected"},{"start":41.84,"end":48.28,"text":"into a query, a key and a value. You take the dot product of a query with all the"},{"start":48.28,"end":54.5,"text":"keys, scale it, apply a softmax to get attention weights and then take the"},{"start":54.5,"end":60.26,"text":"weighted sum of the values and with multiple heads you do this several times"},{"start":60.26,"end":65.38,"text":"in parallel so different heads can focus on different relationships like"},{"start":65.38,"end":71.5,"text":"syntax in one head and co-reference in another. Why do we divide by the square"},{"start":71.5,"end":78.06,"text":"root of the key dimension? So the softmax doesn't saturate. Yes and since"},{"start":78.06,"end":83.5,"text":"attention has no notion of order what do we add? We add position encodings."},{"start":83.78,"end":91.58,"text":"Correct. Leong, encoder or decoder, which one uses masking? The decoder so a token"},{"start":91.58,"end":98.46000000000001,"text":"can't attend to future tokens. Good. That's the core of the architecture."}]}],"whisper_words":{"seconds":14.684639232931659,"segments":[{"start":0.0,"end":2.72,"text":"Today we look inside the transformer.","words":[{"start":0.0,"end":1.04,"word":" Today"},{"start":1.04,"end":1.24,"word":" we"},{"start":1.24,"end":1.42,"word":" look"},{"start":1.42,"end":1.86,"word":" inside"},{"start":1.86,"end":2.06,"word":" the"},{"start":2.06,"end":2.72,"word":" transformer."}]},{"start":3.14,"end":6.8,"text":"What problem does self-attention solve compared with a recurrent network?","words":[{"start":3.14,"end":3.28,"word":" What"},{"start":3.28,"end":3.66,"word":" problem"},{"start":3.66,"end":3.88,"word":" does"},{"start":3.88,"end":4.28,"word":" self"},{"start":4.28,"end":4.6,"word":"-attention"},{"start":4.6,"end":5.12,"word":" solve"},{"start":5.12,"end":5.54,"word":" compared"},{"start":5.54,"end":5.8,"word":" with"},{"start":5.8,"end":5.88,"word":" a"},{"start":5.88,"end":6.34,"word":" recurrent"},{"start":6.34,"end":6.8,"word":" network?"}]},{"start":8.56,"end":12.64,"text":"Aerie recurrent network processes tokens one at a time.","words":[{"start":8.56,"end":9.3,"word":" Aerie"},{"start":9.3,"end":9.84,"word":" recurrent"},{"start":9.84,"end":10.24,"word":" network"},{"start":10.24,"end":10.8,"word":" processes"},{"start":10.8,"end":11.22,"word":" tokens"},{"start":11.22,"end":11.98,"word":" one"},{"start":11.98,"end":12.12,"word":" at"},{"start":12.12,"end":12.22,"word":" a"},{"start":12.22,"end":12.64,"word":" time."}]},{"start":12.96,"end":18.98,"text":"So information from early tokens has to survive many steps and it's hard to parallelize.","words":[{"start":12.96,"end":13.08,"word":" So"},{"start":13.08,"end":13.72,"word":" information"},{"start":13.72,"end":14.1,"word":" from"},{"start":14.1,"end":14.48,"word":" early"},{"start":14.48,"end":14.92,"word":" tokens"},{"start":14.92,"end":15.6,"word":" has"},{"start":15.6,"end":15.74,"word":" to"},{"start":15.74,"end":16.1,"word":" survive"},{"start":16.1,"end":16.44,"word":" many"},{"start":16.44,"end":16.86,"word":" steps"},{"start":16.86,"end":17.5,"word":" and"},{"start":17.5,"end":17.78,"word":" it's"},{"start":17.78,"end":18.04,"word":" hard"},{"start":18.04,"end":18.26,"word":" to"},{"start":18.26,"end":18.98,"word":" parallelize."}]},{"start":19.32,"end":24.48,"text":"Self-attention lets every token look at every other token directly in one step.","words":[{"start":19.32,"end":19.7,"word":" Self"},{"start":19.7,"end":20.2,"word":"-attention"},{"start":20.2,"end":20.82,"word":" lets"},{"start":20.82,"end":21.16,"word":" every"},{"start":21.16,"end":21.5,"word":" token"},{"start":21.5,"end":21.76,"word":" look"},{"start":21.76,"end":21.9,"word":" at"},{"start":21.9,"end":22.16,"word":" every"},{"start":22.16,"end":22.48,"word":" other"},{"start":22.48,"end":22.88,"word":" token"},{"start":22.88,"end":23.32,"word":" directly"},{"start":23.32,"end":23.78,"word":" in"},{"start":23.78,"end":24.0,"word":" one"},{"start":24.0,"end":24.48,"word":" step."}]},{"start":24.48,"end":32.2,"text":"So long-range dependencies are easier and you can train on the whole sequence in parallel on a GPU,","words":[{"start":24.48,"end":25.32,"word":" So"},{"start":25.32,"end":25.8,"word":" long"},{"start":25.8,"end":26.16,"word":"-range"},{"start":26.16,"end":26.98,"word":" dependencies"},{"start":26.98,"end":27.22,"word":" are"},{"start":27.22,"end":27.66,"word":" easier"},{"start":27.66,"end":28.5,"word":" and"},{"start":28.5,"end":28.7,"word":" you"},{"start":28.7,"end":28.88,"word":" can"},{"start":28.88,"end":29.26,"word":" train"},{"start":29.26,"end":29.66,"word":" on"},{"start":29.66,"end":29.82,"word":" the"},{"start":29.82,"end":29.96,"word":" whole"},{"start":29.96,"end":30.4,"word":" sequence"},{"start":30.4,"end":30.86,"word":" in"},{"start":30.86,"end":31.28,"word":" parallel"},{"start":31.28,"end":31.72,"word":" on"},{"start":31.72,"end":31.86,"word":" a"},{"start":31.86,"end":32.2,"word":" GPU,"}]},{"start":32.78,"end":35.62,"text":"which is why transformer scaled so well.","words":[{"start":32.78,"end":33.08,"word":" which"},{"start":33.08,"end":33.22,"word":" is"},{"start":33.22,"end":33.42,"word":" why"},{"start":33.42,"end":34.06,"word":" transformer"},{"start":34.06,"end":34.74,"word":" scaled"},{"start":34.74,"end":35.2,"word":" so"},{"start":35.2,"end":35.62,"word":" well."}]},{"start":36.1,"end":38.76,"text":"Good. What are the query? Key and value.","words":[{"start":36.1,"end":36.56,"word":" Good."},{"start":36.92,"end":37.04,"word":" What"},{"start":37.04,"end":37.2,"word":" are"},{"start":37.2,"end":37.32,"word":" the"},{"start":37.32,"end":37.56,"word":" query?"},{"start":38.12,"end":38.24,"word":" Key"},{"start":38.24,"end":38.4,"word":" and"},{"start":38.4,"end":38.76,"word":" value."}]},{"start":39.96,"end":44.92,"text":"Each token is projected into a query, a key and a value.","words":[{"start":39.96,"end":40.64,"word":" Each"},{"start":40.64,"end":41.0,"word":" token"},{"start":41.0,"end":41.26,"word":" is"},{"start":41.26,"end":41.68,"word":" projected"},{"start":41.68,"end":42.14,"word":" into"},{"start":42.14,"end":42.4,"word":" a"},{"start":42.4,"end":42.94,"word":" query,"},{"start":43.6,"end":43.7,"word":" a"},{"start":43.7,"end":44.0,"word":" key"},{"start":44.0,"end":44.42,"word":" and"},{"start":44.42,"end":44.54,"word":" a"},{"start":44.54,"end":44.92,"word":" value."}]},{"start":45.3,"end":52.28,"text":"You take the dot product of a query with all the keys, scale it, apply a softmax to get attention weights,","words":[{"start":45.3,"end":45.64,"word":" You"},{"start":45.64,"end":45.84,"word":" take"},{"start":45.84,"end":46.08,"word":" the"},{"start":46.08,"end":46.26,"word":" dot"},{"start":46.26,"end":46.9,"word":" product"},{"start":46.9,"end":47.16,"word":" of"},{"start":47.16,"end":47.26,"word":" a"},{"start":47.26,"end":47.54,"word":" query"},{"start":47.54,"end":47.88,"word":" with"},{"start":47.88,"end":48.1,"word":" all"},{"start":48.1,"end":48.28,"word":" the"},{"start":48.28,"end":48.56,"word":" keys,"},{"start":49.16,"end":49.46,"word":" scale"},{"start":49.46,"end":49.72,"word":" it,"},{"start":50.08,"end":50.34,"word":" apply"},{"start":50.34,"end":50.54,"word":" a"},{"start":50.54,"end":51.06,"word":" softmax"},{"start":51.06,"end":51.34,"word":" to"},{"start":51.34,"end":51.5,"word":" get"},{"start":51.5,"end":51.94,"word":" attention"},{"start":51.94,"end":52.28,"word":" weights,"}]},{"start":52.28,"end":56.08,"text":"and then take the weighted sum of the values.","words":[{"start":52.28,"end":53.12,"word":" and"},{"start":53.12,"end":54.02,"word":" then"},{"start":54.02,"end":54.28,"word":" take"},{"start":54.28,"end":54.52,"word":" the"},{"start":54.52,"end":54.72,"word":" weighted"},{"start":54.72,"end":55.02,"word":" sum"},{"start":55.02,"end":55.5,"word":" of"},{"start":55.5,"end":55.7,"word":" the"},{"start":55.7,"end":56.08,"word":" values."}]},{"start":57.04,"end":64.78,"text":"And with multiple heads you do this several times in parallel so different heads can focus on different relationships,","words":[{"start":57.04,"end":57.28,"word":" And"},{"start":57.28,"end":57.64,"word":" with"},{"start":57.64,"end":58.18,"word":" multiple"},{"start":58.18,"end":58.5,"word":" heads"},{"start":58.5,"end":58.76,"word":" you"},{"start":58.76,"end":59.0,"word":" do"},{"start":59.0,"end":59.38,"word":" this"},{"start":59.38,"end":59.88,"word":" several"},{"start":59.88,"end":60.26,"word":" times"},{"start":60.26,"end":60.54,"word":" in"},{"start":60.54,"end":60.96,"word":" parallel"},{"start":60.96,"end":61.36,"word":" so"},{"start":61.36,"end":61.7,"word":" different"},{"start":61.7,"end":62.18,"word":" heads"},{"start":62.18,"end":62.72,"word":" can"},{"start":62.72,"end":63.2,"word":" focus"},{"start":63.2,"end":63.58,"word":" on"},{"start":63.58,"end":63.96,"word":" different"},{"start":63.96,"end":64.78,"word":" relationships,"}]},{"start":65.08,"end":68.52,"text":"like syntax in one head and coreference in another.","words":[{"start":65.08,"end":65.38,"word":" like"},{"start":65.38,"end":65.82,"word":" syntax"},{"start":65.82,"end":66.42,"word":" in"},{"start":66.42,"end":66.8,"word":" one"},{"start":66.8,"end":67.1,"word":" head"},{"start":67.1,"end":67.4,"word":" and"},{"start":67.4,"end":67.92,"word":" coreference"},{"start":67.92,"end":68.16,"word":" in"},{"start":68.16,"end":68.52,"word":" another."}]},{"start":69.44,"end":72.7,"text":"Why do we divide by the square root of the key dimension?","words":[{"start":69.44,"end":70.08,"word":" Why"},{"start":70.08,"end":70.28,"word":" do"},{"start":70.28,"end":70.44,"word":" we"},{"start":70.44,"end":70.74,"word":" divide"},{"start":70.74,"end":70.98,"word":" by"},{"start":70.98,"end":71.14,"word":" the"},{"start":71.14,"end":71.44,"word":" square"},{"start":71.44,"end":71.76,"word":" root"},{"start":71.76,"end":71.9,"word":" of"},{"start":71.9,"end":72.02,"word":" the"},{"start":72.02,"end":72.22,"word":" key"},{"start":72.22,"end":72.7,"word":" dimension?"}]},{"start":73.82,"end":75.74,"text":"So the softmax doesn't saturate?","words":[{"start":73.82,"end":74.46,"word":" So"},{"start":74.46,"end":74.58,"word":" the"},{"start":74.58,"end":74.94,"word":" softmax"},{"start":74.94,"end":75.28,"word":" doesn't"},{"start":75.28,"end":75.74,"word":" saturate?"}]},{"start":76.44,"end":80.96,"text":"Yes, and since attention has no notion of order, what do we add?","words":[{"start":76.44,"end":77.08,"word":" Yes,"},{"start":77.6,"end":77.78,"word":" and"},{"start":77.78,"end":78.1,"word":" since"},{"start":78.1,"end":78.5,"word":" attention"},{"start":78.5,"end":78.8,"word":" has"},{"start":78.8,"end":79.02,"word":" no"},{"start":79.02,"end":79.32,"word":" notion"},{"start":79.32,"end":79.52,"word":" of"},{"start":79.52,"end":79.84,"word":" order,"},{"start":80.14,"end":80.3,"word":" what"},{"start":80.3,"end":80.52,"word":" do"},{"start":80.52,"end":80.72,"word":" we"},{"start":80.72,"end":80.96,"word":" add?"}]},{"start":81.75999999999999,"end":83.54,"text":"We add position encodings.","words":[{"start":81.75999999999999,"end":82.44,"word":" We"},{"start":82.44,"end":82.54,"word":" add"},{"start":82.54,"end":82.86,"word":" position"},{"start":82.86,"end":83.54,"word":" encodings."}]},{"start":84.1,"end":88.74,"text":"Correct, Le Young, encoder or decoder, which one uses masking?","words":[{"start":84.1,"end":84.78,"word":" Correct,"},{"start":85.12,"end":85.18,"word":" Le"},{"start":85.18,"end":85.44,"word":" Young,"},{"start":85.9,"end":86.32,"word":" encoder"},{"start":86.32,"end":86.54,"word":" or"},{"start":86.54,"end":87.02,"word":" decoder,"},{"start":87.36,"end":87.56,"word":" which"},{"start":87.56,"end":87.8,"word":" one"},{"start":87.8,"end":88.16,"word":" uses"},{"start":88.16,"end":88.74,"word":" masking?"}]},{"start":89.62,"end":93.14,"text":"The decoder so a token can't attend to future tokens.","words":[{"start":89.62,"end":90.3,"word":" The"},{"start":90.3,"end":90.76,"word":" decoder"},{"start":90.76,"end":91.1,"word":" so"},{"start":91.1,"end":91.26,"word":" a"},{"start":91.26,"end":91.5,"word":" token"},{"start":91.5,"end":91.92,"word":" can't"},{"start":91.92,"end":92.18,"word":" attend"},{"start":92.18,"end":92.44,"word":" to"},{"start":92.44,"end":92.7,"word":" future"},{"start":92.7,"end":93.14,"word":" tokens."}]},{"start":94.06,"end":96.52,"text":"Good, that's the core of the architecture.","words":[{"start":94.06,"end":94.54,"word":" Good,"},{"start":94.86,"end":95.16,"word":" that's"},{"start":95.16,"end":95.26,"word":" the"},{"start":95.26,"end":95.52,"word":" core"},{"start":95.52,"end":95.7,"word":" of"},{"start":95.7,"end":95.82,"word":" the"},{"start":95.82,"end":96.52,"word":" architecture."}]}]},"word_segments":[[0.0,2.72],[3.14,6.8],[8.56,12.64],[12.96,18.98],[19.32,24.48],[24.48,32.2],[32.78,35.62],[36.1,38.76],[39.96,44.92],[45.3,52.28],[52.28,56.08],[57.04,64.78],[65.08,68.52],[69.44,72.7],[73.82,75.74],[76.44,80.96],[81.75999999999999,83.54],[84.1,88.74],[89.62,93.14],[94.06,96.52]],"word_segment_matches":[[{"person_id":"demo-prof-lim","name":"Prof Lim (demo)","score":0.8563805818557739,"same_speaker":true},{"person_id":"demo-professor","name":"Prof Demo","score":0.07731658965349197,"same_speaker":false},{"person_id":"tina","name":"tina","score":0.07710404694080353,"same_speaker":false},{"person_id":"prof","name":"prof","score":0.06574250757694244,"same_speaker":false},{"person_id":"le-yong","name":"le yong","score":-0.02672717720270157,"same_speaker":false},{"person_id":"tasmin","name":"tasmin","score":-0.04801825433969498,"same_speaker":false},{"person_id":"koh-qing-jia","name":"Koh Qing Jia","score":-0.06929481029510498,"same_speaker":false}],[{"person_id":"demo-prof-lim","name":"Prof Lim (demo)","score":0.882506787776947,"same_speaker":true},{"person_id":"tina","name":"tina","score":0.10647909343242645,"same_speaker":false},{"person_id":"demo-professor","name":"Prof Demo","score":0.04372534900903702,"same_speaker":false},{"person_id":"le-yong","name":"le yong","score":-0.020423829555511475,"same_speaker":false},{"person_id":"prof","name":"prof","score":-0.020817985758185387,"same_speaker":false},{"person_id":"tasmin","name":"tasmin","score":-0.023094417527318,"same_speaker":false},{"person_id":"koh-qing-jia","name":"Koh Qing Jia","score":-0.094084233045578,"same_speaker":false}],[{"person_id":"koh-qing-jia","name":"Koh Qing Jia","score":0.7375158071517944,"same_speaker":true},{"person_id":"tina","name":"tina","score":0.11814424395561218,"same_speaker":false},{"person_id":"tasmin","name":"tasmin","score":0.07313547283411026,"same_speaker":false},{"person_id":"prof","name":"prof","score":0.06382432579994202,"same_speaker":false},{"person_id":"demo-professor","name":"Prof Demo","score":0.05422306805849075,"same_speaker":false},{"person_id":"demo-prof-lim","name":"Prof Lim (demo)","score":0.04814323037862778,"same_speaker":false},{"person_id":"le-yong","name":"le yong","score":0.01564493030309677,"same_speaker":false}],[{"person_id":"koh-qing-jia","name":"Koh Qing Jia","score":0.8052434325218201,"same_speaker":true},{"person_id":"demo-professor","name":"Prof Demo","score":0.13569116592407227,"same_speaker":false},{"person_id":"tina","name":"tina","score":0.13039320707321167,"same_speaker":false},{"person_id":"le-yong","name":"le yong","score":0.07538989186286926,"same_speaker":false},{"person_id":"tasmin","name":"tasmin","score":0.07249300926923752,"same_speaker":false},{"person_id":"prof","name":"prof","score":0.05632061883807182,"same_speaker":false},{"person_id":"demo-prof-lim","name":"Prof Lim (demo)","score":0.03863177075982094,"same_speaker":false}],[{"person_id":"koh-qing-jia","name":"Koh Qing Jia","score":0.7439990043640137,"same_speaker":true},{"person_id":"tina","name":"tina","score":0.13659638166427612,"same_speaker":false},{"person_id":"prof","name":"prof","score":0.12012221664190292,"same_speaker":false},{"person_id":"demo-professor","name":"Prof Demo","score":0.10675393044948578,"same_speaker":false},{"person_id":"tasmin","name":"tasmin","score":0.0764155313372612,"same_speaker":false},{"person_id":"le-yong","name":"le yong","score":0.04588044807314873,"same_speaker":false},{"person_id":"demo-prof-lim","name":"Prof Lim (demo)","score":0.023905053734779358,"same_speaker":false}],[{"person_id":"koh-qing-jia","name":"Koh Qing Jia","score":0.810661256313324,"same_speaker":true},{"person_id":"tina","name":"tina","score":0.1862519085407257,"same_speaker":false},{"person_id":"demo-professor","name":"Prof Demo","score":0.15133246779441833,"same_speaker":false},{"person_id":"tasmin","name":"tasmin","score":0.09464598447084427,"same_speaker":false},{"person_id":"le-yong","name":"le yong","score":0.04742477089166641,"same_speaker":false},{"person_id":"demo-prof-lim","name":"Prof Lim (demo)","score":0.04273495078086853,"same_speaker":false},{"person_id":"prof","name":"prof","score":0.015978289768099785,"same_speaker":false}],[{"person_id":"koh-qing-jia","name":"Koh Qing Jia","score":0.6805145740509033,"same_speaker":true},{"person_id":"tina","name":"tina","score":0.1623285859823227,"same_speaker":false},{"person_id":"tasmin","name":"tasmin","score":0.1215837299823761,"same_speaker":false},{"person_id":"demo-professor","name":"Prof Demo","score":0.10894973576068878,"same_speaker":false},{"person_id":"prof","name":"prof","score":0.09197591245174408,"same_speaker":false},{"person_id":"demo-prof-lim","name":"Prof Lim (demo)","score":0.06648270785808563,"same_speaker":false},{"person_id":"le-yong","name":"le yong","score":-0.043971430510282516,"same_speaker":false}],[{"person_id":"demo-prof-lim","name":"Prof Lim (demo)","score":0.7415329217910767,"same_speaker":true},{"person_id":"demo-professor","name":"Prof Demo","score":0.08591624349355698,"same_speaker":false},{"person_id":"prof","name":"prof","score":0.0491880364716053,"same_speaker":false},{"person_id":"tina","name":"tina","score":0.018820112571120262,"same_speaker":false},{"person_id":"tasmin","name":"tasmin","score":-0.0013960739597678185,"same_speaker":false},{"person_id":"le-yong","name":"le yong","score":-0.04549678415060043,"same_speaker":false},{"person_id":"koh-qing-jia","name":"Koh Qing Jia","score":-0.059527408331632614,"same_speaker":false}],[{"person_id":"koh-qing-jia","name":"Koh Qing Jia","score":0.716623067855835,"same_speaker":true},{"person_id":"tina","name":"tina","score":0.12959982454776764,"same_speaker":false},{"person_id":"prof","name":"prof","score":0.07630069553852081,"same_speaker":false},{"person_id":"demo-professor","name":"Prof Demo","score":0.07426545023918152,"same_speaker":false},{"person_id":"tasmin","name":"tasmin","score":0.04849063232541084,"same_speaker":false},{"person_id":"le-yong","name":"le yong","score":0.0393599197268486,"same_speaker":false},{"person_id":"demo-prof-lim","name":"Prof Lim (demo)","score":0.011574804782867432,"same_speaker":false}],[{"person_id":"koh-qing-jia","name":"Koh Qing Jia","score":0.76897794008255,"same_speaker":true},{"person_id":"demo-professor","name":"Prof Demo","score":0.15030230581760406,"same_speaker":false},{"person_id":"prof","name":"prof","score":0.08729483187198639,"same_speaker":false},{"person_id":"demo-prof-lim","name":"Prof Lim (demo)","score":0.05884692072868347,"same_speaker":false},{"person_id":"tina","name":"tina","score":0.057438310235738754,"same_speaker":false},{"person_id":"tasmin","name":"tasmin","score":0.017717843875288963,"same_speaker":false},{"person_id":"le-yong","name":"le yong","score":0.012519058771431446,"same_speaker":false}],[{"person_id":"koh-qing-jia","name":"Koh Qing Jia","score":0.7908867597579956,"same_speaker":true},{"person_id":"prof","name":"prof","score":0.12107168138027191,"same_speaker":false},{"person_id":"tina","name":"tina","score":0.11386149376630783,"same_speaker":false},{"person_id":"demo-professor","name":"Prof Demo","score":0.10757545381784439,"same_speaker":false},{"person_id":"tasmin","name":"tasmin","score":0.0652778297662735,"same_speaker":false},{"person_id":"le-yong","name":"le yong","score":0.06407523900270462,"same_speaker":false},{"person_id":"demo-prof-lim","name":"Prof Lim (demo)","score":-0.03215083107352257,"same_speaker":false}],[{"person_id":"koh-qing-jia","name":"Koh Qing Jia","score":0.7542250156402588,"same_speaker":true},{"person_id":"demo-professor","name":"Prof Demo","score":0.11235024034976959,"same_speaker":false},{"person_id":"tina","name":"tina","score":0.1066448986530304,"same_speaker":false},{"person_id":"prof","name":"prof","score":0.06900462508201599,"same_speaker":false},{"person_id":"le-yong","name":"le yong","score":0.0496947281062603,"same_speaker":false},{"person_id":"tasmin","name":"tasmin","score":0.04616880789399147,"same_speaker":false},{"person_id":"demo-prof-lim","name":"Prof Lim (demo)","score":0.03656309098005295,"same_speaker":false}],[{"person_id":"koh-qing-jia","name":"Koh Qing Jia","score":0.7356371283531189,"same_speaker":true},{"person_id":"tina","name":"tina","score":0.20586657524108887,"same_speaker":false},{"person_id":"prof","name":"prof","score":0.10891804099082947,"same_speaker":false},{"person_id":"tasmin","name":"tasmin","score":0.10393233597278595,"same_speaker":false},{"person_id":"le-yong","name":"le yong","score":0.059882815927267075,"same_speaker":false},{"person_id":"demo-prof-lim","name":"Prof Lim (demo)","score":0.053311362862586975,"same_speaker":false},{"person_id":"demo-professor","name":"Prof Demo","score":0.02733386680483818,"same_speaker":false}],[{"person_id":"demo-prof-lim","name":"Prof Lim (demo)","score":0.8679914474487305,"same_speaker":true},{"person_id":"demo-professor","name":"Prof Demo","score":0.059261057525873184,"same_speaker":false},{"person_id":"tina","name":"tina","score":0.027609828859567642,"same_speaker":false},{"person_id":"prof","name":"prof","score":-0.030261069536209106,"same_speaker":false},{"person_id":"le-yong","name":"le yong","score":-0.039725162088871,"same_speaker":false},{"person_id":"koh-qing-jia","name":"Koh Qing Jia","score":-0.04516175761818886,"same_speaker":false},{"person_id":"tasmin","name":"tasmin","score":-0.07789681106805801,"same_speaker":false}],[{"person_id":"tina","name":"tina","score":0.7078894972801208,"same_speaker":true},{"person_id":"koh-qing-jia","name":"Koh Qing Jia","score":0.20311424136161804,"same_speaker":false},{"person_id":"tasmin","name":"tasmin","score":0.12360113859176636,"same_speaker":false},{"person_id":"prof","name":"prof","score":0.11518974602222443,"same_speaker":false},{"person_id":"demo-professor","name":"Prof Demo","score":0.07613688707351685,"same_speaker":false},{"person_id":"le-yong","name":"le yong","score":0.06615491211414337,"same_speaker":false},{"person_id":"demo-prof-lim","name":"Prof Lim (demo)","score":0.00946045946329832,"same_speaker":false}],[{"person_id":"demo-prof-lim","name":"Prof Lim (demo)","score":0.8982893228530884,"same_speaker":true},{"person_id":"demo-professor","name":"Prof Demo","score":0.03998146578669548,"same_speaker":false},{"person_id":"prof","name":"prof","score":0.008201930671930313,"same_speaker":false},{"person_id":"tina","name":"tina","score":0.005402249284088612,"same_speaker":false},{"person_id":"le-yong","name":"le yong","score":0.002326193731278181,"same_speaker":false},{"person_id":"koh-qing-jia","name":"Koh Qing Jia","score":-0.05114753544330597,"same_speaker":false},{"person_id":"tasmin","name":"tasmin","score":-0.053578540682792664,"same_speaker":false}],[{"person_id":"tasmin","name":"tasmin","score":0.7226555347442627,"same_speaker":true},{"person_id":"tina","name":"tina","score":0.3202030658721924,"same_speaker":true},{"person_id":"prof","name":"prof","score":0.0378657765686512,"same_speaker":false},{"person_id":"le-yong","name":"le yong","score":0.027194038033485413,"same_speaker":false},{"person_id":"koh-qing-jia","name":"Koh Qing Jia","score":0.025615107268095016,"same_speaker":false},{"person_id":"demo-prof-lim","name":"Prof Lim (demo)","score":0.018816079944372177,"same_speaker":false},{"person_id":"demo-professor","name":"Prof Demo","score":-0.011771436780691147,"same_speaker":false}],[{"person_id":"demo-prof-lim","name":"Prof Lim (demo)","score":0.9003704190254211,"same_speaker":true},{"person_id":"demo-professor","name":"Prof Demo","score":0.0799436941742897,"same_speaker":false},{"person_id":"tina","name":"tina","score":0.07200545072555542,"same_speaker":false},{"person_id":"tasmin","name":"tasmin","score":0.017465725541114807,"same_speaker":false},{"person_id":"prof","name":"prof","score":-0.001065138727426529,"same_speaker":false},{"person_id":"le-yong","name":"le yong","score":-0.04130367189645767,"same_speaker":false},{"person_id":"koh-qing-jia","name":"Koh Qing Jia","score":-0.05717789754271507,"same_speaker":false}],[{"person_id":"le-yong","name":"le yong","score":0.7549735903739929,"same_speaker":true},{"person_id":"koh-qing-jia","name":"Koh Qing Jia","score":0.17233043909072876,"same_speaker":false},{"person_id":"tasmin","name":"tasmin","score":0.1001264750957489,"same_speaker":false},{"person_id":"demo-professor","name":"Prof Demo","score":0.0543564036488533,"same_speaker":false},{"person_id":"prof","name":"prof","score":0.03146901726722717,"same_speaker":false},{"person_id":"tina","name":"tina","score":-0.001313602551817894,"same_speaker":false},{"person_id":"demo-prof-lim","name":"Prof Lim (demo)","score":-0.013142209500074387,"same_speaker":false}],[{"person_id":"demo-prof-lim","name":"Prof Lim (demo)","score":0.7838154435157776,"same_speaker":true},{"person_id":"tina","name":"tina","score":0.09564292430877686,"same_speaker":false},{"person_id":"tasmin","name":"tasmin","score":0.025442279875278473,"same_speaker":false},{"person_id":"demo-professor","name":"Prof Demo","score":0.021828919649124146,"same_speaker":false},{"person_id":"le-yong","name":"le yong","score":-0.022534430027008057,"same_speaker":false},{"person_id":"prof","name":"prof","score":-0.03530850633978844,"same_speaker":false},{"person_id":"koh-qing-jia","name":"Koh Qing Jia","score":-0.053698815405368805,"same_speaker":false}]],"word_segment_scoring_s":8.878631253959611}
+{
+ "id": "06-dominant",
+ "audio_seconds": 92.031125,
+ "script": {
+  "id": "06-dominant",
+  "title": "Demo 6 \u00b7 Transformers: one student dominates",
+  "case": "Qing Jia speaks at length; the others give one or two short answers. Length alone must not earn marks; short but correct answers still count.",
+  "lines": [
+   {
+    "speaker": "Prof Wynter",
+    "text": "Today we look inside the transformer. What problem does self attention solve compared with a recurrent network?",
+    "start": 0.8,
+    "end": 6.09
+   },
+   {
+    "speaker": "Koh Qing Jia",
+    "text": "A recurrent network processes tokens one at a time, so information from early tokens has to survive many steps and it's hard to parallelise. Self attention lets every token look at every other token directly in one step, so long range dependencies are easier and you can train on the whole sequence in parallel on a GPU, which is why transformers scaled so well.",
+    "start": 7.28,
+    "end": 34.62
+   },
+   {
+    "speaker": "Prof Wynter",
+    "text": "Good. What are the query, key and value?",
+    "start": 35.36,
+    "end": 37.26
+   },
+   {
+    "speaker": "Koh Qing Jia",
+    "text": "Each token is projected into a query, a key and a value. You take the dot product of a query with all the keys, scale it, apply a softmax to get attention weights, and then take the weighted sum of the values. And with multiple heads you do this several times in parallel so different heads can focus on different relationships, like syntax in one head and coreference in another.",
+    "start": 38.31,
+    "end": 67.04
+   },
+   {
+    "speaker": "Prof Wynter",
+    "text": "Why do we divide by the square root of the key dimension?",
+    "start": 68.13,
+    "end": 70.84
+   },
+   {
+    "speaker": "Tina",
+    "text": "So the softmax doesn't saturate.",
+    "start": 71.86,
+    "end": 73.54
+   },
+   {
+    "speaker": "Prof Wynter",
+    "text": "Yes. And since attention has no notion of order, what do we add?",
+    "start": 74.61,
+    "end": 77.65
+   },
+   {
+    "speaker": "Tasmin",
+    "text": "We add positional encodings.",
+    "start": 78.68,
+    "end": 80.16
+   },
+   {
+    "speaker": "Prof Wynter",
+    "text": "Correct. Le Yong, encoder or decoder, which one uses masking?",
+    "start": 80.9,
+    "end": 83.8
+   },
+   {
+    "speaker": "Le Yong",
+    "text": "The decoder, so a token can't attend to future tokens.",
+    "start": 84.51,
+    "end": 88.25
+   },
+   {
+    "speaker": "Prof Wynter",
+    "text": "Good. That's the core of the architecture.",
+    "start": 89.18,
+    "end": 91.18
+   }
+  ]
+ },
+ "registry": {
+  "koh-qing-jia": "Koh Qing Jia",
+  "tasmin": "tasmin",
+  "tina": "tina",
+  "le-yong": "le yong",
+  "prof": "prof"
+ },
+ "pipeline": {
+  "language": "en",
+  "whisper_segments": [
+   {
+    "start": 0.0,
+    "end": 2.78,
+    "text": "Today, we look inside the transformer.",
+    "words": [
+     {
+      "start": 0.0,
+      "end": 1.36,
+      "word": " Today,"
+     },
+     {
+      "start": 1.42,
+      "end": 1.54,
+      "word": " we"
+     },
+     {
+      "start": 1.54,
+      "end": 1.68,
+      "word": " look"
+     },
+     {
+      "start": 1.68,
+      "end": 2.02,
+      "word": " inside"
+     },
+     {
+      "start": 2.02,
+      "end": 2.18,
+      "word": " the"
+     },
+     {
+      "start": 2.18,
+      "end": 2.78,
+      "word": " transformer."
+     }
+    ]
+   },
+   {
+    "start": 3.06,
+    "end": 4.62,
+    "text": "What problem does self-attention solve",
+    "words": [
+     {
+      "start": 3.06,
+      "end": 3.14,
+      "word": " What"
+     },
+     {
+      "start": 3.14,
+      "end": 3.48,
+      "word": " problem"
+     },
+     {
+      "start": 3.48,
+      "end": 3.64,
+      "word": " does"
+     },
+     {
+      "start": 3.64,
+      "end": 3.96,
+      "word": " self"
+     },
+     {
+      "start": 3.96,
+      "end": 4.24,
+      "word": "-attention"
+     },
+     {
+      "start": 4.24,
+      "end": 4.62,
+      "word": " solve"
+     }
+    ]
+   },
+   {
+    "start": 4.62,
+    "end": 5.98,
+    "text": "compared with a recurrent network?",
+    "words": [
+     {
+      "start": 4.62,
+      "end": 5.02,
+      "word": " compared"
+     },
+     {
+      "start": 5.02,
+      "end": 5.24,
+      "word": " with"
+     },
+     {
+      "start": 5.24,
+      "end": 5.32,
+      "word": " a"
+     },
+     {
+      "start": 5.32,
+      "end": 5.7,
+      "word": " recurrent"
+     },
+     {
+      "start": 5.7,
+      "end": 5.98,
+      "word": " network?"
+     }
+    ]
+   },
+   {
+    "start": 7.58,
+    "end": 11.6,
+    "text": "Erie recurrent network processes tokens one at a time.",
+    "words": [
+     {
+      "start": 7.58,
+      "end": 8.3,
+      "word": " Erie"
+     },
+     {
+      "start": 8.3,
+      "end": 8.82,
+      "word": " recurrent"
+     },
+     {
+      "start": 8.82,
+      "end": 9.22,
+      "word": " network"
+     },
+     {
+      "start": 9.22,
+      "end": 9.78,
+      "word": " processes"
+     },
+     {
+      "start": 9.78,
+      "end": 10.22,
+      "word": " tokens"
+     },
+     {
+      "start": 10.22,
+      "end": 10.96,
+      "word": " one"
+     },
+     {
+      "start": 10.96,
+      "end": 11.12,
+      "word": " at"
+     },
+     {
+      "start": 11.12,
+      "end": 11.2,
+      "word": " a"
+     },
+     {
+      "start": 11.2,
+      "end": 11.6,
+      "word": " time."
+     }
+    ]
+   },
+   {
+    "start": 11.96,
+    "end": 15.86,
+    "text": "So information from early tokens has to survive many steps",
+    "words": [
+     {
+      "start": 11.96,
+      "end": 12.06,
+      "word": " So"
+     },
+     {
+      "start": 12.06,
+      "end": 12.7,
+      "word": " information"
+     },
+     {
+      "start": 12.7,
+      "end": 13.08,
+      "word": " from"
+     },
+     {
+      "start": 13.08,
+      "end": 13.46,
+      "word": " early"
+     },
+     {
+      "start": 13.46,
+      "end": 13.94,
+      "word": " tokens"
+     },
+     {
+      "start": 13.94,
+      "end": 14.58,
+      "word": " has"
+     },
+     {
+      "start": 14.58,
+      "end": 14.72,
+      "word": " to"
+     },
+     {
+      "start": 14.72,
+      "end": 15.08,
+      "word": " survive"
+     },
+     {
+      "start": 15.08,
+      "end": 15.44,
+      "word": " many"
+     },
+     {
+      "start": 15.44,
+      "end": 15.86,
+      "word": " steps"
+     }
+    ]
+   },
+   {
+    "start": 15.86,
+    "end": 17.96,
+    "text": "and it's hard to parallelize.",
+    "words": [
+     {
+      "start": 15.86,
+      "end": 16.48,
+      "word": " and"
+     },
+     {
+      "start": 16.48,
+      "end": 16.76,
+      "word": " it's"
+     },
+     {
+      "start": 16.76,
+      "end": 17.02,
+      "word": " hard"
+     },
+     {
+      "start": 17.02,
+      "end": 17.24,
+      "word": " to"
+     },
+     {
+      "start": 17.24,
+      "end": 17.96,
+      "word": " parallelize."
+     }
+    ]
+   },
+   {
+    "start": 18.28,
+    "end": 23.42,
+    "text": "Self-attention lets every token look at every other token directly in one step.",
+    "words": [
+     {
+      "start": 18.28,
+      "end": 18.7,
+      "word": " Self"
+     },
+     {
+      "start": 18.7,
+      "end": 19.2,
+      "word": "-attention"
+     },
+     {
+      "start": 19.2,
+      "end": 19.82,
+      "word": " lets"
+     },
+     {
+      "start": 19.82,
+      "end": 20.16,
+      "word": " every"
+     },
+     {
+      "start": 20.16,
+      "end": 20.48,
+      "word": " token"
+     },
+     {
+      "start": 20.48,
+      "end": 20.74,
+      "word": " look"
+     },
+     {
+      "start": 20.74,
+      "end": 20.88,
+      "word": " at"
+     },
+     {
+      "start": 20.88,
+      "end": 21.14,
+      "word": " every"
+     },
+     {
+      "start": 21.14,
+      "end": 21.46,
+      "word": " other"
+     },
+     {
+      "start": 21.46,
+      "end": 21.86,
+      "word": " token"
+     },
+     {
+      "start": 21.86,
+      "end": 22.28,
+      "word": " directly"
+     },
+     {
+      "start": 22.28,
+      "end": 22.78,
+      "word": " in"
+     },
+     {
+      "start": 22.78,
+      "end": 22.98,
+      "word": " one"
+     },
+     {
+      "start": 22.98,
+      "end": 23.42,
+      "word": " step."
+     }
+    ]
+   },
+   {
+    "start": 23.9,
+    "end": 26.64,
+    "text": "So long-range dependencies are easier",
+    "words": [
+     {
+      "start": 23.9,
+      "end": 24.34,
+      "word": " So"
+     },
+     {
+      "start": 24.34,
+      "end": 24.82,
+      "word": " long"
+     },
+     {
+      "start": 24.82,
+      "end": 25.14,
+      "word": "-range"
+     },
+     {
+      "start": 25.14,
+      "end": 25.92,
+      "word": " dependencies"
+     },
+     {
+      "start": 25.92,
+      "end": 26.2,
+      "word": " are"
+     },
+     {
+      "start": 26.2,
+      "end": 26.64,
+      "word": " easier"
+     }
+    ]
+   },
+   {
+    "start": 26.64,
+    "end": 31.18,
+    "text": "and you can train on the whole sequence in parallel on a GPU",
+    "words": [
+     {
+      "start": 26.64,
+      "end": 27.48,
+      "word": " and"
+     },
+     {
+      "start": 27.48,
+      "end": 27.68,
+      "word": " you"
+     },
+     {
+      "start": 27.68,
+      "end": 27.86,
+      "word": " can"
+     },
+     {
+      "start": 27.86,
+      "end": 28.24,
+      "word": " train"
+     },
+     {
+      "start": 28.24,
+      "end": 28.64,
+      "word": " on"
+     },
+     {
+      "start": 28.64,
+      "end": 28.8,
+      "word": " the"
+     },
+     {
+      "start": 28.8,
+      "end": 28.96,
+      "word": " whole"
+     },
+     {
+      "start": 28.96,
+      "end": 29.42,
+      "word": " sequence"
+     },
+     {
+      "start": 29.42,
+      "end": 29.86,
+      "word": " in"
+     },
+     {
+      "start": 29.86,
+      "end": 30.3,
+      "word": " parallel"
+     },
+     {
+      "start": 30.3,
+      "end": 30.72,
+      "word": " on"
+     },
+     {
+      "start": 30.72,
+      "end": 30.84,
+      "word": " a"
+     },
+     {
+      "start": 30.84,
+      "end": 31.18,
+      "word": " GPU"
+     }
+    ]
+   },
+   {
+    "start": 31.18,
+    "end": 34.64,
+    "text": "which is why transformer scaled so well.",
+    "words": [
+     {
+      "start": 31.18,
+      "end": 32.06,
+      "word": " which"
+     },
+     {
+      "start": 32.06,
+      "end": 32.2,
+      "word": " is"
+     },
+     {
+      "start": 32.2,
+      "end": 32.4,
+      "word": " why"
+     },
+     {
+      "start": 32.4,
+      "end": 33.06,
+      "word": " transformer"
+     },
+     {
+      "start": 33.06,
+      "end": 33.68,
+      "word": " scaled"
+     },
+     {
+      "start": 33.68,
+      "end": 34.2,
+      "word": " so"
+     },
+     {
+      "start": 34.2,
+      "end": 34.64,
+      "word": " well."
+     }
+    ]
+   },
+   {
+    "start": 35.3,
+    "end": 37.1,
+    "text": "What are the query key and value?",
+    "words": [
+     {
+      "start": 35.3,
+      "end": 35.92,
+      "word": " What"
+     },
+     {
+      "start": 35.92,
+      "end": 36.06,
+      "word": " are"
+     },
+     {
+      "start": 36.06,
+      "end": 36.14,
+      "word": " the"
+     },
+     {
+      "start": 36.14,
+      "end": 36.34,
+      "word": " query"
+     },
+     {
+      "start": 36.34,
+      "end": 36.68,
+      "word": " key"
+     },
+     {
+      "start": 36.68,
+      "end": 36.78,
+      "word": " and"
+     },
+     {
+      "start": 36.78,
+      "end": 37.1,
+      "word": " value?"
+     }
+    ]
+   },
+   {
+    "start": 38.48,
+    "end": 43.2,
+    "text": "Each token is projected into a query, a key and a value.",
+    "words": [
+     {
+      "start": 38.48,
+      "end": 38.9,
+      "word": " Each"
+     },
+     {
+      "start": 38.9,
+      "end": 39.26,
+      "word": " token"
+     },
+     {
+      "start": 39.26,
+      "end": 39.54,
+      "word": " is"
+     },
+     {
+      "start": 39.54,
+      "end": 39.96,
+      "word": " projected"
+     },
+     {
+      "start": 39.96,
+      "end": 40.4,
+      "word": " into"
+     },
+     {
+      "start": 40.4,
+      "end": 40.66,
+      "word": " a"
+     },
+     {
+      "start": 40.66,
+      "end": 41.22,
+      "word": " query,"
+     },
+     {
+      "start": 41.84,
+      "end": 41.98,
+      "word": " a"
+     },
+     {
+      "start": 41.98,
+      "end": 42.26,
+      "word": " key"
+     },
+     {
+      "start": 42.26,
+      "end": 42.68,
+      "word": " and"
+     },
+     {
+      "start": 42.68,
+      "end": 42.8,
+      "word": " a"
+     },
+     {
+      "start": 42.8,
+      "end": 43.2,
+      "word": " value."
+     }
+    ]
+   },
+   {
+    "start": 43.7,
+    "end": 46.82,
+    "text": "You take the dot product of a query with all the keys,",
+    "words": [
+     {
+      "start": 43.7,
+      "end": 43.92,
+      "word": " You"
+     },
+     {
+      "start": 43.92,
+      "end": 44.12,
+      "word": " take"
+     },
+     {
+      "start": 44.12,
+      "end": 44.36,
+      "word": " the"
+     },
+     {
+      "start": 44.36,
+      "end": 44.52,
+      "word": " dot"
+     },
+     {
+      "start": 44.52,
+      "end": 45.18,
+      "word": " product"
+     },
+     {
+      "start": 45.18,
+      "end": 45.44,
+      "word": " of"
+     },
+     {
+      "start": 45.44,
+      "end": 45.52,
+      "word": " a"
+     },
+     {
+      "start": 45.52,
+      "end": 45.82,
+      "word": " query"
+     },
+     {
+      "start": 45.82,
+      "end": 46.14,
+      "word": " with"
+     },
+     {
+      "start": 46.14,
+      "end": 46.36,
+      "word": " all"
+     },
+     {
+      "start": 46.36,
+      "end": 46.54,
+      "word": " the"
+     },
+     {
+      "start": 46.54,
+      "end": 46.82,
+      "word": " keys,"
+     }
+    ]
+   },
+   {
+    "start": 47.46,
+    "end": 50.52,
+    "text": "scale it, apply a softmax to get attention weights",
+    "words": [
+     {
+      "start": 47.46,
+      "end": 47.7,
+      "word": " scale"
+     },
+     {
+      "start": 47.7,
+      "end": 47.98,
+      "word": " it,"
+     },
+     {
+      "start": 48.14,
+      "end": 48.62,
+      "word": " apply"
+     },
+     {
+      "start": 48.62,
+      "end": 48.8,
+      "word": " a"
+     },
+     {
+      "start": 48.8,
+      "end": 49.32,
+      "word": " softmax"
+     },
+     {
+      "start": 49.32,
+      "end": 49.6,
+      "word": " to"
+     },
+     {
+      "start": 49.6,
+      "end": 49.76,
+      "word": " get"
+     },
+     {
+      "start": 49.76,
+      "end": 50.2,
+      "word": " attention"
+     },
+     {
+      "start": 50.2,
+      "end": 50.52,
+      "word": " weights"
+     }
+    ]
+   },
+   {
+    "start": 51.459999999999994,
+    "end": 54.38,
+    "text": "and then take the weighted sum of the values.",
+    "words": [
+     {
+      "start": 51.459999999999994,
+      "end": 52.08,
+      "word": " and"
+     },
+     {
+      "start": 52.08,
+      "end": 52.28,
+      "word": " then"
+     },
+     {
+      "start": 52.28,
+      "end": 52.56,
+      "word": " take"
+     },
+     {
+      "start": 52.56,
+      "end": 52.76,
+      "word": " the"
+     },
+     {
+      "start": 52.76,
+      "end": 52.98,
+      "word": " weighted"
+     },
+     {
+      "start": 52.98,
+      "end": 53.28,
+      "word": " sum"
+     },
+     {
+      "start": 53.28,
+      "end": 53.8,
+      "word": " of"
+     },
+     {
+      "start": 53.8,
+      "end": 53.96,
+      "word": " the"
+     },
+     {
+      "start": 53.96,
+      "end": 54.38,
+      "word": " values."
+     }
+    ]
+   },
+   {
+    "start": 55.38,
+    "end": 59.24,
+    "text": "And with multiple heads, you do this several times in parallel",
+    "words": [
+     {
+      "start": 55.06,
+      "end": 55.4,
+      "word": " And"
+     },
+     {
+      "start": 55.4,
+      "end": 55.88,
+      "word": " with"
+     },
+     {
+      "start": 55.88,
+      "end": 56.48,
+      "word": " multiple"
+     },
+     {
+      "start": 56.48,
+      "end": 56.76,
+      "word": " heads,"
+     },
+     {
+      "start": 56.98,
+      "end": 57.04,
+      "word": " you"
+     },
+     {
+      "start": 57.04,
+      "end": 57.28,
+      "word": " do"
+     },
+     {
+      "start": 57.28,
+      "end": 57.66,
+      "word": " this"
+     },
+     {
+      "start": 57.66,
+      "end": 58.14,
+      "word": " several"
+     },
+     {
+      "start": 58.14,
+      "end": 58.54,
+      "word": " times"
+     },
+     {
+      "start": 58.54,
+      "end": 58.82,
+      "word": " in"
+     },
+     {
+      "start": 58.82,
+      "end": 59.24,
+      "word": " parallel"
+     }
+    ]
+   },
+   {
+    "start": 59.24,
+    "end": 63.04,
+    "text": "so different heads can focus on different relationships",
+    "words": [
+     {
+      "start": 59.24,
+      "end": 59.64,
+      "word": " so"
+     },
+     {
+      "start": 59.64,
+      "end": 59.98,
+      "word": " different"
+     },
+     {
+      "start": 59.98,
+      "end": 60.46,
+      "word": " heads"
+     },
+     {
+      "start": 60.46,
+      "end": 60.98,
+      "word": " can"
+     },
+     {
+      "start": 60.98,
+      "end": 61.48,
+      "word": " focus"
+     },
+     {
+      "start": 61.48,
+      "end": 61.84,
+      "word": " on"
+     },
+     {
+      "start": 61.84,
+      "end": 62.22,
+      "word": " different"
+     },
+     {
+      "start": 62.22,
+      "end": 63.04,
+      "word": " relationships"
+     }
+    ]
+   },
+   {
+    "start": 63.04,
+    "end": 66.78,
+    "text": "like syntax in one head and co-reference in another.",
+    "words": [
+     {
+      "start": 63.04,
+      "end": 63.64,
+      "word": " like"
+     },
+     {
+      "start": 63.64,
+      "end": 64.1,
+      "word": " syntax"
+     },
+     {
+      "start": 64.1,
+      "end": 64.66,
+      "word": " in"
+     },
+     {
+      "start": 64.66,
+      "end": 65.08,
+      "word": " one"
+     },
+     {
+      "start": 65.08,
+      "end": 65.36,
+      "word": " head"
+     },
+     {
+      "start": 65.36,
+      "end": 65.66,
+      "word": " and"
+     },
+     {
+      "start": 65.66,
+      "end": 65.9,
+      "word": " co"
+     },
+     {
+      "start": 65.9,
+      "end": 66.18,
+      "word": "-reference"
+     },
+     {
+      "start": 66.18,
+      "end": 66.44,
+      "word": " in"
+     },
+     {
+      "start": 66.44,
+      "end": 66.78,
+      "word": " another."
+     }
+    ]
+   },
+   {
+    "start": 68.06,
+    "end": 70.6,
+    "text": "Why do we divide by the square root of the key dimension?",
+    "words": [
+     {
+      "start": 68.06,
+      "end": 68.74,
+      "word": " Why"
+     },
+     {
+      "start": 68.74,
+      "end": 68.84,
+      "word": " do"
+     },
+     {
+      "start": 68.84,
+      "end": 68.94,
+      "word": " we"
+     },
+     {
+      "start": 68.94,
+      "end": 69.18,
+      "word": " divide"
+     },
+     {
+      "start": 69.18,
+      "end": 69.34,
+      "word": " by"
+     },
+     {
+      "start": 69.34,
+      "end": 69.46,
+      "word": " the"
+     },
+     {
+      "start": 69.46,
+      "end": 69.72,
+      "word": " square"
+     },
+     {
+      "start": 69.72,
+      "end": 69.9,
+      "word": " root"
+     },
+     {
+      "start": 69.9,
+      "end": 70.0,
+      "word": " of"
+     },
+     {
+      "start": 70.0,
+      "end": 70.1,
+      "word": " the"
+     },
+     {
+      "start": 70.1,
+      "end": 70.26,
+      "word": " key"
+     },
+     {
+      "start": 70.26,
+      "end": 70.6,
+      "word": " dimension?"
+     }
+    ]
+   },
+   {
+    "start": 71.82,
+    "end": 73.56,
+    "text": "So the softmax doesn't saturate.",
+    "words": [
+     {
+      "start": 71.82,
+      "end": 72.24,
+      "word": " So"
+     },
+     {
+      "start": 72.24,
+      "end": 72.36,
+      "word": " the"
+     },
+     {
+      "start": 72.36,
+      "end": 72.72,
+      "word": " softmax"
+     },
+     {
+      "start": 72.72,
+      "end": 73.08,
+      "word": " doesn't"
+     },
+     {
+      "start": 73.08,
+      "end": 73.56,
+      "word": " saturate."
+     }
+    ]
+   },
+   {
+    "start": 74.76,
+    "end": 77.56,
+    "text": "Yes, and since attention has no notion of order, what do we add?",
+    "words": [
+     {
+      "start": 74.76,
+      "end": 75.14,
+      "word": " Yes,"
+     },
+     {
+      "start": 75.32,
+      "end": 75.38,
+      "word": " and"
+     },
+     {
+      "start": 75.38,
+      "end": 75.5,
+      "word": " since"
+     },
+     {
+      "start": 75.5,
+      "end": 75.96,
+      "word": " attention"
+     },
+     {
+      "start": 75.96,
+      "end": 76.14,
+      "word": " has"
+     },
+     {
+      "start": 76.14,
+      "end": 76.28,
+      "word": " no"
+     },
+     {
+      "start": 76.28,
+      "end": 76.56,
+      "word": " notion"
+     },
+     {
+      "start": 76.56,
+      "end": 76.74,
+      "word": " of"
+     },
+     {
+      "start": 76.74,
+      "end": 76.92,
+      "word": " order,"
+     },
+     {
+      "start": 77.06,
+      "end": 77.12,
+      "word": " what"
+     },
+     {
+      "start": 77.12,
+      "end": 77.22,
+      "word": " do"
+     },
+     {
+      "start": 77.22,
+      "end": 77.34,
+      "word": " we"
+     },
+     {
+      "start": 77.34,
+      "end": 77.56,
+      "word": " add?"
+     }
+    ]
+   },
+   {
+    "start": 78.38000000000001,
+    "end": 80.14,
+    "text": "We add position encodings.",
+    "words": [
+     {
+      "start": 78.38000000000001,
+      "end": 79.06,
+      "word": " We"
+     },
+     {
+      "start": 79.06,
+      "end": 79.16,
+      "word": " add"
+     },
+     {
+      "start": 79.16,
+      "end": 79.52,
+      "word": " position"
+     },
+     {
+      "start": 79.52,
+      "end": 80.14,
+      "word": " encodings."
+     }
+    ]
+   },
+   {
+    "start": 81.03999999999999,
+    "end": 83.66,
+    "text": "Correctly, young encoder or decoder which one uses masking?",
+    "words": [
+     {
+      "start": 81.03999999999999,
+      "end": 81.6,
+      "word": " Correctly,"
+     },
+     {
+      "start": 81.64,
+      "end": 81.74,
+      "word": " young"
+     },
+     {
+      "start": 81.74,
+      "end": 82.16,
+      "word": " encoder"
+     },
+     {
+      "start": 82.16,
+      "end": 82.3,
+      "word": " or"
+     },
+     {
+      "start": 82.3,
+      "end": 82.62,
+      "word": " decoder"
+     },
+     {
+      "start": 82.62,
+      "end": 82.84,
+      "word": " which"
+     },
+     {
+      "start": 82.84,
+      "end": 82.96,
+      "word": " one"
+     },
+     {
+      "start": 82.96,
+      "end": 83.2,
+      "word": " uses"
+     },
+     {
+      "start": 83.2,
+      "end": 83.66,
+      "word": " masking?"
+     }
+    ]
+   },
+   {
+    "start": 84.58,
+    "end": 88.06,
+    "text": "The decoder so a token can't attend to future tokens.",
+    "words": [
+     {
+      "start": 84.58,
+      "end": 85.14,
+      "word": " The"
+     },
+     {
+      "start": 85.14,
+      "end": 85.6,
+      "word": " decoder"
+     },
+     {
+      "start": 85.6,
+      "end": 85.96,
+      "word": " so"
+     },
+     {
+      "start": 85.96,
+      "end": 86.08,
+      "word": " a"
+     },
+     {
+      "start": 86.08,
+      "end": 86.34,
+      "word": " token"
+     },
+     {
+      "start": 86.34,
+      "end": 86.74,
+      "word": " can't"
+     },
+     {
+      "start": 86.74,
+      "end": 87.02,
+      "word": " attend"
+     },
+     {
+      "start": 87.02,
+      "end": 87.28,
+      "word": " to"
+     },
+     {
+      "start": 87.28,
+      "end": 87.56,
+      "word": " future"
+     },
+     {
+      "start": 87.56,
+      "end": 88.06,
+      "word": " tokens."
+     }
+    ]
+   },
+   {
+    "start": 89.16,
+    "end": 90.98,
+    "text": "Good, that's the core of the architecture.",
+    "words": [
+     {
+      "start": 89.16,
+      "end": 89.72,
+      "word": " Good,"
+     },
+     {
+      "start": 89.88,
+      "end": 90.04,
+      "word": " that's"
+     },
+     {
+      "start": 90.04,
+      "end": 90.14,
+      "word": " the"
+     },
+     {
+      "start": 90.14,
+      "end": 90.3,
+      "word": " core"
+     },
+     {
+      "start": 90.3,
+      "end": 90.44,
+      "word": " of"
+     },
+     {
+      "start": 90.44,
+      "end": 90.44,
+      "word": " the"
+     },
+     {
+      "start": 90.44,
+      "end": 90.98,
+      "word": " architecture."
+     }
+    ]
+   }
+  ],
+  "speaker_segments": [
+   {
+    "start": 1.16159375,
+    "end": 6.13971875,
+    "speaker": "SPEAKER_00"
+   },
+   {
+    "start": 7.5572187500000005,
+    "end": 34.64159375,
+    "speaker": "SPEAKER_02"
+   },
+   {
+    "start": 35.704718750000005,
+    "end": 37.24034375,
+    "speaker": "SPEAKER_00"
+   },
+   {
+    "start": 38.69159375,
+    "end": 66.97409375000001,
+    "speaker": "SPEAKER_02"
+   },
+   {
+    "start": 68.57721875,
+    "end": 70.83846875,
+    "speaker": "SPEAKER_00"
+   },
+   {
+    "start": 72.12096875,
+    "end": 73.55534375,
+    "speaker": "SPEAKER_01"
+   },
+   {
+    "start": 74.97284375000001,
+    "end": 77.67284375,
+    "speaker": "SPEAKER_00"
+   },
+   {
+    "start": 78.93846875,
+    "end": 80.18721875,
+    "speaker": "SPEAKER_01"
+   },
+   {
+    "start": 81.23346875,
+    "end": 83.83221875000001,
+    "speaker": "SPEAKER_00"
+   },
+   {
+    "start": 85.06409375000001,
+    "end": 88.27034375000001,
+    "speaker": "SPEAKER_01"
+   },
+   {
+    "start": 89.55284375000001,
+    "end": 91.13909375,
+    "speaker": "SPEAKER_00"
+   }
+  ],
+  "aligned_segments": [
+   {
+    "start": 0.0,
+    "end": 2.78,
+    "speaker": "SPEAKER_00",
+    "text": "Today, we look inside the transformer."
+   },
+   {
+    "start": 3.06,
+    "end": 4.62,
+    "speaker": "SPEAKER_00",
+    "text": "What problem does self-attention solve"
+   },
+   {
+    "start": 4.62,
+    "end": 5.98,
+    "speaker": "SPEAKER_00",
+    "text": "compared with a recurrent network?"
+   },
+   {
+    "start": 7.58,
+    "end": 11.6,
+    "speaker": "SPEAKER_02",
+    "text": "Erie recurrent network processes tokens one at a time."
+   },
+   {
+    "start": 11.96,
+    "end": 15.86,
+    "speaker": "SPEAKER_02",
+    "text": "So information from early tokens has to survive many steps"
+   },
+   {
+    "start": 15.86,
+    "end": 17.96,
+    "speaker": "SPEAKER_02",
+    "text": "and it's hard to parallelize."
+   },
+   {
+    "start": 18.28,
+    "end": 23.42,
+    "speaker": "SPEAKER_02",
+    "text": "Self-attention lets every token look at every other token directly in one step."
+   },
+   {
+    "start": 23.9,
+    "end": 26.64,
+    "speaker": "SPEAKER_02",
+    "text": "So long-range dependencies are easier"
+   },
+   {
+    "start": 26.64,
+    "end": 31.18,
+    "speaker": "SPEAKER_02",
+    "text": "and you can train on the whole sequence in parallel on a GPU"
+   },
+   {
+    "start": 31.18,
+    "end": 34.64,
+    "speaker": "SPEAKER_02",
+    "text": "which is why transformer scaled so well."
+   },
+   {
+    "start": 35.3,
+    "end": 37.1,
+    "speaker": "SPEAKER_00",
+    "text": "What are the query key and value?"
+   },
+   {
+    "start": 38.48,
+    "end": 43.2,
+    "speaker": "SPEAKER_02",
+    "text": "Each token is projected into a query, a key and a value."
+   },
+   {
+    "start": 43.7,
+    "end": 46.82,
+    "speaker": "SPEAKER_02",
+    "text": "You take the dot product of a query with all the keys,"
+   },
+   {
+    "start": 47.46,
+    "end": 50.52,
+    "speaker": "SPEAKER_02",
+    "text": "scale it, apply a softmax to get attention weights"
+   },
+   {
+    "start": 51.459999999999994,
+    "end": 54.38,
+    "speaker": "SPEAKER_02",
+    "text": "and then take the weighted sum of the values."
+   },
+   {
+    "start": 55.38,
+    "end": 59.24,
+    "speaker": "SPEAKER_02",
+    "text": "And with multiple heads, you do this several times in parallel"
+   },
+   {
+    "start": 59.24,
+    "end": 63.04,
+    "speaker": "SPEAKER_02",
+    "text": "so different heads can focus on different relationships"
+   },
+   {
+    "start": 63.04,
+    "end": 66.78,
+    "speaker": "SPEAKER_02",
+    "text": "like syntax in one head and co-reference in another."
+   },
+   {
+    "start": 68.06,
+    "end": 70.6,
+    "speaker": "SPEAKER_00",
+    "text": "Why do we divide by the square root of the key dimension?"
+   },
+   {
+    "start": 71.82,
+    "end": 73.56,
+    "speaker": "SPEAKER_01",
+    "text": "So the softmax doesn't saturate."
+   },
+   {
+    "start": 74.76,
+    "end": 77.56,
+    "speaker": "SPEAKER_00",
+    "text": "Yes, and since attention has no notion of order, what do we add?"
+   },
+   {
+    "start": 78.38000000000001,
+    "end": 80.14,
+    "speaker": "SPEAKER_01",
+    "text": "We add position encodings."
+   },
+   {
+    "start": 81.03999999999999,
+    "end": 83.66,
+    "speaker": "SPEAKER_00",
+    "text": "Correctly, young encoder or decoder which one uses masking?"
+   },
+   {
+    "start": 84.58,
+    "end": 88.06,
+    "speaker": "SPEAKER_01",
+    "text": "The decoder so a token can't attend to future tokens."
+   },
+   {
+    "start": 89.16,
+    "end": 90.98,
+    "speaker": "SPEAKER_00",
+    "text": "Good, that's the core of the architecture."
+   }
+  ],
+  "voice_matches": {
+   "SPEAKER_00": {
+    "name": "prof",
+    "status": "identified",
+    "score": 0.8514699935913086,
+    "matches": [
+     {
+      "person_id": "prof",
+      "name": "prof",
+      "score": 0.8514699935913086,
+      "same_speaker": true
+     },
+     {
+      "person_id": "koh-qing-jia",
+      "name": "Koh Qing Jia",
+      "score": 0.056921325623989105,
+      "same_speaker": false
+     },
+     {
+      "person_id": "tasmin",
+      "name": "tasmin",
+      "score": 0.056507959961891174,
+      "same_speaker": false
+     },
+     {
+      "person_id": "tina",
+      "name": "tina",
+      "score": 0.044556304812431335,
+      "same_speaker": false
+     },
+     {
+      "person_id": "le-yong",
+      "name": "le yong",
+      "score": -0.07195544987916946,
+      "same_speaker": false
+     }
+    ]
+   },
+   "SPEAKER_02": {
+    "name": "Koh Qing Jia",
+    "status": "identified",
+    "score": 0.8385839462280273,
+    "matches": [
+     {
+      "person_id": "koh-qing-jia",
+      "name": "Koh Qing Jia",
+      "score": 0.8385839462280273,
+      "same_speaker": true
+     },
+     {
+      "person_id": "tina",
+      "name": "tina",
+      "score": 0.14099213480949402,
+      "same_speaker": false
+     },
+     {
+      "person_id": "prof",
+      "name": "prof",
+      "score": 0.08559553325176239,
+      "same_speaker": false
+     },
+     {
+      "person_id": "tasmin",
+      "name": "tasmin",
+      "score": 0.07722056657075882,
+      "same_speaker": false
+     },
+     {
+      "person_id": "le-yong",
+      "name": "le yong",
+      "score": 0.0368608757853508,
+      "same_speaker": false
+     }
+    ]
+   },
+   "SPEAKER_01": {
+    "name": "AMBIGUOUS",
+    "status": "ambiguous",
+    "matches": [
+     {
+      "person_id": "le-yong",
+      "name": "le yong",
+      "score": 0.5788805484771729,
+      "same_speaker": true
+     },
+     {
+      "person_id": "tasmin",
+      "name": "tasmin",
+      "score": 0.29022789001464844,
+      "same_speaker": true
+     },
+     {
+      "person_id": "koh-qing-jia",
+      "name": "Koh Qing Jia",
+      "score": 0.23963496088981628,
+      "same_speaker": false
+     },
+     {
+      "person_id": "tina",
+      "name": "tina",
+      "score": 0.17269794642925262,
+      "same_speaker": false
+     },
+     {
+      "person_id": "prof",
+      "name": "prof",
+      "score": 0.04641696810722351,
+      "same_speaker": false
+     }
+    ]
+   }
+  },
+  "speaker_identities": {
+   "SPEAKER_00": "prof",
+   "SPEAKER_02": "Koh Qing Jia",
+   "SPEAKER_01": "AMBIGUOUS"
+  },
+  "segments": [
+   {
+    "start": 0.0,
+    "end": 5.98,
+    "speaker": "prof",
+    "original_speaker": "SPEAKER_00",
+    "text": "Today, we look inside the transformer. What problem does self-attention solve compared with a recurrent network?"
+   },
+   {
+    "start": 7.58,
+    "end": 34.64,
+    "speaker": "Koh Qing Jia",
+    "original_speaker": "SPEAKER_02",
+    "text": "Erie recurrent network processes tokens one at a time. So information from early tokens has to survive many steps and it's hard to parallelize. Self-attention lets every token look at every other token directly in one step. So long-range dependencies are easier and you can train on the whole sequence in parallel on a GPU which is why transformer scaled so well."
+   },
+   {
+    "start": 35.3,
+    "end": 37.1,
+    "speaker": "prof",
+    "original_speaker": "SPEAKER_00",
+    "text": "What are the query key and value?"
+   },
+   {
+    "start": 38.48,
+    "end": 66.78,
+    "speaker": "Koh Qing Jia",
+    "original_speaker": "SPEAKER_02",
+    "text": "Each token is projected into a query, a key and a value. You take the dot product of a query with all the keys, scale it, apply a softmax to get attention weights and then take the weighted sum of the values. And with multiple heads, you do this several times in parallel so different heads can focus on different relationships like syntax in one head and co-reference in another."
+   },
+   {
+    "start": 68.06,
+    "end": 70.6,
+    "speaker": "prof",
+    "original_speaker": "SPEAKER_00",
+    "text": "Why do we divide by the square root of the key dimension?"
+   },
+   {
+    "start": 71.82,
+    "end": 73.56,
+    "speaker": "AMBIGUOUS",
+    "original_speaker": "SPEAKER_01",
+    "text": "So the softmax doesn't saturate."
+   },
+   {
+    "start": 74.76,
+    "end": 77.56,
+    "speaker": "prof",
+    "original_speaker": "SPEAKER_00",
+    "text": "Yes, and since attention has no notion of order, what do we add?"
+   },
+   {
+    "start": 78.38000000000001,
+    "end": 80.14,
+    "speaker": "AMBIGUOUS",
+    "original_speaker": "SPEAKER_01",
+    "text": "We add position encodings."
+   },
+   {
+    "start": 81.03999999999999,
+    "end": 83.66,
+    "speaker": "prof",
+    "original_speaker": "SPEAKER_00",
+    "text": "Correctly, young encoder or decoder which one uses masking?"
+   },
+   {
+    "start": 84.58,
+    "end": 88.06,
+    "speaker": "AMBIGUOUS",
+    "original_speaker": "SPEAKER_01",
+    "text": "The decoder so a token can't attend to future tokens."
+   },
+   {
+    "start": 89.16,
+    "end": 90.98,
+    "speaker": "prof",
+    "original_speaker": "SPEAKER_00",
+    "text": "Good, that's the core of the architecture."
+   }
+  ],
+  "diarization_turns": [
+   {
+    "start": 1.16159375,
+    "end": 6.13971875,
+    "speaker": "SPEAKER_00"
+   },
+   {
+    "start": 7.5572187500000005,
+    "end": 34.64159375,
+    "speaker": "SPEAKER_02"
+   },
+   {
+    "start": 35.704718750000005,
+    "end": 37.24034375,
+    "speaker": "SPEAKER_00"
+   },
+   {
+    "start": 38.69159375,
+    "end": 66.97409375000001,
+    "speaker": "SPEAKER_02"
+   },
+   {
+    "start": 68.57721875,
+    "end": 70.83846875,
+    "speaker": "SPEAKER_00"
+   },
+   {
+    "start": 72.12096875,
+    "end": 73.55534375,
+    "speaker": "SPEAKER_01"
+   },
+   {
+    "start": 74.97284375000001,
+    "end": 77.67284375,
+    "speaker": "SPEAKER_00"
+   },
+   {
+    "start": 78.93846875,
+    "end": 80.18721875,
+    "speaker": "SPEAKER_01"
+   },
+   {
+    "start": 81.23346875,
+    "end": 83.83221875000001,
+    "speaker": "SPEAKER_00"
+   },
+   {
+    "start": 85.06409375000001,
+    "end": 88.27034375000001,
+    "speaker": "SPEAKER_01"
+   },
+   {
+    "start": 89.55284375000001,
+    "end": 91.13909375,
+    "speaker": "SPEAKER_00"
+   }
+  ],
+  "timings": {
+   "transcription_s": 9.804569490021095,
+   "diarization_s": 118.17040872713551,
+   "total_s": 150.6844268599525
+  }
+ },
+ "segment_matches": [
+  [
+   {
+    "person_id": "prof",
+    "name": "prof",
+    "score": 0.808253824710846,
+    "same_speaker": true
+   },
+   {
+    "person_id": "tasmin",
+    "name": "tasmin",
+    "score": 0.06954487413167953,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tina",
+    "name": "tina",
+    "score": 0.04998745396733284,
+    "same_speaker": false
+   },
+   {
+    "person_id": "koh-qing-jia",
+    "name": "Koh Qing Jia",
+    "score": -0.035491328686475754,
+    "same_speaker": false
+   },
+   {
+    "person_id": "le-yong",
+    "name": "le yong",
+    "score": -0.051937900483608246,
+    "same_speaker": false
+   }
+  ],
+  [
+   {
+    "person_id": "prof",
+    "name": "prof",
+    "score": 0.6605590581893921,
+    "same_speaker": true
+   },
+   {
+    "person_id": "koh-qing-jia",
+    "name": "Koh Qing Jia",
+    "score": 0.12223899364471436,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tasmin",
+    "name": "tasmin",
+    "score": 0.11546296626329422,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tina",
+    "name": "tina",
+    "score": 0.056062519550323486,
+    "same_speaker": false
+   },
+   {
+    "person_id": "le-yong",
+    "name": "le yong",
+    "score": 0.014103835448622704,
+    "same_speaker": false
+   }
+  ],
+  [
+   {
+    "person_id": "prof",
+    "name": "prof",
+    "score": 0.6314736604690552,
+    "same_speaker": true
+   },
+   {
+    "person_id": "koh-qing-jia",
+    "name": "Koh Qing Jia",
+    "score": 0.11706699430942535,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tina",
+    "name": "tina",
+    "score": 0.08291028439998627,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tasmin",
+    "name": "tasmin",
+    "score": 0.026856031268835068,
+    "same_speaker": false
+   },
+   {
+    "person_id": "le-yong",
+    "name": "le yong",
+    "score": -0.045674391090869904,
+    "same_speaker": false
+   }
+  ],
+  [
+   {
+    "person_id": "koh-qing-jia",
+    "name": "Koh Qing Jia",
+    "score": 0.7576431632041931,
+    "same_speaker": true
+   },
+   {
+    "person_id": "tina",
+    "name": "tina",
+    "score": 0.12204208970069885,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tasmin",
+    "name": "tasmin",
+    "score": 0.0679657906293869,
+    "same_speaker": false
+   },
+   {
+    "person_id": "prof",
+    "name": "prof",
+    "score": 0.06429172307252884,
+    "same_speaker": false
+   },
+   {
+    "person_id": "le-yong",
+    "name": "le yong",
+    "score": 0.02877562865614891,
+    "same_speaker": false
+   }
+  ],
+  [
+   {
+    "person_id": "koh-qing-jia",
+    "name": "Koh Qing Jia",
+    "score": 0.7581696510314941,
+    "same_speaker": true
+   },
+   {
+    "person_id": "tina",
+    "name": "tina",
+    "score": 0.1122034415602684,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tasmin",
+    "name": "tasmin",
+    "score": 0.0783882737159729,
+    "same_speaker": false
+   },
+   {
+    "person_id": "prof",
+    "name": "prof",
+    "score": 0.06563892960548401,
+    "same_speaker": false
+   },
+   {
+    "person_id": "le-yong",
+    "name": "le yong",
+    "score": 0.04351191222667694,
+    "same_speaker": false
+   }
+  ],
+  [
+   {
+    "person_id": "koh-qing-jia",
+    "name": "Koh Qing Jia",
+    "score": 0.6409146785736084,
+    "same_speaker": true
+   },
+   {
+    "person_id": "tina",
+    "name": "tina",
+    "score": 0.17832952737808228,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tasmin",
+    "name": "tasmin",
+    "score": 0.09871739149093628,
+    "same_speaker": false
+   },
+   {
+    "person_id": "le-yong",
+    "name": "le yong",
+    "score": 0.09001734852790833,
+    "same_speaker": false
+   },
+   {
+    "person_id": "prof",
+    "name": "prof",
+    "score": -0.01931895688176155,
+    "same_speaker": false
+   }
+  ],
+  [
+   {
+    "person_id": "koh-qing-jia",
+    "name": "Koh Qing Jia",
+    "score": 0.744316041469574,
+    "same_speaker": true
+   },
+   {
+    "person_id": "tina",
+    "name": "tina",
+    "score": 0.131321519613266,
+    "same_speaker": false
+   },
+   {
+    "person_id": "prof",
+    "name": "prof",
+    "score": 0.1128913164138794,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tasmin",
+    "name": "tasmin",
+    "score": 0.07478675991296768,
+    "same_speaker": false
+   },
+   {
+    "person_id": "le-yong",
+    "name": "le yong",
+    "score": 0.05724514275789261,
+    "same_speaker": false
+   }
+  ],
+  [
+   {
+    "person_id": "koh-qing-jia",
+    "name": "Koh Qing Jia",
+    "score": 0.7186724543571472,
+    "same_speaker": true
+   },
+   {
+    "person_id": "tina",
+    "name": "tina",
+    "score": 0.16314129531383514,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tasmin",
+    "name": "tasmin",
+    "score": 0.11297906190156937,
+    "same_speaker": false
+   },
+   {
+    "person_id": "prof",
+    "name": "prof",
+    "score": 0.04979364573955536,
+    "same_speaker": false
+   },
+   {
+    "person_id": "le-yong",
+    "name": "le yong",
+    "score": 0.009690907783806324,
+    "same_speaker": false
+   }
+  ],
+  [
+   {
+    "person_id": "koh-qing-jia",
+    "name": "Koh Qing Jia",
+    "score": 0.7854219079017639,
+    "same_speaker": true
+   },
+   {
+    "person_id": "tina",
+    "name": "tina",
+    "score": 0.17926228046417236,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tasmin",
+    "name": "tasmin",
+    "score": 0.07175206393003464,
+    "same_speaker": false
+   },
+   {
+    "person_id": "le-yong",
+    "name": "le yong",
+    "score": 0.0505276620388031,
+    "same_speaker": false
+   },
+   {
+    "person_id": "prof",
+    "name": "prof",
+    "score": 0.006609680131077766,
+    "same_speaker": false
+   }
+  ],
+  [
+   {
+    "person_id": "koh-qing-jia",
+    "name": "Koh Qing Jia",
+    "score": 0.715160071849823,
+    "same_speaker": true
+   },
+   {
+    "person_id": "tina",
+    "name": "tina",
+    "score": 0.16019311547279358,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tasmin",
+    "name": "tasmin",
+    "score": 0.11847667396068573,
+    "same_speaker": false
+   },
+   {
+    "person_id": "prof",
+    "name": "prof",
+    "score": 0.09497148543596268,
+    "same_speaker": false
+   },
+   {
+    "person_id": "le-yong",
+    "name": "le yong",
+    "score": -0.04555150121450424,
+    "same_speaker": false
+   }
+  ],
+  [
+   {
+    "person_id": "prof",
+    "name": "prof",
+    "score": 0.6967302560806274,
+    "same_speaker": true
+   },
+   {
+    "person_id": "tasmin",
+    "name": "tasmin",
+    "score": 0.04498773440718651,
+    "same_speaker": false
+   },
+   {
+    "person_id": "koh-qing-jia",
+    "name": "Koh Qing Jia",
+    "score": 0.021493062376976013,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tina",
+    "name": "tina",
+    "score": 0.00141966063529253,
+    "same_speaker": false
+   },
+   {
+    "person_id": "le-yong",
+    "name": "le yong",
+    "score": -0.08962055295705795,
+    "same_speaker": false
+   }
+  ],
+  [
+   {
+    "person_id": "koh-qing-jia",
+    "name": "Koh Qing Jia",
+    "score": 0.7075842618942261,
+    "same_speaker": true
+   },
+   {
+    "person_id": "tina",
+    "name": "tina",
+    "score": 0.12086525559425354,
+    "same_speaker": false
+   },
+   {
+    "person_id": "prof",
+    "name": "prof",
+    "score": 0.06435807794332504,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tasmin",
+    "name": "tasmin",
+    "score": 0.04194656386971474,
+    "same_speaker": false
+   },
+   {
+    "person_id": "le-yong",
+    "name": "le yong",
+    "score": 0.03215654939413071,
+    "same_speaker": false
+   }
+  ],
+  [
+   {
+    "person_id": "koh-qing-jia",
+    "name": "Koh Qing Jia",
+    "score": 0.6611616015434265,
+    "same_speaker": true
+   },
+   {
+    "person_id": "prof",
+    "name": "prof",
+    "score": 0.05122704058885574,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tina",
+    "name": "tina",
+    "score": 0.03435734286904335,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tasmin",
+    "name": "tasmin",
+    "score": 0.03288022801280022,
+    "same_speaker": false
+   },
+   {
+    "person_id": "le-yong",
+    "name": "le yong",
+    "score": 0.017615193501114845,
+    "same_speaker": false
+   }
+  ],
+  [
+   {
+    "person_id": "koh-qing-jia",
+    "name": "Koh Qing Jia",
+    "score": 0.7349411249160767,
+    "same_speaker": true
+   },
+   {
+    "person_id": "prof",
+    "name": "prof",
+    "score": 0.07086992263793945,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tina",
+    "name": "tina",
+    "score": 0.0567237064242363,
+    "same_speaker": false
+   },
+   {
+    "person_id": "le-yong",
+    "name": "le yong",
+    "score": 0.03171155974268913,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tasmin",
+    "name": "tasmin",
+    "score": -0.002359917387366295,
+    "same_speaker": false
+   }
+  ],
+  [
+   {
+    "person_id": "koh-qing-jia",
+    "name": "Koh Qing Jia",
+    "score": 0.7776391506195068,
+    "same_speaker": true
+   },
+   {
+    "person_id": "prof",
+    "name": "prof",
+    "score": 0.09344251453876495,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tina",
+    "name": "tina",
+    "score": 0.0837734043598175,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tasmin",
+    "name": "tasmin",
+    "score": 0.057655684649944305,
+    "same_speaker": false
+   },
+   {
+    "person_id": "le-yong",
+    "name": "le yong",
+    "score": 0.05186779797077179,
+    "same_speaker": false
+   }
+  ],
+  [
+   {
+    "person_id": "koh-qing-jia",
+    "name": "Koh Qing Jia",
+    "score": 0.7218359708786011,
+    "same_speaker": true
+   },
+   {
+    "person_id": "tina",
+    "name": "tina",
+    "score": 0.1299383044242859,
+    "same_speaker": false
+   },
+   {
+    "person_id": "prof",
+    "name": "prof",
+    "score": 0.08766736090183258,
+    "same_speaker": false
+   },
+   {
+    "person_id": "le-yong",
+    "name": "le yong",
+    "score": 0.08003727346658707,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tasmin",
+    "name": "tasmin",
+    "score": 0.06924082338809967,
+    "same_speaker": false
+   }
+  ],
+  [
+   {
+    "person_id": "koh-qing-jia",
+    "name": "Koh Qing Jia",
+    "score": 0.7076054215431213,
+    "same_speaker": true
+   },
+   {
+    "person_id": "tina",
+    "name": "tina",
+    "score": 0.09063363075256348,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tasmin",
+    "name": "tasmin",
+    "score": 0.03894553333520889,
+    "same_speaker": false
+   },
+   {
+    "person_id": "le-yong",
+    "name": "le yong",
+    "score": 0.03239674121141434,
+    "same_speaker": false
+   },
+   {
+    "person_id": "prof",
+    "name": "prof",
+    "score": 0.028801793232560158,
+    "same_speaker": false
+   }
+  ],
+  [
+   {
+    "person_id": "koh-qing-jia",
+    "name": "Koh Qing Jia",
+    "score": 0.7562420964241028,
+    "same_speaker": true
+   },
+   {
+    "person_id": "tina",
+    "name": "tina",
+    "score": 0.1941055804491043,
+    "same_speaker": false
+   },
+   {
+    "person_id": "prof",
+    "name": "prof",
+    "score": 0.12433169782161713,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tasmin",
+    "name": "tasmin",
+    "score": 0.11398757249116898,
+    "same_speaker": false
+   },
+   {
+    "person_id": "le-yong",
+    "name": "le yong",
+    "score": 0.0710005909204483,
+    "same_speaker": false
+   }
+  ],
+  [
+   {
+    "person_id": "prof",
+    "name": "prof",
+    "score": 0.8031479120254517,
+    "same_speaker": true
+   },
+   {
+    "person_id": "koh-qing-jia",
+    "name": "Koh Qing Jia",
+    "score": 0.09410516917705536,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tasmin",
+    "name": "tasmin",
+    "score": 0.07937317341566086,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tina",
+    "name": "tina",
+    "score": 0.05651634931564331,
+    "same_speaker": false
+   },
+   {
+    "person_id": "le-yong",
+    "name": "le yong",
+    "score": -0.09706102311611176,
+    "same_speaker": false
+   }
+  ],
+  [
+   {
+    "person_id": "tina",
+    "name": "tina",
+    "score": 0.7049199938774109,
+    "same_speaker": true
+   },
+   {
+    "person_id": "koh-qing-jia",
+    "name": "Koh Qing Jia",
+    "score": 0.19982649385929108,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tasmin",
+    "name": "tasmin",
+    "score": 0.1175677627325058,
+    "same_speaker": false
+   },
+   {
+    "person_id": "prof",
+    "name": "prof",
+    "score": 0.10958394408226013,
+    "same_speaker": false
+   },
+   {
+    "person_id": "le-yong",
+    "name": "le yong",
+    "score": 0.06407307833433151,
+    "same_speaker": false
+   }
+  ],
+  [
+   {
+    "person_id": "prof",
+    "name": "prof",
+    "score": 0.7788989543914795,
+    "same_speaker": true
+   },
+   {
+    "person_id": "tina",
+    "name": "tina",
+    "score": 0.07917411625385284,
+    "same_speaker": false
+   },
+   {
+    "person_id": "koh-qing-jia",
+    "name": "Koh Qing Jia",
+    "score": 0.06633319705724716,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tasmin",
+    "name": "tasmin",
+    "score": 0.021792300045490265,
+    "same_speaker": false
+   },
+   {
+    "person_id": "le-yong",
+    "name": "le yong",
+    "score": -0.08463258296251297,
+    "same_speaker": false
+   }
+  ],
+  [
+   {
+    "person_id": "tasmin",
+    "name": "tasmin",
+    "score": 0.7318841218948364,
+    "same_speaker": true
+   },
+   {
+    "person_id": "tina",
+    "name": "tina",
+    "score": 0.31760433316230774,
+    "same_speaker": true
+   },
+   {
+    "person_id": "prof",
+    "name": "prof",
+    "score": 0.042939625680446625,
+    "same_speaker": false
+   },
+   {
+    "person_id": "le-yong",
+    "name": "le yong",
+    "score": 0.026140406727790833,
+    "same_speaker": false
+   },
+   {
+    "person_id": "koh-qing-jia",
+    "name": "Koh Qing Jia",
+    "score": 0.02223147079348564,
+    "same_speaker": false
+   }
+  ],
+  [
+   {
+    "person_id": "prof",
+    "name": "prof",
+    "score": 0.8058789372444153,
+    "same_speaker": true
+   },
+   {
+    "person_id": "koh-qing-jia",
+    "name": "Koh Qing Jia",
+    "score": 0.05121045932173729,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tasmin",
+    "name": "tasmin",
+    "score": 0.03493842855095863,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tina",
+    "name": "tina",
+    "score": 0.0013429643586277962,
+    "same_speaker": false
+   },
+   {
+    "person_id": "le-yong",
+    "name": "le yong",
+    "score": -0.1062716394662857,
+    "same_speaker": false
+   }
+  ],
+  [
+   {
+    "person_id": "le-yong",
+    "name": "le yong",
+    "score": 0.7544768452644348,
+    "same_speaker": true
+   },
+   {
+    "person_id": "koh-qing-jia",
+    "name": "Koh Qing Jia",
+    "score": 0.17253601551055908,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tasmin",
+    "name": "tasmin",
+    "score": 0.11848375201225281,
+    "same_speaker": false
+   },
+   {
+    "person_id": "prof",
+    "name": "prof",
+    "score": 0.02198842726647854,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tina",
+    "name": "tina",
+    "score": 0.010360393673181534,
+    "same_speaker": false
+   }
+  ],
+  [
+   {
+    "person_id": "prof",
+    "name": "prof",
+    "score": 0.7021193504333496,
+    "same_speaker": true
+   },
+   {
+    "person_id": "tina",
+    "name": "tina",
+    "score": 0.1117086261510849,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tasmin",
+    "name": "tasmin",
+    "score": 0.060521308332681656,
+    "same_speaker": false
+   },
+   {
+    "person_id": "koh-qing-jia",
+    "name": "Koh Qing Jia",
+    "score": -0.017581399530172348,
+    "same_speaker": false
+   },
+   {
+    "person_id": "le-yong",
+    "name": "le yong",
+    "score": -0.1625836193561554,
+    "same_speaker": false
+   }
+  ]
+ ],
+ "segment_scoring_s": 2.9020317147951573,
+ "line_matches": [
+  [
+   {
+    "person_id": "prof",
+    "name": "prof",
+    "score": 0.8220735788345337,
+    "same_speaker": true
+   },
+   {
+    "person_id": "koh-qing-jia",
+    "name": "Koh Qing Jia",
+    "score": 0.08431483060121536,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tasmin",
+    "name": "tasmin",
+    "score": 0.07750608772039413,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tina",
+    "name": "tina",
+    "score": 0.04163195192813873,
+    "same_speaker": false
+   },
+   {
+    "person_id": "le-yong",
+    "name": "le yong",
+    "score": -0.025673162192106247,
+    "same_speaker": false
+   }
+  ],
+  [
+   {
+    "person_id": "koh-qing-jia",
+    "name": "Koh Qing Jia",
+    "score": 0.8431597948074341,
+    "same_speaker": true
+   },
+   {
+    "person_id": "tina",
+    "name": "tina",
+    "score": 0.1582247018814087,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tasmin",
+    "name": "tasmin",
+    "score": 0.0940944105386734,
+    "same_speaker": false
+   },
+   {
+    "person_id": "prof",
+    "name": "prof",
+    "score": 0.07235675305128098,
+    "same_speaker": false
+   },
+   {
+    "person_id": "le-yong",
+    "name": "le yong",
+    "score": 0.028180446475744247,
+    "same_speaker": false
+   }
+  ],
+  [
+   {
+    "person_id": "prof",
+    "name": "prof",
+    "score": 0.69449782371521,
+    "same_speaker": true
+   },
+   {
+    "person_id": "tasmin",
+    "name": "tasmin",
+    "score": 0.04110809415578842,
+    "same_speaker": false
+   },
+   {
+    "person_id": "koh-qing-jia",
+    "name": "Koh Qing Jia",
+    "score": 0.03879602625966072,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tina",
+    "name": "tina",
+    "score": 0.031638406217098236,
+    "same_speaker": false
+   },
+   {
+    "person_id": "le-yong",
+    "name": "le yong",
+    "score": -0.08654278516769409,
+    "same_speaker": false
+   }
+  ],
+  [
+   {
+    "person_id": "koh-qing-jia",
+    "name": "Koh Qing Jia",
+    "score": 0.8270902633666992,
+    "same_speaker": true
+   },
+   {
+    "person_id": "tina",
+    "name": "tina",
+    "score": 0.1242380142211914,
+    "same_speaker": false
+   },
+   {
+    "person_id": "prof",
+    "name": "prof",
+    "score": 0.08835285902023315,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tasmin",
+    "name": "tasmin",
+    "score": 0.05778513848781586,
+    "same_speaker": false
+   },
+   {
+    "person_id": "le-yong",
+    "name": "le yong",
+    "score": 0.049654893577098846,
+    "same_speaker": false
+   }
+  ],
+  [
+   {
+    "person_id": "prof",
+    "name": "prof",
+    "score": 0.7985124588012695,
+    "same_speaker": true
+   },
+   {
+    "person_id": "koh-qing-jia",
+    "name": "Koh Qing Jia",
+    "score": 0.09710923582315445,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tasmin",
+    "name": "tasmin",
+    "score": 0.05946548283100128,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tina",
+    "name": "tina",
+    "score": 0.0473705530166626,
+    "same_speaker": false
+   },
+   {
+    "person_id": "le-yong",
+    "name": "le yong",
+    "score": -0.0876309722661972,
+    "same_speaker": false
+   }
+  ],
+  [
+   {
+    "person_id": "tina",
+    "name": "tina",
+    "score": 0.705509603023529,
+    "same_speaker": true
+   },
+   {
+    "person_id": "koh-qing-jia",
+    "name": "Koh Qing Jia",
+    "score": 0.1942516565322876,
+    "same_speaker": false
+   },
+   {
+    "person_id": "prof",
+    "name": "prof",
+    "score": 0.12271727621555328,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tasmin",
+    "name": "tasmin",
+    "score": 0.11403024196624756,
+    "same_speaker": false
+   },
+   {
+    "person_id": "le-yong",
+    "name": "le yong",
+    "score": 0.061599329113960266,
+    "same_speaker": false
+   }
+  ],
+  [
+   {
+    "person_id": "prof",
+    "name": "prof",
+    "score": 0.7855979204177856,
+    "same_speaker": true
+   },
+   {
+    "person_id": "tina",
+    "name": "tina",
+    "score": 0.08055278658866882,
+    "same_speaker": false
+   },
+   {
+    "person_id": "koh-qing-jia",
+    "name": "Koh Qing Jia",
+    "score": 0.07100299745798111,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tasmin",
+    "name": "tasmin",
+    "score": 0.02801848202943802,
+    "same_speaker": false
+   },
+   {
+    "person_id": "le-yong",
+    "name": "le yong",
+    "score": -0.08150307834148407,
+    "same_speaker": false
+   }
+  ],
+  [
+   {
+    "person_id": "tasmin",
+    "name": "tasmin",
+    "score": 0.7162969708442688,
+    "same_speaker": true
+   },
+   {
+    "person_id": "tina",
+    "name": "tina",
+    "score": 0.3230559527873993,
+    "same_speaker": true
+   },
+   {
+    "person_id": "prof",
+    "name": "prof",
+    "score": 0.05478651821613312,
+    "same_speaker": false
+   },
+   {
+    "person_id": "koh-qing-jia",
+    "name": "Koh Qing Jia",
+    "score": 0.02676808089017868,
+    "same_speaker": false
+   },
+   {
+    "person_id": "le-yong",
+    "name": "le yong",
+    "score": 0.026124635711312294,
+    "same_speaker": false
+   }
+  ],
+  [
+   {
+    "person_id": "prof",
+    "name": "prof",
+    "score": 0.8125920295715332,
+    "same_speaker": true
+   },
+   {
+    "person_id": "koh-qing-jia",
+    "name": "Koh Qing Jia",
+    "score": 0.08307383209466934,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tasmin",
+    "name": "tasmin",
+    "score": 0.034548066556453705,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tina",
+    "name": "tina",
+    "score": 0.017321176826953888,
+    "same_speaker": false
+   },
+   {
+    "person_id": "le-yong",
+    "name": "le yong",
+    "score": -0.08806436508893967,
+    "same_speaker": false
+   }
+  ],
+  [
+   {
+    "person_id": "le-yong",
+    "name": "le yong",
+    "score": 0.7499157190322876,
+    "same_speaker": true
+   },
+   {
+    "person_id": "koh-qing-jia",
+    "name": "Koh Qing Jia",
+    "score": 0.1782553493976593,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tasmin",
+    "name": "tasmin",
+    "score": 0.1181134283542633,
+    "same_speaker": false
+   },
+   {
+    "person_id": "prof",
+    "name": "prof",
+    "score": 0.018815025687217712,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tina",
+    "name": "tina",
+    "score": 0.002540783490985632,
+    "same_speaker": false
+   }
+  ],
+  [
+   {
+    "person_id": "prof",
+    "name": "prof",
+    "score": 0.7121999263763428,
+    "same_speaker": true
+   },
+   {
+    "person_id": "tina",
+    "name": "tina",
+    "score": 0.10628142952919006,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tasmin",
+    "name": "tasmin",
+    "score": 0.046126801520586014,
+    "same_speaker": false
+   },
+   {
+    "person_id": "koh-qing-jia",
+    "name": "Koh Qing Jia",
+    "score": -0.00033647939562797546,
+    "same_speaker": false
+   },
+   {
+    "person_id": "le-yong",
+    "name": "le yong",
+    "score": -0.139781191945076,
+    "same_speaker": false
+   }
+  ]
+ ],
+ "whisper_words": {
+  "seconds": 8.18990637618117,
+  "segments": [
+   {
+    "start": 0.0,
+    "end": 2.78,
+    "text": "Today, we look inside the transformer.",
+    "words": [
+     {
+      "start": 0.0,
+      "end": 1.36,
+      "word": " Today,"
+     },
+     {
+      "start": 1.42,
+      "end": 1.54,
+      "word": " we"
+     },
+     {
+      "start": 1.54,
+      "end": 1.68,
+      "word": " look"
+     },
+     {
+      "start": 1.68,
+      "end": 2.02,
+      "word": " inside"
+     },
+     {
+      "start": 2.02,
+      "end": 2.18,
+      "word": " the"
+     },
+     {
+      "start": 2.18,
+      "end": 2.78,
+      "word": " transformer."
+     }
+    ]
+   },
+   {
+    "start": 3.06,
+    "end": 4.62,
+    "text": "What problem does self-attention solve",
+    "words": [
+     {
+      "start": 3.06,
+      "end": 3.14,
+      "word": " What"
+     },
+     {
+      "start": 3.14,
+      "end": 3.48,
+      "word": " problem"
+     },
+     {
+      "start": 3.48,
+      "end": 3.64,
+      "word": " does"
+     },
+     {
+      "start": 3.64,
+      "end": 3.96,
+      "word": " self"
+     },
+     {
+      "start": 3.96,
+      "end": 4.24,
+      "word": "-attention"
+     },
+     {
+      "start": 4.24,
+      "end": 4.62,
+      "word": " solve"
+     }
+    ]
+   },
+   {
+    "start": 4.62,
+    "end": 5.98,
+    "text": "compared with a recurrent network?",
+    "words": [
+     {
+      "start": 4.62,
+      "end": 5.02,
+      "word": " compared"
+     },
+     {
+      "start": 5.02,
+      "end": 5.24,
+      "word": " with"
+     },
+     {
+      "start": 5.24,
+      "end": 5.32,
+      "word": " a"
+     },
+     {
+      "start": 5.32,
+      "end": 5.7,
+      "word": " recurrent"
+     },
+     {
+      "start": 5.7,
+      "end": 5.98,
+      "word": " network?"
+     }
+    ]
+   },
+   {
+    "start": 7.58,
+    "end": 11.6,
+    "text": "Erie recurrent network processes tokens one at a time.",
+    "words": [
+     {
+      "start": 7.58,
+      "end": 8.3,
+      "word": " Erie"
+     },
+     {
+      "start": 8.3,
+      "end": 8.82,
+      "word": " recurrent"
+     },
+     {
+      "start": 8.82,
+      "end": 9.22,
+      "word": " network"
+     },
+     {
+      "start": 9.22,
+      "end": 9.78,
+      "word": " processes"
+     },
+     {
+      "start": 9.78,
+      "end": 10.22,
+      "word": " tokens"
+     },
+     {
+      "start": 10.22,
+      "end": 10.96,
+      "word": " one"
+     },
+     {
+      "start": 10.96,
+      "end": 11.12,
+      "word": " at"
+     },
+     {
+      "start": 11.12,
+      "end": 11.2,
+      "word": " a"
+     },
+     {
+      "start": 11.2,
+      "end": 11.6,
+      "word": " time."
+     }
+    ]
+   },
+   {
+    "start": 11.96,
+    "end": 15.86,
+    "text": "So information from early tokens has to survive many steps",
+    "words": [
+     {
+      "start": 11.96,
+      "end": 12.06,
+      "word": " So"
+     },
+     {
+      "start": 12.06,
+      "end": 12.7,
+      "word": " information"
+     },
+     {
+      "start": 12.7,
+      "end": 13.08,
+      "word": " from"
+     },
+     {
+      "start": 13.08,
+      "end": 13.46,
+      "word": " early"
+     },
+     {
+      "start": 13.46,
+      "end": 13.94,
+      "word": " tokens"
+     },
+     {
+      "start": 13.94,
+      "end": 14.58,
+      "word": " has"
+     },
+     {
+      "start": 14.58,
+      "end": 14.72,
+      "word": " to"
+     },
+     {
+      "start": 14.72,
+      "end": 15.08,
+      "word": " survive"
+     },
+     {
+      "start": 15.08,
+      "end": 15.44,
+      "word": " many"
+     },
+     {
+      "start": 15.44,
+      "end": 15.86,
+      "word": " steps"
+     }
+    ]
+   },
+   {
+    "start": 15.86,
+    "end": 17.96,
+    "text": "and it's hard to parallelize.",
+    "words": [
+     {
+      "start": 15.86,
+      "end": 16.48,
+      "word": " and"
+     },
+     {
+      "start": 16.48,
+      "end": 16.76,
+      "word": " it's"
+     },
+     {
+      "start": 16.76,
+      "end": 17.02,
+      "word": " hard"
+     },
+     {
+      "start": 17.02,
+      "end": 17.24,
+      "word": " to"
+     },
+     {
+      "start": 17.24,
+      "end": 17.96,
+      "word": " parallelize."
+     }
+    ]
+   },
+   {
+    "start": 18.28,
+    "end": 23.42,
+    "text": "Self-attention lets every token look at every other token directly in one step.",
+    "words": [
+     {
+      "start": 18.28,
+      "end": 18.7,
+      "word": " Self"
+     },
+     {
+      "start": 18.7,
+      "end": 19.2,
+      "word": "-attention"
+     },
+     {
+      "start": 19.2,
+      "end": 19.82,
+      "word": " lets"
+     },
+     {
+      "start": 19.82,
+      "end": 20.16,
+      "word": " every"
+     },
+     {
+      "start": 20.16,
+      "end": 20.48,
+      "word": " token"
+     },
+     {
+      "start": 20.48,
+      "end": 20.74,
+      "word": " look"
+     },
+     {
+      "start": 20.74,
+      "end": 20.88,
+      "word": " at"
+     },
+     {
+      "start": 20.88,
+      "end": 21.14,
+      "word": " every"
+     },
+     {
+      "start": 21.14,
+      "end": 21.46,
+      "word": " other"
+     },
+     {
+      "start": 21.46,
+      "end": 21.86,
+      "word": " token"
+     },
+     {
+      "start": 21.86,
+      "end": 22.28,
+      "word": " directly"
+     },
+     {
+      "start": 22.28,
+      "end": 22.78,
+      "word": " in"
+     },
+     {
+      "start": 22.78,
+      "end": 22.98,
+      "word": " one"
+     },
+     {
+      "start": 22.98,
+      "end": 23.42,
+      "word": " step."
+     }
+    ]
+   },
+   {
+    "start": 23.9,
+    "end": 26.64,
+    "text": "So long-range dependencies are easier",
+    "words": [
+     {
+      "start": 23.9,
+      "end": 24.34,
+      "word": " So"
+     },
+     {
+      "start": 24.34,
+      "end": 24.82,
+      "word": " long"
+     },
+     {
+      "start": 24.82,
+      "end": 25.14,
+      "word": "-range"
+     },
+     {
+      "start": 25.14,
+      "end": 25.92,
+      "word": " dependencies"
+     },
+     {
+      "start": 25.92,
+      "end": 26.2,
+      "word": " are"
+     },
+     {
+      "start": 26.2,
+      "end": 26.64,
+      "word": " easier"
+     }
+    ]
+   },
+   {
+    "start": 26.64,
+    "end": 31.18,
+    "text": "and you can train on the whole sequence in parallel on a GPU",
+    "words": [
+     {
+      "start": 26.64,
+      "end": 27.48,
+      "word": " and"
+     },
+     {
+      "start": 27.48,
+      "end": 27.68,
+      "word": " you"
+     },
+     {
+      "start": 27.68,
+      "end": 27.86,
+      "word": " can"
+     },
+     {
+      "start": 27.86,
+      "end": 28.24,
+      "word": " train"
+     },
+     {
+      "start": 28.24,
+      "end": 28.64,
+      "word": " on"
+     },
+     {
+      "start": 28.64,
+      "end": 28.8,
+      "word": " the"
+     },
+     {
+      "start": 28.8,
+      "end": 28.96,
+      "word": " whole"
+     },
+     {
+      "start": 28.96,
+      "end": 29.42,
+      "word": " sequence"
+     },
+     {
+      "start": 29.42,
+      "end": 29.86,
+      "word": " in"
+     },
+     {
+      "start": 29.86,
+      "end": 30.3,
+      "word": " parallel"
+     },
+     {
+      "start": 30.3,
+      "end": 30.72,
+      "word": " on"
+     },
+     {
+      "start": 30.72,
+      "end": 30.84,
+      "word": " a"
+     },
+     {
+      "start": 30.84,
+      "end": 31.18,
+      "word": " GPU"
+     }
+    ]
+   },
+   {
+    "start": 31.18,
+    "end": 34.64,
+    "text": "which is why transformer scaled so well.",
+    "words": [
+     {
+      "start": 31.18,
+      "end": 32.06,
+      "word": " which"
+     },
+     {
+      "start": 32.06,
+      "end": 32.2,
+      "word": " is"
+     },
+     {
+      "start": 32.2,
+      "end": 32.4,
+      "word": " why"
+     },
+     {
+      "start": 32.4,
+      "end": 33.06,
+      "word": " transformer"
+     },
+     {
+      "start": 33.06,
+      "end": 33.68,
+      "word": " scaled"
+     },
+     {
+      "start": 33.68,
+      "end": 34.2,
+      "word": " so"
+     },
+     {
+      "start": 34.2,
+      "end": 34.64,
+      "word": " well."
+     }
+    ]
+   },
+   {
+    "start": 35.3,
+    "end": 37.1,
+    "text": "What are the query key and value?",
+    "words": [
+     {
+      "start": 35.3,
+      "end": 35.92,
+      "word": " What"
+     },
+     {
+      "start": 35.92,
+      "end": 36.06,
+      "word": " are"
+     },
+     {
+      "start": 36.06,
+      "end": 36.14,
+      "word": " the"
+     },
+     {
+      "start": 36.14,
+      "end": 36.34,
+      "word": " query"
+     },
+     {
+      "start": 36.34,
+      "end": 36.68,
+      "word": " key"
+     },
+     {
+      "start": 36.68,
+      "end": 36.78,
+      "word": " and"
+     },
+     {
+      "start": 36.78,
+      "end": 37.1,
+      "word": " value?"
+     }
+    ]
+   },
+   {
+    "start": 38.48,
+    "end": 43.2,
+    "text": "Each token is projected into a query, a key and a value.",
+    "words": [
+     {
+      "start": 38.48,
+      "end": 38.9,
+      "word": " Each"
+     },
+     {
+      "start": 38.9,
+      "end": 39.26,
+      "word": " token"
+     },
+     {
+      "start": 39.26,
+      "end": 39.54,
+      "word": " is"
+     },
+     {
+      "start": 39.54,
+      "end": 39.96,
+      "word": " projected"
+     },
+     {
+      "start": 39.96,
+      "end": 40.4,
+      "word": " into"
+     },
+     {
+      "start": 40.4,
+      "end": 40.66,
+      "word": " a"
+     },
+     {
+      "start": 40.66,
+      "end": 41.22,
+      "word": " query,"
+     },
+     {
+      "start": 41.84,
+      "end": 41.98,
+      "word": " a"
+     },
+     {
+      "start": 41.98,
+      "end": 42.26,
+      "word": " key"
+     },
+     {
+      "start": 42.26,
+      "end": 42.68,
+      "word": " and"
+     },
+     {
+      "start": 42.68,
+      "end": 42.8,
+      "word": " a"
+     },
+     {
+      "start": 42.8,
+      "end": 43.2,
+      "word": " value."
+     }
+    ]
+   },
+   {
+    "start": 43.7,
+    "end": 46.82,
+    "text": "You take the dot product of a query with all the keys,",
+    "words": [
+     {
+      "start": 43.7,
+      "end": 43.92,
+      "word": " You"
+     },
+     {
+      "start": 43.92,
+      "end": 44.12,
+      "word": " take"
+     },
+     {
+      "start": 44.12,
+      "end": 44.36,
+      "word": " the"
+     },
+     {
+      "start": 44.36,
+      "end": 44.52,
+      "word": " dot"
+     },
+     {
+      "start": 44.52,
+      "end": 45.18,
+      "word": " product"
+     },
+     {
+      "start": 45.18,
+      "end": 45.44,
+      "word": " of"
+     },
+     {
+      "start": 45.44,
+      "end": 45.52,
+      "word": " a"
+     },
+     {
+      "start": 45.52,
+      "end": 45.82,
+      "word": " query"
+     },
+     {
+      "start": 45.82,
+      "end": 46.14,
+      "word": " with"
+     },
+     {
+      "start": 46.14,
+      "end": 46.36,
+      "word": " all"
+     },
+     {
+      "start": 46.36,
+      "end": 46.54,
+      "word": " the"
+     },
+     {
+      "start": 46.54,
+      "end": 46.82,
+      "word": " keys,"
+     }
+    ]
+   },
+   {
+    "start": 47.46,
+    "end": 50.52,
+    "text": "scale it, apply a softmax to get attention weights",
+    "words": [
+     {
+      "start": 47.46,
+      "end": 47.7,
+      "word": " scale"
+     },
+     {
+      "start": 47.7,
+      "end": 47.98,
+      "word": " it,"
+     },
+     {
+      "start": 48.14,
+      "end": 48.62,
+      "word": " apply"
+     },
+     {
+      "start": 48.62,
+      "end": 48.8,
+      "word": " a"
+     },
+     {
+      "start": 48.8,
+      "end": 49.32,
+      "word": " softmax"
+     },
+     {
+      "start": 49.32,
+      "end": 49.6,
+      "word": " to"
+     },
+     {
+      "start": 49.6,
+      "end": 49.76,
+      "word": " get"
+     },
+     {
+      "start": 49.76,
+      "end": 50.2,
+      "word": " attention"
+     },
+     {
+      "start": 50.2,
+      "end": 50.52,
+      "word": " weights"
+     }
+    ]
+   },
+   {
+    "start": 51.459999999999994,
+    "end": 54.38,
+    "text": "and then take the weighted sum of the values.",
+    "words": [
+     {
+      "start": 51.459999999999994,
+      "end": 52.08,
+      "word": " and"
+     },
+     {
+      "start": 52.08,
+      "end": 52.28,
+      "word": " then"
+     },
+     {
+      "start": 52.28,
+      "end": 52.56,
+      "word": " take"
+     },
+     {
+      "start": 52.56,
+      "end": 52.76,
+      "word": " the"
+     },
+     {
+      "start": 52.76,
+      "end": 52.98,
+      "word": " weighted"
+     },
+     {
+      "start": 52.98,
+      "end": 53.28,
+      "word": " sum"
+     },
+     {
+      "start": 53.28,
+      "end": 53.8,
+      "word": " of"
+     },
+     {
+      "start": 53.8,
+      "end": 53.96,
+      "word": " the"
+     },
+     {
+      "start": 53.96,
+      "end": 54.38,
+      "word": " values."
+     }
+    ]
+   },
+   {
+    "start": 55.38,
+    "end": 59.24,
+    "text": "And with multiple heads, you do this several times in parallel",
+    "words": [
+     {
+      "start": 55.06,
+      "end": 55.4,
+      "word": " And"
+     },
+     {
+      "start": 55.4,
+      "end": 55.88,
+      "word": " with"
+     },
+     {
+      "start": 55.88,
+      "end": 56.48,
+      "word": " multiple"
+     },
+     {
+      "start": 56.48,
+      "end": 56.76,
+      "word": " heads,"
+     },
+     {
+      "start": 56.98,
+      "end": 57.04,
+      "word": " you"
+     },
+     {
+      "start": 57.04,
+      "end": 57.28,
+      "word": " do"
+     },
+     {
+      "start": 57.28,
+      "end": 57.66,
+      "word": " this"
+     },
+     {
+      "start": 57.66,
+      "end": 58.14,
+      "word": " several"
+     },
+     {
+      "start": 58.14,
+      "end": 58.54,
+      "word": " times"
+     },
+     {
+      "start": 58.54,
+      "end": 58.82,
+      "word": " in"
+     },
+     {
+      "start": 58.82,
+      "end": 59.24,
+      "word": " parallel"
+     }
+    ]
+   },
+   {
+    "start": 59.24,
+    "end": 63.04,
+    "text": "so different heads can focus on different relationships",
+    "words": [
+     {
+      "start": 59.24,
+      "end": 59.64,
+      "word": " so"
+     },
+     {
+      "start": 59.64,
+      "end": 59.98,
+      "word": " different"
+     },
+     {
+      "start": 59.98,
+      "end": 60.46,
+      "word": " heads"
+     },
+     {
+      "start": 60.46,
+      "end": 60.98,
+      "word": " can"
+     },
+     {
+      "start": 60.98,
+      "end": 61.48,
+      "word": " focus"
+     },
+     {
+      "start": 61.48,
+      "end": 61.84,
+      "word": " on"
+     },
+     {
+      "start": 61.84,
+      "end": 62.22,
+      "word": " different"
+     },
+     {
+      "start": 62.22,
+      "end": 63.04,
+      "word": " relationships"
+     }
+    ]
+   },
+   {
+    "start": 63.04,
+    "end": 66.78,
+    "text": "like syntax in one head and co-reference in another.",
+    "words": [
+     {
+      "start": 63.04,
+      "end": 63.64,
+      "word": " like"
+     },
+     {
+      "start": 63.64,
+      "end": 64.1,
+      "word": " syntax"
+     },
+     {
+      "start": 64.1,
+      "end": 64.66,
+      "word": " in"
+     },
+     {
+      "start": 64.66,
+      "end": 65.08,
+      "word": " one"
+     },
+     {
+      "start": 65.08,
+      "end": 65.36,
+      "word": " head"
+     },
+     {
+      "start": 65.36,
+      "end": 65.66,
+      "word": " and"
+     },
+     {
+      "start": 65.66,
+      "end": 65.9,
+      "word": " co"
+     },
+     {
+      "start": 65.9,
+      "end": 66.18,
+      "word": "-reference"
+     },
+     {
+      "start": 66.18,
+      "end": 66.44,
+      "word": " in"
+     },
+     {
+      "start": 66.44,
+      "end": 66.78,
+      "word": " another."
+     }
+    ]
+   },
+   {
+    "start": 68.06,
+    "end": 70.6,
+    "text": "Why do we divide by the square root of the key dimension?",
+    "words": [
+     {
+      "start": 68.06,
+      "end": 68.74,
+      "word": " Why"
+     },
+     {
+      "start": 68.74,
+      "end": 68.84,
+      "word": " do"
+     },
+     {
+      "start": 68.84,
+      "end": 68.94,
+      "word": " we"
+     },
+     {
+      "start": 68.94,
+      "end": 69.18,
+      "word": " divide"
+     },
+     {
+      "start": 69.18,
+      "end": 69.34,
+      "word": " by"
+     },
+     {
+      "start": 69.34,
+      "end": 69.46,
+      "word": " the"
+     },
+     {
+      "start": 69.46,
+      "end": 69.72,
+      "word": " square"
+     },
+     {
+      "start": 69.72,
+      "end": 69.9,
+      "word": " root"
+     },
+     {
+      "start": 69.9,
+      "end": 70.0,
+      "word": " of"
+     },
+     {
+      "start": 70.0,
+      "end": 70.1,
+      "word": " the"
+     },
+     {
+      "start": 70.1,
+      "end": 70.26,
+      "word": " key"
+     },
+     {
+      "start": 70.26,
+      "end": 70.6,
+      "word": " dimension?"
+     }
+    ]
+   },
+   {
+    "start": 71.82,
+    "end": 73.56,
+    "text": "So the softmax doesn't saturate.",
+    "words": [
+     {
+      "start": 71.82,
+      "end": 72.24,
+      "word": " So"
+     },
+     {
+      "start": 72.24,
+      "end": 72.36,
+      "word": " the"
+     },
+     {
+      "start": 72.36,
+      "end": 72.72,
+      "word": " softmax"
+     },
+     {
+      "start": 72.72,
+      "end": 73.08,
+      "word": " doesn't"
+     },
+     {
+      "start": 73.08,
+      "end": 73.56,
+      "word": " saturate."
+     }
+    ]
+   },
+   {
+    "start": 74.76,
+    "end": 77.56,
+    "text": "Yes, and since attention has no notion of order, what do we add?",
+    "words": [
+     {
+      "start": 74.76,
+      "end": 75.14,
+      "word": " Yes,"
+     },
+     {
+      "start": 75.32,
+      "end": 75.38,
+      "word": " and"
+     },
+     {
+      "start": 75.38,
+      "end": 75.5,
+      "word": " since"
+     },
+     {
+      "start": 75.5,
+      "end": 75.96,
+      "word": " attention"
+     },
+     {
+      "start": 75.96,
+      "end": 76.14,
+      "word": " has"
+     },
+     {
+      "start": 76.14,
+      "end": 76.28,
+      "word": " no"
+     },
+     {
+      "start": 76.28,
+      "end": 76.56,
+      "word": " notion"
+     },
+     {
+      "start": 76.56,
+      "end": 76.74,
+      "word": " of"
+     },
+     {
+      "start": 76.74,
+      "end": 76.92,
+      "word": " order,"
+     },
+     {
+      "start": 77.06,
+      "end": 77.12,
+      "word": " what"
+     },
+     {
+      "start": 77.12,
+      "end": 77.22,
+      "word": " do"
+     },
+     {
+      "start": 77.22,
+      "end": 77.34,
+      "word": " we"
+     },
+     {
+      "start": 77.34,
+      "end": 77.56,
+      "word": " add?"
+     }
+    ]
+   },
+   {
+    "start": 78.38000000000001,
+    "end": 80.14,
+    "text": "We add position encodings.",
+    "words": [
+     {
+      "start": 78.38000000000001,
+      "end": 79.06,
+      "word": " We"
+     },
+     {
+      "start": 79.06,
+      "end": 79.16,
+      "word": " add"
+     },
+     {
+      "start": 79.16,
+      "end": 79.52,
+      "word": " position"
+     },
+     {
+      "start": 79.52,
+      "end": 80.14,
+      "word": " encodings."
+     }
+    ]
+   },
+   {
+    "start": 81.03999999999999,
+    "end": 83.66,
+    "text": "Correctly, young encoder or decoder which one uses masking?",
+    "words": [
+     {
+      "start": 81.03999999999999,
+      "end": 81.6,
+      "word": " Correctly,"
+     },
+     {
+      "start": 81.64,
+      "end": 81.74,
+      "word": " young"
+     },
+     {
+      "start": 81.74,
+      "end": 82.16,
+      "word": " encoder"
+     },
+     {
+      "start": 82.16,
+      "end": 82.3,
+      "word": " or"
+     },
+     {
+      "start": 82.3,
+      "end": 82.62,
+      "word": " decoder"
+     },
+     {
+      "start": 82.62,
+      "end": 82.84,
+      "word": " which"
+     },
+     {
+      "start": 82.84,
+      "end": 82.96,
+      "word": " one"
+     },
+     {
+      "start": 82.96,
+      "end": 83.2,
+      "word": " uses"
+     },
+     {
+      "start": 83.2,
+      "end": 83.66,
+      "word": " masking?"
+     }
+    ]
+   },
+   {
+    "start": 84.58,
+    "end": 88.06,
+    "text": "The decoder so a token can't attend to future tokens.",
+    "words": [
+     {
+      "start": 84.58,
+      "end": 85.14,
+      "word": " The"
+     },
+     {
+      "start": 85.14,
+      "end": 85.6,
+      "word": " decoder"
+     },
+     {
+      "start": 85.6,
+      "end": 85.96,
+      "word": " so"
+     },
+     {
+      "start": 85.96,
+      "end": 86.08,
+      "word": " a"
+     },
+     {
+      "start": 86.08,
+      "end": 86.34,
+      "word": " token"
+     },
+     {
+      "start": 86.34,
+      "end": 86.74,
+      "word": " can't"
+     },
+     {
+      "start": 86.74,
+      "end": 87.02,
+      "word": " attend"
+     },
+     {
+      "start": 87.02,
+      "end": 87.28,
+      "word": " to"
+     },
+     {
+      "start": 87.28,
+      "end": 87.56,
+      "word": " future"
+     },
+     {
+      "start": 87.56,
+      "end": 88.06,
+      "word": " tokens."
+     }
+    ]
+   },
+   {
+    "start": 89.16,
+    "end": 90.98,
+    "text": "Good, that's the core of the architecture.",
+    "words": [
+     {
+      "start": 89.16,
+      "end": 89.72,
+      "word": " Good,"
+     },
+     {
+      "start": 89.88,
+      "end": 90.04,
+      "word": " that's"
+     },
+     {
+      "start": 90.04,
+      "end": 90.14,
+      "word": " the"
+     },
+     {
+      "start": 90.14,
+      "end": 90.3,
+      "word": " core"
+     },
+     {
+      "start": 90.3,
+      "end": 90.44,
+      "word": " of"
+     },
+     {
+      "start": 90.44,
+      "end": 90.44,
+      "word": " the"
+     },
+     {
+      "start": 90.44,
+      "end": 90.98,
+      "word": " architecture."
+     }
+    ]
+   }
+  ]
+ },
+ "word_segments": [
+  [
+   0.0,
+   2.78
+  ],
+  [
+   3.06,
+   4.62
+  ],
+  [
+   4.62,
+   5.98
+  ],
+  [
+   7.58,
+   11.6
+  ],
+  [
+   11.96,
+   15.86
+  ],
+  [
+   15.86,
+   17.96
+  ],
+  [
+   18.28,
+   23.42
+  ],
+  [
+   23.9,
+   26.64
+  ],
+  [
+   26.64,
+   31.18
+  ],
+  [
+   31.18,
+   34.64
+  ],
+  [
+   35.3,
+   37.1
+  ],
+  [
+   38.48,
+   43.2
+  ],
+  [
+   43.7,
+   46.82
+  ],
+  [
+   47.46,
+   50.52
+  ],
+  [
+   51.459999999999994,
+   54.38
+  ],
+  [
+   55.06,
+   59.24
+  ],
+  [
+   59.24,
+   63.04
+  ],
+  [
+   63.04,
+   66.78
+  ],
+  [
+   68.06,
+   70.6
+  ],
+  [
+   71.82,
+   73.56
+  ],
+  [
+   74.76,
+   77.56
+  ],
+  [
+   78.38000000000001,
+   80.14
+  ],
+  [
+   81.03999999999999,
+   83.66
+  ],
+  [
+   84.58,
+   88.06
+  ],
+  [
+   89.16,
+   90.98
+  ]
+ ],
+ "word_segment_matches": [
+  [
+   {
+    "person_id": "prof",
+    "name": "prof",
+    "score": 0.808253824710846,
+    "same_speaker": true
+   },
+   {
+    "person_id": "tasmin",
+    "name": "tasmin",
+    "score": 0.06954487413167953,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tina",
+    "name": "tina",
+    "score": 0.04998745396733284,
+    "same_speaker": false
+   },
+   {
+    "person_id": "koh-qing-jia",
+    "name": "Koh Qing Jia",
+    "score": -0.035491328686475754,
+    "same_speaker": false
+   },
+   {
+    "person_id": "le-yong",
+    "name": "le yong",
+    "score": -0.051937900483608246,
+    "same_speaker": false
+   }
+  ],
+  [
+   {
+    "person_id": "prof",
+    "name": "prof",
+    "score": 0.6605590581893921,
+    "same_speaker": true
+   },
+   {
+    "person_id": "koh-qing-jia",
+    "name": "Koh Qing Jia",
+    "score": 0.12223899364471436,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tasmin",
+    "name": "tasmin",
+    "score": 0.11546296626329422,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tina",
+    "name": "tina",
+    "score": 0.056062519550323486,
+    "same_speaker": false
+   },
+   {
+    "person_id": "le-yong",
+    "name": "le yong",
+    "score": 0.014103835448622704,
+    "same_speaker": false
+   }
+  ],
+  [
+   {
+    "person_id": "prof",
+    "name": "prof",
+    "score": 0.6314736604690552,
+    "same_speaker": true
+   },
+   {
+    "person_id": "koh-qing-jia",
+    "name": "Koh Qing Jia",
+    "score": 0.11706699430942535,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tina",
+    "name": "tina",
+    "score": 0.08291028439998627,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tasmin",
+    "name": "tasmin",
+    "score": 0.026856031268835068,
+    "same_speaker": false
+   },
+   {
+    "person_id": "le-yong",
+    "name": "le yong",
+    "score": -0.045674391090869904,
+    "same_speaker": false
+   }
+  ],
+  [
+   {
+    "person_id": "koh-qing-jia",
+    "name": "Koh Qing Jia",
+    "score": 0.7576431632041931,
+    "same_speaker": true
+   },
+   {
+    "person_id": "tina",
+    "name": "tina",
+    "score": 0.12204208970069885,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tasmin",
+    "name": "tasmin",
+    "score": 0.0679657906293869,
+    "same_speaker": false
+   },
+   {
+    "person_id": "prof",
+    "name": "prof",
+    "score": 0.06429172307252884,
+    "same_speaker": false
+   },
+   {
+    "person_id": "le-yong",
+    "name": "le yong",
+    "score": 0.02877562865614891,
+    "same_speaker": false
+   }
+  ],
+  [
+   {
+    "person_id": "koh-qing-jia",
+    "name": "Koh Qing Jia",
+    "score": 0.7581696510314941,
+    "same_speaker": true
+   },
+   {
+    "person_id": "tina",
+    "name": "tina",
+    "score": 0.1122034415602684,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tasmin",
+    "name": "tasmin",
+    "score": 0.0783882737159729,
+    "same_speaker": false
+   },
+   {
+    "person_id": "prof",
+    "name": "prof",
+    "score": 0.06563892960548401,
+    "same_speaker": false
+   },
+   {
+    "person_id": "le-yong",
+    "name": "le yong",
+    "score": 0.04351191222667694,
+    "same_speaker": false
+   }
+  ],
+  [
+   {
+    "person_id": "koh-qing-jia",
+    "name": "Koh Qing Jia",
+    "score": 0.6409146785736084,
+    "same_speaker": true
+   },
+   {
+    "person_id": "tina",
+    "name": "tina",
+    "score": 0.17832952737808228,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tasmin",
+    "name": "tasmin",
+    "score": 0.09871739149093628,
+    "same_speaker": false
+   },
+   {
+    "person_id": "le-yong",
+    "name": "le yong",
+    "score": 0.09001734852790833,
+    "same_speaker": false
+   },
+   {
+    "person_id": "prof",
+    "name": "prof",
+    "score": -0.01931895688176155,
+    "same_speaker": false
+   }
+  ],
+  [
+   {
+    "person_id": "koh-qing-jia",
+    "name": "Koh Qing Jia",
+    "score": 0.744316041469574,
+    "same_speaker": true
+   },
+   {
+    "person_id": "tina",
+    "name": "tina",
+    "score": 0.131321519613266,
+    "same_speaker": false
+   },
+   {
+    "person_id": "prof",
+    "name": "prof",
+    "score": 0.1128913164138794,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tasmin",
+    "name": "tasmin",
+    "score": 0.07478675991296768,
+    "same_speaker": false
+   },
+   {
+    "person_id": "le-yong",
+    "name": "le yong",
+    "score": 0.05724514275789261,
+    "same_speaker": false
+   }
+  ],
+  [
+   {
+    "person_id": "koh-qing-jia",
+    "name": "Koh Qing Jia",
+    "score": 0.7186724543571472,
+    "same_speaker": true
+   },
+   {
+    "person_id": "tina",
+    "name": "tina",
+    "score": 0.16314129531383514,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tasmin",
+    "name": "tasmin",
+    "score": 0.11297906190156937,
+    "same_speaker": false
+   },
+   {
+    "person_id": "prof",
+    "name": "prof",
+    "score": 0.04979364573955536,
+    "same_speaker": false
+   },
+   {
+    "person_id": "le-yong",
+    "name": "le yong",
+    "score": 0.009690907783806324,
+    "same_speaker": false
+   }
+  ],
+  [
+   {
+    "person_id": "koh-qing-jia",
+    "name": "Koh Qing Jia",
+    "score": 0.7854219079017639,
+    "same_speaker": true
+   },
+   {
+    "person_id": "tina",
+    "name": "tina",
+    "score": 0.17926228046417236,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tasmin",
+    "name": "tasmin",
+    "score": 0.07175206393003464,
+    "same_speaker": false
+   },
+   {
+    "person_id": "le-yong",
+    "name": "le yong",
+    "score": 0.0505276620388031,
+    "same_speaker": false
+   },
+   {
+    "person_id": "prof",
+    "name": "prof",
+    "score": 0.006609680131077766,
+    "same_speaker": false
+   }
+  ],
+  [
+   {
+    "person_id": "koh-qing-jia",
+    "name": "Koh Qing Jia",
+    "score": 0.715160071849823,
+    "same_speaker": true
+   },
+   {
+    "person_id": "tina",
+    "name": "tina",
+    "score": 0.16019311547279358,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tasmin",
+    "name": "tasmin",
+    "score": 0.11847667396068573,
+    "same_speaker": false
+   },
+   {
+    "person_id": "prof",
+    "name": "prof",
+    "score": 0.09497148543596268,
+    "same_speaker": false
+   },
+   {
+    "person_id": "le-yong",
+    "name": "le yong",
+    "score": -0.04555150121450424,
+    "same_speaker": false
+   }
+  ],
+  [
+   {
+    "person_id": "prof",
+    "name": "prof",
+    "score": 0.6967302560806274,
+    "same_speaker": true
+   },
+   {
+    "person_id": "tasmin",
+    "name": "tasmin",
+    "score": 0.04498773440718651,
+    "same_speaker": false
+   },
+   {
+    "person_id": "koh-qing-jia",
+    "name": "Koh Qing Jia",
+    "score": 0.021493062376976013,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tina",
+    "name": "tina",
+    "score": 0.00141966063529253,
+    "same_speaker": false
+   },
+   {
+    "person_id": "le-yong",
+    "name": "le yong",
+    "score": -0.08962055295705795,
+    "same_speaker": false
+   }
+  ],
+  [
+   {
+    "person_id": "koh-qing-jia",
+    "name": "Koh Qing Jia",
+    "score": 0.7075842618942261,
+    "same_speaker": true
+   },
+   {
+    "person_id": "tina",
+    "name": "tina",
+    "score": 0.12086525559425354,
+    "same_speaker": false
+   },
+   {
+    "person_id": "prof",
+    "name": "prof",
+    "score": 0.06435807794332504,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tasmin",
+    "name": "tasmin",
+    "score": 0.04194656386971474,
+    "same_speaker": false
+   },
+   {
+    "person_id": "le-yong",
+    "name": "le yong",
+    "score": 0.03215654939413071,
+    "same_speaker": false
+   }
+  ],
+  [
+   {
+    "person_id": "koh-qing-jia",
+    "name": "Koh Qing Jia",
+    "score": 0.6611616015434265,
+    "same_speaker": true
+   },
+   {
+    "person_id": "prof",
+    "name": "prof",
+    "score": 0.05122704058885574,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tina",
+    "name": "tina",
+    "score": 0.03435734286904335,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tasmin",
+    "name": "tasmin",
+    "score": 0.03288022801280022,
+    "same_speaker": false
+   },
+   {
+    "person_id": "le-yong",
+    "name": "le yong",
+    "score": 0.017615193501114845,
+    "same_speaker": false
+   }
+  ],
+  [
+   {
+    "person_id": "koh-qing-jia",
+    "name": "Koh Qing Jia",
+    "score": 0.7349411249160767,
+    "same_speaker": true
+   },
+   {
+    "person_id": "prof",
+    "name": "prof",
+    "score": 0.07086992263793945,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tina",
+    "name": "tina",
+    "score": 0.0567237064242363,
+    "same_speaker": false
+   },
+   {
+    "person_id": "le-yong",
+    "name": "le yong",
+    "score": 0.03171155974268913,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tasmin",
+    "name": "tasmin",
+    "score": -0.002359917387366295,
+    "same_speaker": false
+   }
+  ],
+  [
+   {
+    "person_id": "koh-qing-jia",
+    "name": "Koh Qing Jia",
+    "score": 0.7776391506195068,
+    "same_speaker": true
+   },
+   {
+    "person_id": "prof",
+    "name": "prof",
+    "score": 0.09344251453876495,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tina",
+    "name": "tina",
+    "score": 0.0837734043598175,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tasmin",
+    "name": "tasmin",
+    "score": 0.057655684649944305,
+    "same_speaker": false
+   },
+   {
+    "person_id": "le-yong",
+    "name": "le yong",
+    "score": 0.05186779797077179,
+    "same_speaker": false
+   }
+  ],
+  [
+   {
+    "person_id": "koh-qing-jia",
+    "name": "Koh Qing Jia",
+    "score": 0.7287043929100037,
+    "same_speaker": true
+   },
+   {
+    "person_id": "tina",
+    "name": "tina",
+    "score": 0.13238972425460815,
+    "same_speaker": false
+   },
+   {
+    "person_id": "prof",
+    "name": "prof",
+    "score": 0.0928148478269577,
+    "same_speaker": false
+   },
+   {
+    "person_id": "le-yong",
+    "name": "le yong",
+    "score": 0.08045323193073273,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tasmin",
+    "name": "tasmin",
+    "score": 0.06398778408765793,
+    "same_speaker": false
+   }
+  ],
+  [
+   {
+    "person_id": "koh-qing-jia",
+    "name": "Koh Qing Jia",
+    "score": 0.7076054215431213,
+    "same_speaker": true
+   },
+   {
+    "person_id": "tina",
+    "name": "tina",
+    "score": 0.09063363075256348,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tasmin",
+    "name": "tasmin",
+    "score": 0.03894553333520889,
+    "same_speaker": false
+   },
+   {
+    "person_id": "le-yong",
+    "name": "le yong",
+    "score": 0.03239674121141434,
+    "same_speaker": false
+   },
+   {
+    "person_id": "prof",
+    "name": "prof",
+    "score": 0.028801793232560158,
+    "same_speaker": false
+   }
+  ],
+  [
+   {
+    "person_id": "koh-qing-jia",
+    "name": "Koh Qing Jia",
+    "score": 0.7562420964241028,
+    "same_speaker": true
+   },
+   {
+    "person_id": "tina",
+    "name": "tina",
+    "score": 0.1941055804491043,
+    "same_speaker": false
+   },
+   {
+    "person_id": "prof",
+    "name": "prof",
+    "score": 0.12433169782161713,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tasmin",
+    "name": "tasmin",
+    "score": 0.11398757249116898,
+    "same_speaker": false
+   },
+   {
+    "person_id": "le-yong",
+    "name": "le yong",
+    "score": 0.0710005909204483,
+    "same_speaker": false
+   }
+  ],
+  [
+   {
+    "person_id": "prof",
+    "name": "prof",
+    "score": 0.8031479120254517,
+    "same_speaker": true
+   },
+   {
+    "person_id": "koh-qing-jia",
+    "name": "Koh Qing Jia",
+    "score": 0.09410516917705536,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tasmin",
+    "name": "tasmin",
+    "score": 0.07937317341566086,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tina",
+    "name": "tina",
+    "score": 0.05651634931564331,
+    "same_speaker": false
+   },
+   {
+    "person_id": "le-yong",
+    "name": "le yong",
+    "score": -0.09706102311611176,
+    "same_speaker": false
+   }
+  ],
+  [
+   {
+    "person_id": "tina",
+    "name": "tina",
+    "score": 0.7049199938774109,
+    "same_speaker": true
+   },
+   {
+    "person_id": "koh-qing-jia",
+    "name": "Koh Qing Jia",
+    "score": 0.19982649385929108,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tasmin",
+    "name": "tasmin",
+    "score": 0.1175677627325058,
+    "same_speaker": false
+   },
+   {
+    "person_id": "prof",
+    "name": "prof",
+    "score": 0.10958394408226013,
+    "same_speaker": false
+   },
+   {
+    "person_id": "le-yong",
+    "name": "le yong",
+    "score": 0.06407307833433151,
+    "same_speaker": false
+   }
+  ],
+  [
+   {
+    "person_id": "prof",
+    "name": "prof",
+    "score": 0.7788989543914795,
+    "same_speaker": true
+   },
+   {
+    "person_id": "tina",
+    "name": "tina",
+    "score": 0.07917411625385284,
+    "same_speaker": false
+   },
+   {
+    "person_id": "koh-qing-jia",
+    "name": "Koh Qing Jia",
+    "score": 0.06633319705724716,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tasmin",
+    "name": "tasmin",
+    "score": 0.021792300045490265,
+    "same_speaker": false
+   },
+   {
+    "person_id": "le-yong",
+    "name": "le yong",
+    "score": -0.08463258296251297,
+    "same_speaker": false
+   }
+  ],
+  [
+   {
+    "person_id": "tasmin",
+    "name": "tasmin",
+    "score": 0.7318841218948364,
+    "same_speaker": true
+   },
+   {
+    "person_id": "tina",
+    "name": "tina",
+    "score": 0.31760433316230774,
+    "same_speaker": true
+   },
+   {
+    "person_id": "prof",
+    "name": "prof",
+    "score": 0.042939625680446625,
+    "same_speaker": false
+   },
+   {
+    "person_id": "le-yong",
+    "name": "le yong",
+    "score": 0.026140406727790833,
+    "same_speaker": false
+   },
+   {
+    "person_id": "koh-qing-jia",
+    "name": "Koh Qing Jia",
+    "score": 0.02223147079348564,
+    "same_speaker": false
+   }
+  ],
+  [
+   {
+    "person_id": "prof",
+    "name": "prof",
+    "score": 0.8058789372444153,
+    "same_speaker": true
+   },
+   {
+    "person_id": "koh-qing-jia",
+    "name": "Koh Qing Jia",
+    "score": 0.05121045932173729,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tasmin",
+    "name": "tasmin",
+    "score": 0.03493842855095863,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tina",
+    "name": "tina",
+    "score": 0.0013429643586277962,
+    "same_speaker": false
+   },
+   {
+    "person_id": "le-yong",
+    "name": "le yong",
+    "score": -0.1062716394662857,
+    "same_speaker": false
+   }
+  ],
+  [
+   {
+    "person_id": "le-yong",
+    "name": "le yong",
+    "score": 0.7544768452644348,
+    "same_speaker": true
+   },
+   {
+    "person_id": "koh-qing-jia",
+    "name": "Koh Qing Jia",
+    "score": 0.17253601551055908,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tasmin",
+    "name": "tasmin",
+    "score": 0.11848375201225281,
+    "same_speaker": false
+   },
+   {
+    "person_id": "prof",
+    "name": "prof",
+    "score": 0.02198842726647854,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tina",
+    "name": "tina",
+    "score": 0.010360393673181534,
+    "same_speaker": false
+   }
+  ],
+  [
+   {
+    "person_id": "prof",
+    "name": "prof",
+    "score": 0.7021193504333496,
+    "same_speaker": true
+   },
+   {
+    "person_id": "tina",
+    "name": "tina",
+    "score": 0.1117086261510849,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tasmin",
+    "name": "tasmin",
+    "score": 0.060521308332681656,
+    "same_speaker": false
+   },
+   {
+    "person_id": "koh-qing-jia",
+    "name": "Koh Qing Jia",
+    "score": -0.017581399530172348,
+    "same_speaker": false
+   },
+   {
+    "person_id": "le-yong",
+    "name": "le yong",
+    "score": -0.1625836193561554,
+    "same_speaker": false
+   }
+  ]
+ ],
+ "word_segment_scoring_s": 2.3138335030525923,
+ "turn_spans": [
+  [
+   0.0,
+   5.98
+  ],
+  [
+   7.58,
+   34.64
+  ],
+  [
+   38.48,
+   66.78
+  ]
+ ],
+ "turn_matches": [
+  [
+   {
+    "person_id": "prof",
+    "name": "prof",
+    "score": 0.8278433680534363,
+    "same_speaker": true
+   },
+   {
+    "person_id": "tasmin",
+    "name": "tasmin",
+    "score": 0.08538837730884552,
+    "same_speaker": false
+   },
+   {
+    "person_id": "koh-qing-jia",
+    "name": "Koh Qing Jia",
+    "score": 0.07783970981836319,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tina",
+    "name": "tina",
+    "score": 0.05051486939191818,
+    "same_speaker": false
+   },
+   {
+    "person_id": "le-yong",
+    "name": "le yong",
+    "score": -0.03168234974145889,
+    "same_speaker": false
+   }
+  ],
+  [
+   {
+    "person_id": "koh-qing-jia",
+    "name": "Koh Qing Jia",
+    "score": 0.841993510723114,
+    "same_speaker": true
+   },
+   {
+    "person_id": "tina",
+    "name": "tina",
+    "score": 0.15928150713443756,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tasmin",
+    "name": "tasmin",
+    "score": 0.09282147884368896,
+    "same_speaker": false
+   },
+   {
+    "person_id": "prof",
+    "name": "prof",
+    "score": 0.07177168130874634,
+    "same_speaker": false
+   },
+   {
+    "person_id": "le-yong",
+    "name": "le yong",
+    "score": 0.026410164311528206,
+    "same_speaker": false
+   }
+  ],
+  [
+   {
+    "person_id": "koh-qing-jia",
+    "name": "Koh Qing Jia",
+    "score": 0.8275173902511597,
+    "same_speaker": true
+   },
+   {
+    "person_id": "tina",
+    "name": "tina",
+    "score": 0.12443279474973679,
+    "same_speaker": false
+   },
+   {
+    "person_id": "prof",
+    "name": "prof",
+    "score": 0.0885075107216835,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tasmin",
+    "name": "tasmin",
+    "score": 0.060459550470113754,
+    "same_speaker": false
+   },
+   {
+    "person_id": "le-yong",
+    "name": "le yong",
+    "score": 0.04972264543175697,
+    "same_speaker": false
+   }
+  ]
+ ]
+}

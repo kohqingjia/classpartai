@@ -50,6 +50,21 @@ TOPICS: list[tuple[str, list[Snippet]]] = [
                 "At least 0.35, and 0.10 ahead of the runner-up; otherwise UNKNOWN or AMBIGUOUS, "
                 "and unnamed lines are never scored.",
             ),
+            Snippet(
+                "Split Whisper's pieces where the speaker changes",
+                "src/classpartai/agents/listener.py",
+                ("align_words",),
+                "Each word goes to the diarised turn it falls in, so a piece that runs across a "
+                "turn change no longer gives the next speaker's first words to the last one.",
+            ),
+            Snippet(
+                "Check a line, and its whole turn, on their own voice",
+                "src/classpartai/agents/listener.py",
+                ("MIN_SEGMENT_SECONDS", "veto", "turn_runs"),
+                "A line that clearly sounds like someone else becomes AMBIGUOUS. Lines under 1 s "
+                "can't be checked alone, so consecutive lines of one speaker are also checked "
+                "as one turn.",
+            ),
         ],
     ),
     (

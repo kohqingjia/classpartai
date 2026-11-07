@@ -15,6 +15,11 @@ Configurations (each decides a name, UNKNOWN or AMBIGUOUS for every Whisper segm
   under 1 s stay UNKNOWN).
 - B+veto: B, but a segment whose own clip clearly names a different enrolled voice becomes
   AMBIGUOUS (guards against diarisation merging two people into one speaker).
+- W: words aligned to the diarised turns (``align_words``), each speaker through
+  ``best_match``; W+veto adds the per-segment veto.
+- W+veto+turn: W+veto, plus the same check on each whole turn of several segments
+  (``turn_runs``), so a turn cut into segments too short to check is still checked. What the
+  app does (``decide_speakers``).
 - oracle: each script line's true time span through ``best_match`` (an upper bound on the
   voice match alone; not a real configuration).
 """
@@ -34,6 +39,7 @@ from classpartai.agents.listener import (
     align_words,
     best_match,
     decide_speakers,
+    turn_runs,
     veto,
 )
 from classpartai.config import AUDIO_SERVICE_DIR
@@ -114,12 +120,34 @@ def config_words_veto(record: dict, score: float, margin: float) -> list[dict]:
     ]
 
 
+def config_words_veto_turn(record: dict, score: float, margin: float) -> list[dict]:
+    vetoed = config_words_veto(record, score, margin)
+    named = config_words(record, score, margin)
+    turns = dict(zip(map(tuple, record["turn_spans"]), record["turn_matches"], strict=True))
+    out = [dict(seg) for seg in vetoed]
+    for run in turn_runs(
+        align_words(record["whisper_words"]["segments"], record["pipeline"]["diarization_turns"])
+    ):
+        span = (named[run[0]]["start"], named[run[-1]]["end"])
+        if len(run) < 2 or span not in turns:
+            continue
+        for n in run:
+            if out[n]["speaker"] == named[n]["speaker"]:
+                turn = {**named[n], "start": span[0], "end": span[1]}
+                out[n]["speaker"] = veto(turn, turns[span], score, margin)
+    return out
+
+
 def config_shipped(record: dict) -> list[dict]:
     """The app's own ``decide_speakers`` on the cached pipeline output, with each line's voice
     scores looked up in the cache instead of computed (thresholds: the module's constants)."""
     cached = {
         (round(a, 3), round(b, 3)): m
-        for (a, b), m in zip(record["word_segments"], record["word_segment_matches"], strict=True)
+        for (a, b), m in zip(
+            record["word_segments"] + record["turn_spans"],
+            record["word_segment_matches"] + record["turn_matches"],
+            strict=True,
+        )
     }
     result = {
         **record["pipeline"],
@@ -213,6 +241,8 @@ def main() -> None:
         configs.append(("W", config_words))
     if all("word_segment_matches" in r for r in records):
         configs.append(("W+veto", config_words_veto))
+    if all("turn_matches" in r for r in records):
+        configs.append(("W+veto+turn", config_words_veto_turn))
     names = [name for name, _ in configs]
     for name, fn in configs:
         for s in SCORES:
@@ -223,9 +253,9 @@ def main() -> None:
     results = {"A": score_config(records, config_a, people)}
     oracle = score_config(records, lambda r: config_oracle(r, *default), people)
     shipped = None
-    if "W+veto" in names:
+    if "W+veto+turn" in names:
         shipped = score_config(records, config_shipped, people)
-        assert shipped == grid[("W+veto", *default)], "decide_speakers differs from W+veto"
+        assert shipped == grid[("W+veto+turn", *default)], "decide_speakers differs"
 
     # Per-demo WER of the pipeline's own transcript (Whisper base, beam 5).
     wer_rows, total_err, total_words = [], 0, 0
@@ -264,7 +294,7 @@ def main() -> None:
             row(f"{name} · {default[0]:.2f} / {default[1]:.2f}", grid[(name, *default)]["totals"])
         )
     if shipped:
-        md.append(row("**the app now** (`decide_speakers`, = W+veto)", shipped["totals"]))
+        md.append(row("**the app now** (`decide_speakers`, = W+veto+turn)", shipped["totals"]))
     md.append(row("oracle line spans · 0.35 / 0.10", oracle["totals"]))
     md += ["", "### Threshold grid (min score / min margin)", "", HEADER]
     for (name, s, m), res in grid.items():

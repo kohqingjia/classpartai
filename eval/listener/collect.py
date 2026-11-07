@@ -24,7 +24,10 @@ and the voice model linked in read-only use. For each demo it records:
   whole Whisper segments to the diarised speakers;
 - ``word_segment_matches``: with ``--add-word-matches`` (third pass; put this checkout's
   ``src`` first on PYTHONPATH), each word-aligned segment's own clip scored against every
-  enrolled voice, for the per-segment veto.
+  enrolled voice, for the per-segment veto;
+- ``turn_matches``: with ``--add-turn-matches`` (fourth pass, same PYTHONPATH), each whole
+  turn of several word-aligned segments (``turn_runs``) scored the same way, for the turn
+  check.
 """
 
 from __future__ import annotations
@@ -201,6 +204,35 @@ def add_word_matches(out: Path, demos: Path) -> None:
         path.write_text(json.dumps(record, indent=1, default=str))
 
 
+def add_turn_matches(out: Path, demos: Path) -> None:
+    """``--add-turn-matches``: score each turn of several word-aligned segments as a whole.
+    Needs this checkout's ``src`` first on PYTHONPATH, for ``align_words`` and ``turn_runs``."""
+    import speaker_identification
+
+    from classpartai.agents.listener import MIN_SEGMENT_SECONDS, align_words, turn_runs
+
+    identify = cached_identify(speaker_identification)
+    tmp = SCRATCH / "clips"
+    tmp.mkdir(parents=True, exist_ok=True)
+    for path in sorted(out.glob("*.json")):
+        record = json.loads(path.read_text())
+        segments = align_words(
+            record["whisper_words"]["segments"], record["pipeline"]["diarization_turns"]
+        )
+        spans = [
+            (segments[run[0]]["start"], segments[run[-1]]["end"])
+            for run in turn_runs(segments)
+            if len(run) > 1
+        ]
+        spans = [(a, b) for a, b in spans if b - a >= MIN_SEGMENT_SECONDS]
+        record["turn_spans"] = spans
+        record["turn_matches"] = score_spans(
+            str(demos / f"{record['id']}.wav"), spans, tmp, identify
+        )
+        print(f"{record['id']}: {len(spans)} turns scored", flush=True)
+        path.write_text(json.dumps(record, indent=1, default=str))
+
+
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--demos", default="/data/app/demo-seminars")
@@ -209,6 +241,7 @@ def main() -> None:
     parser.add_argument("--whisper-variants", action="store_true")
     parser.add_argument("--add-words", action="store_true", help="only add word timestamps")
     parser.add_argument("--add-word-matches", action="store_true")
+    parser.add_argument("--add-turn-matches", action="store_true")
     args = parser.parse_args()
     if args.add_words:
         return add_words(Path(args.out), Path(args.demos))
@@ -216,6 +249,8 @@ def main() -> None:
     sys.path.insert(0, str(stage_audio_service()))
     if args.add_word_matches:
         return add_word_matches(Path(args.out), Path(args.demos))
+    if args.add_turn_matches:
+        return add_turn_matches(Path(args.out), Path(args.demos))
     import pipeline
     import speaker_identification
     from speaker_identification import identify_speaker, load_registry
