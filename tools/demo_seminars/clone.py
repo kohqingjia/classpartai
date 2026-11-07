@@ -34,7 +34,8 @@ nfe = int(sys.argv[3]) if len(sys.argv) > 3 else 32
 for voice in voices.values():  # the reference clip: the sample's first sentence(s)
     if voice["kind"] == "clone":
         clip = out / f"ref-{voice['sample']}"
-        cmd = ["ffmpeg", "-v", "error", "-y", "-i", str(samples / voice["sample"])]
+        cmd = ["ffmpeg", "-v", "error", "-y", "-ss", str(voice.get("clip_start", 0))]
+        cmd += ["-i", str(samples / voice["sample"])]
         subprocess.run([*cmd, "-t", str(voice["clip_seconds"]), str(clip)], check=True)
         voice["ref"] = clip
 

@@ -35,21 +35,20 @@ def main(lines_dir: Path, out: Path) -> None:
     voices = script["voices"]
     out.mkdir(parents=True, exist_ok=True)
     (out / "voices").mkdir(exist_ok=True)
-    prof = voices["prof"]
-    sf.write(out / "voices" / "prof-lim.wav", load(lines_dir / "enrol-prof.wav"), RATE)
-    (out / "voices.json").write_text(
-        json.dumps(
-            [
-                {
-                    "personId": prof["personId"],
-                    "name": prof["name"],
-                    "role": "professor",
-                    "file": "prof-lim.wav",
-                }
-            ],
-            indent=2,
-        )
-    )
+    # A synthetic professor (macOS say) needs enrolling as a demo voice; a cloned one is
+    # recognised by the sample it was cloned from.
+    prof, enrol = voices["prof"], []
+    if prof["kind"] == "say":
+        sf.write(out / "voices" / "prof.wav", load(lines_dir / "enrol-prof.wav"), RATE)
+        enrol = [
+            {
+                "personId": prof["personId"],
+                "name": prof["name"],
+                "role": "professor",
+                "file": "prof.wav",
+            }
+        ]
+    (out / "voices.json").write_text(json.dumps(enrol, indent=2))
     rng = random.Random(469)
     for session in script["sessions"]:
         chunks, timed, clock = [np.zeros(int(0.8 * RATE), np.float32)], [], 0.8
