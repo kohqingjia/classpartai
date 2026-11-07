@@ -130,7 +130,7 @@ deploy/                 Docker deploy for the VPS
    record a voice sample for each (read the paragraph shown, about 20 s). Recording a seminar is
    locked until the professor and at least one student have a sample: the Listener can only name
    people it has heard, and speakers it can't name are never scored. Samples are stored on the
-   server (`audio-service/enrollments`, git-ignored); the team's own samples are also in
+   server (`audio-service/enrollments`, git-ignored); the demo speakers' samples are also in
    `data/voice-samples/`.
 3. **🎙️ New class session**: ① record or upload the seminar → ② check who spoke (play any line
    with ▶) → ③ run the agents → ④ approve → ⑤ preview and send the emails. Recordings are kept

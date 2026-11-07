@@ -39,7 +39,7 @@ audio-service/models/
 *.m4a
 *.wav
 *.mp3
-# Except the team's demo seminars and voice samples, committed with the team's agreement
+# Except the team's demo seminars and voice samples, committed with the speakers' agreement
 !data/demo-seminars/*.wav
 !data/voice-samples/*.wav
 

@@ -46,8 +46,8 @@ Small datasets and evaluation sets live here. Large or licensed files go in `dat
   | `06-dominant` | 6 · Transformers: one student dominates |
   | `07-guest` | 7 · Fine-tuning: a guest who isn't on the class list |
 
-- `voice-samples/` (committed): the team's enrolment clips (18–28 s), used to recognise who is
-  speaking. The professor's sample is not committed. Copy them to `audio-service/enrollments/` to enrol the same people
+- `voice-samples/` (committed): the enrolment clip (18–28 s) for each speaker in the demos, used
+  to recognise who is speaking. `prof.wav` is Prof Wynter's, committed with her agreement. Copy them to `audio-service/enrollments/` to enrol the same people
   locally.
 
 <!-- Add further datasets: name, URL, licence, and any preprocessing steps. -->
