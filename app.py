@@ -1606,7 +1606,7 @@ elif view == "how":
         "it.</p>",
         unsafe_allow_html=True,
     )
-    st.iframe(system_html(), height=980)
+    st.iframe(system_html(), height=860)
 
     st.subheader("The five steps")
     st.markdown(
