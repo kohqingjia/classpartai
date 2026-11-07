@@ -210,9 +210,13 @@ def render() -> None:
     st.markdown(_table(("Control (S57)", "Where ClassPart AI enforces it"), SIX_CONTROLS))
     st.markdown(
         "**The lethal trifecta** (S55) is private data, untrusted content and a way to send "
-        "data out. ClassPart AI has all three: students' contributions, a transcript anyone in "
-        "the room can speak into, and email. The chain is broken by a person: no model has a "
-        "send tool, and only the professor's approval of an exact version releases an email."
+        "data out. ClassPart AI has the first two (students' contributions, and a transcript "
+        "anyone in the room can speak into), so we limit the third. Email, the channel that "
+        "reaches people, has a person in the chain: no model has a send tool, and only the "
+        "professor's approval of an exact version releases one. Two channels remain and are "
+        "named, not hidden: the model provider receives the transcript to do its work, and "
+        "Research's web search, when a search key is set, sends queries the model writes. "
+        "Web search is off on the live site, and web results are never cited as evidence."
     )
 
     st.subheader("How it meets the project brief")
