@@ -923,6 +923,89 @@ def show_script(script: dict, player_key: str | None) -> None:
             )
 
 
+def turn_label(turn) -> str:
+    words = turn.text.split()
+    return f"{turn.id} · " + " ".join(words[:10]) + ("…" if len(words) > 10 else "")
+
+
+def draft_form(latest, inputs) -> dict:
+    """The draft as a form, a tab per student: each criterion's result, score, reason and the
+    turns it rests on, then their feedback. Citations and limitations are kept as they are.
+    Returns the edited draft as a dict, for the same validation as any other version."""
+    criteria = {c.id: c for c in inputs.rubric.criteria}
+    turns = {t.id: t for t in inputs.transcript.turns}
+    key = f"form-{latest.id}"
+    findings, feedback = [], []
+    tabs = st.tabs([s.displayName for s in inputs.roster])
+    for student, tab in zip(inputs.roster, tabs, strict=True):
+        with tab:
+            own = [
+                t.id
+                for t in inputs.transcript.turns
+                if t.speaker.kind == "student" and t.speaker.studentId == student.id
+            ]
+            for f in [x for x in latest.content.findings if x.studentId == student.id]:
+                c, k = criteria.get(f.criterionId), f"{key}-{student.id}-{f.criterionId}"
+                low, high = (c.minScore, c.maxScore) if c else (0, 100)
+                with st.container(border=True):
+                    st.markdown(f"**{c.title if c else f.criterionId}**")
+                    result = st.radio(
+                        "Result",
+                        ["Scored", "Not enough evidence"],
+                        index=0 if f.status == "scored" else 1,
+                        horizontal=True,
+                        key=f"{k}-status",
+                    )
+                    score = None
+                    if result == "Scored":
+                        start = f.score if f.score is not None else low
+                        score = st.number_input(
+                            f"Score ({low} to {high})",
+                            min_value=float(low),
+                            max_value=float(high),
+                            value=float(min(max(start, low), high)),
+                            step=0.5,
+                            key=f"{k}-score",
+                        )
+                    why = st.text_area("Why", f.justification, key=f"{k}-why")
+                    picked = st.multiselect(
+                        "Based on",
+                        list(dict.fromkeys([*own, *f.turnIds])),
+                        default=f.turnIds,
+                        format_func=lambda tid: turn_label(turns[tid]) if tid in turns else tid,
+                        key=f"{k}-turns",
+                    )
+                    kept = [f"{len(f.citations)} course citation(s)"] if f.citations else []
+                    kept += [f"limitation: {x}" for x in f.limitations]
+                    if kept:
+                        st.caption("Kept as they are: " + "; ".join(kept))
+                findings.append(
+                    {
+                        **f.model_dump(),
+                        "status": "scored" if result == "Scored" else "insufficient_evidence",
+                        "score": score,
+                        "justification": why,
+                        "turnIds": picked,
+                    }
+                )
+            fb = next((x for x in latest.content.feedback if x.studentId == student.id), None)
+            if fb:
+                st.markdown("**Feedback to the student**")
+                k = f"{key}-{student.id}-feedback"
+                feedback.append(
+                    {
+                        **fb.model_dump(),
+                        "strengths": st.text_area("What went well", fb.strengths, key=f"{k}-s"),
+                        "nextStep": st.text_area("Next step", fb.nextStep, key=f"{k}-n"),
+                    }
+                )
+    # Findings and feedback for anyone not on the roster stay exactly as they were.
+    roster = {s.id for s in inputs.roster}
+    findings += [f.model_dump() for f in latest.content.findings if f.studentId not in roster]
+    feedback += [f.model_dump() for f in latest.content.feedback if f.studentId not in roster]
+    return {"findings": findings, "feedback": feedback}
+
+
 def enrol_demo_voices() -> None:
     """The synthetic voices of the demo recording, marked as demo entries."""
     with tempfile.TemporaryDirectory() as tmp:
@@ -1940,20 +2023,31 @@ elif view == "session":
                     "Saving findings or feedback invalidates prior approvals. Invalid scores, "
                     "attribution and citations are refused."
                 )
-                proposal_json = json.dumps(
-                    {
-                        "findings": [f.model_dump() for f in latest.content.findings],
-                        "feedback": [f.model_dump() for f in latest.content.feedback],
-                    },
-                    indent=2,
-                )
-                editor = st.text_area(
-                    "Findings and feedback JSON", proposal_json, height=300, key=f"ed-{latest.id}"
-                )
+                as_json = st.toggle("Edit as JSON instead", key=f"json-{latest.id}")
+                if as_json:
+                    proposal_json = json.dumps(
+                        {
+                            "findings": [f.model_dump() for f in latest.content.findings],
+                            "feedback": [f.model_dump() for f in latest.content.feedback],
+                        },
+                        indent=2,
+                    )
+                    editor = st.text_area(
+                        "Findings and feedback JSON",
+                        proposal_json,
+                        height=300,
+                        key=f"ed-{latest.id}",
+                    )
+                else:
+                    edited = draft_form(latest, inputs)
                 note = st.text_input("Reason for this edit", key=f"note-{latest.id}")
                 if st.button("Save new professor version", disabled=len(note.strip()) < 3):
                     try:
-                        proposal = Proposal.model_validate_json(editor)
+                        proposal = (
+                            Proposal.model_validate_json(editor)
+                            if as_json
+                            else Proposal.model_validate(edited)
+                        )
                         records.append_draft(
                             session_id, proposal, "professor", note, latest.version
                         )

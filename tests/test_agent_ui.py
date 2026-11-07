@@ -192,6 +192,45 @@ def test_approval_and_send_use_existing_gates(app, monkeypatch):
     assert {d["state"] for d in records.deliveries(session_id)} == {"accepted"}
 
 
+def test_the_draft_is_edited_as_a_form_and_saved_as_a_new_version(app):
+    at, records = app
+    session_id = demo(at)
+    draft = records.append_draft(
+        session_id, Proposal.model_validate(full_proposal()), "model", "UI test fixture"
+    )
+    navigate(at, "Approve")
+    assert [t.label for t in at.tabs][:2] == ["Alex Tan", "Priya Nair"]
+    assert not any(t.label == "Findings and feedback JSON" for t in at.text_area)
+    at.number_input(key=f"form-{draft.id}-alex-tan-reasoning-score").set_value(2.0)
+    at.text_area(key=f"form-{draft.id}-alex-tan-feedback-n").input("Ask one follow-up question.")
+    at.radio(key=f"form-{draft.id}-priya-nair-engagement-status").set_value("Not enough evidence")
+    at.text_input(key=f"note-{draft.id}").input("Professor regrade")
+    at.run()
+    click(at, "Save new professor version")
+    saved = records.latest_draft(session_id)
+    assert saved.version == draft.version + 1
+    by = {(f.studentId, f.criterionId): f for f in saved.content.findings}
+    assert by[("alex-tan", "reasoning")].score == 2.0
+    assert by[("alex-tan", "engagement")].score == 3
+    assert by[("priya-nair", "engagement")].status == "insufficient_evidence"
+    assert by[("priya-nair", "engagement")].score is None
+    assert by[("marcus-lee", "reasoning")].status == "insufficient_evidence"
+    alex = next(f for f in saved.content.feedback if f.studentId == "alex-tan")
+    assert alex.nextStep == "Ask one follow-up question."
+    assert len(saved.content.findings) == len(draft.content.findings)
+
+
+def test_the_draft_can_still_be_edited_as_json(app):
+    at, records = app
+    session_id = demo(at)
+    draft = records.append_draft(
+        session_id, Proposal.model_validate(full_proposal()), "model", "UI test fixture"
+    )
+    navigate(at, "Approve")
+    at.toggle(key=f"json-{draft.id}").set_value(True).run()
+    assert any(t.label == "Findings and feedback JSON" for t in at.text_area)
+
+
 def test_iframe_text_cannot_escape_its_json_payload(inputs):
     attack = '</ScRiPt><img src=x onerror="alert(1)"> & <script>'
     documents = [d.model_dump() for d in inputs.documents]
