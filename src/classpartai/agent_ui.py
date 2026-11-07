@@ -12,6 +12,7 @@ from classpartai.monitoring_ui import usage_panel
 from classpartai.participation.coordinator import COORDINATOR_TOOLS
 from classpartai.participation.delivery import DeliverySettings, feedback_email
 from classpartai.participation.judge import FLAG_PREFIX, JUDGE_TOOLS
+from classpartai.quotes import quote_html
 from classpartai.retrieval import examined_of, searches_of
 from classpartai.ui import STAGES, flow_html, vault_html
 from classpartai.voices import enrolments, match_rows
@@ -548,7 +549,7 @@ def role_view(records, session_id, inputs, name):
                         continue
                     confidence = f" · {f.confidence} confidence" if f.confidence else ""
                     st.write(f"**{f.criterionId}** · {f.status.replace('_', ' ')}{confidence}")
-                    st.text(f.justification)
+                    st.markdown(quote_html(f.justification, said(inputs)), unsafe_allow_html=True)
                     cited_evidence(records, session_id, inputs, f)
                     for limitation in f.limitations:
                         st.caption(limitation)
@@ -731,10 +732,18 @@ def run_label(run):
     return "Run " + run["status"].replace("_", " ") + ". See inspection details for the reason."
 
 
-def result_card(title, text, note=None):
+def said(inputs):
+    """Turn ID → what was said, for showing quotes instead of IDs."""
+    return {t.id: t.text for t in inputs.transcript.turns}
+
+
+def result_card(title, text, note=None, turns=None):
     with st.container(border=True):
         st.caption(title)
-        st.write(text)
+        if turns:
+            st.markdown(quote_html(text, turns), unsafe_allow_html=True)
+        else:
+            st.write(text)
         if note:
             st.caption(note)
 
@@ -987,8 +996,8 @@ def presentation_agent(name, records, session_id, inputs, live=None):
         )
         feedback = next((f for f in latest.content.feedback if f.studentId == student.id), None)
         if feedback:
-            result_card("Strength", feedback.strengths)
-            result_card("Next step", feedback.nextStep)
+            result_card("Strength", feedback.strengths, turns=said(inputs))
+            result_card("Next step", feedback.nextStep, turns=said(inputs))
         else:
             result_card("Feedback pending", "No feedback has been drafted for this student.")
         st.caption("Private to this student · never names other students")

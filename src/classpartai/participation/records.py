@@ -151,6 +151,45 @@ class Records:
             "SELECT id, title, course_title, created_at FROM sessions ORDER BY created_at DESC"
         )
 
+    def session_contents(self, session_id: str) -> dict[str, int]:
+        """What deleting this session would remove, counted, plus emails already sent."""
+        one = lambda sql: self.db.execute(sql, (session_id,)).fetchone()[0]  # noqa: E731
+        return {
+            "assessment runs": one("SELECT COUNT(*) FROM participation_runs WHERE session_id=?"),
+            "evidence runs": one("SELECT COUNT(*) FROM evidence_runs WHERE session_id=?"),
+            "draft versions": one("SELECT COUNT(*) FROM drafts WHERE session_id=?"),
+            "approvals": one(
+                "SELECT COUNT(*) FROM approvals WHERE draft_id IN "
+                "(SELECT id FROM drafts WHERE session_id=?)"
+            ),
+            "emails": one(
+                "SELECT COUNT(*) FROM deliveries WHERE draft_id IN "
+                "(SELECT id FROM drafts WHERE session_id=?)"
+            ),
+        }
+
+    def delete_session(self, session_id: str) -> None:
+        """Delete a session and everything made from it. Refused once any feedback has been
+        emailed: what was sent to students stays on record."""
+        self.inputs(session_id)
+        if self.session_contents(session_id)["emails"]:
+            raise Unprocessable("Feedback from this session was emailed; it can't be deleted")
+        drafts = "SELECT id FROM drafts WHERE session_id = ?"
+        runs = "SELECT id FROM participation_runs WHERE session_id = ?"
+        with self.tx():
+            for sql in (
+                f"DELETE FROM approvals WHERE draft_id IN ({drafts})",
+                f"DELETE FROM run_events WHERE run_id IN ({runs})",
+                f"DELETE FROM events WHERE session_id = ? OR run_id IN ({runs})",
+                "DELETE FROM drafts WHERE session_id = ?",
+                "DELETE FROM participation_runs WHERE session_id = ?",
+                "DELETE FROM evidence_runs WHERE session_id = ?",
+                "DELETE FROM recipients WHERE session_id = ?",
+                "DELETE FROM listener_runs WHERE session_id = ?",
+                "DELETE FROM sessions WHERE id = ?",
+            ):
+                self.db.execute(sql, (session_id,) * sql.count("?"))
+
     def inputs(self, session_id: str) -> AssessmentInputs:
         row = self._one("SELECT inputs FROM sessions WHERE id = ?", (session_id,))
         if row is None:
