@@ -25,6 +25,9 @@ def test_snippet_keeps_comments_and_methods(tmp_path):
     assert line == 1
     assert code == "# the window\nSIZE = 3\n\ndef f(self):\n    return SIZE"
     assert source(Snippet("t", "m.py", ("MISSING",), ""), root=tmp_path) is None
+    (tmp_path / "n.py").write_text("def outer():\n    def inner():\n        return 1\n")
+    code, line = source(Snippet("t", "n.py", ("outer.inner",), ""), root=tmp_path)
+    assert (code, line) == ("def inner():\n    return 1", 2)
     assert source(Snippet("t", "nope.py", ("SIZE",), ""), root=tmp_path) is None
 
 
@@ -53,10 +56,12 @@ def test_every_part_shows_tools_or_code():
 def test_the_catalogue_lists_exactly_the_tools_each_agent_has():
     from classpartai.auditor_agent.harness import TOOLS
     from classpartai.participation.coordinator import COORDINATOR_TOOLS
+    from classpartai.participation.judge import JUDGE_TOOLS
     from classpartai.research.tools import ResearchTools
 
     assert tools_of("Coordinator") == {t.name for t in COORDINATOR_TOOLS}
     assert tools_of("Auditor") == {t["function"]["name"] for t in TOOLS}
+    assert tools_of("Judge") == {t.name for t in JUDGE_TOOLS}
     research = ResearchTools.__new__(ResearchTools)
     research.web = object()  # as if a web search key were set, so search_web is offered
     assert tools_of("Research") == {t["function"]["name"] for t in research.schemas()}
@@ -77,3 +82,11 @@ def test_a_branch_snippet_shows_only_that_tool(tmp_path):
     assert line == 4
     assert code == "elif call.name == 'b':\n    # b's work\n    x = 2"
     assert source(Snippet("t", "m.py", ("loop#c",), ""), root=tmp_path) is None
+
+
+def test_the_diagram_colours_every_agent_and_the_tools_that_start_one():
+    from classpartai.ui import AGENT_INKS, STARTS_AGENT
+
+    assert set(AGENT_INKS) == {a.name for a in AGENTS if a.kind == "agent"}
+    assert set(STARTS_AGENT) <= set(tools_of("Coordinator"))
+    assert set(STARTS_AGENT.values()) == set(AGENT_INKS) - {"Coordinator"}

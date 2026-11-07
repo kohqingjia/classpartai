@@ -4,7 +4,8 @@ Snippets are read from the source files when the page renders, so they always sh
 actually runs. Files are parsed with ``ast``, never imported: the audio service loads its models
 at import time.
 
-A name is a top-level name, ``Class.method``, or ``function#tool``: the branch of
+A name is a top-level name, ``Class.method``, ``function.inner`` (a function defined inside
+another, like the Judge's tools), or ``function#tool``: the branch of
 ``function`` that handles that tool (``if call.name == "tool":``), for agents whose tools are
 handled inside their loop. ``AGENTS`` lists every agent and its tools, for the How it works
 catalogue.
@@ -21,7 +22,7 @@ from classpartai.config import REPO_ROOT
 class Snippet:
     title: str
     path: str  # relative to the repository root
-    names: tuple[str, ...]  # top-level names, or "Class.method"
+    names: tuple[str, ...]  # top-level names, "Class.method" or "function.inner"
     say: str  # the point to make when presenting it
 
 
@@ -214,6 +215,7 @@ COORD = "src/classpartai/participation/coordinator.py"
 RESEARCH = "src/classpartai/research/tools.py"
 AUDIT = "src/classpartai/auditor_agent/tools.py"
 AUDIT_LOOP = "src/classpartai/auditor_agent/harness.py"
+JUDGE = "src/classpartai/participation/judge.py"
 
 AGENTS: list[Agent] = [
     Agent(
@@ -248,8 +250,9 @@ AGENTS: list[Agent] = [
             ),
             Tool(
                 "propose_rubric_assessment",
-                "Runs the Judge: a score per student per criterion, or 'insufficient "
-                "evidence'. The result is saved as a new draft version.",
+                "Starts the Judge agent: a score per student per criterion, or 'insufficient "
+                "evidence'. A revision re-scores only the students the audit raised. The "
+                "result is saved as a new draft version.",
                 "a note saying why (e.g. 'revise after audit')",
                 "the new draft's ID, its findings and audit issues",
                 "Every score is validated: right students, existing turns, the student's own "
@@ -433,19 +436,62 @@ AGENTS: list[Agent] = [
     ),
     Agent(
         "Judge",
-        "model call",
-        "Saurabh (a full agent is on his branch, not merged yet)",
+        "agent",
+        "Saurabh",
         "An agent: gets the rubric, each student's own turns and the evidence summary at once, "
         "scores every student on each criterion (or says 'insufficient evidence', not zero), and "
         "flags what the professor should check.",
         "the Coordinator's propose_rubric_assessment",
+        (
+            Tool(
+                "get_evidence",
+                "Fetches the full bundle of one Research run, when the Judge wants to cite a "
+                "passage. The opening message already summarises every run.",
+                "a Research run ID",
+                "the answer assessment, citations with passage IDs, conflicts and gaps",
+                "An unknown run ID is refused.",
+                JUDGE,
+                ("judge.get_evidence",),
+            ),
+            Tool(
+                "get_contributions",
+                "Fetches the named students' own turns, each with the turn before it (usually "
+                "the question), for students whose turns didn't fit in the opening message.",
+                "1-50 student IDs",
+                "each student's own turns (at most 20) and uncertain turns that might be theirs",
+                "Unknown students are refused. Uncertain turns can never establish a score.",
+                JUDGE,
+                ("judge.contribution", "judge.get_contributions"),
+            ),
+            Tool(
+                "score_contribution",
+                "Saves findings for one or many students: for each criterion a score or "
+                "'insufficient evidence', the turns it rests on, a justification, a confidence "
+                "and an optional flag for the professor. The run ends once every student has "
+                "a finding for every criterion.",
+                "students, each with one entry per criterion",
+                "who was saved, who was refused and why, and who is still to score",
+                "Each student goes through validate_proposal: one who breaks a rule is refused "
+                "with the reason and the others are still saved. Low confidence and flags "
+                "become notes the professor sees.",
+                JUDGE,
+                ("judge.save", "judge.score_contribution"),
+            ),
+        ),
         code=(
             Snippet(
-                "Its prompt and the checks on its answer",
-                "src/classpartai/participation/judge.py",
+                "Its prompt",
+                JUDGE,
                 ("JUDGE_INSTRUCTIONS",),
-                "Its instructions; what it is given is in the opening message, and every score "
-                "goes through validate_proposal: a refused score goes back to it with the reason.",
+                "Usually scores at once from the opening message, which already holds the "
+                "rubric, each student's turns and a summary of Research's evidence.",
+            ),
+            Snippet(
+                "A revision re-scores only what the audit objected to",
+                JUDGE,
+                ("revision_targets",),
+                "Students the Auditor raised support, attribution, contradiction or uncertainty "
+                "issues about are re-scored; everyone else's findings are kept.",
             ),
         ),
     ),
@@ -526,8 +572,9 @@ def _find(tree: ast.Module, name: str) -> ast.stmt | None:
     owner, _, member = name.rpartition(".")
     body = tree.body
     if owner:
-        cls = next((n for n in body if isinstance(n, ast.ClassDef) and n.name == owner), None)
-        body = cls.body if cls else []
+        scope = (ast.ClassDef, ast.FunctionDef)  # a method, or a function defined inside another
+        parent = next((n for n in body if isinstance(n, scope) and n.name == owner), None)
+        body = parent.body if parent else []
     for node in body:
         if getattr(node, "name", None) == (member or name):
             return node
