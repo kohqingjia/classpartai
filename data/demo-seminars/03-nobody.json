@@ -1,0 +1,31 @@
+{
+  "id": "03-nobody",
+  "title": "Demo 3 · Evaluation: nobody answers",
+  "case": "The professor asks questions but no student speaks. Every student must get 'no observed participation'; the run must not invent contributions.",
+  "lines": [
+    {
+      "speaker": "Prof Wynter",
+      "text": "Let's talk about evaluating language models. Suppose you build a chatbot for course questions. How would you know it is any good? Anyone? No? Alright.",
+      "start": 0.8,
+      "end": 7.95
+    },
+    {
+      "speaker": "Prof Wynter",
+      "text": "One option is a human rubric. Another is to use a second model as the judge. What could go wrong with a model as a judge? Take a moment.",
+      "start": 8.7,
+      "end": 15.18
+    },
+    {
+      "speaker": "Prof Wynter",
+      "text": "Okay, I'll answer it. Judges can prefer longer answers, they can prefer their own style, and they can be swayed by the position of an answer in the prompt. So we check the judge against human labels, for example with a correlation, before we trust it.",
+      "start": 16.57,
+      "end": 28.55
+    },
+    {
+      "speaker": "Prof Wynter",
+      "text": "We also separate an answer that is wrong from an answer we cannot assess. If there is no evidence, the honest result is insufficient evidence, not a low score. Please read the evaluation chapter before Thursday.",
+      "start": 29.43,
+      "end": 39.5
+    }
+  ]
+}

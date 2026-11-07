@@ -29,4 +29,25 @@ Small datasets and evaluation sets live here. Large or licensed files go in `dat
   twice (e.g. `Topic6_Evaluation_Lab.ipynb` and `Topic6_Evaluation_Lab (2).ipynb`). Then run
   `uv run python -m classpartai.research ingest`.
 
+### Demo seminars and voice samples (our own voices)
+
+- `demo-seminars/` (committed): the seven demo seminars, cloned with F5-TTS from our voice samples
+  (see `tools/demo_seminars/README.md` for how they are made). Each `NN-name.wav` (16 kHz mono, 41–95 s) has a `NN-name.json` with its title, the
+  case it tests and the script it was read from, line by line with start and end times. Upload a
+  `.wav` on New class session to run it through the Listener.
+
+  | File | Demo |
+  |---|---|
+  | `01-everyone` | 1 · Agentic RAG: everyone takes part |
+  | `02-one-silent` | 2 · Agents: one student never speaks |
+  | `03-nobody` | 3 · Evaluation: nobody answers |
+  | `04-misconception` | 4 · Training: a wrong claim, then a correction |
+  | `05-injection` | 5 · Ethics: a student tries to game the grader |
+  | `06-dominant` | 6 · Transformers: one student dominates |
+  | `07-guest` | 7 · Fine-tuning: a guest who isn't on the class list |
+
+- `voice-samples/` (committed): the team's enrolment clips (18–28 s), used to recognise who is
+  speaking. The professor's sample is not committed. Copy them to `audio-service/enrollments/` to enrol the same people
+  locally.
+
 <!-- Add further datasets: name, URL, licence, and any preprocessing steps. -->

@@ -1,0 +1,73 @@
+{
+  "id": "04-misconception",
+  "title": "Demo 4 · Training: a wrong claim, then a correction",
+  "case": "Tina states a misconception that contradicts the slides and later corrects it; Le Yong makes a confident claim the slides contradict.",
+  "lines": [
+    {
+      "speaker": "Prof Wynter",
+      "text": "Today, how large language models are trained. There are three stages: pre training, supervised fine tuning, and reinforcement learning from feedback. What is the objective during pre training?",
+      "start": 0.8,
+      "end": 9.96
+    },
+    {
+      "speaker": "Tina",
+      "text": "I think in pre training the model already learns to follow instructions, because it reads so many question and answer pages.",
+      "start": 11.14,
+      "end": 17.66
+    },
+    {
+      "speaker": "Prof Wynter",
+      "text": "Hmm, let's be careful. What is the actual loss function in that stage?",
+      "start": 18.76,
+      "end": 22.09
+    },
+    {
+      "speaker": "Koh Qing Jia",
+      "text": "It's next token prediction. The model just learns to predict the next token over a huge amount of text.",
+      "start": 22.79,
+      "end": 30.69
+    },
+    {
+      "speaker": "Prof Wynter",
+      "text": "Right. So does a pre trained model naturally follow instructions?",
+      "start": 31.73,
+      "end": 34.82
+    },
+    {
+      "speaker": "Tina",
+      "text": "Oh, then no. It only continues text, so following instructions comes later from supervised fine tuning on instruction and response pairs.",
+      "start": 35.52,
+      "end": 42.73
+    },
+    {
+      "speaker": "Prof Wynter",
+      "text": "Exactly, good correction. And what does the reinforcement learning stage add?",
+      "start": 43.7,
+      "end": 47.36
+    },
+    {
+      "speaker": "Le Yong",
+      "text": "Reinforcement learning makes the model memorise the correct answers, so after that stage it can't hallucinate anymore.",
+      "start": 48.37,
+      "end": 56.55
+    },
+    {
+      "speaker": "Prof Wynter",
+      "text": "I would push back on that. It optimises a reward, for example human preferences, and hallucination is reduced but certainly not eliminated.",
+      "start": 57.75,
+      "end": 64.37
+    },
+    {
+      "speaker": "Tasmin",
+      "text": "So the reward model learns what people prefer, and the policy is updated to score higher on it, with a penalty so it doesn't drift too far from the original model.",
+      "start": 65.08,
+      "end": 73.78
+    },
+    {
+      "speaker": "Prof Wynter",
+      "text": "Yes, the KL penalty. Good. That's all for today.",
+      "start": 74.93,
+      "end": 77.21
+    }
+  ]
+}
