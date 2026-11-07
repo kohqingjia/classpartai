@@ -222,6 +222,7 @@ class Records:
                 "DELETE FROM evidence_runs WHERE session_id = ?",
                 "DELETE FROM recipients WHERE session_id = ?",
                 "DELETE FROM listener_runs WHERE session_id = ?",
+                "DELETE FROM auditor_state WHERE session_id = ?",
                 "DELETE FROM sessions WHERE id = ?",
             ):
                 self.db.execute(sql, (session_id,) * sql.count("?"))

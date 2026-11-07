@@ -7,6 +7,8 @@ points at something in this repository, so the page can be presented and checked
 
 import streamlit as st
 
+from classpartai.ui import log_tag
+
 # (part, what it does here, the course's term for it)
 TOPIC_ROWS = [
     (
@@ -204,7 +206,10 @@ def _bullets(items: list[str]) -> str:
 def render() -> None:
     st.subheader("Mapped to IS469, in the course's words")
     st.caption('Terms quoted from the slides: topic · "term" (slide).')
-    st.markdown(_table(("Part", "What it does here", "Course term"), TOPIC_ROWS))
+    # Each part's name in its agent's ink, as in the diagram above; parts that are not agents
+    # stay grey
+    rows = [(log_tag(part), what, term) for part, what, term in TOPIC_ROWS]
+    st.markdown(_table(("Part", "What it does here", "Course term"), rows), unsafe_allow_html=True)
 
     st.subheader("Topic 9: the six controls for agents, and the lethal trifecta")
     st.markdown(_table(("Control (S57)", "Where ClassPart AI enforces it"), SIX_CONTROLS))
