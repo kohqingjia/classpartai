@@ -1565,7 +1565,7 @@ elif view == "how":
         "it.</p>",
         unsafe_allow_html=True,
     )
-    st.iframe(system_html(), height=860)
+    st.iframe(system_html(), height=980)
 
     st.subheader("The five steps")
     st.markdown(
@@ -1594,18 +1594,27 @@ elif view == "how":
         "- **Research is agentic RAG.** It writes its own queries, searches with BM25 and "
         "vectors fused by Reciprocal Rank Fusion, grades what it finds, searches again if the "
         "evidence is weak, and only cites exact excerpts from the course notes.\n"
-        "- **Verify first, judge last.** The Judge's scores must pass deterministic validation "
-        "(right students, cited turns that exist), then the Auditor checks support, "
-        "attribution and uncertainty before anything reaches the professor.\n"
+        "- **The Judge is an agent too.** It starts with the rubric, each student's own turns and "
+        "a summary of Research's evidence, scores many students per call with a confidence, and "
+        "fetches more turns or a full evidence bundle only when it needs them. It flags what the "
+        "professor should check, and a revision after the audit re-scores only the students the "
+        "Auditor raised.\n"
+        "- **Verify first, judge last.** Every score the Judge saves must pass deterministic "
+        "validation (right students, cited turns that exist); a student who breaks a rule is "
+        "refused with the reason. Then the Auditor checks support, attribution and uncertainty "
+        "before anything reaches the professor.\n"
         "- **Bounded.** Every run has a budget (72 model calls, 108 tool calls, 400k tokens, "
-        "600 s) and stops cleanly when it runs out."
+        "600 s) and stops cleanly when it runs out.\n"
+        "- **Watched.** Every model call's tokens, time and estimated cost, and every step of "
+        "every run, are recorded (Saurabh's usage ledger). The **Monitoring** page shows them."
     )
 
     st.subheader("The agents and their tools")
     st.markdown(
-        "Three parts are **agents**: a model in a loop that picks a tool, reads what it "
-        "returned and picks the next, until it decides it's done. The Coordinator runs the "
-        "other two by calling a tool (*agents as tools*). The rest are single model calls, "
+        "Four parts are **agents**: a model in a loop that picks a tool, reads what it "
+        "returned and picks the next, until it's done. The Coordinator runs the other three "
+        "by calling a tool (*agents as tools*). In the diagram each agent has its own colour, "
+        "and so do its tools. The rest are single model calls, "
         "fixed pipelines or plain code, on purpose: sending email, for one, is never left to "
         "a model."
     )

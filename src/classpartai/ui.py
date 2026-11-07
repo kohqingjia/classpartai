@@ -266,34 +266,34 @@ SYSTEM_LANES = [
         "step": "③",
         "title": "Coordinator",
         "kind": "agent",
-        "lead": "Agent 1 of 3. Plans the next tool call from what the last one returned, "
+        "lead": "Agent 1 of 4. Plans the next tool call from what the last one returned, "
         "within a budget. Its tools:",
         "lead_tools": _tools("Coordinator"),
         "badge": "Topic 7",
         "nodes": [
             [
                 "Research",
-                "Agent 2 of 3, via retrieve_evidence · BM25 + vectors fused with RRF → grade "
+                "Agent 2 of 4, via retrieve_evidence · BM25 + vectors fused with RRF → grade "
                 "→ quote",
                 "Topic 8",
                 "agent",
                 _tools("Research"),
             ],
             [
+                "Judge",
+                "Agent 3 of 4, via propose_rubric_assessment · scores many students per call, "
+                "with a confidence; flags what the professor should check",
+                "Topic 6",
+                "agent",
+                _tools("Judge"),
+            ],
+            [
                 "Auditor",
-                "Agent 3 of 3, via audit_assessment · checks support, citations, injection, "
+                "Agent 4 of 4, via audit_assessment · checks support, citations, injection, "
                 "fairness; never changes a score",
                 "Topic 6",
                 "agent",
                 _tools("Auditor"),
-            ],
-            [
-                "Judge",
-                "via propose_rubric_assessment · a score per student × criterion, or "
-                "'insufficient evidence'",
-                "Topic 6",
-                "model call",
-                [],
             ],
             [
                 "Feedback writer",
@@ -332,6 +332,20 @@ SYSTEM_LANES = [
     },
 ]
 
+# Each agent's colour: its card, its kind tag and its tools carry it. A Coordinator tool that
+# starts another agent also shows that agent's colour, so "agents as tools" can be seen.
+AGENT_INKS = {
+    "Coordinator": "#e8b03c",
+    "Research": "#6aa8e8",
+    "Judge": "#e0866a",
+    "Auditor": "#5cc2a6",
+}
+STARTS_AGENT = {
+    "retrieve_evidence": "Research",
+    "propose_rubric_assessment": "Judge",
+    "audit_assessment": "Auditor",
+}
+
 SYSTEM_GUARDRAILS = [
     "Transcript and slides are untrusted data, never instructions",
     "Every score must cite the student's own turns",
@@ -342,37 +356,49 @@ SYSTEM_GUARDRAILS = [
 
 _SYSTEM_CSS = """
 .lanes { display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1.2fr) minmax(0,2.2fr)
-         minmax(0,.9fr) minmax(0,.9fr); gap:10px; align-items:stretch; }
+         minmax(0,.9fr) minmax(0,.9fr); gap:12px; align-items:stretch; }
 .lane { position:relative; background:var(--card); border:1px solid var(--line);
         border-radius:12px; padding:12px; display:flex; flex-direction:column; gap:8px; }
-.lane:not(:last-child)::after { content:"→"; position:absolute; right:-13px; top:50%;
+.lane:not(:last-child)::after { content:"→"; position:absolute; right:-14px; top:50%;
         transform:translateY(-50%); color:var(--muted); font-size:14px; }
 .head { display:flex; gap:8px; align-items:baseline; }
 .step { color:var(--muted); font:12px ui-monospace,monospace; white-space:nowrap; }
 .title { font-weight:600; font-size:14px; }
-.lead { font-size:11px; color:var(--muted); }
-.coord { border-color:#3d3d42; }
+.lead { font-size:11px; color:var(--muted); line-height:1.4; }
 .tools { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:8px; }
-.node { background:var(--bg); border:1px solid var(--line); border-radius:9px; padding:9px; }
+.node { background:var(--bg); border:1px solid var(--line); border-radius:8px; padding:8px; }
 .name { font-weight:600; font-size:12px; }
-.what { font-size:11px; color:var(--muted); margin-top:4px; line-height:1.35; }
-.badge { display:inline-block; margin-top:6px; font:10px ui-monospace,monospace;
+.what { font-size:11px; color:var(--muted); margin-top:4px; line-height:1.4; }
+.badge { display:inline-block; margin-top:8px; font:10px ui-monospace,monospace;
          color:var(--muted); align-self:flex-start; }
-.rails { display:flex; flex-wrap:wrap; gap:6px; margin-top:12px; }
+.rails { display:flex; flex-wrap:wrap; gap:8px; margin-top:12px; }
 .rail { font-size:11px; color:var(--ink); border:1px solid var(--line); background:var(--card);
         border-radius:6px; padding:4px 8px; }
 .railhead { font-size:12px; color:var(--muted); margin-top:16px; }
 .kind { font:10px ui-monospace,monospace; color:var(--muted); border:1px solid var(--line);
-        border-radius:4px; padding:1px 5px; margin-left:auto; white-space:nowrap; }
-.kind.agent { color:var(--accent); border-color:color-mix(in srgb,var(--accent) 45%,transparent); }
-.nhead { display:flex; gap:6px; align-items:baseline; }
-.tl { display:flex; flex-wrap:wrap; gap:4px; margin-top:6px; }
-.tn { font:10px ui-monospace,monospace; color:var(--ink); background:var(--card);
-      border:1px solid var(--line); border-radius:4px; padding:1px 5px; }
-.legend { display:flex; flex-wrap:wrap; gap:14px; font-size:11px; color:var(--muted);
+        border-radius:4px; padding:1px 4px; margin-left:auto; white-space:nowrap; }
+.nhead { display:flex; gap:8px; align-items:center; }
+.tl { display:flex; flex-wrap:wrap; gap:4px; margin-top:8px; }
+.tn { display:inline-flex; align-items:center; gap:4px; font:10px ui-monospace,monospace;
+      color:var(--ink); background:var(--card); border:1px solid var(--line); border-radius:4px;
+      padding:2px 4px; }
+.to { color:var(--muted); }
+/* Agents: one colour each (--ag), on the card's hairline, the tag and every tool's dot. */
+.dot { width:6px; height:6px; border-radius:50%; background:var(--ag); flex:none; }
+.ag { --ag:var(--muted); }
+.ag.lane, .ag.node { border-color:color-mix(in srgb,var(--ag) 40%,var(--line)); }
+.ag > .head .kind, .ag > .nhead .kind, .kind.agent { color:var(--ag,var(--accent));
+        border-color:color-mix(in srgb,var(--ag,var(--accent)) 45%,transparent); }
+.ag .tn { border-color:color-mix(in srgb,var(--ag) 25%,var(--line)); }
+.legend { display:flex; flex-wrap:wrap; gap:16px; font-size:11px; color:var(--muted);
           margin-top:12px; align-items:center; }
+.legend > span { display:inline-flex; gap:4px; align-items:center; }
+.inks { display:flex; flex-wrap:wrap; gap:16px; font-size:11px; color:var(--muted);
+        margin-top:8px; align-items:center; }
+.inks > span { display:inline-flex; gap:6px; align-items:center; }
+.inks b { color:var(--ink); font-weight:500; }
 @media(max-width:900px) { .lanes { grid-template-columns:1fr; }
-  .lane:not(:last-child)::after { content:"↓"; right:auto; left:50%; top:auto; bottom:-15px;
+  .lane:not(:last-child)::after { content:"↓"; right:auto; left:50%; top:auto; bottom:-16px;
   transform:translateX(-50%); } }
 """
 
@@ -381,33 +407,47 @@ def system_html() -> str:
     """The whole pipeline, from set-up to delivery, with the course topic of each part."""
     return _data_page(
         _SYSTEM_CSS,
-        {"lanes": SYSTEM_LANES, "rails": SYSTEM_GUARDRAILS},
+        {
+            "lanes": SYSTEM_LANES,
+            "rails": SYSTEM_GUARDRAILS,
+            "inks": AGENT_INKS,
+            "starts": STARTS_AGENT,
+        },
         """
 const d=JSON.parse(document.getElementById('data').textContent);
 const root=document.getElementById('root');root.className='wrap';
 const el=(tag,cls,text)=>{const e=document.createElement(tag);e.className=cls;
  if(text!==undefined)e.textContent=text;return e;};
-const lanes=el('div','lanes');root.appendChild(lanes);
 const KIND={agent:'agent',"model call":'model call',pipeline:'pipeline',code:'code',
  human:'person'};
-const toolList=names=>{const t=el('div','tl');names.forEach(n=>t.appendChild(el('span','tn',n)));
- return t;};
+const dot=agent=>{const s=el('span','dot');s.style.setProperty('--ag',d.inks[agent]);return s;};
+// An agent's card carries its colour; its tools inherit it through --ag.
+const ink=(e,name)=>{if(d.inks[name]){e.classList.add('ag');e.style.setProperty('--ag',
+ d.inks[name]);}return e;};
+const toolList=(names,owner)=>{const t=el('div','tl');names.forEach(n=>{const c=el('span','tn');
+ if(d.inks[owner])c.appendChild(dot(owner));c.appendChild(document.createTextNode(n));
+ const starts=d.starts[n];  // a Coordinator tool that starts another agent
+ if(starts){c.appendChild(el('span','to','→'));c.appendChild(dot(starts));
+  c.title='Starts the '+starts+' agent';}
+ t.appendChild(c);});return t;};
+const lanes=el('div','lanes');root.appendChild(lanes);
 d.lanes.forEach(l=>{
- const lane=el('div','lane'+(l.lead?' coord':''));
+ const lane=ink(el('div','lane'),l.lead?l.title:'');
  const head=el('div','head');head.appendChild(el('span','step',l.step));
  head.appendChild(el('span','title',l.title));
  if(l.kind)head.appendChild(el('span','kind '+(l.kind==='agent'?'agent':''),KIND[l.kind]));
  lane.appendChild(head);
- if(l.lead){lane.appendChild(el('div','lead',l.lead));lane.appendChild(toolList(l.lead_tools));
-  lane.appendChild(el('span','badge',l.badge));}
+ if(l.lead){lane.appendChild(el('div','lead',l.lead));
+  lane.appendChild(toolList(l.lead_tools,l.title));lane.appendChild(el('span','badge',l.badge));}
  const box=el('div',l.lead?'tools':'');
  l.nodes.forEach(([name,what,topic,kind,tools])=>{
-  const n=el('div','node');const nh=el('div','nhead');nh.appendChild(el('div','name',name));
+  const n=ink(el('div','node'),name);const nh=el('div','nhead');
+  if(d.inks[name])nh.appendChild(dot(name));nh.appendChild(el('div','name',name));
   // Agents are always labelled, even inside the Coordinator's agent lane.
   if(!l.kind||l.kind!==kind||kind==='agent')
    nh.appendChild(el('span','kind '+(kind==='agent'?'agent':''),KIND[kind]));
   n.appendChild(nh);n.appendChild(el('div','what',what));
-  if(tools.length)n.appendChild(toolList(tools));
+  if(tools.length)n.appendChild(toolList(tools,name));
   if(topic)n.appendChild(el('span','badge',topic));box.appendChild(n);
  });
  lane.appendChild(box);lanes.appendChild(lane);
@@ -420,6 +460,15 @@ const legend=el('div','legend');
  i.appendChild(document.createTextNode(' '+t));
  legend.appendChild(i);});
 root.appendChild(legend);
+const inks=el('div','inks');
+Object.keys(d.inks).forEach(a=>{const i=el('span','');i.appendChild(dot(a));
+ i.appendChild(el('b','',a));inks.appendChild(i);});
+const how=el('span','');how.appendChild(document.createTextNode("A tool shows its agent's "+
+ 'colour; '));const eg=el('span','tn');eg.appendChild(dot('Coordinator'));
+eg.appendChild(document.createTextNode('retrieve_evidence'));eg.appendChild(el('span','to','→'));
+eg.appendChild(dot('Research'));how.appendChild(eg);
+how.appendChild(document.createTextNode(' means that tool starts the Research agent'));
+inks.appendChild(how);root.appendChild(inks);
 root.appendChild(el('div','railhead','Guardrails · Topic 9'));
 const rails=el('div','rails');root.appendChild(rails);
 d.rails.forEach(r=>rails.appendChild(el('span','rail',r)));
