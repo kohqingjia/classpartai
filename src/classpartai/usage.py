@@ -68,6 +68,13 @@ def update(**fields) -> None:
 _span_id: contextvars.ContextVar[str | None] = contextvars.ContextVar("usage_span", default=None)
 
 
+def cache_key() -> str | None:
+    """OpenAI's ``prompt_cache_key`` for the running session, so that every call in one session
+    (any agent) is routed to the same cache. None when no session is running."""
+    session = current().get("session_id")
+    return f"classpartai-{session}" if session else None
+
+
 def current_span() -> str | None:
     return _span_id.get()
 

@@ -75,19 +75,10 @@ In order of value for effort:
 
 ## 4. Risks that remain
 
-- **No login.** Anyone who can open the app can open any session and **Download data**. The
-  download page leaves voices and records unticked, but it is not access control. Decide what
-  protects the deployment (network or proxy), and remove the download page once you have the
-  files.
-- **Consent and retention.** The committed demo voices appear to be team members'. No retention or
-  deletion policy for recordings, voice samples or the database.
-- **Voice biometrics.** Accuracy is measured; fairness across accents or similar voices is not.
 - **LLM-judge bias.** Nothing tests that the Judge is not rewarding fluency or length.
 - **Confidence is unchecked.** Nothing tests that "low" confidence goes with being wrong.
 - **Fallback path.** Without the gated pyannote model the Listener uses a weaker path; the
   evaluation numbers are for the diarised path only.
-- **Injection screen** is a pattern heuristic, English only; the 20/20 on our own labelled set is
-  an upper bound.
 
 ## 5. Architecture notes
 
@@ -98,7 +89,7 @@ In order of value for effort:
   fifth agent missing from the README tables.
 - `get_student_history` (the Judge's third idea) is deferred.
 
-## 6. Optimisation candidates, for your review (nothing here is changed)
+## 6. Optimisation candidates, for your review (O2 to O4 are done, see below)
 
 Each keeps the agent's decisions. They only reduce turns, repeated input or repeated work. The
 numbers come from the one measured run (`cost-measured.json`, incomplete: no Judge, stopped at the
@@ -107,18 +98,12 @@ budget), so treat them as direction, not saving. Tick the ones that make sense.
 | # | Candidate | Why | Behaviour change |
 |---|---|---|---|
 | O1 | **Feedback turns.** Let `draft_student_feedback` take a list of students. The Coordinator still decides when and for whom; each student's email is still its own Feedback call. | Today the Coordinator spends one turn per student, and every turn re-sends its growing history. 4 students is 4 turns. | None to what is written; fewer Coordinator turns. |
-| O2 | **Order the Feedback prompt for caching.** Put the shared parts (rubric, goals, all evidence) first and the student's own data last. | OpenAI reuses a prompt's unchanged opening. Today the student-specific data comes first, so little is reused: Feedback had 15% of input cached, the Coordinator 75%. | None. |
-| O3 | **Same for the Auditor's prompts** (13% cached in the sample). | As O2. | None. |
-| O4 | **Prompt-cache key per session.** Pass `prompt_cache_key` so calls from one session land on the same cache. | Raises cache hits for every agent in a session. Check the installed SDK supports the field first. | None. |
 | O5 | **Feedback gets every evidence bundle for every student.** Send only the bundles that student's findings cite. | Smaller prompt per student, repeated N times. | Possible: the writer could no longer cite a passage it was not sent. Needs a check. |
 | O6 | **Research reasoning effort.** An opt-in setting for Research's navigation calls, then measure. | About 80% of Research's output tokens were hidden reasoning (25,792 of 32,113), and Research was 65 of 71 calls. The Coordinator (80%) and Feedback (69%) are similar; those two already have an opt-in setting. | Possible quality change: must be compared on `research_eval.py` first. |
 | O7 | **Research does 2 answers per `retrieve_evidence`** (`MAX_RUNS`). A class needs several Coordinator retrieve turns. | Fewer Coordinator turns if one call covered more answers. | Each call runs longer against the 10-minute limit. A trade-off, not a free win. |
 | O8 | **Research on answers with no claim.** It searched the course for the two items that need no evidence. | Wasted searches. | Needs an agent-side fix (better instruction), not a hard rule, or it stops being the agent's decision. |
 | O9 | **Re-audit only what changed** after a re-score. The Judge already knows which students were revised. | A full audit repeats checks on untouched findings. | None if the Auditor still sees the whole draft for context. To verify in `auditor_bridge.py`. |
 
-Prompt caching today: **not set up explicitly**, but OpenAI applies it automatically to long
-prompts whose opening is unchanged, and the ledger records `cached_tokens` and prices them at the
-cached rate. O2 to O4 are about getting more of it.
 
 ## Not verified
 

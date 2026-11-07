@@ -553,7 +553,8 @@ def run_audit(
             "content": json.dumps(
                 {
                     "untrusted_data": {
-                        "case_id": req.audit_case_id,
+                        # Most stable first and the case id last: a model reuses a prompt's
+                        # unchanged opening, so a re-audit of the same session shares it.
                         "rubric": asdict(req.rubric),
                         "contributions": [
                             {
@@ -567,6 +568,7 @@ def run_audit(
                         "pending_objections": asdict(req.state.pending_rejudge)
                         if req.state.pending_rejudge
                         else None,
+                        "case_id": req.audit_case_id,
                     }
                 }
             ),

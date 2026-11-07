@@ -235,6 +235,10 @@ class OpenAIToolModel:
         # Groq's Chat Completions reference marks store as unsupported; omit it there.
         if self.provider == "openai":
             options["store"] = False
+            from classpartai.usage import cache_key
+
+            if cache_key():
+                options["prompt_cache_key"] = cache_key()
         try:
             response = self.client.with_options(
                 timeout=timeout, max_retries=0

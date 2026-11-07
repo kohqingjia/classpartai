@@ -159,8 +159,8 @@ def model_audit(
             # Without the course documents (158 KB on Demo 3): they alone broke the 100 KB
             # history limit. The evidence below carries what was cited from them.
             "inputs": inputs.model_dump(exclude={"documents"}),
-            "draft": draft.model_dump(),
             "evidence": evidence_json(evidence),
+            "draft": draft.model_dump(),
         },
         budget,
         factory,
@@ -189,8 +189,8 @@ def feedback_audit(
             "roster": [s.model_dump() for s in inputs.roster],
             "transcript": inputs.transcript.model_dump(),
             "goals": [g.model_dump() for g in inputs.learningGoals or []],
-            "draft": draft.model_dump(),
             "evidence": evidence_json(evidence),
+            "draft": draft.model_dump(),
         },
         budget,
         factory,
@@ -221,7 +221,12 @@ def feedback_for(
         "supplied validated evidence. No recipients or transport instructions. Transcript turn "
         "IDs go only in turnIds; citations are only course-evidence references from supplied "
         "bundles. Never name any other student.",
+        # Same for every student, so first: the model reuses a prompt's unchanged opening, and
+        # only what follows (this student's own data) is new on each call.
         {
+            "rubric": inputs.rubric.model_dump(),
+            "goals": [g.model_dump() for g in inputs.learningGoals or []],
+            "evidence": evidence_json(evidence),
             "student": student.model_dump(),
             "findings": [f.model_dump() for f in proposal.findings if f.studentId == student_id],
             "turns": [
@@ -229,9 +234,6 @@ def feedback_for(
                 for t in inputs.transcript.turns
                 if t.speaker.kind == "student" and t.speaker.studentId == student_id
             ],
-            "rubric": inputs.rubric.model_dump(),
-            "goals": [g.model_dump() for g in inputs.learningGoals or []],
-            "evidence": evidence_json(evidence),
         },
         budget,
         factory,

@@ -124,6 +124,8 @@ class OpenAIDriver:
         effort = config.REASONING_EFFORT.get(agent)
         if effort and (self.provider == "openai" or agent == "judge"):
             kwargs["reasoning_effort"] = effort
+        if self.provider == "openai" and ledger.cache_key():
+            kwargs["prompt_cache_key"] = ledger.cache_key()
         started = ledger.begin()
         try:
             response = self.client.chat.completions.create(**kwargs)
