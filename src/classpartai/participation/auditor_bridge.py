@@ -44,6 +44,7 @@ import time
 from dataclasses import asdict, dataclass, field
 
 from classpartai import config
+from classpartai import usage as ledger
 from classpartai.assessment import AssessmentInputs
 from classpartai.auditor_agent import audit_proposal
 from classpartai.auditor_agent.agent import PROMPT, SCORE_PROMPT, native_arguments
@@ -514,6 +515,7 @@ def to_model_audit(
     )
 
 
+@ledger.tracked("auditor")
 def agent_audit(
     inputs: AssessmentInputs,
     draft: DraftContent,

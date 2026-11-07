@@ -17,6 +17,7 @@ from typing import Literal
 
 from pydantic import BaseModel, ConfigDict, Field, ValidationError, model_validator
 
+from classpartai import usage as ledger
 from classpartai.assessment import AssessmentInputs
 from classpartai.models import Driver, HistoryItem, tool
 
@@ -379,6 +380,7 @@ KNOWN_ERRORS = {
 }
 
 
+@ledger.tracked("evidence")
 def investigate(
     request: Investigation,
     inputs: AssessmentInputs,

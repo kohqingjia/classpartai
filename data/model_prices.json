@@ -1,0 +1,13 @@
+{
+  "note": "Estimated USD per million tokens, used only for the Monitoring page. These are NOT read from OpenAI: check them against https://openai.com/api/pricing and edit before relying on them. A model not listed here shows as 'no price', never as zero. Local (Ollama) models cost 0.",
+  "asOf": "unverified draft",
+  "models": {
+    "gpt-5-mini": { "input": 0.25, "cached_input": 0.025, "output": 2.0 },
+    "gpt-5-nano": { "input": 0.05, "cached_input": 0.005, "output": 0.4 },
+    "gpt-5": { "input": 1.25, "cached_input": 0.125, "output": 10.0 },
+    "gpt-4.1-mini": { "input": 0.4, "cached_input": 0.1, "output": 1.6 },
+    "gpt-4o-mini": { "input": 0.15, "cached_input": 0.075, "output": 0.6 },
+    "text-embedding-3-small": { "input": 0.02 },
+    "text-embedding-3-large": { "input": 0.13 }
+  }
+}

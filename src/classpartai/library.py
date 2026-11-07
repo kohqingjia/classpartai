@@ -40,7 +40,7 @@ class Library:
         """[{"file", "uploadedAt", "document"}], oldest first."""
         if not self.index.exists():
             return []
-        return json.loads(self.index.read_text())
+        return json.loads(self.index.read_text(encoding="utf-8"))
 
     def documents(self) -> list[dict]:
         return [e["document"] for e in self.entries()]

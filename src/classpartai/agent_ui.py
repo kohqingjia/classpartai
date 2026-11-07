@@ -8,8 +8,10 @@ import streamlit as st
 
 from classpartai.config import DATA_DIR
 from classpartai.models import WORKFLOW_LIMITS
+from classpartai.monitoring_ui import usage_panel
 from classpartai.participation.coordinator import COORDINATOR_TOOLS
 from classpartai.participation.delivery import DeliverySettings, feedback_email
+from classpartai.participation.judge import FLAG_PREFIX, JUDGE_TOOLS
 from classpartai.retrieval import examined_of, searches_of
 from classpartai.ui import STAGES, flow_html, vault_html
 from classpartai.voices import enrolments, match_rows
@@ -37,10 +39,12 @@ DESCRIPTIONS = {
     "Delivery": "The exact version you approved, sent only to roster-managed recipients.",
 }
 ROLE_NAMES = {
-    "Judge": "finish_rubric_judgement",
+    "Judge": "judge_agent",
     "Auditor": "finish_assessment_audit",
     "Feedback writer": "finish_student_feedback",
 }
+# Runs recorded before the Judge became an agent used one structured call under this name.
+LEGACY_ROLE_NAMES = {"Judge": "finish_rubric_judgement"}
 # Roles run as a multi-step agent rather than one structured call (the Auditor agent falls back
 # to the single-call role above if it errors).
 AGENT_ROLES = {"Auditor": ("auditor_agent", "finish_feedback_audit")}
@@ -116,13 +120,40 @@ def timeline(actions):
                 st.text(str(result))
 
 
-def role_calls(records, session_id, name):
+def role_calls(records, session_id, name, newest_first=True):
+    roles = {ROLE_NAMES[name], LEGACY_ROLE_NAMES.get(name), *AGENT_ROLES.get(name, ())}
     return [
         (run, call)
         for run in records.runs(session_id)
-        for call in reversed(run["progress"].get("roleCalls", []))
-        if call["role"] in (ROLE_NAMES[name], *AGENT_ROLES.get(name, ()))
+        for call in (
+            reversed(run["progress"].get("roleCalls", []))
+            if newest_first
+            else run["progress"].get("roleCalls", [])
+        )
+        if call["role"] in roles
     ]
+
+
+def judge_trajectory(calls):
+    """The Judge's turns in the order it took them: which tool, with what, and what came back."""
+    for n, (run, call) in enumerate(calls, 1):
+        requested = (call.get("calls") or [{}])[0]
+        tool_name = requested.get("name") or call.get("role", "judge")
+        with st.expander(f"{n:02d} · {tool_name} · {call['outcome']} · {run['id'][:8]}"):
+            if call.get("reason"):
+                st.warning(call["reason"])
+            st.caption("Arguments received")
+            args = requested.get("arguments", "{}")
+            try:
+                args = json.loads(args)
+            except (TypeError, ValueError):
+                pass
+            st.json(args, expanded=False)
+            st.caption("Returned result / refusal")
+            st.json(call.get("output", "Not recorded"), expanded=False)
+            if call.get("validation") not in (None, "not applicable", "pending"):
+                st.caption(f"Validation: {call['validation']}")
+    st.caption("Only public tool calls and results are recorded; no hidden reasoning.")
 
 
 def role_trajectory(calls):
@@ -296,6 +327,9 @@ def coordinator_view(records, session_id, inputs):
     budget_gauges(progress)
     if run:
         st.caption(f"Run {run['id']} · stop: {run['stop_reason'] or 'pending'}")
+    if run:
+        section(0, "Usage & trace", "Every model call and step of this run, kept in the database")
+        usage_panel(records, run["id"], "coord")
     section(1, "Inputs")
     raw("Pinned roster, rubric and transcript", inputs.model_dump(exclude={"documents"}))
     raw(
@@ -448,16 +482,31 @@ def cited_evidence(records, session_id, inputs, item):
 
 def role_view(records, session_id, inputs, name):
     latest = records.latest_draft(session_id)
-    calls = role_calls(records, session_id, name)
+    calls = role_calls(records, session_id, name, newest_first=name != "Judge")
+    if name == "Judge":  # the latest run's turns, in the order the Judge took them
+        run_ids = {run["id"] for run, _ in calls}
+        latest_run = next((r["id"] for r in records.runs(session_id) if r["id"] in run_ids), None)
+        calls = [(run, call) for run, call in calls if run["id"] == latest_run]
     header(name, "draft available" if latest else "not started")
     section(1, "Inputs")
-    if calls:
-        raw("Exact inputs from the latest recorded call", calls[0][1]["inputs"])
+    recorded = next((c["inputs"] for _, c in calls if c.get("inputs") is not None), None)
+    if recorded is not None:
+        raw("Exact inputs from the latest recorded call", recorded)
     else:
         st.caption("Exact role inputs unavailable until a new role call is recorded.")
     raw("Pinned rubric", inputs.rubric.model_dump())
     section(2, "Tools it may call")
-    if name == "Auditor":
+    if name == "Judge":
+        st.dataframe(
+            [{"Tool": t.name, "Purpose": t.description} for t in JUDGE_TOOLS],
+            hide_index=True,
+            width="stretch",
+        )
+        st.caption(
+            "An agent: it picks its next tool from each result. The harness validates every "
+            "score and refuses a rule-breaking call with the reason. Topic 7 · Agents."
+        )
+    elif name == "Auditor":
         from classpartai.auditor_agent.harness import TOOLS
 
         st.code(", ".join(t["function"]["name"] for t in TOOLS), language=None)
@@ -474,7 +523,10 @@ def role_view(records, session_id, inputs, name):
             "One structured role call, with one correction attempt if invalid. Topic 7 · Agents."
         )
     section(3, "Trajectory / timeline")
-    role_trajectory(calls)
+    if name == "Judge" and any(c["role"] == ROLE_NAMES[name] for _, c in calls):
+        judge_trajectory(calls)
+    else:
+        role_trajectory(calls)
     section(
         4,
         "Outputs",
@@ -485,12 +537,17 @@ def role_view(records, session_id, inputs, name):
     elif name == "Judge":
         findings = latest.content.findings
         st.dataframe(score_matrix(inputs, findings), hide_index=True, width="stretch")
+        low, flagged = judge_attention(findings)
+        counts = st.columns(2)
+        counts[0].metric("Low confidence", low)
+        counts[1].metric("Flagged for review", flagged)
         for s in inputs.roster:
             with st.expander(s.displayName):
                 for f in findings:
                     if f.studentId != s.id:
                         continue
-                    st.write(f"**{f.criterionId}** · {f.status.replace('_', ' ')}")
+                    confidence = f" · {f.confidence} confidence" if f.confidence else ""
+                    st.write(f"**{f.criterionId}** · {f.status.replace('_', ' ')}{confidence}")
                     st.text(f.justification)
                     cited_evidence(records, session_id, inputs, f)
                     for limitation in f.limitations:
@@ -682,6 +739,13 @@ def result_card(title, text, note=None):
             st.caption(note)
 
 
+def judge_attention(findings):
+    """(low-confidence findings, findings the Judge flagged for the professor)."""
+    low = sum(f.confidence == "low" for f in findings)
+    flagged = sum(any(x.startswith(FLAG_PREFIX) for x in f.limitations) for f in findings)
+    return low, flagged
+
+
 def score_matrix(inputs, findings):
     rows = []
     for student in inputs.roster:
@@ -701,7 +765,7 @@ def score_matrix(inputs, findings):
                 else "Insufficient evidence"
                 if finding
                 else "Not assessed"
-            )
+            ) + (" · low confidence" if finding and finding.confidence == "low" else "")
         rows.append(row)
     return rows
 
@@ -876,6 +940,9 @@ def presentation_agent(name, records, session_id, inputs, live=None):
         st.dataframe(
             score_matrix(inputs, latest.content.findings), hide_index=True, width="stretch"
         )
+        low, flagged = judge_attention(latest.content.findings)
+        if low or flagged:
+            st.caption(f"{low} low-confidence and {flagged} flagged findings need a closer look.")
         st.caption(
             "Insufficient evidence is never treated as zero. "
             "Open inspection details for justifications and citations."

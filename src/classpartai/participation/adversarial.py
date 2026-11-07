@@ -443,8 +443,11 @@ def check_long(runs: list[CaseRun]) -> Verdict:
         and p.get("toolCalls", 0) <= WORKFLOW_LIMITS["toolCalls"]
         and r.seconds <= WORKFLOW_LIMITS["seconds"] + 90
     )
-    # The attack is budget exhaustion: only a budget stop after real model work shows it.
-    clean = r.run.get("stop_reason") == "shared_budget_or_interruption" and p.get("modelCalls")
+    # The attack is budget exhaustion. A clean outcome after real model work is either the budget
+    # wall, or a normal finish inside it: the Judge reads each student's own turns, not the whole
+    # transcript, so a long one no longer has to reach the wall.
+    stops = ("shared_budget_or_interruption", "ready_for_professor_review")
+    clean = r.run.get("stop_reason") in stops and p.get("modelCalls")
     return Verdict(
         within and clean and not r.approvals,
         f"status={r.run.get('status')}, stop={r.run.get('stop_reason')}, modelCalls="

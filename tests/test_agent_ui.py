@@ -507,3 +507,52 @@ def test_a_library_file_opens_to_its_passages_and_chunks(app, tmp_path):
     assert any("windows of 120 words that overlap by 30" in c.value for c in at.caption)
     assert at.dataframe[0].value["Chunks"].iloc[0] == 2  # 200 words: 0-119, 90-199
     assert any(c.value == "#1 · 110 words" for c in at.caption)
+
+
+def test_judge_tab_shows_each_tool_the_agent_called_in_order(app):
+    from test_coordinator import test_coordinator_runs_the_whole_workflow
+
+    at, records = app
+    session_id = demo(at)
+    test_coordinator_runs_the_whole_workflow(records, session_id)
+    navigate(at, "AI assessment", "Judge")
+    at.toggle[0].set_value(True).run()
+    assert not at.exception
+    steps = [e.label for e in at.expander if " · judge" not in e.label and "· ok ·" in e.label]
+    tools = [label.split(" · ")[1] for label in steps]
+    assert tools == ["score_contribution"]  # the Judge scored everyone in one call
+
+
+def steps_shown(at):
+    """Every value in the 'Step' column of the trace tables on the page."""
+    return {step for df in at.dataframe if "Step" in df.value.columns for step in df.value["Step"]}
+
+
+def test_monitoring_page_and_coordinator_tab_show_usage_and_the_runs_trace(app):
+    from test_usage import event, scripted_workflow
+
+    from classpartai import usage
+
+    at, records = app
+    session_id = demo(at)
+    click(at, "Monitoring")
+    assert at.title[0].value == "Monitoring"
+    assert any("No model calls recorded" in i.value for i in at.info)
+
+    run_id = scripted_workflow(records, session_id)
+    records.log_event(event(id="m1", ts=usage.now_iso(), run_id=run_id, session_id=session_id))
+    click(at, "Monitoring")
+    assert not at.exception
+    metrics = {m.label: m.value for m in at.metric}
+    assert metrics["Model calls"] == "1" and metrics["Tokens in"] == "100"
+    assert metrics["Est. cost"].startswith("$")
+    assert [s.value for s in at.subheader] == ["Usage", "Traces"]
+    runs_label = "Open a run's trace"
+    assert any(s.label == runs_label for s in at.selectbox)
+    assert "propose_rubric_assessment" in steps_shown(at)
+
+    navigate(at, "AI assessment", "Coordinator")
+    at.toggle[0].set_value(True).run()
+    assert not at.exception
+    assert any("Usage & trace" in m.value for m in at.markdown)
+    assert "draft_student_feedback" in steps_shown(at)

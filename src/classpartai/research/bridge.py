@@ -30,6 +30,7 @@ from dataclasses import dataclass
 from datetime import date as Date
 from pathlib import Path
 
+from classpartai import usage as ledger
 from classpartai.assessment import AssessmentInputs, Document, Transcript
 from classpartai.evidence import (
     AgentOutcome,
@@ -556,6 +557,7 @@ def default_agent_factory(light: bool = True) -> AgentFactory:
 _default = None
 
 
+@ledger.tracked("research")
 def investigate(
     request: Investigation,
     inputs: AssessmentInputs,

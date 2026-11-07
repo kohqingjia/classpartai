@@ -18,6 +18,7 @@ from dataclasses import asdict
 from pydantic import BaseModel, ConfigDict, Field, ValidationError
 
 from classpartai import config
+from classpartai import usage as ledger
 from classpartai.evidence import INSTRUCTIONS as EVIDENCE_INSTRUCTIONS
 from classpartai.evidence import TOOL_DEFINITIONS as EVIDENCE_TOOLS
 from classpartai.evidence import CourseIndex, Investigation, investigate
@@ -30,12 +31,12 @@ from classpartai.models import (
     tool,
 )
 from classpartai.participation.auditor_bridge import AuditorSession, agent_audit
+from classpartai.participation.judge import Revision, judge
 from classpartai.participation.records import Draft, Records
 from classpartai.participation.roles import (
     ROLE_POLICY,
     DriverFactory,
     feedback_for,
-    judge,
 )
 from classpartai.participation.schema import Proposal
 from classpartai.participation.validation import Unprocessable, audit_draft
@@ -127,6 +128,17 @@ def coordinate(
     on_event: Callable[[str, dict | None], None] = lambda kind, detail: None,
 ) -> str:
     """Run the workflow for one session; returns the participation run ID."""
+    # Every model call and step inside is recorded against this run (usage.py, Monitoring page).
+    with ledger.tracking(session_id=session_id, agent="coordinator", sink=records.log_event):
+        return _coordinate(records, session_id, factory, on_event)
+
+
+def _coordinate(
+    records: Records,
+    session_id: str,
+    factory: DriverFactory,
+    on_event: Callable[[str, dict | None], None],
+) -> str:
     inputs = records.inputs(session_id)
     records.review_state(session_id)
     progress = WorkflowProgress()
@@ -137,9 +149,12 @@ def coordinate(
             "rubricId": inputs.rubric.id,
             "rubricVersion": inputs.rubric.version,
             "promptVersion": PROMPT_VERSION,
+            "model": config.OPENAI_MODEL,
+            "judgeReasoningEffort": config.JUDGE_REASONING_EFFORT,
         },
         WORKFLOW_LIMITS["seconds"],
     )
+    ledger.update(run_id=run_id)
 
     started = time.monotonic()
     seq = [0]
@@ -229,6 +244,7 @@ def coordinate(
             }
             progress.actions.append(action)
             checkpoint()
+            step_started = ledger.begin()
             history.append(
                 {
                     "type": "function_call",
@@ -324,8 +340,20 @@ def coordinate(
                 elif call.name == "propose_rubric_assessment":
                     args = _arguments(Revise, raw)
                     action["arguments"] = args.model_dump_json()
+                    # A revision tells the Judge what the audit objected to, so it re-scores only
+                    # those students instead of everyone.
+                    revision = (
+                        Revision(args.note, draft.content.findings, draft.content.audit.issues)
+                        if draft
+                        else None
+                    )
                     judged = judge(
-                        inputs, records.evidence_for(session_id), budget, factory, session_id
+                        inputs,
+                        records.evidence_for(session_id),
+                        budget,
+                        factory,
+                        session_id,
+                        revision,
                     )
                     judged.feedback = draft.content.feedback if draft else []
                     nxt = records.append_draft(
@@ -463,6 +491,15 @@ def coordinate(
                     "error": str(error) if isinstance(error, Unprocessable) else action["summary"]
                 }
             action["result"] = output
+            failure = output.get("error") if isinstance(output, dict) else None
+            ledger.record_step(
+                step_started,
+                action["tool"],
+                "ok" if action["outcome"] == "ok" else "refused",
+                {"arguments": action["arguments"], "summary": action["summary"], "error": failure}
+                if failure
+                else {"arguments": action["arguments"], "summary": action["summary"]},
+            )
             checkpoint()
             emit("action", action)
             if finished:
@@ -476,8 +513,9 @@ def coordinate(
             )
     except BudgetExceeded:
         stop_reason = "shared_budget_or_interruption"
-    except Exception:
+    except Exception as error:
         stop_reason = "provider_failure"
+        ledger.record_error("coordinator", error)  # the reason, which the run record drops
     progress.elapsedSeconds = round(time.monotonic() - started, 3)
     records.update_run(
         run_id,

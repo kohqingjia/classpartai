@@ -28,6 +28,11 @@ OLLAMA_MODEL = os.getenv("OLLAMA_MODEL", "qwen3:8b")
 OLLAMA_EMBEDDING_MODEL = os.getenv("OLLAMA_EMBEDDING_MODEL", "nomic-embed-text")
 # Optional thinking level for reasoning models ("none", "low", "medium", "high"); unset = default.
 LLM_REASONING_EFFORT = os.getenv("LLM_REASONING_EFFORT") or None
+# Thinking level for the Judge agent's calls only ("minimal", "low", "medium", "high"); unset =
+# the model's default. Hidden reasoning tokens are billed as output, so "low" is cheaper and faster.
+JUDGE_REASONING_EFFORT = os.getenv("JUDGE_REASONING_EFFORT") or None
+# Estimated prices for the Monitoring page (USD per million tokens; edit to match your plan).
+MODEL_PRICES = Path(os.getenv("MODEL_PRICES", REPO_ROOT / "data" / "model_prices.json"))
 
 # Research agent. COURSE_DIR: the committed schedule and labelled contributions. MATERIALS_DIR:
 # the lecture files (git-ignored, since they are licensed). INDEX_DIR: their embeddings.

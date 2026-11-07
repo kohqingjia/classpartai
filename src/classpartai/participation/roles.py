@@ -1,4 +1,6 @@
-"""The judge, auditor and feedback roles (ported from participation/roles.server.ts).
+"""The auditor and feedback roles (ported from participation/roles.server.ts).
+
+The judge is an agent with tools: see judge.py.
 
 Each role is one structured model call returning a schema-checked result, with one chance to
 correct a malformed reply. Roles never send anything and never see recipients.
@@ -10,9 +12,10 @@ from typing import Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, ValidationError
 
+from classpartai import usage as ledger
 from classpartai.assessment import AssessmentInputs
 from classpartai.models import Driver, HistoryItem, SharedBudget, ToolDefinition, tool
-from classpartai.participation.schema import DraftContent, Feedback, Finding, ModelAudit, Proposal
+from classpartai.participation.schema import DraftContent, Feedback, ModelAudit, Proposal
 from classpartai.participation.validation import EvidenceMap, Unprocessable, validate_proposal
 
 ROLE_POLICY = (
@@ -26,11 +29,6 @@ ROLE_POLICY = (
 )
 
 DriverFactory = Callable[[str, list[ToolDefinition]], Driver | None]
-
-
-class JudgeResult(BaseModel):
-    model_config = ConfigDict(extra="forbid")
-    findings: list[Finding] = Field(max_length=15000)
 
 
 class FeedbackDraft(BaseModel):
@@ -141,39 +139,7 @@ def role_result[T: BaseModel](
     raise Unprocessable(f"Role did not produce a valid structured result. Last problem: {reason}")
 
 
-def judge(
-    inputs: AssessmentInputs,
-    evidence: EvidenceMap,
-    budget: SharedBudget,
-    factory: DriverFactory,
-    session_id: str,
-) -> Proposal:
-    result = role_result(
-        "finish_rubric_judgement",
-        JudgeResult,
-        "Produce one finding per roster student and rubric criterion. Score only attributable "
-        "observed participation within range, or return insufficient_evidence with score null. "
-        "No observed contribution permits a score only for an explicit observable-participation "
-        "noContributionScore rule. Course citations are optional unless the criterion "
-        "requiresCourseEvidence. Cite evidence using evidenceRunId and passageId from supplied "
-        "validated bundles. Never invent totals; code calculates them. Transcript turn IDs go "
-        "only in turnIds; citations are only course-evidence references (an evidence run 'id' "
-        "and a passageId from its bundle's citations), so use [] when no bundle supports it.",
-        {
-            "roster": [s.model_dump() for s in inputs.roster],
-            "transcript": inputs.transcript.model_dump(),
-            "rubric": inputs.rubric.model_dump(),
-            "evidence": evidence_json(evidence),
-        },
-        budget,
-        factory,
-        lambda r: validate_proposal(
-            Proposal(findings=r.findings, feedback=[]), inputs, evidence, session_id
-        ),
-    )
-    return Proposal(findings=result.findings, feedback=[])
-
-
+@ledger.tracked("auditor")
 def model_audit(
     inputs: AssessmentInputs,
     draft: DraftContent,
@@ -199,6 +165,7 @@ def model_audit(
     )
 
 
+@ledger.tracked("auditor")
 def feedback_audit(
     inputs: AssessmentInputs,
     draft: DraftContent,
@@ -228,6 +195,7 @@ def feedback_audit(
     )
 
 
+@ledger.tracked("feedback")
 def feedback_for(
     student_id: str,
     inputs: AssessmentInputs,

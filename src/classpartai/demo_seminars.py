@@ -22,7 +22,9 @@ def available(root: Path) -> list[dict]:
     for path in sorted(root.glob("*.json")):
         if path.name == "voices.json" or not path.with_suffix(".wav").exists():
             continue
-        demos.append({**json.loads(path.read_text()), "audio": str(path.with_suffix(".wav"))})
+        demos.append(
+            {**json.loads(path.read_text(encoding="utf-8")), "audio": str(path.with_suffix(".wav"))}
+        )
     return demos
 
 
@@ -31,4 +33,7 @@ def voices(root: Path) -> list[dict]:
     path = root / "voices.json"
     if not path.exists():
         return []
-    return [{**v, "path": str(root / "voices" / v["file"])} for v in json.loads(path.read_text())]
+    return [
+        {**v, "path": str(root / "voices" / v["file"])}
+        for v in json.loads(path.read_text(encoding="utf-8"))
+    ]

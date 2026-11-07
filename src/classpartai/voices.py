@@ -58,7 +58,7 @@ class Voices:
     def registry(self) -> dict:
         if not self.registry_path.exists():
             return {}
-        return json.loads(self.registry_path.read_text())
+        return json.loads(self.registry_path.read_text(encoding="utf-8"))
 
     def _save(self, registry: dict) -> None:
         self.dir.mkdir(parents=True, exist_ok=True)

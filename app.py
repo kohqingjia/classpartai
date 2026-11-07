@@ -29,7 +29,7 @@ from dotenv import load_dotenv
 from groq import Groq
 from openai import OpenAI
 
-from classpartai import config, demo_seminars
+from classpartai import config, demo_seminars, usage
 from classpartai import snippets as code_snippets
 from classpartai.agent_ui import TABS, overview, render_agent
 from classpartai.agents import listener
@@ -42,6 +42,7 @@ from classpartai.evidence import CourseIndex, Investigation, investigate
 from classpartai.library import SUPPORTED as LIBRARY_TYPES
 from classpartai.library import Library
 from classpartai.models import WORKFLOW_LIMITS, configured_driver
+from classpartai.monitoring_ui import monitoring_view
 from classpartai.participation.coordinator import coordinate
 from classpartai.participation.delivery import (
     AgentMailTransport,
@@ -68,7 +69,7 @@ from classpartai.voices import GOOD_SECONDS, Voices
 load_dotenv()  # the Session Summary's API key
 
 DATA = REPO_ROOT / "data"
-VIEWS = {"home", "new", "session", "summary", "library", "voices", "how"}
+VIEWS = {"home", "new", "session", "summary", "library", "voices", "how", "monitoring"}
 RECORDINGS = DATA_DIR / "recordings"  # class recordings, kept for playback (server volume only)
 DEMO_AUDIO = DATA / "demo_audio"
 DEMO_SEMINARS = DATA_DIR / "demo-seminars"  # edge-case demos: server only (cloned voices)
@@ -129,7 +130,9 @@ button:active:not(:disabled) { transform:scale(0.97); }
 def services() -> tuple[Records, ClassList]:
     # A new file: the earlier Action-harness build left a classpartai.db with an incompatible
     # `sessions` table.
-    return Records(DATA_DIR / "assessments.db"), ClassList(DATA_DIR / "classlist.json")
+    store = Records(DATA_DIR / "assessments.db")
+    usage.configure(store.log_event)  # every model call, anywhere in the app, is kept here
+    return store, ClassList(DATA_DIR / "classlist.json")
 
 
 @st.cache_resource
@@ -818,6 +821,7 @@ with st.sidebar:
     nav("Class & voices", "voices", icon=":material/group:")
     st.caption("Present")
     nav("How it works", "how", icon=":material/account_tree:")
+    nav("Monitoring", "monitoring", icon=":material/monitoring:")
     if os.getenv("EMAIL_TEST_MODE", "true").lower() != "false":
         recipient = os.getenv("EMAIL_TEST_RECIPIENT", "(not set)")
         st.caption(f"Test mode: every email goes to {recipient}")
@@ -847,7 +851,7 @@ def open_session(new_inputs: AssessmentInputs, recipients: dict[str, str] | None
 
 
 def demo_people() -> list[dict]:
-    return json.loads((DEMO_AUDIO / "manifest.json").read_text())["people"]
+    return json.loads((DEMO_AUDIO / "manifest.json").read_text(encoding="utf-8"))["people"]
 
 
 def enrol_seminar_voices() -> None:
@@ -1039,19 +1043,36 @@ def generate_summary_json(system_prompt, user_prompt):
         {"role": "system", "content": system_prompt},
         {"role": "user", "content": user_prompt},
     ]
-    if os.getenv("GROQ_API_KEY"):
-        response = Groq(api_key=os.environ["GROQ_API_KEY"]).chat.completions.create(
-            model="openai/gpt-oss-20b",
-            messages=messages,
-            response_format={"type": "json_object"},
-            temperature=0,
-        )
-    else:
-        # gpt-5 models only accept the default temperature.
-        response = OpenAI().chat.completions.create(
-            model=config.OPENAI_MODEL,
-            messages=messages,
-            response_format={"type": "json_object"},
+    groq = bool(os.getenv("GROQ_API_KEY"))
+    provider, model = ("groq", "openai/gpt-oss-20b") if groq else ("openai", config.OPENAI_MODEL)
+    with usage.tracking(agent="summary", session_id=st.session_state.get("session_id")):
+        started = usage.begin()
+        try:
+            if groq:
+                response = Groq(api_key=os.environ["GROQ_API_KEY"]).chat.completions.create(
+                    model=model,
+                    messages=messages,
+                    response_format={"type": "json_object"},
+                    temperature=0,
+                )
+            else:
+                # gpt-5 models only accept the default temperature.
+                response = OpenAI().chat.completions.create(
+                    model=model,
+                    messages=messages,
+                    response_format={"type": "json_object"},
+                )
+        except Exception as error:
+            usage.record_model_call(
+                started,
+                model=model,
+                provider=provider,
+                status="error",
+                error=f"{type(error).__name__}: {error}",
+            )
+            raise
+        usage.record_model_call(
+            started, model=model, provider=provider, usage=getattr(response, "usage", None)
         )
     return json.loads(response.choices[0].message.content)
 
@@ -1213,7 +1234,7 @@ elif view == "new":
                 help="A 48-second mock seminar read by synthetic voices, with their voice samples",
             ):
                 wav = RECORDINGS / f"pending-{uuid.uuid4().hex}.wav"
-                sample = parse_inputs((DATA / "sample_assessment.json").read_text())
+                sample = parse_inputs((DATA / "sample_assessment.json").read_text(encoding="utf-8"))
                 try:
                     with st.spinner("Enrolling the demo voices…"):
                         enrol_demo_voices()
@@ -1240,8 +1261,10 @@ elif view == "new":
                 width="stretch",
                 help="The same seminar as a ready-made transcript: starts at step 3",
             ):
-                demo = parse_inputs((DATA / "sample_assessment.json").read_text())
-                sample_people = json.loads((DATA / "sample_classlist.json").read_text())
+                demo = parse_inputs((DATA / "sample_assessment.json").read_text(encoding="utf-8"))
+                sample_people = json.loads(
+                    (DATA / "sample_classlist.json").read_text(encoding="utf-8")
+                )
                 open_session(
                     AssessmentInputs.model_validate(
                         {**demo.model_dump(), "documents": with_library(demo.documents)}
@@ -1257,7 +1280,9 @@ elif view == "new":
             ):
                 # The slides come from the course library: they are the instructor's, not ours to
                 # commit.
-                seminar = json.loads((DATA / "is469" / "week7_seminar.json").read_text())
+                seminar = json.loads(
+                    (DATA / "is469" / "week7_seminar.json").read_text(encoding="utf-8")
+                )
                 documents = with_library([])
                 if documents:
                     seminar["documents"] = documents
@@ -1265,7 +1290,9 @@ elif view == "new":
                     st.rerun()
                 st.warning("Upload the IS469 slides in Course library first.")
             if col_fixture.button("Le Yong's fixture", width="stretch"):
-                open_session(parse_inputs((DATA / "fixture-fictional.json").read_text()))
+                open_session(
+                    parse_inputs((DATA / "fixture-fictional.json").read_text(encoding="utf-8"))
+                )
                 st.rerun()
             with st.expander("Import a session file (JSON)"):
                 upload = st.file_uploader("Session JSON", type=["json"])
@@ -1337,12 +1364,12 @@ elif view == "new":
             col_go, col_drop, _ = st.columns([1, 1, 2])
             if col_go.button("Create session →", type="primary", disabled=not confirmed):
                 demo = pending.get("demo")
-                sample = parse_inputs((DATA / "sample_assessment.json").read_text())
+                sample = parse_inputs((DATA / "sample_assessment.json").read_text(encoding="utf-8"))
                 documents = (
                     with_library(sample.documents)
                     if demo
                     else course_library().documents()
-                    or json.loads(config.COURSE_DOCUMENTS.read_text())
+                    or json.loads(config.COURSE_DOCUMENTS.read_text(encoding="utf-8"))
                 )
                 new_inputs = AssessmentInputs(
                     formatVersion=1,
@@ -1353,12 +1380,14 @@ elif view == "new":
                     transcript=transcript,
                     rubric=sample.rubric.model_dump()
                     if demo
-                    else json.loads((DATA / "default_rubric.json").read_text()),
+                    else json.loads((DATA / "default_rubric.json").read_text(encoding="utf-8")),
                     documents=documents,
                 )
                 recipients = None
                 if demo:
-                    sample_people = json.loads((DATA / "sample_classlist.json").read_text())
+                    sample_people = json.loads(
+                        (DATA / "sample_classlist.json").read_text(encoding="utf-8")
+                    )
                     recipients = {pid: e["email"] for pid, e in sample_people.items()}
                 new_id = open_session(new_inputs, recipients)
                 RECORDINGS.mkdir(parents=True, exist_ok=True)
@@ -1792,6 +1821,9 @@ elif view == "how":
 
 # --- Session Summary ----------------------------------------------------------
 
+elif view == "monitoring":
+    monitoring_view(records, go)
+
 elif view == "summary":
     inputs = records.inputs(session_id)
     meta = by_id[session_id]
@@ -1996,13 +2028,19 @@ elif view == "session":
                                     ):  # ② Research (research/bridge.py), same contract
                                         from classpartai.research import bridge
 
-                                        outcome = bridge.investigate(
-                                            request, inputs, None, checkpoint
-                                        )
+                                        with usage.tracking(session_id=session_id):
+                                            outcome = bridge.investigate(
+                                                request, inputs, None, checkpoint
+                                            )
                                     else:
-                                        outcome = investigate(
-                                            request, inputs, driver, CourseIndex(inputs), checkpoint
-                                        )
+                                        with usage.tracking(session_id=session_id):
+                                            outcome = investigate(
+                                                request,
+                                                inputs,
+                                                driver,
+                                                CourseIndex(inputs),
+                                                checkpoint,
+                                            )
                                     records.save_evidence_run(session_id, question, outcome)
                                     log.update(
                                         label=f"Evidence agent: {outcome.status} "

@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import contextvars
 import hashlib
 import json
 import time
@@ -229,7 +230,9 @@ def bounded_call(fn: Callable[[], Any], timeout: float) -> Any:
         except Exception as exc:
             queue.put((False, exc))
 
-    Thread(target=run, daemon=True).start()
+    # The thread starts with the caller's context, so the usage ledger still knows which run
+    # and agent a model call made in it belongs to.
+    Thread(target=contextvars.copy_context().run, args=(run,), daemon=True).start()
     try:
         ok, result = queue.get(timeout=max(0.001, timeout))
     except Empty as exc:

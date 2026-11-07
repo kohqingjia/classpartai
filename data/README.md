@@ -15,6 +15,10 @@ Small datasets and evaluation sets live here. Large or licensed files go in `dat
   correct, whether it answers the question, and (for some) how the student reasoned and what kind
   of mistake it was, and the topic files holding the gold evidence. Used by
   `eval/research_eval.py`.
+- `is469/judge_labels.jsonl` (committed): a human score (0-3, or `null` for insufficient evidence) for
+  each rubric criterion of those 20 contributions, whether the Judge should flag the contribution for
+  the professor, and a one-line reason. Used by `eval/judge_eval.py`. **Drafts**: every row says
+  `"reviewed": false` until a teammate has checked it and flipped it to `true`.
 - `is469/week7_seminar.json` (committed): Tasmin's mock Week 7 (Agentic AI) seminar, using the
   lecture's real questions with our team answering: roster, 10-turn transcript and rubric. Its
   documents are left out (they are slide text); the **IS469 Week 7 seminar** button on New class

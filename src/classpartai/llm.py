@@ -12,6 +12,8 @@ from typing import Protocol
 
 import numpy as np
 
+from classpartai import usage as ledger
+
 
 @dataclass
 class ToolCall:
@@ -119,13 +121,31 @@ class OpenAIChat:
             kwargs["tools"] = tools
         if json_mode:
             kwargs["response_format"] = {"type": "json_object"}
-        response = self.client.chat.completions.create(**kwargs)
+        started = ledger.begin()
+        try:
+            response = self.client.chat.completions.create(**kwargs)
+        except Exception as error:
+            ledger.record_model_call(
+                started,
+                model=self.model,
+                provider=self.provider,
+                status="error",
+                error=f"{type(error).__name__}: {error}",
+            )
+            raise
         message = response.choices[0].message
         calls = [
             ToolCall(id=c.id, name=c.function.name, arguments=c.function.arguments or "{}")
             for c in (message.tool_calls or [])
         ]
         usage = getattr(response, "usage", None)
+        ledger.record_model_call(
+            started,
+            model=self.model,
+            provider=self.provider,
+            usage=usage,
+            calls=[c.name for c in calls],
+        )
         tokens = getattr(usage, "total_tokens", None)
         return AssistantTurn(
             content=message.content or "",
@@ -161,8 +181,16 @@ class OpenAIEmbedder:
         for start in range(0, len(texts), self.batch_size):
             batch = texts[start : start + self.batch_size]
             # Plain floats: not every OpenAI-compatible server returns the client's default base64.
+            started = ledger.begin()
             response = self.client.embeddings.create(
                 model=self.model, input=batch, encoding_format="float"
+            )
+            ledger.record_model_call(
+                started,
+                model=self.model,
+                provider=self.provider,
+                usage=getattr(response, "usage", None),
+                kind="embedding",
             )
             rows.extend(item.embedding for item in response.data)
         return normalise(np.array(rows))
