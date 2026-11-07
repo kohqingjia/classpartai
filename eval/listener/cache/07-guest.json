@@ -1,1 +1,4348 @@
-{"id":"07-guest","audio_seconds":71.7651875,"script":{"id":"07-guest","title":"Demo 7 \u00b7 Fine-tuning: a guest who isn't on the class list","case":"A visitor speaks and is not enrolled: their lines must stay unknown and never be scored or credited to a student. Includes a claim the course slides don't cover.","lines":[{"speaker":"Prof Lim (demo)","text":"Today we have a visitor from industry sitting in. We're discussing parameter efficient fine tuning. Instead of updating all the weights, what does LoRA do?","start":0.8,"end":9.9},{"speaker":"Guest","text":"Hi everyone. In my team we use LoRA all the time. You freeze the base model and train two small low rank matrices that are added to the weight updates, so you only train a tiny fraction of the parameters.","start":10.93,"end":22.39},{"speaker":"Prof Lim (demo)","text":"Thank you. Students, why is that useful in practice?","start":23.12,"end":26.89},{"speaker":"Tasmin","text":"It needs much less memory, and you can store one small adapter per task instead of a full copy of the model.","start":27.77,"end":33.53},{"speaker":"Prof Lim (demo)","text":"Good. What's the rank in LoRA, intuitively?","start":34.83,"end":37.67},{"speaker":"Koh Qing Jia","text":"It's how many directions the update is allowed to change. A small rank like eight is often enough, and a larger rank gives more capacity but more parameters.","start":38.38,"end":50.43},{"speaker":"Guest","text":"And quantising the base model to four bits on top of that is what QLoRA does.","start":51.22,"end":55.43},{"speaker":"Tina","text":"I read that fine tuning with LoRA always beats retrieval augmented generation for factual questions.","start":56.49,"end":61.74},{"speaker":"Prof Lim (demo)","text":"I don't think the evidence supports always. For facts that change, retrieval is usually the better tool. Let's stop there.","start":62.76,"end":70.68}]},"registry":{"demo-professor":"Prof Demo","koh-qing-jia":"Koh Qing Jia","tasmin":"tasmin","tina":"tina","le-yong":"le yong","prof":"prof","demo-prof-lim":"Prof Lim (demo)"},"pipeline":{"language":"en","whisper_segments":[{"start":0.0,"end":10.0,"text":"Today we have a visitor from industry sitting in, where discussing parameter efficient fine tuning, instead of updating all the weights, what does Laura do?"},{"start":10.0,"end":22.0,"text":"Hi everyone, in my team we use Laura all the time, you freeze the base model and train two small low rank matrices that are added to the weight updates, so you only train a tiny fraction of the parameters."},{"start":22.0,"end":27.0,"text":"Thank you, students, why is that useful in practice?"},{"start":28.0,"end":34.0,"text":"It needs much less memory and you can store one small adapter per task instead of a full copy of the model."},{"start":34.0,"end":38.0,"text":"Good, what's the rank in Laura intuitively?"},{"start":38.0,"end":51.0,"text":"How many directions the update is allowed to change? A small rank like 8 is often enough and a larger rank gives more capacity but more parameters."},{"start":51.0,"end":56.0,"text":"And quantizing the base model to four bits on top of that is what QL or A does."},{"start":56.0,"end":62.0,"text":"I read that fine tuning with Laura always beats retrieval augmented generation for factual questions."},{"start":62.0,"end":71.0,"text":"I don't think the evidence supports always, for facts that change, retrieval is usually the better tool, let's stop there."}],"aligned_segments":[{"start":0.0,"end":10.0,"speaker":"SPEAKER_03","text":"Today we have a visitor from industry sitting in, where discussing parameter efficient fine tuning, instead of updating all the weights, what does Laura do?"},{"start":10.0,"end":22.0,"speaker":"SPEAKER_02","text":"Hi everyone, in my team we use Laura all the time, you freeze the base model and train two small low rank matrices that are added to the weight updates, so you only train a tiny fraction of the parameters."},{"start":22.0,"end":27.0,"speaker":"SPEAKER_03","text":"Thank you, students, why is that useful in practice?"},{"start":28.0,"end":34.0,"speaker":"SPEAKER_00","text":"It needs much less memory and you can store one small adapter per task instead of a full copy of the model."},{"start":34.0,"end":38.0,"speaker":"SPEAKER_03","text":"Good, what's the rank in Laura intuitively?"},{"start":38.0,"end":51.0,"speaker":"SPEAKER_04","text":"How many directions the update is allowed to change? A small rank like 8 is often enough and a larger rank gives more capacity but more parameters."},{"start":51.0,"end":56.0,"speaker":"SPEAKER_02","text":"And quantizing the base model to four bits on top of that is what QL or A does."},{"start":56.0,"end":62.0,"speaker":"SPEAKER_01","text":"I read that fine tuning with Laura always beats retrieval augmented generation for factual questions."},{"start":62.0,"end":71.0,"speaker":"SPEAKER_03","text":"I don't think the evidence supports always, for facts that change, retrieval is usually the better tool, let's stop there."}],"voice_matches":{"SPEAKER_03":{"name":"Prof Lim (demo)","status":"identified","score":0.9556183218955994,"matches":[{"person_id":"demo-prof-lim","name":"Prof Lim (demo)","score":0.9556183218955994,"same_speaker":true},{"person_id":"demo-professor","name":"Prof Demo","score":0.06395567208528519,"same_speaker":false},{"person_id":"tina","name":"tina","score":0.03470218926668167,"same_speaker":false},{"person_id":"prof","name":"prof","score":0.026600223034620285,"same_speaker":false},{"person_id":"le-yong","name":"le yong","score":-0.010550632141530514,"same_speaker":false},{"person_id":"tasmin","name":"tasmin","score":-0.01082192175090313,"same_speaker":false},{"person_id":"koh-qing-jia","name":"Koh Qing Jia","score":-0.07118873298168182,"same_speaker":false}]},"SPEAKER_02":{"name":"Prof Demo","status":"identified","score":0.9453140497207642,"matches":[{"person_id":"demo-professor","name":"Prof Demo","score":0.9453140497207642,"same_speaker":true},{"person_id":"koh-qing-jia","name":"Koh Qing Jia","score":0.11499516665935516,"same_speaker":false},{"person_id":"le-yong","name":"le yong","score":0.10296869277954102,"same_speaker":false},{"person_id":"prof","name":"prof","score":0.10037581622600555,"same_speaker":false},{"person_id":"demo-prof-lim","name":"Prof Lim (demo)","score":0.04743300378322601,"same_speaker":false},{"person_id":"tasmin","name":"tasmin","score":0.018059944733977318,"same_speaker":false},{"person_id":"tina","name":"tina","score":-0.02554963529109955,"same_speaker":false}]},"SPEAKER_00":{"name":"tasmin","status":"identified","score":0.780084490776062,"matches":[{"person_id":"tasmin","name":"tasmin","score":0.780084490776062,"same_speaker":true},{"person_id":"tina","name":"tina","score":0.24167683720588684,"same_speaker":false},{"person_id":"le-yong","name":"le yong","score":0.11826261878013611,"same_speaker":false},{"person_id":"koh-qing-jia","name":"Koh Qing Jia","score":0.11442014575004578,"same_speaker":false},{"person_id":"demo-professor","name":"Prof Demo","score":0.023861616849899292,"same_speaker":false},{"person_id":"demo-prof-lim","name":"Prof Lim (demo)","score":0.012598354369401932,"same_speaker":false},{"person_id":"prof","name":"prof","score":0.00982746109366417,"same_speaker":false}]},"SPEAKER_04":{"name":"Koh Qing Jia","status":"identified","score":0.7869443297386169,"matches":[{"person_id":"koh-qing-jia","name":"Koh Qing Jia","score":0.7869443297386169,"same_speaker":true},{"person_id":"tina","name":"tina","score":0.12928412854671478,"same_speaker":false},{"person_id":"demo-professor","name":"Prof Demo","score":0.11620724201202393,"same_speaker":false},{"person_id":"le-yong","name":"le yong","score":0.05282558873295784,"same_speaker":false},{"person_id":"prof","name":"prof","score":0.05272490531206131,"same_speaker":false},{"person_id":"tasmin","name":"tasmin","score":0.04573817551136017,"same_speaker":false},{"person_id":"demo-prof-lim","name":"Prof Lim (demo)","score":0.044722579419612885,"same_speaker":false}]},"SPEAKER_01":{"name":"tina","status":"identified","score":0.7950641512870789,"matches":[{"person_id":"tina","name":"tina","score":0.7950641512870789,"same_speaker":true},{"person_id":"tasmin","name":"tasmin","score":0.18923676013946533,"same_speaker":false},{"person_id":"koh-qing-jia","name":"Koh Qing Jia","score":0.14198389649391174,"same_speaker":false},{"person_id":"demo-prof-lim","name":"Prof Lim (demo)","score":0.0386316254734993,"same_speaker":false},{"person_id":"demo-professor","name":"Prof Demo","score":0.021321114152669907,"same_speaker":false},{"person_id":"prof","name":"prof","score":0.002967027947306633,"same_speaker":false},{"person_id":"le-yong","name":"le yong","score":-0.028788350522518158,"same_speaker":false}]}},"speaker_identities":{"SPEAKER_03":"Prof Lim (demo)","SPEAKER_02":"Prof Demo","SPEAKER_00":"tasmin","SPEAKER_04":"Koh Qing Jia","SPEAKER_01":"tina"},"segments":[{"start":0.0,"end":10.0,"speaker":"Prof Lim (demo)","original_speaker":"SPEAKER_03","text":"Today we have a visitor from industry sitting in, where discussing parameter efficient fine tuning, instead of updating all the weights, what does Laura do?"},{"start":10.0,"end":22.0,"speaker":"Prof Demo","original_speaker":"SPEAKER_02","text":"Hi everyone, in my team we use Laura all the time, you freeze the base model and train two small low rank matrices that are added to the weight updates, so you only train a tiny fraction of the parameters."},{"start":22.0,"end":27.0,"speaker":"Prof Lim (demo)","original_speaker":"SPEAKER_03","text":"Thank you, students, why is that useful in practice?"},{"start":28.0,"end":34.0,"speaker":"tasmin","original_speaker":"SPEAKER_00","text":"It needs much less memory and you can store one small adapter per task instead of a full copy of the model."},{"start":34.0,"end":38.0,"speaker":"Prof Lim (demo)","original_speaker":"SPEAKER_03","text":"Good, what's the rank in Laura intuitively?"},{"start":38.0,"end":51.0,"speaker":"Koh Qing Jia","original_speaker":"SPEAKER_04","text":"How many directions the update is allowed to change? A small rank like 8 is often enough and a larger rank gives more capacity but more parameters."},{"start":51.0,"end":56.0,"speaker":"Prof Demo","original_speaker":"SPEAKER_02","text":"And quantizing the base model to four bits on top of that is what QL or A does."},{"start":56.0,"end":62.0,"speaker":"tina","original_speaker":"SPEAKER_01","text":"I read that fine tuning with Laura always beats retrieval augmented generation for factual questions."},{"start":62.0,"end":71.0,"speaker":"Prof Lim (demo)","original_speaker":"SPEAKER_03","text":"I don't think the evidence supports always, for facts that change, retrieval is usually the better tool, let's stop there."}],"diarization_turns":[{"start":0.8072187500000001,"end":9.953468750000003,"speaker":"SPEAKER_03"},{"start":10.915343750000002,"end":22.42409375,"speaker":"SPEAKER_02"},{"start":23.16659375,"end":26.89596875,"speaker":"SPEAKER_03"},{"start":28.094093750000003,"end":33.54471875,"speaker":"SPEAKER_00"},{"start":34.82721875,"end":37.69596875,"speaker":"SPEAKER_03"},{"start":38.64096875,"end":50.470343750000005,"speaker":"SPEAKER_04"},{"start":51.16221875,"end":55.46534375,"speaker":"SPEAKER_02"},{"start":56.781593750000006,"end":61.79346875,"speaker":"SPEAKER_01"},{"start":62.721593750000004,"end":70.72034375,"speaker":"SPEAKER_03"}],"timings":{"transcription_s":10.645192643860355,"diarization_s":129.94095132686198,"total_s":213.58624328509904}},"segment_matches":[[{"person_id":"demo-prof-lim","name":"Prof Lim (demo)","score":0.9332261085510254,"same_speaker":true},{"person_id":"tina","name":"tina","score":0.04971799999475479,"same_speaker":false},{"person_id":"demo-professor","name":"Prof Demo","score":0.04911564663052559,"same_speaker":false},{"person_id":"prof","name":"prof","score":0.027006518095731735,"same_speaker":false},{"person_id":"tasmin","name":"tasmin","score":0.001991044729948044,"same_speaker":false},{"person_id":"le-yong","name":"le yong","score":-0.013082554563879967,"same_speaker":false},{"person_id":"koh-qing-jia","name":"Koh Qing Jia","score":-0.045130740851163864,"same_speaker":false}],[{"person_id":"demo-professor","name":"Prof Demo","score":0.9295545816421509,"same_speaker":true},{"person_id":"koh-qing-jia","name":"Koh Qing Jia","score":0.1347607672214508,"same_speaker":false},{"person_id":"le-yong","name":"le yong","score":0.09984346479177475,"same_speaker":false},{"person_id":"prof","name":"prof","score":0.08720815181732178,"same_speaker":false},{"person_id":"tasmin","name":"tasmin","score":0.03270072862505913,"same_speaker":false},{"person_id":"demo-prof-lim","name":"Prof Lim (demo)","score":0.03173932433128357,"same_speaker":false},{"person_id":"tina","name":"tina","score":-0.024366943165659904,"same_speaker":false}],[{"person_id":"demo-prof-lim","name":"Prof Lim (demo)","score":0.8038788437843323,"same_speaker":true},{"person_id":"demo-professor","name":"Prof Demo","score":0.11936260759830475,"same_speaker":false},{"person_id":"koh-qing-jia","name":"Koh Qing Jia","score":0.08076121658086777,"same_speaker":false},{"person_id":"prof","name":"prof","score":0.07139284908771515,"same_speaker":false},{"person_id":"le-yong","name":"le yong","score":0.05009792745113373,"same_speaker":false},{"person_id":"tina","name":"tina","score":0.036467045545578,"same_speaker":false},{"person_id":"tasmin","name":"tasmin","score":-0.01828736998140812,"same_speaker":false}],[{"person_id":"tasmin","name":"tasmin","score":0.7694186568260193,"same_speaker":true},{"person_id":"tina","name":"tina","score":0.29092636704444885,"same_speaker":true},{"person_id":"koh-qing-jia","name":"Koh Qing Jia","score":0.1504492312669754,"same_speaker":false},{"person_id":"le-yong","name":"le yong","score":0.09367047995328903,"same_speaker":false},{"person_id":"demo-professor","name":"Prof Demo","score":0.051582906395196915,"same_speaker":false},{"person_id":"prof","name":"prof","score":0.03846734017133713,"same_speaker":false},{"person_id":"demo-prof-lim","name":"Prof Lim (demo)","score":-0.014288738369941711,"same_speaker":false}],[{"person_id":"demo-prof-lim","name":"Prof Lim (demo)","score":0.8102403879165649,"same_speaker":true},{"person_id":"prof","name":"prof","score":0.07050030678510666,"same_speaker":false},{"person_id":"demo-professor","name":"Prof Demo","score":0.031095627695322037,"same_speaker":false},{"person_id":"tina","name":"tina","score":0.014513693749904633,"same_speaker":false},{"person_id":"tasmin","name":"tasmin","score":0.013434345833957195,"same_speaker":false},{"person_id":"le-yong","name":"le yong","score":-0.004006580915302038,"same_speaker":false},{"person_id":"koh-qing-jia","name":"Koh Qing Jia","score":-0.024399202316999435,"same_speaker":false}],[{"person_id":"koh-qing-jia","name":"Koh Qing Jia","score":0.7963715195655823,"same_speaker":true},{"person_id":"tina","name":"tina","score":0.12449032068252563,"same_speaker":false},{"person_id":"demo-professor","name":"Prof Demo","score":0.11905951797962189,"same_speaker":false},{"person_id":"prof","name":"prof","score":0.06531896442174911,"same_speaker":false},{"person_id":"le-yong","name":"le yong","score":0.06312654912471771,"same_speaker":false},{"person_id":"tasmin","name":"tasmin","score":0.04917138069868088,"same_speaker":false},{"person_id":"demo-prof-lim","name":"Prof Lim (demo)","score":0.04154711216688156,"same_speaker":false}],[{"person_id":"demo-professor","name":"Prof Demo","score":0.77341628074646,"same_speaker":true},{"person_id":"prof","name":"prof","score":0.12465015053749084,"same_speaker":false},{"person_id":"koh-qing-jia","name":"Koh Qing Jia","score":0.11133081465959549,"same_speaker":false},{"person_id":"demo-prof-lim","name":"Prof Lim (demo)","score":0.053045909851789474,"same_speaker":false},{"person_id":"le-yong","name":"le yong","score":0.043177902698516846,"same_speaker":false},{"person_id":"tasmin","name":"tasmin","score":0.025952979922294617,"same_speaker":false},{"person_id":"tina","name":"tina","score":0.006276190746575594,"same_speaker":false}],[{"person_id":"tina","name":"tina","score":0.7897361516952515,"same_speaker":true},{"person_id":"tasmin","name":"tasmin","score":0.17383046448230743,"same_speaker":false},{"person_id":"koh-qing-jia","name":"Koh Qing Jia","score":0.13203668594360352,"same_speaker":false},{"person_id":"demo-professor","name":"Prof Demo","score":0.03340465947985649,"same_speaker":false},{"person_id":"demo-prof-lim","name":"Prof Lim (demo)","score":0.02967984788119793,"same_speaker":false},{"person_id":"prof","name":"prof","score":0.0063275787979364395,"same_speaker":false},{"person_id":"le-yong","name":"le yong","score":-0.001885920763015747,"same_speaker":false}],[{"person_id":"demo-prof-lim","name":"Prof Lim (demo)","score":0.9393535256385803,"same_speaker":true},{"person_id":"demo-professor","name":"Prof Demo","score":0.06554609537124634,"same_speaker":false},{"person_id":"prof","name":"prof","score":0.024781178683042526,"same_speaker":false},{"person_id":"tina","name":"tina","score":0.016857318580150604,"same_speaker":false},{"person_id":"tasmin","name":"tasmin","score":-0.009998122230172157,"same_speaker":false},{"person_id":"le-yong","name":"le yong","score":-0.02072400227189064,"same_speaker":false},{"person_id":"koh-qing-jia","name":"Koh Qing Jia","score":-0.08895673602819443,"same_speaker":false}]],"segment_scoring_s":5.188434148905799,"line_matches":[[{"person_id":"demo-prof-lim","name":"Prof Lim (demo)","score":0.9348241090774536,"same_speaker":true},{"person_id":"tina","name":"tina","score":0.05216721445322037,"same_speaker":false},{"person_id":"demo-professor","name":"Prof Demo","score":0.04514651745557785,"same_speaker":false},{"person_id":"prof","name":"prof","score":0.019589116796851158,"same_speaker":false},{"person_id":"tasmin","name":"tasmin","score":0.002824774943292141,"same_speaker":false},{"person_id":"le-yong","name":"le yong","score":-0.02535402402281761,"same_speaker":false},{"person_id":"koh-qing-jia","name":"Koh Qing Jia","score":-0.05416301637887955,"same_speaker":false}],[{"person_id":"demo-professor","name":"Prof Demo","score":0.9366693496704102,"same_speaker":true},{"person_id":"koh-qing-jia","name":"Koh Qing Jia","score":0.1273578554391861,"same_speaker":false},{"person_id":"le-yong","name":"le yong","score":0.0970301553606987,"same_speaker":false},{"person_id":"prof","name":"prof","score":0.08959391713142395,"same_speaker":false},{"person_id":"demo-prof-lim","name":"Prof Lim (demo)","score":0.030486149713397026,"same_speaker":false},{"person_id":"tasmin","name":"tasmin","score":0.029936321079730988,"same_speaker":false},{"person_id":"tina","name":"tina","score":-0.022022485733032227,"same_speaker":false}],[{"person_id":"demo-prof-lim","name":"Prof Lim (demo)","score":0.8725869655609131,"same_speaker":true},{"person_id":"demo-professor","name":"Prof Demo","score":0.0770416408777237,"same_speaker":false},{"person_id":"tina","name":"tina","score":0.06098382920026779,"same_speaker":false},{"person_id":"prof","name":"prof","score":0.051959361881017685,"same_speaker":false},{"person_id":"le-yong","name":"le yong","score":0.031164351850748062,"same_speaker":false},{"person_id":"koh-qing-jia","name":"Koh Qing Jia","score":0.011745771393179893,"same_speaker":false},{"person_id":"tasmin","name":"tasmin","score":-0.01577851176261902,"same_speaker":false}],[{"person_id":"tasmin","name":"tasmin","score":0.7861449718475342,"same_speaker":true},{"person_id":"tina","name":"tina","score":0.2467849850654602,"same_speaker":false},{"person_id":"koh-qing-jia","name":"Koh Qing Jia","score":0.10648316890001297,"same_speaker":false},{"person_id":"le-yong","name":"le yong","score":0.09241896867752075,"same_speaker":false},{"person_id":"demo-professor","name":"Prof Demo","score":0.019329186528921127,"same_speaker":false},{"person_id":"prof","name":"prof","score":0.007656726986169815,"same_speaker":false},{"person_id":"demo-prof-lim","name":"Prof Lim (demo)","score":0.00537637434899807,"same_speaker":false}],[{"person_id":"demo-prof-lim","name":"Prof Lim (demo)","score":0.8354367017745972,"same_speaker":true},{"person_id":"prof","name":"prof","score":0.03408167511224747,"same_speaker":false},{"person_id":"demo-professor","name":"Prof Demo","score":0.03271748498082161,"same_speaker":false},{"person_id":"tina","name":"tina","score":0.02450716309249401,"same_speaker":false},{"person_id":"tasmin","name":"tasmin","score":-0.010362533852458,"same_speaker":false},{"person_id":"le-yong","name":"le yong","score":-0.012023171409964561,"same_speaker":false},{"person_id":"koh-qing-jia","name":"Koh Qing Jia","score":-0.06882330775260925,"same_speaker":false}],[{"person_id":"koh-qing-jia","name":"Koh Qing Jia","score":0.7882992029190063,"same_speaker":true},{"person_id":"tina","name":"tina","score":0.12468508630990982,"same_speaker":false},{"person_id":"demo-professor","name":"Prof Demo","score":0.12103345990180969,"same_speaker":false},{"person_id":"prof","name":"prof","score":0.05918192118406296,"same_speaker":false},{"person_id":"le-yong","name":"le yong","score":0.05893316864967346,"same_speaker":false},{"person_id":"tasmin","name":"tasmin","score":0.04743886739015579,"same_speaker":false},{"person_id":"demo-prof-lim","name":"Prof Lim (demo)","score":0.042274944484233856,"same_speaker":false}],[{"person_id":"demo-professor","name":"Prof Demo","score":0.892659068107605,"same_speaker":true},{"person_id":"prof","name":"prof","score":0.11687127500772476,"same_speaker":false},{"person_id":"demo-prof-lim","name":"Prof Lim (demo)","score":0.08946558833122253,"same_speaker":false},{"person_id":"le-yong","name":"le yong","score":0.08803503960371017,"same_speaker":false},{"person_id":"koh-qing-jia","name":"Koh Qing Jia","score":0.07264462113380432,"same_speaker":false},{"person_id":"tasmin","name":"tasmin","score":0.02729937806725502,"same_speaker":false},{"person_id":"tina","name":"tina","score":-0.03305685147643089,"same_speaker":false}],[{"person_id":"tina","name":"tina","score":0.7924363613128662,"same_speaker":true},{"person_id":"tasmin","name":"tasmin","score":0.18962691724300385,"same_speaker":false},{"person_id":"koh-qing-jia","name":"Koh Qing Jia","score":0.14283081889152527,"same_speaker":false},{"person_id":"demo-prof-lim","name":"Prof Lim (demo)","score":0.04109742119908333,"same_speaker":false},{"person_id":"demo-professor","name":"Prof Demo","score":0.03470949828624725,"same_speaker":false},{"person_id":"prof","name":"prof","score":0.012916956096887589,"same_speaker":false},{"person_id":"le-yong","name":"le yong","score":-0.022823724895715714,"same_speaker":false}],[{"person_id":"demo-prof-lim","name":"Prof Lim (demo)","score":0.9408434629440308,"same_speaker":true},{"person_id":"demo-professor","name":"Prof Demo","score":0.06473537534475327,"same_speaker":false},{"person_id":"tina","name":"tina","score":0.02243923395872116,"same_speaker":false},{"person_id":"prof","name":"prof","score":0.008192120119929314,"same_speaker":false},{"person_id":"tasmin","name":"tasmin","score":-0.008274415507912636,"same_speaker":false},{"person_id":"le-yong","name":"le yong","score":-0.016433890908956528,"same_speaker":false},{"person_id":"koh-qing-jia","name":"Koh Qing Jia","score":-0.09693604707717896,"same_speaker":false}]],"whisper":[{"model":"tiny","beam":5,"seconds":5.871654096990824,"segments":[{"start":0.0,"end":6.0,"text":"Today we have a visitor from industry sitting in, where discussing parameter efficient fine"},{"start":6.0,"end":11.0,"text":"tuning, instead of updating all the weights, what does Laura do?"},{"start":11.0,"end":16.0,"text":"Hi everyone, in my team we use Laura all the time, you freeze the base model and train"},{"start":16.0,"end":20.6,"text":"two small low rank matrices that are added to the weight updates, so you only train a"},{"start":20.6,"end":23.0,"text":"tiny fraction of the parameters."},{"start":23.0,"end":27.0,"text":"Thank you, students, why is that useful in practice?"},{"start":28.0,"end":33.0,"text":"It needs much less memory and you can store one smaller adapter task instead of a full copy of"},{"start":33.0,"end":34.0,"text":"the model."},{"start":34.0,"end":38.0,"text":"Good, what's the rank in Laura, intuitively?"},{"start":38.0,"end":45.0,"text":"How many directions the update is allowed to change? A small rank like 8 is often enough"},{"start":45.0,"end":51.0,"text":"and a larger rank gives more capacity, but more parameters."},{"start":51.0,"end":55.0,"text":"And quantizing the base model to four bits on top of that is what QLOR"},{"start":55.0,"end":56.0,"text":"does."},{"start":56.0,"end":62.0,"text":"I read that fine tuning with Laura always beats retrieval augmented generation for factual questions."},{"start":62.0,"end":68.0,"text":"I don't think the evidence supports always, for facts that change, retrieval is usually"},{"start":68.0,"end":70.0,"text":"the better tool, let's stop there."}]},{"model":"base","beam":1,"seconds":5.979965868871659,"segments":[{"start":0.0,"end":10.0,"text":"Today we have a visitor from industry sitting in, where discussing parameter efficient fine tuning, instead of updating all the weights, what does Laura do?"},{"start":10.0,"end":22.0,"text":"Hi everyone, in my team we use Laura all the time, you freeze the base model and train two small low rank matrices that are added to the weight updates, so you only train a tiny fraction of the parameters."},{"start":22.0,"end":27.0,"text":"Thank you, students, why is that useful in practice?"},{"start":28.0,"end":34.0,"text":"It needs much less memory and you can store one small adapter per task instead of a full copy of the model."},{"start":34.0,"end":38.0,"text":"Good, what's the rank in Laura intuitively?"},{"start":38.0,"end":51.0,"text":"How many directions the update is allowed to change? A small rank like 8 is often enough and a larger rank gives more capacity but more parameters."},{"start":51.0,"end":56.0,"text":"And quantizing the base model to 4 bits on top of that is what QL or A does."},{"start":57.0,"end":63.0,"text":"I read that fine tuning with Laura always beats retrieval augmented generation for factual questions."},{"start":63.0,"end":71.0,"text":"I don't think the evidence supports always, for facts that change, retrieval is usually the better tool, let's stop there."}]},{"model":"base","beam":5,"seconds":9.52286126697436,"segments":[{"start":0.0,"end":10.0,"text":"Today we have a visitor from industry sitting in, where discussing parameter efficient fine tuning, instead of updating all the weights, what does Laura do?"},{"start":10.0,"end":22.0,"text":"Hi everyone, in my team we use Laura all the time, you freeze the base model and train two small low rank matrices that are added to the weight updates, so you only train a tiny fraction of the parameters."},{"start":22.0,"end":27.0,"text":"Thank you, students, why is that useful in practice?"},{"start":28.0,"end":34.0,"text":"It needs much less memory and you can store one small adapter per task instead of a full copy of the model."},{"start":34.0,"end":38.0,"text":"Good, what's the rank in Laura intuitively?"},{"start":38.0,"end":51.0,"text":"How many directions the update is allowed to change? A small rank like 8 is often enough and a larger rank gives more capacity but more parameters."},{"start":51.0,"end":56.0,"text":"And quantizing the base model to four bits on top of that is what QL or A does."},{"start":56.0,"end":62.0,"text":"I read that fine tuning with Laura always beats retrieval augmented generation for factual questions."},{"start":62.0,"end":71.0,"text":"I don't think the evidence supports always, for facts that change, retrieval is usually the better tool, let's stop there."}]},{"model":"small","beam":5,"seconds":25.43284496013075,"segments":[{"start":0.64,"end":3.44,"text":"Today we have a visitor from industry sitting in."},{"start":3.44,"end":6.48,"text":"We're discussing parameter efficient fine-tuning."},{"start":6.48,"end":9.68,"text":"Instead of updating all the weights, what does Laura do?"},{"start":10.8,"end":14.08,"text":"Hi everyone, in my team we use Laura all the time."},{"start":14.08,"end":18.56,"text":"You freeze the base model and train two small low-rank matrices that are added to the weight"},{"start":18.56,"end":22.16,"text":"updates, so you only train a tiny fraction of the parameters."},{"start":23.04,"end":26.560000000000002,"text":"Thank you, students. Why is that useful in practice?"},{"start":26.880000000000003,"end":32.480000000000004,"text":"It needs much less memory and you can store one small adapter per task instead of a full"},{"start":32.480000000000004,"end":37.52,"text":"copy of the model. Good. What's the rank in Laura? Intuitively."},{"start":38.56,"end":45.52,"text":"How many directions the update is allowed to change? A small rank like 8 is often enough"},{"start":45.52,"end":50.24,"text":"and a larger rank gives more capacity but more parameters."},{"start":51.040000000000006,"end":55.28,"text":"And quantizing the base model to 4 bits on top of that is what QL Laura does."},{"start":56.64,"end":61.6,"text":"I read that fine-tuning with Laura always beats retrieval augmented generation for factual questions."},{"start":62.64,"end":67.28,"text":"I don't think the evidence supports always. For facts that change,"},{"start":67.28,"end":71.60000000000001,"text":"retrieval is usually the better tool. Let's stop there."}]}],"whisper_words":{"seconds":9.496392915025353,"segments":[{"start":0.0,"end":9.72,"text":"Today we have a visitor from industry sitting in, where discussing parameter efficient fine tuning, instead of updating all the weights, what does Laura do?","words":[{"start":0.0,"end":1.04,"word":" Today"},{"start":1.04,"end":1.24,"word":" we"},{"start":1.24,"end":1.4,"word":" have"},{"start":1.4,"end":1.54,"word":" a"},{"start":1.54,"end":1.88,"word":" visitor"},{"start":1.88,"end":2.14,"word":" from"},{"start":2.14,"end":2.52,"word":" industry"},{"start":2.52,"end":2.98,"word":" sitting"},{"start":2.98,"end":3.32,"word":" in,"},{"start":3.54,"end":3.72,"word":" where"},{"start":3.72,"end":4.34,"word":" discussing"},{"start":4.34,"end":4.8,"word":" parameter"},{"start":4.8,"end":5.46,"word":" efficient"},{"start":5.46,"end":5.8,"word":" fine"},{"start":5.8,"end":6.14,"word":" tuning,"},{"start":6.6,"end":6.98,"word":" instead"},{"start":6.98,"end":7.24,"word":" of"},{"start":7.24,"end":7.6,"word":" updating"},{"start":7.6,"end":7.9,"word":" all"},{"start":7.9,"end":8.04,"word":" the"},{"start":8.04,"end":8.32,"word":" weights,"},{"start":8.76,"end":8.92,"word":" what"},{"start":8.92,"end":9.2,"word":" does"},{"start":9.2,"end":9.46,"word":" Laura"},{"start":9.46,"end":9.72,"word":" do?"}]},{"start":10.9,"end":22.1,"text":"Hi everyone, in my team we use Laura all the time, you freeze the base model and train two small low rank matrices that are added to the weight updates, so you only train a tiny fraction of the parameters.","words":[{"start":10.9,"end":11.12,"word":" Hi"},{"start":11.12,"end":11.54,"word":" everyone,"},{"start":11.96,"end":12.12,"word":" in"},{"start":12.12,"end":12.26,"word":" my"},{"start":12.26,"end":12.5,"word":" team"},{"start":12.5,"end":12.7,"word":" we"},{"start":12.7,"end":12.96,"word":" use"},{"start":12.96,"end":13.16,"word":" Laura"},{"start":13.16,"end":13.42,"word":" all"},{"start":13.42,"end":13.56,"word":" the"},{"start":13.56,"end":13.9,"word":" time,"},{"start":14.22,"end":14.38,"word":" you"},{"start":14.38,"end":14.58,"word":" freeze"},{"start":14.58,"end":14.82,"word":" the"},{"start":14.82,"end":15.02,"word":" base"},{"start":15.02,"end":15.38,"word":" model"},{"start":15.38,"end":15.56,"word":" and"},{"start":15.56,"end":15.8,"word":" train"},{"start":15.8,"end":16.08,"word":" two"},{"start":16.08,"end":16.36,"word":" small"},{"start":16.36,"end":16.6,"word":" low"},{"start":16.6,"end":16.86,"word":" rank"},{"start":16.86,"end":17.36,"word":" matrices"},{"start":17.36,"end":17.7,"word":" that"},{"start":17.7,"end":17.84,"word":" are"},{"start":17.84,"end":18.08,"word":" added"},{"start":18.08,"end":18.26,"word":" to"},{"start":18.26,"end":18.38,"word":" the"},{"start":18.38,"end":18.54,"word":" weight"},{"start":18.54,"end":19.02,"word":" updates,"},{"start":19.38,"end":19.62,"word":" so"},{"start":19.62,"end":19.78,"word":" you"},{"start":19.78,"end":20.06,"word":" only"},{"start":20.06,"end":20.36,"word":" train"},{"start":20.36,"end":20.54,"word":" a"},{"start":20.54,"end":20.84,"word":" tiny"},{"start":20.84,"end":21.26,"word":" fraction"},{"start":21.26,"end":21.48,"word":" of"},{"start":21.48,"end":21.6,"word":" the"},{"start":21.6,"end":22.1,"word":" parameters."}]},{"start":22.820000000000004,"end":26.56,"text":"Thank you, students, why is that useful in practice?","words":[{"start":22.820000000000004,"end":23.38,"word":" Thank"},{"start":23.38,"end":23.72,"word":" you,"},{"start":24.1,"end":24.46,"word":" students,"},{"start":24.98,"end":25.2,"word":" why"},{"start":25.2,"end":25.42,"word":" is"},{"start":25.42,"end":25.54,"word":" that"},{"start":25.54,"end":25.94,"word":" useful"},{"start":25.94,"end":26.14,"word":" in"},{"start":26.14,"end":26.56,"word":" practice?"}]},{"start":27.58,"end":33.44,"text":"It needs much less memory and you can store one small adapter per task instead of a full copy of the model.","words":[{"start":27.58,"end":28.22,"word":" It"},{"start":28.22,"end":28.4,"word":" needs"},{"start":28.4,"end":28.72,"word":" much"},{"start":28.72,"end":28.92,"word":" less"},{"start":28.92,"end":29.3,"word":" memory"},{"start":29.3,"end":29.64,"word":" and"},{"start":29.64,"end":29.76,"word":" you"},{"start":29.76,"end":29.88,"word":" can"},{"start":29.88,"end":30.18,"word":" store"},{"start":30.18,"end":30.42,"word":" one"},{"start":30.42,"end":30.72,"word":" small"},{"start":30.72,"end":31.08,"word":" adapter"},{"start":31.08,"end":31.36,"word":" per"},{"start":31.36,"end":31.58,"word":" task"},{"start":31.58,"end":32.04,"word":" instead"},{"start":32.04,"end":32.2,"word":" of"},{"start":32.2,"end":32.3,"word":" a"},{"start":32.3,"end":32.52,"word":" full"},{"start":32.52,"end":32.84,"word":" copy"},{"start":32.84,"end":33.02,"word":" of"},{"start":33.02,"end":33.14,"word":" the"},{"start":33.14,"end":33.44,"word":" model."}]},{"start":34.46,"end":37.42,"text":"Good, what's the rank in Laura intuitively?","words":[{"start":34.46,"end":35.04,"word":" Good,"},{"start":35.32,"end":35.64,"word":" what's"},{"start":35.64,"end":35.72,"word":" the"},{"start":35.72,"end":35.92,"word":" rank"},{"start":35.92,"end":36.12,"word":" in"},{"start":36.12,"end":36.36,"word":" Laura"},{"start":36.36,"end":37.42,"word":" intuitively?"}]},{"start":38.36,"end":50.14,"text":"How many directions the update is allowed to change? A small rank like 8 is often enough and a larger rank gives more capacity but more parameters.","words":[{"start":38.36,"end":38.8,"word":" How"},{"start":38.8,"end":39.06,"word":" many"},{"start":39.06,"end":39.62,"word":" directions"},{"start":39.62,"end":40.16,"word":" the"},{"start":40.16,"end":40.62,"word":" update"},{"start":40.62,"end":41.18,"word":" is"},{"start":41.18,"end":41.48,"word":" allowed"},{"start":41.48,"end":41.76,"word":" to"},{"start":41.76,"end":42.2,"word":" change?"},{"start":42.76,"end":42.88,"word":" A"},{"start":42.88,"end":43.22,"word":" small"},{"start":43.22,"end":43.58,"word":" rank"},{"start":43.58,"end":43.84,"word":" like"},{"start":43.84,"end":44.24,"word":" 8"},{"start":44.24,"end":44.5,"word":" is"},{"start":44.5,"end":44.78,"word":" often"},{"start":44.78,"end":45.12,"word":" enough"},{"start":45.12,"end":45.84,"word":" and"},{"start":45.84,"end":46.16,"word":" a"},{"start":46.16,"end":46.74,"word":" larger"},{"start":46.74,"end":47.16,"word":" rank"},{"start":47.16,"end":47.62,"word":" gives"},{"start":47.62,"end":47.98,"word":" more"},{"start":47.98,"end":48.54,"word":" capacity"},{"start":48.54,"end":48.88,"word":" but"},{"start":48.88,"end":49.52,"word":" more"},{"start":49.52,"end":50.14,"word":" parameters."}]},{"start":51.14,"end":55.18,"text":"And quantizing the base model to four bits on top of that is what QL or A does.","words":[{"start":51.02,"end":51.32,"word":" And"},{"start":51.32,"end":51.86,"word":" quantizing"},{"start":51.86,"end":52.06,"word":" the"},{"start":52.06,"end":52.28,"word":" base"},{"start":52.28,"end":52.58,"word":" model"},{"start":52.58,"end":52.78,"word":" to"},{"start":52.78,"end":53.0,"word":" four"},{"start":53.0,"end":53.18,"word":" bits"},{"start":53.18,"end":53.42,"word":" on"},{"start":53.42,"end":53.66,"word":" top"},{"start":53.66,"end":53.82,"word":" of"},{"start":53.82,"end":53.98,"word":" that"},{"start":53.98,"end":54.12,"word":" is"},{"start":54.12,"end":54.28,"word":" what"},{"start":54.28,"end":54.66,"word":" QL"},{"start":54.66,"end":54.84,"word":" or"},{"start":54.84,"end":54.96,"word":" A"},{"start":54.96,"end":55.18,"word":" does."}]},{"start":56.44,"end":61.66,"text":"I read that fine tuning with Laura always beats retrieval augmented generation for factual questions.","words":[{"start":56.44,"end":56.88,"word":" I"},{"start":56.88,"end":57.04,"word":" read"},{"start":57.04,"end":57.18,"word":" that"},{"start":57.18,"end":57.38,"word":" fine"},{"start":57.38,"end":57.7,"word":" tuning"},{"start":57.7,"end":58.04,"word":" with"},{"start":58.04,"end":58.26,"word":" Laura"},{"start":58.26,"end":58.7,"word":" always"},{"start":58.7,"end":58.92,"word":" beats"},{"start":58.92,"end":59.52,"word":" retrieval"},{"start":59.52,"end":59.86,"word":" augmented"},{"start":59.86,"end":60.42,"word":" generation"},{"start":60.42,"end":60.72,"word":" for"},{"start":60.72,"end":61.02,"word":" factual"},{"start":61.02,"end":61.66,"word":" questions."}]},{"start":62.42,"end":70.52,"text":"I don't think the evidence supports always, for facts that change, retrieval is usually the better tool, let's stop there.","words":[{"start":62.42,"end":62.9,"word":" I"},{"start":62.9,"end":63.16,"word":" don't"},{"start":63.16,"end":63.4,"word":" think"},{"start":63.4,"end":63.62,"word":" the"},{"start":63.62,"end":63.92,"word":" evidence"},{"start":63.92,"end":64.44,"word":" supports"},{"start":64.44,"end":65.06,"word":" always,"},{"start":65.6,"end":65.76,"word":" for"},{"start":65.76,"end":66.12,"word":" facts"},{"start":66.12,"end":66.34,"word":" that"},{"start":66.34,"end":67.04,"word":" change,"},{"start":67.42,"end":67.84,"word":" retrieval"},{"start":67.84,"end":68.02,"word":" is"},{"start":68.02,"end":68.4,"word":" usually"},{"start":68.4,"end":68.6,"word":" the"},{"start":68.6,"end":68.86,"word":" better"},{"start":68.86,"end":69.18,"word":" tool,"},{"start":69.56,"end":69.98,"word":" let's"},{"start":69.98,"end":70.18,"word":" stop"},{"start":70.18,"end":70.52,"word":" there."}]}]},"word_segments":[[0.0,9.72],[10.9,22.1],[22.820000000000004,26.56],[27.58,33.44],[34.46,37.42],[38.36,50.14],[51.02,55.18],[56.44,61.66],[62.42,70.52]],"word_segment_matches":[[{"person_id":"demo-prof-lim","name":"Prof Lim (demo)","score":0.9359216094017029,"same_speaker":true},{"person_id":"demo-professor","name":"Prof Demo","score":0.05189111828804016,"same_speaker":false},{"person_id":"tina","name":"tina","score":0.04728901386260986,"same_speaker":false},{"person_id":"prof","name":"prof","score":0.02675580233335495,"same_speaker":false},{"person_id":"tasmin","name":"tasmin","score":0.0010479297488927841,"same_speaker":false},{"person_id":"le-yong","name":"le yong","score":-0.016137003898620605,"same_speaker":false},{"person_id":"koh-qing-jia","name":"Koh Qing Jia","score":-0.04932885989546776,"same_speaker":false}],[{"person_id":"demo-professor","name":"Prof Demo","score":0.9311947226524353,"same_speaker":true},{"person_id":"koh-qing-jia","name":"Koh Qing Jia","score":0.12742425501346588,"same_speaker":false},{"person_id":"le-yong","name":"le yong","score":0.09810200333595276,"same_speaker":false},{"person_id":"prof","name":"prof","score":0.09807751327753067,"same_speaker":false},{"person_id":"demo-prof-lim","name":"Prof Lim (demo)","score":0.030266372486948967,"same_speaker":false},{"person_id":"tasmin","name":"tasmin","score":0.029875725507736206,"same_speaker":false},{"person_id":"tina","name":"tina","score":-0.0242067389190197,"same_speaker":false}],[{"person_id":"demo-prof-lim","name":"Prof Lim (demo)","score":0.871605396270752,"same_speaker":true},{"person_id":"demo-professor","name":"Prof Demo","score":0.07919353991746902,"same_speaker":false},{"person_id":"prof","name":"prof","score":0.07486922293901443,"same_speaker":false},{"person_id":"tina","name":"tina","score":0.053931690752506256,"same_speaker":false},{"person_id":"le-yong","name":"le yong","score":0.031642816960811615,"same_speaker":false},{"person_id":"koh-qing-jia","name":"Koh Qing Jia","score":0.01981903240084648,"same_speaker":false},{"person_id":"tasmin","name":"tasmin","score":-0.03220629692077637,"same_speaker":false}],[{"person_id":"tasmin","name":"tasmin","score":0.7862787842750549,"same_speaker":true},{"person_id":"tina","name":"tina","score":0.24841870367527008,"same_speaker":false},{"person_id":"koh-qing-jia","name":"Koh Qing Jia","score":0.10361271351575851,"same_speaker":false},{"person_id":"le-yong","name":"le yong","score":0.08475427329540253,"same_speaker":false},{"person_id":"demo-professor","name":"Prof Demo","score":0.0133015476167202,"same_speaker":false},{"person_id":"prof","name":"prof","score":0.00748362485319376,"same_speaker":false},{"person_id":"demo-prof-lim","name":"Prof Lim (demo)","score":-0.0012747105211019516,"same_speaker":false}],[{"person_id":"demo-prof-lim","name":"Prof Lim (demo)","score":0.8412980437278748,"same_speaker":true},{"person_id":"demo-professor","name":"Prof Demo","score":0.030385691672563553,"same_speaker":false},{"person_id":"tina","name":"tina","score":0.027314908802509308,"same_speaker":false},{"person_id":"prof","name":"prof","score":0.01894768700003624,"same_speaker":false},{"person_id":"tasmin","name":"tasmin","score":-0.011831501498818398,"same_speaker":false},{"person_id":"le-yong","name":"le yong","score":-0.015109787695109844,"same_speaker":false},{"person_id":"koh-qing-jia","name":"Koh Qing Jia","score":-0.08001323789358139,"same_speaker":false}],[{"person_id":"koh-qing-jia","name":"Koh Qing Jia","score":0.78955078125,"same_speaker":true},{"person_id":"tina","name":"tina","score":0.12296426296234131,"same_speaker":false},{"person_id":"demo-professor","name":"Prof Demo","score":0.11794547736644745,"same_speaker":false},{"person_id":"prof","name":"prof","score":0.05913418158888817,"same_speaker":false},{"person_id":"le-yong","name":"le yong","score":0.05681120604276657,"same_speaker":false},{"person_id":"tasmin","name":"tasmin","score":0.04260362312197685,"same_speaker":false},{"person_id":"demo-prof-lim","name":"Prof Lim (demo)","score":0.04098346456885338,"same_speaker":false}],[{"person_id":"demo-professor","name":"Prof Demo","score":0.8807069659233093,"same_speaker":true},{"person_id":"prof","name":"prof","score":0.12668509781360626,"same_speaker":false},{"person_id":"le-yong","name":"le yong","score":0.10354196280241013,"same_speaker":false},{"person_id":"koh-qing-jia","name":"Koh Qing Jia","score":0.08459064364433289,"same_speaker":false},{"person_id":"demo-prof-lim","name":"Prof Lim (demo)","score":0.07536472380161285,"same_speaker":false},{"person_id":"tasmin","name":"tasmin","score":0.028880339115858078,"same_speaker":false},{"person_id":"tina","name":"tina","score":-0.03528912365436554,"same_speaker":false}],[{"person_id":"tina","name":"tina","score":0.7935211062431335,"same_speaker":true},{"person_id":"tasmin","name":"tasmin","score":0.18591541051864624,"same_speaker":false},{"person_id":"koh-qing-jia","name":"Koh Qing Jia","score":0.14509588479995728,"same_speaker":false},{"person_id":"demo-prof-lim","name":"Prof Lim (demo)","score":0.042248163372278214,"same_speaker":false},{"person_id":"demo-professor","name":"Prof Demo","score":0.030139900743961334,"same_speaker":false},{"person_id":"prof","name":"prof","score":0.01461539976298809,"same_speaker":false},{"person_id":"le-yong","name":"le yong","score":-0.012718051671981812,"same_speaker":false}],[{"person_id":"demo-prof-lim","name":"Prof Lim (demo)","score":0.9437450170516968,"same_speaker":true},{"person_id":"demo-professor","name":"Prof Demo","score":0.06490994244813919,"same_speaker":false},{"person_id":"tina","name":"tina","score":0.02165798284113407,"same_speaker":false},{"person_id":"prof","name":"prof","score":0.013812944293022156,"same_speaker":false},{"person_id":"tasmin","name":"tasmin","score":-0.009356238879263401,"same_speaker":false},{"person_id":"le-yong","name":"le yong","score":-0.02021038718521595,"same_speaker":false},{"person_id":"koh-qing-jia","name":"Koh Qing Jia","score":-0.09314210712909698,"same_speaker":false}]],"word_segment_scoring_s":5.705018966924399}
+{
+ "id": "07-guest",
+ "audio_seconds": 65.8414375,
+ "script": {
+  "id": "07-guest",
+  "title": "Demo 7 \u00b7 Fine-tuning: a guest who isn't on the class list",
+  "case": "A visitor speaks and is not enrolled: their lines must stay unknown and never be scored or credited to a student. Includes a claim the course slides don't cover.",
+  "lines": [
+   {
+    "speaker": "Prof Wynter",
+    "text": "Today we have a visitor from industry sitting in. We're discussing parameter efficient fine tuning. Instead of updating all the weights, what does LoRA do?",
+    "start": 0.8,
+    "end": 8.19
+   },
+   {
+    "speaker": "Guest",
+    "text": "Hi everyone. In my team we use LoRA all the time. You freeze the base model and train two small low rank matrices that are added to the weight updates, so you only train a tiny fraction of the parameters.",
+    "start": 9.22,
+    "end": 20.68
+   },
+   {
+    "speaker": "Prof Wynter",
+    "text": "Thank you. Students, why is that useful in practice?",
+    "start": 21.41,
+    "end": 23.87
+   },
+   {
+    "speaker": "Tasmin",
+    "text": "It needs much less memory, and you can store one small adapter per task instead of a full copy of the model.",
+    "start": 24.75,
+    "end": 30.51
+   },
+   {
+    "speaker": "Prof Wynter",
+    "text": "Good. What's the rank in LoRA, intuitively?",
+    "start": 31.82,
+    "end": 33.86
+   },
+   {
+    "speaker": "Koh Qing Jia",
+    "text": "It's how many directions the update is allowed to change. A small rank like eight is often enough, and a larger rank gives more capacity but more parameters.",
+    "start": 34.57,
+    "end": 46.62
+   },
+   {
+    "speaker": "Guest",
+    "text": "And quantising the base model to four bits on top of that is what QLoRA does.",
+    "start": 47.4,
+    "end": 51.62
+   },
+   {
+    "speaker": "Tina",
+    "text": "I read that fine tuning with LoRA always beats retrieval augmented generation for factual questions.",
+    "start": 52.67,
+    "end": 57.93
+   },
+   {
+    "speaker": "Prof Wynter",
+    "text": "I don't think the evidence supports always. For facts that change, retrieval is usually the better tool. Let's stop there.",
+    "start": 58.94,
+    "end": 64.76
+   }
+  ]
+ },
+ "registry": {
+  "koh-qing-jia": "Koh Qing Jia",
+  "tasmin": "tasmin",
+  "tina": "tina",
+  "le-yong": "le yong",
+  "prof": "prof"
+ },
+ "pipeline": {
+  "language": "en",
+  "whisper_segments": [
+   {
+    "start": 0.8400000000000005,
+    "end": 5.34,
+    "text": "Today we have a visitor from industry sitting in, we're discussing parameter efficient fine-tuning,",
+    "words": [
+     {
+      "start": 0.8400000000000005,
+      "end": 1.36,
+      "word": " Today"
+     },
+     {
+      "start": 1.36,
+      "end": 1.54,
+      "word": " we"
+     },
+     {
+      "start": 1.54,
+      "end": 1.64,
+      "word": " have"
+     },
+     {
+      "start": 1.64,
+      "end": 1.78,
+      "word": " a"
+     },
+     {
+      "start": 1.78,
+      "end": 2.08,
+      "word": " visitor"
+     },
+     {
+      "start": 2.08,
+      "end": 2.34,
+      "word": " from"
+     },
+     {
+      "start": 2.34,
+      "end": 2.78,
+      "word": " industry"
+     },
+     {
+      "start": 2.78,
+      "end": 3.14,
+      "word": " sitting"
+     },
+     {
+      "start": 3.14,
+      "end": 3.36,
+      "word": " in,"
+     },
+     {
+      "start": 3.42,
+      "end": 3.48,
+      "word": " we're"
+     },
+     {
+      "start": 3.48,
+      "end": 3.78,
+      "word": " discussing"
+     },
+     {
+      "start": 3.78,
+      "end": 4.2,
+      "word": " parameter"
+     },
+     {
+      "start": 4.2,
+      "end": 4.68,
+      "word": " efficient"
+     },
+     {
+      "start": 4.68,
+      "end": 5.02,
+      "word": " fine"
+     },
+     {
+      "start": 5.02,
+      "end": 5.34,
+      "word": "-tuning,"
+     }
+    ]
+   },
+   {
+    "start": 5.68,
+    "end": 8.0,
+    "text": "instead of updating all the weights, what does Laura do?",
+    "words": [
+     {
+      "start": 5.68,
+      "end": 6.0,
+      "word": " instead"
+     },
+     {
+      "start": 6.0,
+      "end": 6.16,
+      "word": " of"
+     },
+     {
+      "start": 6.16,
+      "end": 6.44,
+      "word": " updating"
+     },
+     {
+      "start": 6.44,
+      "end": 6.68,
+      "word": " all"
+     },
+     {
+      "start": 6.68,
+      "end": 6.8,
+      "word": " the"
+     },
+     {
+      "start": 6.8,
+      "end": 6.98,
+      "word": " weights,"
+     },
+     {
+      "start": 7.18,
+      "end": 7.26,
+      "word": " what"
+     },
+     {
+      "start": 7.26,
+      "end": 7.44,
+      "word": " does"
+     },
+     {
+      "start": 7.44,
+      "end": 7.7,
+      "word": " Laura"
+     },
+     {
+      "start": 7.7,
+      "end": 8.0,
+      "word": " do?"
+     }
+    ]
+   },
+   {
+    "start": 9.1,
+    "end": 14.1,
+    "text": "Hi everyone, in my team we use Laura all the time, you freeze the base model and train",
+    "words": [
+     {
+      "start": 9.1,
+      "end": 9.4,
+      "word": " Hi"
+     },
+     {
+      "start": 9.4,
+      "end": 9.84,
+      "word": " everyone,"
+     },
+     {
+      "start": 10.26,
+      "end": 10.4,
+      "word": " in"
+     },
+     {
+      "start": 10.4,
+      "end": 10.56,
+      "word": " my"
+     },
+     {
+      "start": 10.56,
+      "end": 10.8,
+      "word": " team"
+     },
+     {
+      "start": 10.8,
+      "end": 10.98,
+      "word": " we"
+     },
+     {
+      "start": 10.98,
+      "end": 11.24,
+      "word": " use"
+     },
+     {
+      "start": 11.24,
+      "end": 11.48,
+      "word": " Laura"
+     },
+     {
+      "start": 11.48,
+      "end": 11.72,
+      "word": " all"
+     },
+     {
+      "start": 11.72,
+      "end": 11.84,
+      "word": " the"
+     },
+     {
+      "start": 11.84,
+      "end": 12.2,
+      "word": " time,"
+     },
+     {
+      "start": 12.5,
+      "end": 12.64,
+      "word": " you"
+     },
+     {
+      "start": 12.64,
+      "end": 12.88,
+      "word": " freeze"
+     },
+     {
+      "start": 12.88,
+      "end": 13.1,
+      "word": " the"
+     },
+     {
+      "start": 13.1,
+      "end": 13.32,
+      "word": " base"
+     },
+     {
+      "start": 13.32,
+      "end": 13.66,
+      "word": " model"
+     },
+     {
+      "start": 13.66,
+      "end": 13.86,
+      "word": " and"
+     },
+     {
+      "start": 13.86,
+      "end": 14.1,
+      "word": " train"
+     }
+    ]
+   },
+   {
+    "start": 14.1,
+    "end": 19.1,
+    "text": "two small low rank matrices that are added to the weight updates, so you only train a tiny",
+    "words": [
+     {
+      "start": 14.1,
+      "end": 14.36,
+      "word": " two"
+     },
+     {
+      "start": 14.36,
+      "end": 14.66,
+      "word": " small"
+     },
+     {
+      "start": 14.66,
+      "end": 14.9,
+      "word": " low"
+     },
+     {
+      "start": 14.9,
+      "end": 15.16,
+      "word": " rank"
+     },
+     {
+      "start": 15.16,
+      "end": 15.62,
+      "word": " matrices"
+     },
+     {
+      "start": 15.62,
+      "end": 15.98,
+      "word": " that"
+     },
+     {
+      "start": 15.98,
+      "end": 16.12,
+      "word": " are"
+     },
+     {
+      "start": 16.12,
+      "end": 16.38,
+      "word": " added"
+     },
+     {
+      "start": 16.38,
+      "end": 16.56,
+      "word": " to"
+     },
+     {
+      "start": 16.56,
+      "end": 16.66,
+      "word": " the"
+     },
+     {
+      "start": 16.66,
+      "end": 16.82,
+      "word": " weight"
+     },
+     {
+      "start": 16.82,
+      "end": 17.28,
+      "word": " updates,"
+     },
+     {
+      "start": 17.66,
+      "end": 17.92,
+      "word": " so"
+     },
+     {
+      "start": 17.92,
+      "end": 18.08,
+      "word": " you"
+     },
+     {
+      "start": 18.08,
+      "end": 18.36,
+      "word": " only"
+     },
+     {
+      "start": 18.36,
+      "end": 18.66,
+      "word": " train"
+     },
+     {
+      "start": 18.66,
+      "end": 18.82,
+      "word": " a"
+     },
+     {
+      "start": 18.82,
+      "end": 19.1,
+      "word": " tiny"
+     }
+    ]
+   },
+   {
+    "start": 19.1,
+    "end": 20.38,
+    "text": "fraction of the parameters.",
+    "words": [
+     {
+      "start": 19.1,
+      "end": 19.54,
+      "word": " fraction"
+     },
+     {
+      "start": 19.54,
+      "end": 19.76,
+      "word": " of"
+     },
+     {
+      "start": 19.76,
+      "end": 19.88,
+      "word": " the"
+     },
+     {
+      "start": 19.88,
+      "end": 20.38,
+      "word": " parameters."
+     }
+    ]
+   },
+   {
+    "start": 21.400000000000002,
+    "end": 23.64,
+    "text": "Thank you students, why is that useful in practice?",
+    "words": [
+     {
+      "start": 21.400000000000002,
+      "end": 21.92,
+      "word": " Thank"
+     },
+     {
+      "start": 21.92,
+      "end": 22.1,
+      "word": " you"
+     },
+     {
+      "start": 22.1,
+      "end": 22.4,
+      "word": " students,"
+     },
+     {
+      "start": 22.54,
+      "end": 22.64,
+      "word": " why"
+     },
+     {
+      "start": 22.64,
+      "end": 22.78,
+      "word": " is"
+     },
+     {
+      "start": 22.78,
+      "end": 22.86,
+      "word": " that"
+     },
+     {
+      "start": 22.86,
+      "end": 23.16,
+      "word": " useful"
+     },
+     {
+      "start": 23.16,
+      "end": 23.32,
+      "word": " in"
+     },
+     {
+      "start": 23.32,
+      "end": 23.64,
+      "word": " practice?"
+     }
+    ]
+   },
+   {
+    "start": 24.7,
+    "end": 29.84,
+    "text": "It needs much less memory and you can store one small adapter per task instead of a full copy",
+    "words": [
+     {
+      "start": 24.7,
+      "end": 25.22,
+      "word": " It"
+     },
+     {
+      "start": 25.22,
+      "end": 25.4,
+      "word": " needs"
+     },
+     {
+      "start": 25.4,
+      "end": 25.74,
+      "word": " much"
+     },
+     {
+      "start": 25.74,
+      "end": 25.9,
+      "word": " less"
+     },
+     {
+      "start": 25.9,
+      "end": 26.28,
+      "word": " memory"
+     },
+     {
+      "start": 26.28,
+      "end": 26.62,
+      "word": " and"
+     },
+     {
+      "start": 26.62,
+      "end": 26.74,
+      "word": " you"
+     },
+     {
+      "start": 26.74,
+      "end": 26.88,
+      "word": " can"
+     },
+     {
+      "start": 26.88,
+      "end": 27.16,
+      "word": " store"
+     },
+     {
+      "start": 27.16,
+      "end": 27.4,
+      "word": " one"
+     },
+     {
+      "start": 27.4,
+      "end": 27.72,
+      "word": " small"
+     },
+     {
+      "start": 27.72,
+      "end": 28.06,
+      "word": " adapter"
+     },
+     {
+      "start": 28.06,
+      "end": 28.32,
+      "word": " per"
+     },
+     {
+      "start": 28.32,
+      "end": 28.56,
+      "word": " task"
+     },
+     {
+      "start": 28.56,
+      "end": 29.02,
+      "word": " instead"
+     },
+     {
+      "start": 29.02,
+      "end": 29.2,
+      "word": " of"
+     },
+     {
+      "start": 29.2,
+      "end": 29.28,
+      "word": " a"
+     },
+     {
+      "start": 29.28,
+      "end": 29.5,
+      "word": " full"
+     },
+     {
+      "start": 29.5,
+      "end": 29.84,
+      "word": " copy"
+     }
+    ]
+   },
+   {
+    "start": 29.84,
+    "end": 30.38,
+    "text": "of the model.",
+    "words": [
+     {
+      "start": 29.84,
+      "end": 29.98,
+      "word": " of"
+     },
+     {
+      "start": 29.98,
+      "end": 30.12,
+      "word": " the"
+     },
+     {
+      "start": 30.12,
+      "end": 30.38,
+      "word": " model."
+     }
+    ]
+   },
+   {
+    "start": 31.72,
+    "end": 33.64,
+    "text": "Good what's the rank in Laura intuitively?",
+    "words": [
+     {
+      "start": 31.72,
+      "end": 32.28,
+      "word": " Good"
+     },
+     {
+      "start": 32.28,
+      "end": 32.54,
+      "word": " what's"
+     },
+     {
+      "start": 32.54,
+      "end": 32.6,
+      "word": " the"
+     },
+     {
+      "start": 32.6,
+      "end": 32.74,
+      "word": " rank"
+     },
+     {
+      "start": 32.74,
+      "end": 32.94,
+      "word": " in"
+     },
+     {
+      "start": 32.94,
+      "end": 33.08,
+      "word": " Laura"
+     },
+     {
+      "start": 33.08,
+      "end": 33.64,
+      "word": " intuitively?"
+     }
+    ]
+   },
+   {
+    "start": 34.82,
+    "end": 41.32,
+    "text": "How many directions the update is allowed to change, a small rank like 8 is often enough,",
+    "words": [
+     {
+      "start": 34.82,
+      "end": 34.98,
+      "word": " How"
+     },
+     {
+      "start": 34.98,
+      "end": 35.24,
+      "word": " many"
+     },
+     {
+      "start": 35.24,
+      "end": 35.8,
+      "word": " directions"
+     },
+     {
+      "start": 35.8,
+      "end": 36.34,
+      "word": " the"
+     },
+     {
+      "start": 36.34,
+      "end": 36.86,
+      "word": " update"
+     },
+     {
+      "start": 36.86,
+      "end": 37.36,
+      "word": " is"
+     },
+     {
+      "start": 37.36,
+      "end": 37.68,
+      "word": " allowed"
+     },
+     {
+      "start": 37.68,
+      "end": 37.94,
+      "word": " to"
+     },
+     {
+      "start": 37.94,
+      "end": 38.4,
+      "word": " change,"
+     },
+     {
+      "start": 38.82,
+      "end": 39.06,
+      "word": " a"
+     },
+     {
+      "start": 39.06,
+      "end": 39.44,
+      "word": " small"
+     },
+     {
+      "start": 39.44,
+      "end": 39.8,
+      "word": " rank"
+     },
+     {
+      "start": 39.8,
+      "end": 40.04,
+      "word": " like"
+     },
+     {
+      "start": 40.04,
+      "end": 40.42,
+      "word": " 8"
+     },
+     {
+      "start": 40.42,
+      "end": 40.7,
+      "word": " is"
+     },
+     {
+      "start": 40.7,
+      "end": 40.96,
+      "word": " often"
+     },
+     {
+      "start": 40.96,
+      "end": 41.32,
+      "word": " enough,"
+     }
+    ]
+   },
+   {
+    "start": 41.88,
+    "end": 46.34,
+    "text": "and a larger rank gives more capacity but more parameters.",
+    "words": [
+     {
+      "start": 41.88,
+      "end": 42.08,
+      "word": " and"
+     },
+     {
+      "start": 42.08,
+      "end": 42.34,
+      "word": " a"
+     },
+     {
+      "start": 42.34,
+      "end": 42.92,
+      "word": " larger"
+     },
+     {
+      "start": 42.92,
+      "end": 43.38,
+      "word": " rank"
+     },
+     {
+      "start": 43.38,
+      "end": 43.82,
+      "word": " gives"
+     },
+     {
+      "start": 43.82,
+      "end": 44.16,
+      "word": " more"
+     },
+     {
+      "start": 44.16,
+      "end": 44.72,
+      "word": " capacity"
+     },
+     {
+      "start": 44.72,
+      "end": 45.08,
+      "word": " but"
+     },
+     {
+      "start": 45.08,
+      "end": 45.72,
+      "word": " more"
+     },
+     {
+      "start": 45.72,
+      "end": 46.34,
+      "word": " parameters."
+     }
+    ]
+   },
+   {
+    "start": 47.3,
+    "end": 51.32,
+    "text": "And quantizing the base model to 4 bits on top of that is what QL or A does.",
+    "words": [
+     {
+      "start": 47.3,
+      "end": 47.5,
+      "word": " And"
+     },
+     {
+      "start": 47.5,
+      "end": 48.04,
+      "word": " quantizing"
+     },
+     {
+      "start": 48.04,
+      "end": 48.24,
+      "word": " the"
+     },
+     {
+      "start": 48.24,
+      "end": 48.44,
+      "word": " base"
+     },
+     {
+      "start": 48.44,
+      "end": 48.8,
+      "word": " model"
+     },
+     {
+      "start": 48.8,
+      "end": 48.98,
+      "word": " to"
+     },
+     {
+      "start": 48.98,
+      "end": 49.2,
+      "word": " 4"
+     },
+     {
+      "start": 49.2,
+      "end": 49.38,
+      "word": " bits"
+     },
+     {
+      "start": 49.38,
+      "end": 49.6,
+      "word": " on"
+     },
+     {
+      "start": 49.6,
+      "end": 49.86,
+      "word": " top"
+     },
+     {
+      "start": 49.86,
+      "end": 50.02,
+      "word": " of"
+     },
+     {
+      "start": 50.02,
+      "end": 50.18,
+      "word": " that"
+     },
+     {
+      "start": 50.18,
+      "end": 50.32,
+      "word": " is"
+     },
+     {
+      "start": 50.32,
+      "end": 50.46,
+      "word": " what"
+     },
+     {
+      "start": 50.46,
+      "end": 50.86,
+      "word": " QL"
+     },
+     {
+      "start": 50.86,
+      "end": 51.02,
+      "word": " or"
+     },
+     {
+      "start": 51.02,
+      "end": 51.14,
+      "word": " A"
+     },
+     {
+      "start": 51.14,
+      "end": 51.32,
+      "word": " does."
+     }
+    ]
+   },
+   {
+    "start": 52.5,
+    "end": 57.26,
+    "text": "I read that fine-tuning with Laura always beats retrieval augmented generation for factual",
+    "words": [
+     {
+      "start": 52.5,
+      "end": 53.06,
+      "word": " I"
+     },
+     {
+      "start": 53.06,
+      "end": 53.22,
+      "word": " read"
+     },
+     {
+      "start": 53.22,
+      "end": 53.38,
+      "word": " that"
+     },
+     {
+      "start": 53.38,
+      "end": 53.58,
+      "word": " fine"
+     },
+     {
+      "start": 53.58,
+      "end": 53.92,
+      "word": "-tuning"
+     },
+     {
+      "start": 53.92,
+      "end": 54.2,
+      "word": " with"
+     },
+     {
+      "start": 54.2,
+      "end": 54.46,
+      "word": " Laura"
+     },
+     {
+      "start": 54.46,
+      "end": 54.86,
+      "word": " always"
+     },
+     {
+      "start": 54.86,
+      "end": 55.12,
+      "word": " beats"
+     },
+     {
+      "start": 55.12,
+      "end": 55.72,
+      "word": " retrieval"
+     },
+     {
+      "start": 55.72,
+      "end": 56.06,
+      "word": " augmented"
+     },
+     {
+      "start": 56.06,
+      "end": 56.54,
+      "word": " generation"
+     },
+     {
+      "start": 56.54,
+      "end": 56.92,
+      "word": " for"
+     },
+     {
+      "start": 56.92,
+      "end": 57.26,
+      "word": " factual"
+     }
+    ]
+   },
+   {
+    "start": 57.26,
+    "end": 57.86,
+    "text": "questions.",
+    "words": [
+     {
+      "start": 57.26,
+      "end": 57.86,
+      "word": " questions."
+     }
+    ]
+   },
+   {
+    "start": 58.92,
+    "end": 63.1,
+    "text": "I don't think the evidence supports always, for facts that change retrieval is usually",
+    "words": [
+     {
+      "start": 58.92,
+      "end": 59.36,
+      "word": " I"
+     },
+     {
+      "start": 59.36,
+      "end": 59.44,
+      "word": " don't"
+     },
+     {
+      "start": 59.44,
+      "end": 59.58,
+      "word": " think"
+     },
+     {
+      "start": 59.58,
+      "end": 59.68,
+      "word": " the"
+     },
+     {
+      "start": 59.68,
+      "end": 59.86,
+      "word": " evidence"
+     },
+     {
+      "start": 59.86,
+      "end": 60.2,
+      "word": " supports"
+     },
+     {
+      "start": 60.2,
+      "end": 60.64,
+      "word": " always,"
+     },
+     {
+      "start": 61.06,
+      "end": 61.28,
+      "word": " for"
+     },
+     {
+      "start": 61.28,
+      "end": 61.58,
+      "word": " facts"
+     },
+     {
+      "start": 61.58,
+      "end": 61.78,
+      "word": " that"
+     },
+     {
+      "start": 61.78,
+      "end": 62.14,
+      "word": " change"
+     },
+     {
+      "start": 62.14,
+      "end": 62.68,
+      "word": " retrieval"
+     },
+     {
+      "start": 62.68,
+      "end": 62.86,
+      "word": " is"
+     },
+     {
+      "start": 62.86,
+      "end": 63.1,
+      "word": " usually"
+     }
+    ]
+   },
+   {
+    "start": 63.1,
+    "end": 63.8,
+    "text": "the better tool.",
+    "words": [
+     {
+      "start": 63.1,
+      "end": 63.28,
+      "word": " the"
+     },
+     {
+      "start": 63.28,
+      "end": 63.5,
+      "word": " better"
+     },
+     {
+      "start": 63.5,
+      "end": 63.8,
+      "word": " tool."
+     }
+    ]
+   },
+   {
+    "start": 63.98,
+    "end": 64.6,
+    "text": "Let's stop there.",
+    "words": [
+     {
+      "start": 63.98,
+      "end": 64.12,
+      "word": " Let's"
+     },
+     {
+      "start": 64.12,
+      "end": 64.32,
+      "word": " stop"
+     },
+     {
+      "start": 64.32,
+      "end": 64.6,
+      "word": " there."
+     }
+    ]
+   }
+  ],
+  "speaker_segments": [
+   {
+    "start": 1.17846875,
+    "end": 8.215343750000002,
+    "speaker": "SPEAKER_04"
+   },
+   {
+    "start": 9.21096875,
+    "end": 20.719718750000002,
+    "speaker": "SPEAKER_01"
+   },
+   {
+    "start": 21.78284375,
+    "end": 23.89221875,
+    "speaker": "SPEAKER_04"
+   },
+   {
+    "start": 25.12409375,
+    "end": 30.524093750000002,
+    "speaker": "SPEAKER_00"
+   },
+   {
+    "start": 32.19471875,
+    "end": 33.88221875,
+    "speaker": "SPEAKER_04"
+   },
+   {
+    "start": 34.82721875,
+    "end": 46.656593750000006,
+    "speaker": "SPEAKER_02"
+   },
+   {
+    "start": 47.34846875,
+    "end": 51.65159375,
+    "speaker": "SPEAKER_01"
+   },
+   {
+    "start": 52.96784375,
+    "end": 57.962843750000005,
+    "speaker": "SPEAKER_03"
+   },
+   {
+    "start": 59.346593750000004,
+    "end": 60.78096875000001,
+    "speaker": "SPEAKER_04"
+   },
+   {
+    "start": 61.25346875,
+    "end": 62.164718750000006,
+    "speaker": "SPEAKER_04"
+   },
+   {
+    "start": 62.164718750000006,
+    "end": 64.69596875,
+    "speaker": "SPEAKER_03"
+   }
+  ],
+  "aligned_segments": [
+   {
+    "start": 0.8400000000000005,
+    "end": 5.34,
+    "speaker": "SPEAKER_04",
+    "text": "Today we have a visitor from industry sitting in, we're discussing parameter efficient fine-tuning,"
+   },
+   {
+    "start": 5.68,
+    "end": 8.0,
+    "speaker": "SPEAKER_04",
+    "text": "instead of updating all the weights, what does Laura do?"
+   },
+   {
+    "start": 9.1,
+    "end": 14.1,
+    "speaker": "SPEAKER_01",
+    "text": "Hi everyone, in my team we use Laura all the time, you freeze the base model and train"
+   },
+   {
+    "start": 14.1,
+    "end": 19.1,
+    "speaker": "SPEAKER_01",
+    "text": "two small low rank matrices that are added to the weight updates, so you only train a tiny"
+   },
+   {
+    "start": 19.1,
+    "end": 20.38,
+    "speaker": "SPEAKER_01",
+    "text": "fraction of the parameters."
+   },
+   {
+    "start": 21.400000000000002,
+    "end": 23.64,
+    "speaker": "SPEAKER_04",
+    "text": "Thank you students, why is that useful in practice?"
+   },
+   {
+    "start": 24.7,
+    "end": 29.84,
+    "speaker": "SPEAKER_00",
+    "text": "It needs much less memory and you can store one small adapter per task instead of a full copy"
+   },
+   {
+    "start": 29.84,
+    "end": 30.38,
+    "speaker": "SPEAKER_00",
+    "text": "of the model."
+   },
+   {
+    "start": 31.72,
+    "end": 33.64,
+    "speaker": "SPEAKER_04",
+    "text": "Good what's the rank in Laura intuitively?"
+   },
+   {
+    "start": 34.82,
+    "end": 41.32,
+    "speaker": "SPEAKER_02",
+    "text": "How many directions the update is allowed to change, a small rank like 8 is often enough,"
+   },
+   {
+    "start": 41.88,
+    "end": 46.34,
+    "speaker": "SPEAKER_02",
+    "text": "and a larger rank gives more capacity but more parameters."
+   },
+   {
+    "start": 47.3,
+    "end": 51.32,
+    "speaker": "SPEAKER_01",
+    "text": "And quantizing the base model to 4 bits on top of that is what QL or A does."
+   },
+   {
+    "start": 52.5,
+    "end": 57.26,
+    "speaker": "SPEAKER_03",
+    "text": "I read that fine-tuning with Laura always beats retrieval augmented generation for factual"
+   },
+   {
+    "start": 57.26,
+    "end": 57.86,
+    "speaker": "SPEAKER_03",
+    "text": "questions."
+   },
+   {
+    "start": 58.92,
+    "end": 63.1,
+    "speaker": "SPEAKER_04",
+    "text": "I don't think the evidence supports always, for facts that change retrieval is usually"
+   },
+   {
+    "start": 63.1,
+    "end": 63.8,
+    "speaker": "SPEAKER_03",
+    "text": "the better tool."
+   },
+   {
+    "start": 63.98,
+    "end": 64.6,
+    "speaker": "SPEAKER_03",
+    "text": "Let's stop there."
+   }
+  ],
+  "voice_matches": {
+   "SPEAKER_04": {
+    "name": "prof",
+    "status": "identified",
+    "score": 0.8565820455551147,
+    "matches": [
+     {
+      "person_id": "prof",
+      "name": "prof",
+      "score": 0.8565820455551147,
+      "same_speaker": true
+     },
+     {
+      "person_id": "tina",
+      "name": "tina",
+      "score": 0.06424570083618164,
+      "same_speaker": false
+     },
+     {
+      "person_id": "koh-qing-jia",
+      "name": "Koh Qing Jia",
+      "score": 0.06343867629766464,
+      "same_speaker": false
+     },
+     {
+      "person_id": "tasmin",
+      "name": "tasmin",
+      "score": 0.03531776741147041,
+      "same_speaker": false
+     },
+     {
+      "person_id": "le-yong",
+      "name": "le yong",
+      "score": -0.09256984293460846,
+      "same_speaker": false
+     }
+    ]
+   },
+   "SPEAKER_01": {
+    "name": "UNKNOWN",
+    "status": "unknown",
+    "matches": [
+     {
+      "person_id": "koh-qing-jia",
+      "name": "Koh Qing Jia",
+      "score": 0.11858706176280975,
+      "same_speaker": false
+     },
+     {
+      "person_id": "le-yong",
+      "name": "le yong",
+      "score": 0.1076018437743187,
+      "same_speaker": false
+     },
+     {
+      "person_id": "prof",
+      "name": "prof",
+      "score": 0.09976670145988464,
+      "same_speaker": false
+     },
+     {
+      "person_id": "tasmin",
+      "name": "tasmin",
+      "score": 0.022615287452936172,
+      "same_speaker": false
+     },
+     {
+      "person_id": "tina",
+      "name": "tina",
+      "score": -0.03187619149684906,
+      "same_speaker": false
+     }
+    ]
+   },
+   "SPEAKER_00": {
+    "name": "tasmin",
+    "status": "identified",
+    "score": 0.7796022891998291,
+    "matches": [
+     {
+      "person_id": "tasmin",
+      "name": "tasmin",
+      "score": 0.7796022891998291,
+      "same_speaker": true
+     },
+     {
+      "person_id": "tina",
+      "name": "tina",
+      "score": 0.24272996187210083,
+      "same_speaker": false
+     },
+     {
+      "person_id": "koh-qing-jia",
+      "name": "Koh Qing Jia",
+      "score": 0.10209336131811142,
+      "same_speaker": false
+     },
+     {
+      "person_id": "le-yong",
+      "name": "le yong",
+      "score": 0.09955931454896927,
+      "same_speaker": false
+     },
+     {
+      "person_id": "prof",
+      "name": "prof",
+      "score": -0.0016430597752332687,
+      "same_speaker": false
+     }
+    ]
+   },
+   "SPEAKER_02": {
+    "name": "Koh Qing Jia",
+    "status": "identified",
+    "score": 0.784506618976593,
+    "matches": [
+     {
+      "person_id": "koh-qing-jia",
+      "name": "Koh Qing Jia",
+      "score": 0.784506618976593,
+      "same_speaker": true
+     },
+     {
+      "person_id": "tina",
+      "name": "tina",
+      "score": 0.12735536694526672,
+      "same_speaker": false
+     },
+     {
+      "person_id": "prof",
+      "name": "prof",
+      "score": 0.05800061300396919,
+      "same_speaker": false
+     },
+     {
+      "person_id": "le-yong",
+      "name": "le yong",
+      "score": 0.05415252223610878,
+      "same_speaker": false
+     },
+     {
+      "person_id": "tasmin",
+      "name": "tasmin",
+      "score": 0.04750002920627594,
+      "same_speaker": false
+     }
+    ]
+   },
+   "SPEAKER_03": {
+    "name": "tina",
+    "status": "identified",
+    "score": 0.737583339214325,
+    "matches": [
+     {
+      "person_id": "tina",
+      "name": "tina",
+      "score": 0.737583339214325,
+      "same_speaker": true
+     },
+     {
+      "person_id": "tasmin",
+      "name": "tasmin",
+      "score": 0.18420284986495972,
+      "same_speaker": false
+     },
+     {
+      "person_id": "koh-qing-jia",
+      "name": "Koh Qing Jia",
+      "score": 0.15631619095802307,
+      "same_speaker": false
+     },
+     {
+      "person_id": "prof",
+      "name": "prof",
+      "score": 0.14309051632881165,
+      "same_speaker": false
+     },
+     {
+      "person_id": "le-yong",
+      "name": "le yong",
+      "score": -0.024469129741191864,
+      "same_speaker": false
+     }
+    ]
+   }
+  },
+  "speaker_identities": {
+   "SPEAKER_04": "prof",
+   "SPEAKER_01": "UNKNOWN",
+   "SPEAKER_00": "tasmin",
+   "SPEAKER_02": "Koh Qing Jia",
+   "SPEAKER_03": "tina"
+  },
+  "segments": [
+   {
+    "start": 0.8400000000000005,
+    "end": 8.0,
+    "speaker": "prof",
+    "original_speaker": "SPEAKER_04",
+    "text": "Today we have a visitor from industry sitting in, we're discussing parameter efficient fine-tuning, instead of updating all the weights, what does Laura do?"
+   },
+   {
+    "start": 9.1,
+    "end": 20.38,
+    "speaker": "UNKNOWN",
+    "original_speaker": "SPEAKER_01",
+    "text": "Hi everyone, in my team we use Laura all the time, you freeze the base model and train two small low rank matrices that are added to the weight updates, so you only train a tiny fraction of the parameters."
+   },
+   {
+    "start": 21.400000000000002,
+    "end": 23.64,
+    "speaker": "prof",
+    "original_speaker": "SPEAKER_04",
+    "text": "Thank you students, why is that useful in practice?"
+   },
+   {
+    "start": 24.7,
+    "end": 30.38,
+    "speaker": "tasmin",
+    "original_speaker": "SPEAKER_00",
+    "text": "It needs much less memory and you can store one small adapter per task instead of a full copy of the model."
+   },
+   {
+    "start": 31.72,
+    "end": 33.64,
+    "speaker": "prof",
+    "original_speaker": "SPEAKER_04",
+    "text": "Good what's the rank in Laura intuitively?"
+   },
+   {
+    "start": 34.82,
+    "end": 46.34,
+    "speaker": "Koh Qing Jia",
+    "original_speaker": "SPEAKER_02",
+    "text": "How many directions the update is allowed to change, a small rank like 8 is often enough, and a larger rank gives more capacity but more parameters."
+   },
+   {
+    "start": 47.3,
+    "end": 51.32,
+    "speaker": "UNKNOWN",
+    "original_speaker": "SPEAKER_01",
+    "text": "And quantizing the base model to 4 bits on top of that is what QL or A does."
+   },
+   {
+    "start": 52.5,
+    "end": 57.86,
+    "speaker": "tina",
+    "original_speaker": "SPEAKER_03",
+    "text": "I read that fine-tuning with Laura always beats retrieval augmented generation for factual questions."
+   },
+   {
+    "start": 58.92,
+    "end": 63.1,
+    "speaker": "prof",
+    "original_speaker": "SPEAKER_04",
+    "text": "I don't think the evidence supports always, for facts that change retrieval is usually"
+   },
+   {
+    "start": 63.1,
+    "end": 64.6,
+    "speaker": "tina",
+    "original_speaker": "SPEAKER_03",
+    "text": "the better tool. Let's stop there."
+   }
+  ],
+  "diarization_turns": [
+   {
+    "start": 1.17846875,
+    "end": 8.215343750000002,
+    "speaker": "SPEAKER_04"
+   },
+   {
+    "start": 9.21096875,
+    "end": 20.719718750000002,
+    "speaker": "SPEAKER_01"
+   },
+   {
+    "start": 21.78284375,
+    "end": 23.89221875,
+    "speaker": "SPEAKER_04"
+   },
+   {
+    "start": 25.12409375,
+    "end": 30.524093750000002,
+    "speaker": "SPEAKER_00"
+   },
+   {
+    "start": 32.19471875,
+    "end": 33.88221875,
+    "speaker": "SPEAKER_04"
+   },
+   {
+    "start": 34.82721875,
+    "end": 46.656593750000006,
+    "speaker": "SPEAKER_02"
+   },
+   {
+    "start": 47.34846875,
+    "end": 51.65159375,
+    "speaker": "SPEAKER_01"
+   },
+   {
+    "start": 52.96784375,
+    "end": 57.962843750000005,
+    "speaker": "SPEAKER_03"
+   },
+   {
+    "start": 59.346593750000004,
+    "end": 60.78096875000001,
+    "speaker": "SPEAKER_04"
+   },
+   {
+    "start": 61.25346875,
+    "end": 62.164718750000006,
+    "speaker": "SPEAKER_04"
+   },
+   {
+    "start": 62.164718750000006,
+    "end": 64.69596875,
+    "speaker": "SPEAKER_03"
+   }
+  ],
+  "timings": {
+   "transcription_s": 6.708820109022781,
+   "diarization_s": 81.12087949598208,
+   "total_s": 112.03055726806633
+  }
+ },
+ "segment_matches": [
+  [
+   {
+    "person_id": "prof",
+    "name": "prof",
+    "score": 0.8032667636871338,
+    "same_speaker": true
+   },
+   {
+    "person_id": "koh-qing-jia",
+    "name": "Koh Qing Jia",
+    "score": 0.0926603153347969,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tina",
+    "name": "tina",
+    "score": 0.0924256443977356,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tasmin",
+    "name": "tasmin",
+    "score": -0.020263999700546265,
+    "same_speaker": false
+   },
+   {
+    "person_id": "le-yong",
+    "name": "le yong",
+    "score": -0.09275662899017334,
+    "same_speaker": false
+   }
+  ],
+  [
+   {
+    "person_id": "prof",
+    "name": "prof",
+    "score": 0.76437908411026,
+    "same_speaker": true
+   },
+   {
+    "person_id": "tasmin",
+    "name": "tasmin",
+    "score": 0.05853855609893799,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tina",
+    "name": "tina",
+    "score": 0.05119279772043228,
+    "same_speaker": false
+   },
+   {
+    "person_id": "koh-qing-jia",
+    "name": "Koh Qing Jia",
+    "score": 0.04163229092955589,
+    "same_speaker": false
+   },
+   {
+    "person_id": "le-yong",
+    "name": "le yong",
+    "score": -0.10530829429626465,
+    "same_speaker": false
+   }
+  ],
+  [
+   {
+    "person_id": "koh-qing-jia",
+    "name": "Koh Qing Jia",
+    "score": 0.115501768887043,
+    "same_speaker": false
+   },
+   {
+    "person_id": "le-yong",
+    "name": "le yong",
+    "score": 0.0904739573597908,
+    "same_speaker": false
+   },
+   {
+    "person_id": "prof",
+    "name": "prof",
+    "score": 0.08183907717466354,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tasmin",
+    "name": "tasmin",
+    "score": 0.01717555522918701,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tina",
+    "name": "tina",
+    "score": -0.021090248599648476,
+    "same_speaker": false
+   }
+  ],
+  [
+   {
+    "person_id": "koh-qing-jia",
+    "name": "Koh Qing Jia",
+    "score": 0.1592019498348236,
+    "same_speaker": false
+   },
+   {
+    "person_id": "le-yong",
+    "name": "le yong",
+    "score": 0.13117647171020508,
+    "same_speaker": false
+   },
+   {
+    "person_id": "prof",
+    "name": "prof",
+    "score": 0.10009732097387314,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tasmin",
+    "name": "tasmin",
+    "score": 0.043922509998083115,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tina",
+    "name": "tina",
+    "score": -0.0049608927220106125,
+    "same_speaker": false
+   }
+  ],
+  [
+   {
+    "person_id": "prof",
+    "name": "prof",
+    "score": 0.10849631577730179,
+    "same_speaker": false
+   },
+   {
+    "person_id": "koh-qing-jia",
+    "name": "Koh Qing Jia",
+    "score": 0.05286155268549919,
+    "same_speaker": false
+   },
+   {
+    "person_id": "le-yong",
+    "name": "le yong",
+    "score": 0.038710299879312515,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tasmin",
+    "name": "tasmin",
+    "score": 0.019050221890211105,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tina",
+    "name": "tina",
+    "score": -0.06360653787851334,
+    "same_speaker": false
+   }
+  ],
+  [
+   {
+    "person_id": "prof",
+    "name": "prof",
+    "score": 0.7983654737472534,
+    "same_speaker": true
+   },
+   {
+    "person_id": "koh-qing-jia",
+    "name": "Koh Qing Jia",
+    "score": 0.11346647143363953,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tasmin",
+    "name": "tasmin",
+    "score": 0.08891987055540085,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tina",
+    "name": "tina",
+    "score": 0.057179324328899384,
+    "same_speaker": false
+   },
+   {
+    "person_id": "le-yong",
+    "name": "le yong",
+    "score": -0.04745639115571976,
+    "same_speaker": false
+   }
+  ],
+  [
+   {
+    "person_id": "tasmin",
+    "name": "tasmin",
+    "score": 0.7747437953948975,
+    "same_speaker": true
+   },
+   {
+    "person_id": "tina",
+    "name": "tina",
+    "score": 0.22126689553260803,
+    "same_speaker": false
+   },
+   {
+    "person_id": "koh-qing-jia",
+    "name": "Koh Qing Jia",
+    "score": 0.12161389738321304,
+    "same_speaker": false
+   },
+   {
+    "person_id": "le-yong",
+    "name": "le yong",
+    "score": 0.10188686102628708,
+    "same_speaker": false
+   },
+   {
+    "person_id": "prof",
+    "name": "prof",
+    "score": 0.027609188109636307,
+    "same_speaker": false
+   }
+  ],
+  [
+   {
+    "person_id": "tasmin",
+    "name": "tasmin",
+    "score": 0.5717099905014038,
+    "same_speaker": true
+   },
+   {
+    "person_id": "le-yong",
+    "name": "le yong",
+    "score": 0.1182311475276947,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tina",
+    "name": "tina",
+    "score": 0.11514207720756531,
+    "same_speaker": false
+   },
+   {
+    "person_id": "prof",
+    "name": "prof",
+    "score": 0.08362949639558792,
+    "same_speaker": false
+   },
+   {
+    "person_id": "koh-qing-jia",
+    "name": "Koh Qing Jia",
+    "score": 0.03531510382890701,
+    "same_speaker": false
+   }
+  ],
+  [
+   {
+    "person_id": "prof",
+    "name": "prof",
+    "score": 0.7460353970527649,
+    "same_speaker": true
+   },
+   {
+    "person_id": "koh-qing-jia",
+    "name": "Koh Qing Jia",
+    "score": 0.08463756740093231,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tina",
+    "name": "tina",
+    "score": 0.0595741830766201,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tasmin",
+    "name": "tasmin",
+    "score": 0.04498748108744621,
+    "same_speaker": false
+   },
+   {
+    "person_id": "le-yong",
+    "name": "le yong",
+    "score": -0.12206829339265823,
+    "same_speaker": false
+   }
+  ],
+  [
+   {
+    "person_id": "koh-qing-jia",
+    "name": "Koh Qing Jia",
+    "score": 0.7565503716468811,
+    "same_speaker": true
+   },
+   {
+    "person_id": "tina",
+    "name": "tina",
+    "score": 0.12864597141742706,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tasmin",
+    "name": "tasmin",
+    "score": 0.061678946018218994,
+    "same_speaker": false
+   },
+   {
+    "person_id": "prof",
+    "name": "prof",
+    "score": 0.05894937366247177,
+    "same_speaker": false
+   },
+   {
+    "person_id": "le-yong",
+    "name": "le yong",
+    "score": 0.04010733589529991,
+    "same_speaker": false
+   }
+  ],
+  [
+   {
+    "person_id": "koh-qing-jia",
+    "name": "Koh Qing Jia",
+    "score": 0.7549062967300415,
+    "same_speaker": true
+   },
+   {
+    "person_id": "tina",
+    "name": "tina",
+    "score": 0.10865841060876846,
+    "same_speaker": false
+   },
+   {
+    "person_id": "le-yong",
+    "name": "le yong",
+    "score": 0.07874265313148499,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tasmin",
+    "name": "tasmin",
+    "score": 0.03734628111124039,
+    "same_speaker": false
+   },
+   {
+    "person_id": "prof",
+    "name": "prof",
+    "score": 0.035379838198423386,
+    "same_speaker": false
+   }
+  ],
+  [
+   {
+    "person_id": "prof",
+    "name": "prof",
+    "score": 0.13710570335388184,
+    "same_speaker": false
+   },
+   {
+    "person_id": "le-yong",
+    "name": "le yong",
+    "score": 0.10046089440584183,
+    "same_speaker": false
+   },
+   {
+    "person_id": "koh-qing-jia",
+    "name": "Koh Qing Jia",
+    "score": 0.076992928981781,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tasmin",
+    "name": "tasmin",
+    "score": 0.022490276023745537,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tina",
+    "name": "tina",
+    "score": -0.0232208464294672,
+    "same_speaker": false
+   }
+  ],
+  [
+   {
+    "person_id": "tina",
+    "name": "tina",
+    "score": 0.788901150226593,
+    "same_speaker": true
+   },
+   {
+    "person_id": "tasmin",
+    "name": "tasmin",
+    "score": 0.16546107828617096,
+    "same_speaker": false
+   },
+   {
+    "person_id": "koh-qing-jia",
+    "name": "Koh Qing Jia",
+    "score": 0.15102754533290863,
+    "same_speaker": false
+   },
+   {
+    "person_id": "prof",
+    "name": "prof",
+    "score": 0.022015053778886795,
+    "same_speaker": false
+   },
+   {
+    "person_id": "le-yong",
+    "name": "le yong",
+    "score": 0.004569843411445618,
+    "same_speaker": false
+   }
+  ],
+  [
+   {
+    "person_id": "tina",
+    "name": "tina",
+    "score": 0.5038259625434875,
+    "same_speaker": true
+   },
+   {
+    "person_id": "tasmin",
+    "name": "tasmin",
+    "score": 0.10466165095567703,
+    "same_speaker": false
+   },
+   {
+    "person_id": "le-yong",
+    "name": "le yong",
+    "score": 0.03885546699166298,
+    "same_speaker": false
+   },
+   {
+    "person_id": "koh-qing-jia",
+    "name": "Koh Qing Jia",
+    "score": 0.030441343784332275,
+    "same_speaker": false
+   },
+   {
+    "person_id": "prof",
+    "name": "prof",
+    "score": -0.07232732325792313,
+    "same_speaker": false
+   }
+  ],
+  [
+   {
+    "person_id": "prof",
+    "name": "prof",
+    "score": 0.8178828954696655,
+    "same_speaker": true
+   },
+   {
+    "person_id": "koh-qing-jia",
+    "name": "Koh Qing Jia",
+    "score": 0.06279322504997253,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tina",
+    "name": "tina",
+    "score": 0.05014496669173241,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tasmin",
+    "name": "tasmin",
+    "score": 0.026636943221092224,
+    "same_speaker": false
+   },
+   {
+    "person_id": "le-yong",
+    "name": "le yong",
+    "score": -0.0588756799697876,
+    "same_speaker": false
+   }
+  ],
+  [
+   {
+    "person_id": "prof",
+    "name": "prof",
+    "score": 0.5480464696884155,
+    "same_speaker": true
+   },
+   {
+    "person_id": "tina",
+    "name": "tina",
+    "score": 0.0632413849234581,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tasmin",
+    "name": "tasmin",
+    "score": 0.02837345376610756,
+    "same_speaker": false
+   },
+   {
+    "person_id": "koh-qing-jia",
+    "name": "Koh Qing Jia",
+    "score": 0.010450219735503197,
+    "same_speaker": false
+   },
+   {
+    "person_id": "le-yong",
+    "name": "le yong",
+    "score": -0.10314074158668518,
+    "same_speaker": false
+   }
+  ],
+  [
+   {
+    "person_id": "prof",
+    "name": "prof",
+    "score": 0.5951609015464783,
+    "same_speaker": true
+   },
+   {
+    "person_id": "koh-qing-jia",
+    "name": "Koh Qing Jia",
+    "score": 0.0439053438603878,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tasmin",
+    "name": "tasmin",
+    "score": 0.029680166393518448,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tina",
+    "name": "tina",
+    "score": 0.01343719195574522,
+    "same_speaker": false
+   },
+   {
+    "person_id": "le-yong",
+    "name": "le yong",
+    "score": -0.10548368096351624,
+    "same_speaker": false
+   }
+  ]
+ ],
+ "segment_scoring_s": 2.3471883521415293,
+ "line_matches": [
+  [
+   {
+    "person_id": "prof",
+    "name": "prof",
+    "score": 0.8421720862388611,
+    "same_speaker": true
+   },
+   {
+    "person_id": "koh-qing-jia",
+    "name": "Koh Qing Jia",
+    "score": 0.07320190221071243,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tina",
+    "name": "tina",
+    "score": 0.06476648896932602,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tasmin",
+    "name": "tasmin",
+    "score": 0.014485746622085571,
+    "same_speaker": false
+   },
+   {
+    "person_id": "le-yong",
+    "name": "le yong",
+    "score": -0.10566943138837814,
+    "same_speaker": false
+   }
+  ],
+  [
+   {
+    "person_id": "koh-qing-jia",
+    "name": "Koh Qing Jia",
+    "score": 0.1318526417016983,
+    "same_speaker": false
+   },
+   {
+    "person_id": "le-yong",
+    "name": "le yong",
+    "score": 0.1038290411233902,
+    "same_speaker": false
+   },
+   {
+    "person_id": "prof",
+    "name": "prof",
+    "score": 0.08568026125431061,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tasmin",
+    "name": "tasmin",
+    "score": 0.03111867606639862,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tina",
+    "name": "tina",
+    "score": -0.02215591073036194,
+    "same_speaker": false
+   }
+  ],
+  [
+   {
+    "person_id": "prof",
+    "name": "prof",
+    "score": 0.7957899570465088,
+    "same_speaker": true
+   },
+   {
+    "person_id": "koh-qing-jia",
+    "name": "Koh Qing Jia",
+    "score": 0.11004681885242462,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tasmin",
+    "name": "tasmin",
+    "score": 0.08060009777545929,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tina",
+    "name": "tina",
+    "score": 0.060205455869436264,
+    "same_speaker": false
+   },
+   {
+    "person_id": "le-yong",
+    "name": "le yong",
+    "score": -0.03361374884843826,
+    "same_speaker": false
+   }
+  ],
+  [
+   {
+    "person_id": "tasmin",
+    "name": "tasmin",
+    "score": 0.7840899229049683,
+    "same_speaker": true
+   },
+   {
+    "person_id": "tina",
+    "name": "tina",
+    "score": 0.22701962292194366,
+    "same_speaker": false
+   },
+   {
+    "person_id": "le-yong",
+    "name": "le yong",
+    "score": 0.11356806755065918,
+    "same_speaker": false
+   },
+   {
+    "person_id": "koh-qing-jia",
+    "name": "Koh Qing Jia",
+    "score": 0.11027934402227402,
+    "same_speaker": false
+   },
+   {
+    "person_id": "prof",
+    "name": "prof",
+    "score": 0.021081000566482544,
+    "same_speaker": false
+   }
+  ],
+  [
+   {
+    "person_id": "prof",
+    "name": "prof",
+    "score": 0.7459338903427124,
+    "same_speaker": true
+   },
+   {
+    "person_id": "koh-qing-jia",
+    "name": "Koh Qing Jia",
+    "score": 0.07430856674909592,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tina",
+    "name": "tina",
+    "score": 0.05506090447306633,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tasmin",
+    "name": "tasmin",
+    "score": 0.03970729559659958,
+    "same_speaker": false
+   },
+   {
+    "person_id": "le-yong",
+    "name": "le yong",
+    "score": -0.13501541316509247,
+    "same_speaker": false
+   }
+  ],
+  [
+   {
+    "person_id": "koh-qing-jia",
+    "name": "Koh Qing Jia",
+    "score": 0.7902295589447021,
+    "same_speaker": true
+   },
+   {
+    "person_id": "tina",
+    "name": "tina",
+    "score": 0.12402037531137466,
+    "same_speaker": false
+   },
+   {
+    "person_id": "le-yong",
+    "name": "le yong",
+    "score": 0.05860627442598343,
+    "same_speaker": false
+   },
+   {
+    "person_id": "prof",
+    "name": "prof",
+    "score": 0.056810349225997925,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tasmin",
+    "name": "tasmin",
+    "score": 0.05105724185705185,
+    "same_speaker": false
+   }
+  ],
+  [
+   {
+    "person_id": "prof",
+    "name": "prof",
+    "score": 0.12999770045280457,
+    "same_speaker": false
+   },
+   {
+    "person_id": "le-yong",
+    "name": "le yong",
+    "score": 0.09011245518922806,
+    "same_speaker": false
+   },
+   {
+    "person_id": "koh-qing-jia",
+    "name": "Koh Qing Jia",
+    "score": 0.06702634692192078,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tasmin",
+    "name": "tasmin",
+    "score": 0.021422136574983597,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tina",
+    "name": "tina",
+    "score": -0.025587227195501328,
+    "same_speaker": false
+   }
+  ],
+  [
+   {
+    "person_id": "tina",
+    "name": "tina",
+    "score": 0.7947245836257935,
+    "same_speaker": true
+   },
+   {
+    "person_id": "tasmin",
+    "name": "tasmin",
+    "score": 0.18079370260238647,
+    "same_speaker": false
+   },
+   {
+    "person_id": "koh-qing-jia",
+    "name": "Koh Qing Jia",
+    "score": 0.14642947912216187,
+    "same_speaker": false
+   },
+   {
+    "person_id": "prof",
+    "name": "prof",
+    "score": 0.005798987112939358,
+    "same_speaker": false
+   },
+   {
+    "person_id": "le-yong",
+    "name": "le yong",
+    "score": -0.011685747653245926,
+    "same_speaker": false
+   }
+  ],
+  [
+   {
+    "person_id": "prof",
+    "name": "prof",
+    "score": 0.8575767874717712,
+    "same_speaker": true
+   },
+   {
+    "person_id": "tina",
+    "name": "tina",
+    "score": 0.07318595051765442,
+    "same_speaker": false
+   },
+   {
+    "person_id": "koh-qing-jia",
+    "name": "Koh Qing Jia",
+    "score": 0.070840023458004,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tasmin",
+    "name": "tasmin",
+    "score": 0.044378891587257385,
+    "same_speaker": false
+   },
+   {
+    "person_id": "le-yong",
+    "name": "le yong",
+    "score": -0.07736195623874664,
+    "same_speaker": false
+   }
+  ]
+ ],
+ "whisper_words": {
+  "seconds": 5.657989839091897,
+  "segments": [
+   {
+    "start": 0.8400000000000005,
+    "end": 5.34,
+    "text": "Today we have a visitor from industry sitting in, we're discussing parameter efficient fine-tuning,",
+    "words": [
+     {
+      "start": 0.8400000000000005,
+      "end": 1.36,
+      "word": " Today"
+     },
+     {
+      "start": 1.36,
+      "end": 1.54,
+      "word": " we"
+     },
+     {
+      "start": 1.54,
+      "end": 1.64,
+      "word": " have"
+     },
+     {
+      "start": 1.64,
+      "end": 1.78,
+      "word": " a"
+     },
+     {
+      "start": 1.78,
+      "end": 2.08,
+      "word": " visitor"
+     },
+     {
+      "start": 2.08,
+      "end": 2.34,
+      "word": " from"
+     },
+     {
+      "start": 2.34,
+      "end": 2.78,
+      "word": " industry"
+     },
+     {
+      "start": 2.78,
+      "end": 3.14,
+      "word": " sitting"
+     },
+     {
+      "start": 3.14,
+      "end": 3.36,
+      "word": " in,"
+     },
+     {
+      "start": 3.42,
+      "end": 3.48,
+      "word": " we're"
+     },
+     {
+      "start": 3.48,
+      "end": 3.78,
+      "word": " discussing"
+     },
+     {
+      "start": 3.78,
+      "end": 4.2,
+      "word": " parameter"
+     },
+     {
+      "start": 4.2,
+      "end": 4.68,
+      "word": " efficient"
+     },
+     {
+      "start": 4.68,
+      "end": 5.02,
+      "word": " fine"
+     },
+     {
+      "start": 5.02,
+      "end": 5.34,
+      "word": "-tuning,"
+     }
+    ]
+   },
+   {
+    "start": 5.68,
+    "end": 8.0,
+    "text": "instead of updating all the weights, what does Laura do?",
+    "words": [
+     {
+      "start": 5.68,
+      "end": 6.0,
+      "word": " instead"
+     },
+     {
+      "start": 6.0,
+      "end": 6.16,
+      "word": " of"
+     },
+     {
+      "start": 6.16,
+      "end": 6.44,
+      "word": " updating"
+     },
+     {
+      "start": 6.44,
+      "end": 6.68,
+      "word": " all"
+     },
+     {
+      "start": 6.68,
+      "end": 6.8,
+      "word": " the"
+     },
+     {
+      "start": 6.8,
+      "end": 6.98,
+      "word": " weights,"
+     },
+     {
+      "start": 7.18,
+      "end": 7.26,
+      "word": " what"
+     },
+     {
+      "start": 7.26,
+      "end": 7.44,
+      "word": " does"
+     },
+     {
+      "start": 7.44,
+      "end": 7.7,
+      "word": " Laura"
+     },
+     {
+      "start": 7.7,
+      "end": 8.0,
+      "word": " do?"
+     }
+    ]
+   },
+   {
+    "start": 9.1,
+    "end": 14.1,
+    "text": "Hi everyone, in my team we use Laura all the time, you freeze the base model and train",
+    "words": [
+     {
+      "start": 9.1,
+      "end": 9.4,
+      "word": " Hi"
+     },
+     {
+      "start": 9.4,
+      "end": 9.84,
+      "word": " everyone,"
+     },
+     {
+      "start": 10.26,
+      "end": 10.4,
+      "word": " in"
+     },
+     {
+      "start": 10.4,
+      "end": 10.56,
+      "word": " my"
+     },
+     {
+      "start": 10.56,
+      "end": 10.8,
+      "word": " team"
+     },
+     {
+      "start": 10.8,
+      "end": 10.98,
+      "word": " we"
+     },
+     {
+      "start": 10.98,
+      "end": 11.24,
+      "word": " use"
+     },
+     {
+      "start": 11.24,
+      "end": 11.48,
+      "word": " Laura"
+     },
+     {
+      "start": 11.48,
+      "end": 11.72,
+      "word": " all"
+     },
+     {
+      "start": 11.72,
+      "end": 11.84,
+      "word": " the"
+     },
+     {
+      "start": 11.84,
+      "end": 12.2,
+      "word": " time,"
+     },
+     {
+      "start": 12.5,
+      "end": 12.64,
+      "word": " you"
+     },
+     {
+      "start": 12.64,
+      "end": 12.88,
+      "word": " freeze"
+     },
+     {
+      "start": 12.88,
+      "end": 13.1,
+      "word": " the"
+     },
+     {
+      "start": 13.1,
+      "end": 13.32,
+      "word": " base"
+     },
+     {
+      "start": 13.32,
+      "end": 13.66,
+      "word": " model"
+     },
+     {
+      "start": 13.66,
+      "end": 13.86,
+      "word": " and"
+     },
+     {
+      "start": 13.86,
+      "end": 14.1,
+      "word": " train"
+     }
+    ]
+   },
+   {
+    "start": 14.1,
+    "end": 19.1,
+    "text": "two small low rank matrices that are added to the weight updates, so you only train a tiny",
+    "words": [
+     {
+      "start": 14.1,
+      "end": 14.36,
+      "word": " two"
+     },
+     {
+      "start": 14.36,
+      "end": 14.66,
+      "word": " small"
+     },
+     {
+      "start": 14.66,
+      "end": 14.9,
+      "word": " low"
+     },
+     {
+      "start": 14.9,
+      "end": 15.16,
+      "word": " rank"
+     },
+     {
+      "start": 15.16,
+      "end": 15.62,
+      "word": " matrices"
+     },
+     {
+      "start": 15.62,
+      "end": 15.98,
+      "word": " that"
+     },
+     {
+      "start": 15.98,
+      "end": 16.12,
+      "word": " are"
+     },
+     {
+      "start": 16.12,
+      "end": 16.38,
+      "word": " added"
+     },
+     {
+      "start": 16.38,
+      "end": 16.56,
+      "word": " to"
+     },
+     {
+      "start": 16.56,
+      "end": 16.66,
+      "word": " the"
+     },
+     {
+      "start": 16.66,
+      "end": 16.82,
+      "word": " weight"
+     },
+     {
+      "start": 16.82,
+      "end": 17.28,
+      "word": " updates,"
+     },
+     {
+      "start": 17.66,
+      "end": 17.92,
+      "word": " so"
+     },
+     {
+      "start": 17.92,
+      "end": 18.08,
+      "word": " you"
+     },
+     {
+      "start": 18.08,
+      "end": 18.36,
+      "word": " only"
+     },
+     {
+      "start": 18.36,
+      "end": 18.66,
+      "word": " train"
+     },
+     {
+      "start": 18.66,
+      "end": 18.82,
+      "word": " a"
+     },
+     {
+      "start": 18.82,
+      "end": 19.1,
+      "word": " tiny"
+     }
+    ]
+   },
+   {
+    "start": 19.1,
+    "end": 20.38,
+    "text": "fraction of the parameters.",
+    "words": [
+     {
+      "start": 19.1,
+      "end": 19.54,
+      "word": " fraction"
+     },
+     {
+      "start": 19.54,
+      "end": 19.76,
+      "word": " of"
+     },
+     {
+      "start": 19.76,
+      "end": 19.88,
+      "word": " the"
+     },
+     {
+      "start": 19.88,
+      "end": 20.38,
+      "word": " parameters."
+     }
+    ]
+   },
+   {
+    "start": 21.400000000000002,
+    "end": 23.64,
+    "text": "Thank you students, why is that useful in practice?",
+    "words": [
+     {
+      "start": 21.400000000000002,
+      "end": 21.92,
+      "word": " Thank"
+     },
+     {
+      "start": 21.92,
+      "end": 22.1,
+      "word": " you"
+     },
+     {
+      "start": 22.1,
+      "end": 22.4,
+      "word": " students,"
+     },
+     {
+      "start": 22.54,
+      "end": 22.64,
+      "word": " why"
+     },
+     {
+      "start": 22.64,
+      "end": 22.78,
+      "word": " is"
+     },
+     {
+      "start": 22.78,
+      "end": 22.86,
+      "word": " that"
+     },
+     {
+      "start": 22.86,
+      "end": 23.16,
+      "word": " useful"
+     },
+     {
+      "start": 23.16,
+      "end": 23.32,
+      "word": " in"
+     },
+     {
+      "start": 23.32,
+      "end": 23.64,
+      "word": " practice?"
+     }
+    ]
+   },
+   {
+    "start": 24.7,
+    "end": 29.84,
+    "text": "It needs much less memory and you can store one small adapter per task instead of a full copy",
+    "words": [
+     {
+      "start": 24.7,
+      "end": 25.22,
+      "word": " It"
+     },
+     {
+      "start": 25.22,
+      "end": 25.4,
+      "word": " needs"
+     },
+     {
+      "start": 25.4,
+      "end": 25.74,
+      "word": " much"
+     },
+     {
+      "start": 25.74,
+      "end": 25.9,
+      "word": " less"
+     },
+     {
+      "start": 25.9,
+      "end": 26.28,
+      "word": " memory"
+     },
+     {
+      "start": 26.28,
+      "end": 26.62,
+      "word": " and"
+     },
+     {
+      "start": 26.62,
+      "end": 26.74,
+      "word": " you"
+     },
+     {
+      "start": 26.74,
+      "end": 26.88,
+      "word": " can"
+     },
+     {
+      "start": 26.88,
+      "end": 27.16,
+      "word": " store"
+     },
+     {
+      "start": 27.16,
+      "end": 27.4,
+      "word": " one"
+     },
+     {
+      "start": 27.4,
+      "end": 27.72,
+      "word": " small"
+     },
+     {
+      "start": 27.72,
+      "end": 28.06,
+      "word": " adapter"
+     },
+     {
+      "start": 28.06,
+      "end": 28.32,
+      "word": " per"
+     },
+     {
+      "start": 28.32,
+      "end": 28.56,
+      "word": " task"
+     },
+     {
+      "start": 28.56,
+      "end": 29.02,
+      "word": " instead"
+     },
+     {
+      "start": 29.02,
+      "end": 29.2,
+      "word": " of"
+     },
+     {
+      "start": 29.2,
+      "end": 29.28,
+      "word": " a"
+     },
+     {
+      "start": 29.28,
+      "end": 29.5,
+      "word": " full"
+     },
+     {
+      "start": 29.5,
+      "end": 29.84,
+      "word": " copy"
+     }
+    ]
+   },
+   {
+    "start": 29.84,
+    "end": 30.38,
+    "text": "of the model.",
+    "words": [
+     {
+      "start": 29.84,
+      "end": 29.98,
+      "word": " of"
+     },
+     {
+      "start": 29.98,
+      "end": 30.12,
+      "word": " the"
+     },
+     {
+      "start": 30.12,
+      "end": 30.38,
+      "word": " model."
+     }
+    ]
+   },
+   {
+    "start": 31.72,
+    "end": 33.64,
+    "text": "Good what's the rank in Laura intuitively?",
+    "words": [
+     {
+      "start": 31.72,
+      "end": 32.28,
+      "word": " Good"
+     },
+     {
+      "start": 32.28,
+      "end": 32.54,
+      "word": " what's"
+     },
+     {
+      "start": 32.54,
+      "end": 32.6,
+      "word": " the"
+     },
+     {
+      "start": 32.6,
+      "end": 32.74,
+      "word": " rank"
+     },
+     {
+      "start": 32.74,
+      "end": 32.94,
+      "word": " in"
+     },
+     {
+      "start": 32.94,
+      "end": 33.08,
+      "word": " Laura"
+     },
+     {
+      "start": 33.08,
+      "end": 33.64,
+      "word": " intuitively?"
+     }
+    ]
+   },
+   {
+    "start": 34.82,
+    "end": 41.32,
+    "text": "How many directions the update is allowed to change, a small rank like 8 is often enough,",
+    "words": [
+     {
+      "start": 34.82,
+      "end": 34.98,
+      "word": " How"
+     },
+     {
+      "start": 34.98,
+      "end": 35.24,
+      "word": " many"
+     },
+     {
+      "start": 35.24,
+      "end": 35.8,
+      "word": " directions"
+     },
+     {
+      "start": 35.8,
+      "end": 36.34,
+      "word": " the"
+     },
+     {
+      "start": 36.34,
+      "end": 36.86,
+      "word": " update"
+     },
+     {
+      "start": 36.86,
+      "end": 37.36,
+      "word": " is"
+     },
+     {
+      "start": 37.36,
+      "end": 37.68,
+      "word": " allowed"
+     },
+     {
+      "start": 37.68,
+      "end": 37.94,
+      "word": " to"
+     },
+     {
+      "start": 37.94,
+      "end": 38.4,
+      "word": " change,"
+     },
+     {
+      "start": 38.82,
+      "end": 39.06,
+      "word": " a"
+     },
+     {
+      "start": 39.06,
+      "end": 39.44,
+      "word": " small"
+     },
+     {
+      "start": 39.44,
+      "end": 39.8,
+      "word": " rank"
+     },
+     {
+      "start": 39.8,
+      "end": 40.04,
+      "word": " like"
+     },
+     {
+      "start": 40.04,
+      "end": 40.42,
+      "word": " 8"
+     },
+     {
+      "start": 40.42,
+      "end": 40.7,
+      "word": " is"
+     },
+     {
+      "start": 40.7,
+      "end": 40.96,
+      "word": " often"
+     },
+     {
+      "start": 40.96,
+      "end": 41.32,
+      "word": " enough,"
+     }
+    ]
+   },
+   {
+    "start": 41.88,
+    "end": 46.34,
+    "text": "and a larger rank gives more capacity but more parameters.",
+    "words": [
+     {
+      "start": 41.88,
+      "end": 42.08,
+      "word": " and"
+     },
+     {
+      "start": 42.08,
+      "end": 42.34,
+      "word": " a"
+     },
+     {
+      "start": 42.34,
+      "end": 42.92,
+      "word": " larger"
+     },
+     {
+      "start": 42.92,
+      "end": 43.38,
+      "word": " rank"
+     },
+     {
+      "start": 43.38,
+      "end": 43.82,
+      "word": " gives"
+     },
+     {
+      "start": 43.82,
+      "end": 44.16,
+      "word": " more"
+     },
+     {
+      "start": 44.16,
+      "end": 44.72,
+      "word": " capacity"
+     },
+     {
+      "start": 44.72,
+      "end": 45.08,
+      "word": " but"
+     },
+     {
+      "start": 45.08,
+      "end": 45.72,
+      "word": " more"
+     },
+     {
+      "start": 45.72,
+      "end": 46.34,
+      "word": " parameters."
+     }
+    ]
+   },
+   {
+    "start": 47.3,
+    "end": 51.32,
+    "text": "And quantizing the base model to 4 bits on top of that is what QL or A does.",
+    "words": [
+     {
+      "start": 47.3,
+      "end": 47.5,
+      "word": " And"
+     },
+     {
+      "start": 47.5,
+      "end": 48.04,
+      "word": " quantizing"
+     },
+     {
+      "start": 48.04,
+      "end": 48.24,
+      "word": " the"
+     },
+     {
+      "start": 48.24,
+      "end": 48.44,
+      "word": " base"
+     },
+     {
+      "start": 48.44,
+      "end": 48.8,
+      "word": " model"
+     },
+     {
+      "start": 48.8,
+      "end": 48.98,
+      "word": " to"
+     },
+     {
+      "start": 48.98,
+      "end": 49.2,
+      "word": " 4"
+     },
+     {
+      "start": 49.2,
+      "end": 49.38,
+      "word": " bits"
+     },
+     {
+      "start": 49.38,
+      "end": 49.6,
+      "word": " on"
+     },
+     {
+      "start": 49.6,
+      "end": 49.86,
+      "word": " top"
+     },
+     {
+      "start": 49.86,
+      "end": 50.02,
+      "word": " of"
+     },
+     {
+      "start": 50.02,
+      "end": 50.18,
+      "word": " that"
+     },
+     {
+      "start": 50.18,
+      "end": 50.32,
+      "word": " is"
+     },
+     {
+      "start": 50.32,
+      "end": 50.46,
+      "word": " what"
+     },
+     {
+      "start": 50.46,
+      "end": 50.86,
+      "word": " QL"
+     },
+     {
+      "start": 50.86,
+      "end": 51.02,
+      "word": " or"
+     },
+     {
+      "start": 51.02,
+      "end": 51.14,
+      "word": " A"
+     },
+     {
+      "start": 51.14,
+      "end": 51.32,
+      "word": " does."
+     }
+    ]
+   },
+   {
+    "start": 52.5,
+    "end": 57.26,
+    "text": "I read that fine-tuning with Laura always beats retrieval augmented generation for factual",
+    "words": [
+     {
+      "start": 52.5,
+      "end": 53.06,
+      "word": " I"
+     },
+     {
+      "start": 53.06,
+      "end": 53.22,
+      "word": " read"
+     },
+     {
+      "start": 53.22,
+      "end": 53.38,
+      "word": " that"
+     },
+     {
+      "start": 53.38,
+      "end": 53.58,
+      "word": " fine"
+     },
+     {
+      "start": 53.58,
+      "end": 53.92,
+      "word": "-tuning"
+     },
+     {
+      "start": 53.92,
+      "end": 54.2,
+      "word": " with"
+     },
+     {
+      "start": 54.2,
+      "end": 54.46,
+      "word": " Laura"
+     },
+     {
+      "start": 54.46,
+      "end": 54.86,
+      "word": " always"
+     },
+     {
+      "start": 54.86,
+      "end": 55.12,
+      "word": " beats"
+     },
+     {
+      "start": 55.12,
+      "end": 55.72,
+      "word": " retrieval"
+     },
+     {
+      "start": 55.72,
+      "end": 56.06,
+      "word": " augmented"
+     },
+     {
+      "start": 56.06,
+      "end": 56.54,
+      "word": " generation"
+     },
+     {
+      "start": 56.54,
+      "end": 56.92,
+      "word": " for"
+     },
+     {
+      "start": 56.92,
+      "end": 57.26,
+      "word": " factual"
+     }
+    ]
+   },
+   {
+    "start": 57.26,
+    "end": 57.86,
+    "text": "questions.",
+    "words": [
+     {
+      "start": 57.26,
+      "end": 57.86,
+      "word": " questions."
+     }
+    ]
+   },
+   {
+    "start": 58.92,
+    "end": 63.1,
+    "text": "I don't think the evidence supports always, for facts that change retrieval is usually",
+    "words": [
+     {
+      "start": 58.92,
+      "end": 59.36,
+      "word": " I"
+     },
+     {
+      "start": 59.36,
+      "end": 59.44,
+      "word": " don't"
+     },
+     {
+      "start": 59.44,
+      "end": 59.58,
+      "word": " think"
+     },
+     {
+      "start": 59.58,
+      "end": 59.68,
+      "word": " the"
+     },
+     {
+      "start": 59.68,
+      "end": 59.86,
+      "word": " evidence"
+     },
+     {
+      "start": 59.86,
+      "end": 60.2,
+      "word": " supports"
+     },
+     {
+      "start": 60.2,
+      "end": 60.64,
+      "word": " always,"
+     },
+     {
+      "start": 61.06,
+      "end": 61.28,
+      "word": " for"
+     },
+     {
+      "start": 61.28,
+      "end": 61.58,
+      "word": " facts"
+     },
+     {
+      "start": 61.58,
+      "end": 61.78,
+      "word": " that"
+     },
+     {
+      "start": 61.78,
+      "end": 62.14,
+      "word": " change"
+     },
+     {
+      "start": 62.14,
+      "end": 62.68,
+      "word": " retrieval"
+     },
+     {
+      "start": 62.68,
+      "end": 62.86,
+      "word": " is"
+     },
+     {
+      "start": 62.86,
+      "end": 63.1,
+      "word": " usually"
+     }
+    ]
+   },
+   {
+    "start": 63.1,
+    "end": 63.8,
+    "text": "the better tool.",
+    "words": [
+     {
+      "start": 63.1,
+      "end": 63.28,
+      "word": " the"
+     },
+     {
+      "start": 63.28,
+      "end": 63.5,
+      "word": " better"
+     },
+     {
+      "start": 63.5,
+      "end": 63.8,
+      "word": " tool."
+     }
+    ]
+   },
+   {
+    "start": 63.98,
+    "end": 64.6,
+    "text": "Let's stop there.",
+    "words": [
+     {
+      "start": 63.98,
+      "end": 64.12,
+      "word": " Let's"
+     },
+     {
+      "start": 64.12,
+      "end": 64.32,
+      "word": " stop"
+     },
+     {
+      "start": 64.32,
+      "end": 64.6,
+      "word": " there."
+     }
+    ]
+   }
+  ]
+ },
+ "word_segments": [
+  [
+   0.8400000000000005,
+   5.34
+  ],
+  [
+   5.68,
+   8.0
+  ],
+  [
+   9.1,
+   14.1
+  ],
+  [
+   14.1,
+   19.1
+  ],
+  [
+   19.1,
+   20.38
+  ],
+  [
+   21.400000000000002,
+   23.64
+  ],
+  [
+   24.7,
+   29.84
+  ],
+  [
+   29.84,
+   30.38
+  ],
+  [
+   31.72,
+   33.64
+  ],
+  [
+   34.82,
+   41.32
+  ],
+  [
+   41.88,
+   46.34
+  ],
+  [
+   47.3,
+   51.32
+  ],
+  [
+   52.5,
+   57.26
+  ],
+  [
+   57.26,
+   57.86
+  ],
+  [
+   58.92,
+   62.14
+  ],
+  [
+   62.14,
+   63.1
+  ],
+  [
+   63.1,
+   63.8
+  ],
+  [
+   63.98,
+   64.6
+  ]
+ ],
+ "word_segment_matches": [
+  [
+   {
+    "person_id": "prof",
+    "name": "prof",
+    "score": 0.8032667636871338,
+    "same_speaker": true
+   },
+   {
+    "person_id": "koh-qing-jia",
+    "name": "Koh Qing Jia",
+    "score": 0.0926603153347969,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tina",
+    "name": "tina",
+    "score": 0.0924256443977356,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tasmin",
+    "name": "tasmin",
+    "score": -0.020263999700546265,
+    "same_speaker": false
+   },
+   {
+    "person_id": "le-yong",
+    "name": "le yong",
+    "score": -0.09275662899017334,
+    "same_speaker": false
+   }
+  ],
+  [
+   {
+    "person_id": "prof",
+    "name": "prof",
+    "score": 0.76437908411026,
+    "same_speaker": true
+   },
+   {
+    "person_id": "tasmin",
+    "name": "tasmin",
+    "score": 0.05853855609893799,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tina",
+    "name": "tina",
+    "score": 0.05119279772043228,
+    "same_speaker": false
+   },
+   {
+    "person_id": "koh-qing-jia",
+    "name": "Koh Qing Jia",
+    "score": 0.04163229092955589,
+    "same_speaker": false
+   },
+   {
+    "person_id": "le-yong",
+    "name": "le yong",
+    "score": -0.10530829429626465,
+    "same_speaker": false
+   }
+  ],
+  [
+   {
+    "person_id": "koh-qing-jia",
+    "name": "Koh Qing Jia",
+    "score": 0.115501768887043,
+    "same_speaker": false
+   },
+   {
+    "person_id": "le-yong",
+    "name": "le yong",
+    "score": 0.0904739573597908,
+    "same_speaker": false
+   },
+   {
+    "person_id": "prof",
+    "name": "prof",
+    "score": 0.08183907717466354,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tasmin",
+    "name": "tasmin",
+    "score": 0.01717555522918701,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tina",
+    "name": "tina",
+    "score": -0.021090248599648476,
+    "same_speaker": false
+   }
+  ],
+  [
+   {
+    "person_id": "koh-qing-jia",
+    "name": "Koh Qing Jia",
+    "score": 0.1592019498348236,
+    "same_speaker": false
+   },
+   {
+    "person_id": "le-yong",
+    "name": "le yong",
+    "score": 0.13117647171020508,
+    "same_speaker": false
+   },
+   {
+    "person_id": "prof",
+    "name": "prof",
+    "score": 0.10009732097387314,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tasmin",
+    "name": "tasmin",
+    "score": 0.043922509998083115,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tina",
+    "name": "tina",
+    "score": -0.0049608927220106125,
+    "same_speaker": false
+   }
+  ],
+  [
+   {
+    "person_id": "prof",
+    "name": "prof",
+    "score": 0.10849631577730179,
+    "same_speaker": false
+   },
+   {
+    "person_id": "koh-qing-jia",
+    "name": "Koh Qing Jia",
+    "score": 0.05286155268549919,
+    "same_speaker": false
+   },
+   {
+    "person_id": "le-yong",
+    "name": "le yong",
+    "score": 0.038710299879312515,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tasmin",
+    "name": "tasmin",
+    "score": 0.019050221890211105,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tina",
+    "name": "tina",
+    "score": -0.06360653787851334,
+    "same_speaker": false
+   }
+  ],
+  [
+   {
+    "person_id": "prof",
+    "name": "prof",
+    "score": 0.7983654737472534,
+    "same_speaker": true
+   },
+   {
+    "person_id": "koh-qing-jia",
+    "name": "Koh Qing Jia",
+    "score": 0.11346647143363953,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tasmin",
+    "name": "tasmin",
+    "score": 0.08891987055540085,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tina",
+    "name": "tina",
+    "score": 0.057179324328899384,
+    "same_speaker": false
+   },
+   {
+    "person_id": "le-yong",
+    "name": "le yong",
+    "score": -0.04745639115571976,
+    "same_speaker": false
+   }
+  ],
+  [
+   {
+    "person_id": "tasmin",
+    "name": "tasmin",
+    "score": 0.7747437953948975,
+    "same_speaker": true
+   },
+   {
+    "person_id": "tina",
+    "name": "tina",
+    "score": 0.22126689553260803,
+    "same_speaker": false
+   },
+   {
+    "person_id": "koh-qing-jia",
+    "name": "Koh Qing Jia",
+    "score": 0.12161389738321304,
+    "same_speaker": false
+   },
+   {
+    "person_id": "le-yong",
+    "name": "le yong",
+    "score": 0.10188686102628708,
+    "same_speaker": false
+   },
+   {
+    "person_id": "prof",
+    "name": "prof",
+    "score": 0.027609188109636307,
+    "same_speaker": false
+   }
+  ],
+  [
+   {
+    "person_id": "tasmin",
+    "name": "tasmin",
+    "score": 0.5717099905014038,
+    "same_speaker": true
+   },
+   {
+    "person_id": "le-yong",
+    "name": "le yong",
+    "score": 0.1182311475276947,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tina",
+    "name": "tina",
+    "score": 0.11514207720756531,
+    "same_speaker": false
+   },
+   {
+    "person_id": "prof",
+    "name": "prof",
+    "score": 0.08362949639558792,
+    "same_speaker": false
+   },
+   {
+    "person_id": "koh-qing-jia",
+    "name": "Koh Qing Jia",
+    "score": 0.03531510382890701,
+    "same_speaker": false
+   }
+  ],
+  [
+   {
+    "person_id": "prof",
+    "name": "prof",
+    "score": 0.7460353970527649,
+    "same_speaker": true
+   },
+   {
+    "person_id": "koh-qing-jia",
+    "name": "Koh Qing Jia",
+    "score": 0.08463756740093231,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tina",
+    "name": "tina",
+    "score": 0.0595741830766201,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tasmin",
+    "name": "tasmin",
+    "score": 0.04498748108744621,
+    "same_speaker": false
+   },
+   {
+    "person_id": "le-yong",
+    "name": "le yong",
+    "score": -0.12206829339265823,
+    "same_speaker": false
+   }
+  ],
+  [
+   {
+    "person_id": "koh-qing-jia",
+    "name": "Koh Qing Jia",
+    "score": 0.7565503716468811,
+    "same_speaker": true
+   },
+   {
+    "person_id": "tina",
+    "name": "tina",
+    "score": 0.12864597141742706,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tasmin",
+    "name": "tasmin",
+    "score": 0.061678946018218994,
+    "same_speaker": false
+   },
+   {
+    "person_id": "prof",
+    "name": "prof",
+    "score": 0.05894937366247177,
+    "same_speaker": false
+   },
+   {
+    "person_id": "le-yong",
+    "name": "le yong",
+    "score": 0.04010733589529991,
+    "same_speaker": false
+   }
+  ],
+  [
+   {
+    "person_id": "koh-qing-jia",
+    "name": "Koh Qing Jia",
+    "score": 0.7549062967300415,
+    "same_speaker": true
+   },
+   {
+    "person_id": "tina",
+    "name": "tina",
+    "score": 0.10865841060876846,
+    "same_speaker": false
+   },
+   {
+    "person_id": "le-yong",
+    "name": "le yong",
+    "score": 0.07874265313148499,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tasmin",
+    "name": "tasmin",
+    "score": 0.03734628111124039,
+    "same_speaker": false
+   },
+   {
+    "person_id": "prof",
+    "name": "prof",
+    "score": 0.035379838198423386,
+    "same_speaker": false
+   }
+  ],
+  [
+   {
+    "person_id": "prof",
+    "name": "prof",
+    "score": 0.13710570335388184,
+    "same_speaker": false
+   },
+   {
+    "person_id": "le-yong",
+    "name": "le yong",
+    "score": 0.10046089440584183,
+    "same_speaker": false
+   },
+   {
+    "person_id": "koh-qing-jia",
+    "name": "Koh Qing Jia",
+    "score": 0.076992928981781,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tasmin",
+    "name": "tasmin",
+    "score": 0.022490276023745537,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tina",
+    "name": "tina",
+    "score": -0.0232208464294672,
+    "same_speaker": false
+   }
+  ],
+  [
+   {
+    "person_id": "tina",
+    "name": "tina",
+    "score": 0.788901150226593,
+    "same_speaker": true
+   },
+   {
+    "person_id": "tasmin",
+    "name": "tasmin",
+    "score": 0.16546107828617096,
+    "same_speaker": false
+   },
+   {
+    "person_id": "koh-qing-jia",
+    "name": "Koh Qing Jia",
+    "score": 0.15102754533290863,
+    "same_speaker": false
+   },
+   {
+    "person_id": "prof",
+    "name": "prof",
+    "score": 0.022015053778886795,
+    "same_speaker": false
+   },
+   {
+    "person_id": "le-yong",
+    "name": "le yong",
+    "score": 0.004569843411445618,
+    "same_speaker": false
+   }
+  ],
+  [
+   {
+    "person_id": "tina",
+    "name": "tina",
+    "score": 0.5038259625434875,
+    "same_speaker": true
+   },
+   {
+    "person_id": "tasmin",
+    "name": "tasmin",
+    "score": 0.10466165095567703,
+    "same_speaker": false
+   },
+   {
+    "person_id": "le-yong",
+    "name": "le yong",
+    "score": 0.03885546699166298,
+    "same_speaker": false
+   },
+   {
+    "person_id": "koh-qing-jia",
+    "name": "Koh Qing Jia",
+    "score": 0.030441343784332275,
+    "same_speaker": false
+   },
+   {
+    "person_id": "prof",
+    "name": "prof",
+    "score": -0.07232732325792313,
+    "same_speaker": false
+   }
+  ],
+  [
+   {
+    "person_id": "prof",
+    "name": "prof",
+    "score": 0.8019014596939087,
+    "same_speaker": true
+   },
+   {
+    "person_id": "tina",
+    "name": "tina",
+    "score": 0.08941824734210968,
+    "same_speaker": false
+   },
+   {
+    "person_id": "koh-qing-jia",
+    "name": "Koh Qing Jia",
+    "score": 0.06150040775537491,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tasmin",
+    "name": "tasmin",
+    "score": 0.0392187274992466,
+    "same_speaker": false
+   },
+   {
+    "person_id": "le-yong",
+    "name": "le yong",
+    "score": -0.05453323572874069,
+    "same_speaker": false
+   }
+  ],
+  [
+   {
+    "person_id": "prof",
+    "name": "prof",
+    "score": 0.6004618406295776,
+    "same_speaker": true
+   },
+   {
+    "person_id": "tasmin",
+    "name": "tasmin",
+    "score": 0.05864929407835007,
+    "same_speaker": false
+   },
+   {
+    "person_id": "koh-qing-jia",
+    "name": "Koh Qing Jia",
+    "score": 0.04488825052976608,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tina",
+    "name": "tina",
+    "score": -0.013815481215715408,
+    "same_speaker": false
+   },
+   {
+    "person_id": "le-yong",
+    "name": "le yong",
+    "score": -0.06886507570743561,
+    "same_speaker": false
+   }
+  ],
+  [
+   {
+    "person_id": "prof",
+    "name": "prof",
+    "score": 0.5480464696884155,
+    "same_speaker": true
+   },
+   {
+    "person_id": "tina",
+    "name": "tina",
+    "score": 0.0632413849234581,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tasmin",
+    "name": "tasmin",
+    "score": 0.02837345376610756,
+    "same_speaker": false
+   },
+   {
+    "person_id": "koh-qing-jia",
+    "name": "Koh Qing Jia",
+    "score": 0.010450219735503197,
+    "same_speaker": false
+   },
+   {
+    "person_id": "le-yong",
+    "name": "le yong",
+    "score": -0.10314074158668518,
+    "same_speaker": false
+   }
+  ],
+  [
+   {
+    "person_id": "prof",
+    "name": "prof",
+    "score": 0.5951609015464783,
+    "same_speaker": true
+   },
+   {
+    "person_id": "koh-qing-jia",
+    "name": "Koh Qing Jia",
+    "score": 0.0439053438603878,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tasmin",
+    "name": "tasmin",
+    "score": 0.029680166393518448,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tina",
+    "name": "tina",
+    "score": 0.01343719195574522,
+    "same_speaker": false
+   },
+   {
+    "person_id": "le-yong",
+    "name": "le yong",
+    "score": -0.10548368096351624,
+    "same_speaker": false
+   }
+  ]
+ ],
+ "word_segment_scoring_s": 1.7860423100646585,
+ "turn_spans": [
+  [
+   0.8400000000000005,
+   8.0
+  ],
+  [
+   9.1,
+   20.38
+  ],
+  [
+   24.7,
+   30.38
+  ],
+  [
+   34.82,
+   46.34
+  ],
+  [
+   52.5,
+   57.86
+  ],
+  [
+   62.14,
+   64.6
+  ]
+ ],
+ "turn_matches": [
+  [
+   {
+    "person_id": "prof",
+    "name": "prof",
+    "score": 0.8430336713790894,
+    "same_speaker": true
+   },
+   {
+    "person_id": "koh-qing-jia",
+    "name": "Koh Qing Jia",
+    "score": 0.07408422231674194,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tina",
+    "name": "tina",
+    "score": 0.07114782184362411,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tasmin",
+    "name": "tasmin",
+    "score": 0.013260051608085632,
+    "same_speaker": false
+   },
+   {
+    "person_id": "le-yong",
+    "name": "le yong",
+    "score": -0.10559253394603729,
+    "same_speaker": false
+   }
+  ],
+  [
+   {
+    "person_id": "koh-qing-jia",
+    "name": "Koh Qing Jia",
+    "score": 0.13460204005241394,
+    "same_speaker": false
+   },
+   {
+    "person_id": "le-yong",
+    "name": "le yong",
+    "score": 0.10648247599601746,
+    "same_speaker": false
+   },
+   {
+    "person_id": "prof",
+    "name": "prof",
+    "score": 0.09333113580942154,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tasmin",
+    "name": "tasmin",
+    "score": 0.03216717392206192,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tina",
+    "name": "tina",
+    "score": -0.022870907559990883,
+    "same_speaker": false
+   }
+  ],
+  [
+   {
+    "person_id": "tasmin",
+    "name": "tasmin",
+    "score": 0.7780348658561707,
+    "same_speaker": true
+   },
+   {
+    "person_id": "tina",
+    "name": "tina",
+    "score": 0.22498291730880737,
+    "same_speaker": false
+   },
+   {
+    "person_id": "le-yong",
+    "name": "le yong",
+    "score": 0.11318099498748779,
+    "same_speaker": false
+   },
+   {
+    "person_id": "koh-qing-jia",
+    "name": "Koh Qing Jia",
+    "score": 0.10830286890268326,
+    "same_speaker": false
+   },
+   {
+    "person_id": "prof",
+    "name": "prof",
+    "score": 0.018742553889751434,
+    "same_speaker": false
+   }
+  ],
+  [
+   {
+    "person_id": "koh-qing-jia",
+    "name": "Koh Qing Jia",
+    "score": 0.7865314483642578,
+    "same_speaker": true
+   },
+   {
+    "person_id": "tina",
+    "name": "tina",
+    "score": 0.1204364225268364,
+    "same_speaker": false
+   },
+   {
+    "person_id": "le-yong",
+    "name": "le yong",
+    "score": 0.051890864968299866,
+    "same_speaker": false
+   },
+   {
+    "person_id": "prof",
+    "name": "prof",
+    "score": 0.05079802870750427,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tasmin",
+    "name": "tasmin",
+    "score": 0.04565025120973587,
+    "same_speaker": false
+   }
+  ],
+  [
+   {
+    "person_id": "tina",
+    "name": "tina",
+    "score": 0.7955421209335327,
+    "same_speaker": true
+   },
+   {
+    "person_id": "tasmin",
+    "name": "tasmin",
+    "score": 0.17625363171100616,
+    "same_speaker": false
+   },
+   {
+    "person_id": "koh-qing-jia",
+    "name": "Koh Qing Jia",
+    "score": 0.1446460336446762,
+    "same_speaker": false
+   },
+   {
+    "person_id": "prof",
+    "name": "prof",
+    "score": 0.004564451053738594,
+    "same_speaker": false
+   },
+   {
+    "person_id": "le-yong",
+    "name": "le yong",
+    "score": -0.0045239608734846115,
+    "same_speaker": false
+   }
+  ],
+  [
+   {
+    "person_id": "prof",
+    "name": "prof",
+    "score": 0.7820734977722168,
+    "same_speaker": true
+   },
+   {
+    "person_id": "tasmin",
+    "name": "tasmin",
+    "score": 0.08625864237546921,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tina",
+    "name": "tina",
+    "score": 0.06733324378728867,
+    "same_speaker": false
+   },
+   {
+    "person_id": "koh-qing-jia",
+    "name": "Koh Qing Jia",
+    "score": 0.04456983134150505,
+    "same_speaker": false
+   },
+   {
+    "person_id": "le-yong",
+    "name": "le yong",
+    "score": -0.056059449911117554,
+    "same_speaker": false
+   }
+  ]
+ ]
+}

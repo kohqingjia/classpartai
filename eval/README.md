@@ -31,11 +31,17 @@ Scripts that score the system, and the results they produce (`eval/results/`). E
   scripts are on the server only). `collect.py` runs the real models once in the app container
   (Tina's `process_audio`, plus each Whisper segment's and each script line's voice scores
   against every enrolled voice, Whisper size/beam variants, and word timings) and caches it in
-  `listener/cache/`; `compare.py` then scores configurations offline from that cache (no
+  `listener/cache/` (the first run, with a synthetic professor, is in
+  `listener/cache-synthetic-prof/`); `compare.py` then scores configurations offline from that cache (no
   models): WER against the script, and per script line whether the right person, the wrong
   person or nobody was credited. Scoring rules: `src/classpartai/listener_eval.py`; tests:
   `tests/test_listener_eval.py`.
-  - [`results/listener-20261107.md`](results/listener-20261107.md): Tina's rule left 8/26
+  - [`results/listener-20261107.md`](results/listener-20261107.md), with Prof Wynter's own
+    (cloned) voice: one professor line was credited to Tina because Whisper cut it into
+    segments too short for the veto; checking each whole turn as well (now the app's
+    `decide_speakers`) credits nothing to the wrong student, 24/26 student and 36/36
+    professor lines right, WER 4.3%.
+  - [`results/listener-20261107-synthetic-prof.md`](results/listener-20261107-synthetic-prof.md): Tina's rule left 8/26
     student lines unattributed; naming each diarised speaker by score/margin fixed that but
     credited one Tasmin line to Tina (pyannote merged the two); aligning words to speaker turns
     plus a per-line voice veto (now the app's Listener, `decide_speakers`) credits no line to

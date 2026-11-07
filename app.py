@@ -1516,6 +1516,99 @@ elif view == "how":
         "top 5. The week filter keeps searches on topic."
     )
 
+    st.subheader("How the Listener decides who spoke")
+    st.markdown(
+        "Two models listen separately, and the app combines them. Whisper hears *what* was "
+        "said; pyannote hears *how many voices* there are and when each one talks, without "
+        "knowing who they are. Names come only from comparing voices with the samples enrolled "
+        "in Class & voices."
+    )
+    st.markdown(
+        "| Stage | What happens | Can go wrong |\n"
+        "|---|---|---|\n"
+        "| 1 · Transcribe | Whisper writes the words, in pieces cut at pauses, with a time for "
+        "every word | A piece can run across two speakers; names and terms get misspelt |\n"
+        "| 2 · Split by voice | pyannote (diarisation) labels stretches of audio Speaker A, "
+        "Speaker B… purely by how the voices sound | It can merge two similar voices into one "
+        "speaker, or put part of a turn under the wrong speaker |\n"
+        "| 3 · Name each speaker | All of a speaker's audio is turned into a voice embedding "
+        "(SpeechBrain ECAPA) and compared with every enrolled sample by cosine similarity. "
+        "The best match must score at least 0.35 and be 0.10 ahead of the next, else the "
+        "speaker stays *unknown* or *ambiguous* | Not on its own: a merged speaker still gets "
+        "one name for two people |\n"
+        "| 4 · Words to speakers | Each word goes to the speaker talking at that moment, so a "
+        "Whisper piece that runs across a turn change is split there | Word timings are off "
+        "by a few hundredths of a second at the edges |\n"
+        "| 5 · Check each line | Each line of 1 s or more is scored again on its own voice. If "
+        "it clearly sounds like someone else, it becomes *ambiguous* | Lines under 1 s carry "
+        "too little voice to check on their own |\n"
+        "| 6 · Check each turn | Consecutive lines of one speaker are scored again as one turn, "
+        "so a turn Whisper cut into short lines is still checked. A line is credited only if "
+        "neither check names someone else | — |\n"
+        "| 7 · A person confirms | ② Who spoke? shows every line with its speaker and a ▶ to "
+        "hear it; the professor confirms before the session is created. Unknown and ambiguous "
+        "lines are never scored | The professor can't reassign a line here yet, only confirm "
+        "or discard |"
+    )
+    with st.expander("Worked example: why stage 6 exists (Demo 7)"):
+        st.markdown(
+            "The professor's last line in Demo 7 is *\"I don't think the evidence supports "
+            "always. For facts that change, retrieval is usually the better tool. Let's stop "
+            'there."*\n\n'
+            '1. pyannote got the start right but put the last 2.5 s (*"retrieval is usually '
+            "the better tool. Let's stop there\"*) under Tina's speaker.\n"
+            "2. Whisper had cut that stretch into three pieces: 0.96 s, 0.70 s and 0.62 s.\n"
+            "3. Stage 5 skips pieces under 1 s, so none was checked, and all three were "
+            "credited to Tina: a student credited with words she never said.\n"
+            "4. Stage 6 glues them back into one 2.5 s turn and scores it: prof 0.78, Tina "
+            "0.07. The turn clearly isn't Tina, so it becomes *ambiguous*.\n\n"
+            '**Why ambiguous and not "professor"?** The check only proves the voice doesn\'t '
+            "match the label. Crediting the wrong student can change a grade; an ambiguous line "
+            "is never scored, and the professor sees it in ② Who spoke?."
+        )
+    with st.expander("How well it works (measured on the 7 demo seminars)"):
+        st.markdown(
+            "Each demo's script says who really said every line, so each setting can be scored "
+            "line by line (`eval/listener/`, results in `eval/results/listener-20261107.md`). "
+            "8.3 minutes of audio, 64 lines, 26 of them students'.\n\n"
+            "| Setting | Lines credited to the wrong student | Student lines right | "
+            "Professor lines right |\n"
+            "|---|---|---|---|\n"
+            "| Before: Tina's rule (ambiguous whenever two voices pass 0.25) | 1 | 17/26 | "
+            "34/36 |\n"
+            "| Stages 3–5 | 1 | 24/26 | 35/36 |\n"
+            "| **Stages 3–6 (the app now)** | **0** | **24/26** | **36/36** |\n"
+            "| Perfect splitting (each line's true time span) | 0 | 26/26 | 36/36 |\n\n"
+            "- The two student lines left are in Demo 6, where pyannote found 3 voices for 5 "
+            "people. Both are marked ambiguous, not miscredited.\n"
+            "- Changing the 0.35 / 0.10 thresholds made no difference: a person's own voice "
+            "scores about 0.46–0.97 against their sample, anyone else's at most about 0.37.\n"
+            "- The last row shows the voice model isn't the weak point: with perfect splitting "
+            "every line is right. The errors come from stages 1 and 2.\n"
+            "- Whisper's word error rate is 4.3% (mostly names and terms, e.g. *Laura* for "
+            "LoRA). A full run takes about 1.7× the recording's length on the server's CPU, "
+            "three quarters of it in pyannote.\n"
+            "- Limits: cloned voices, no crosstalk or room noise, and only 26 student lines, "
+            "so each difference is one line."
+        )
+    with st.expander("How the demo recordings were made (voice cloning)"):
+        st.markdown(
+            "- **Free and local.** F5-TTS, an open-source text-to-speech model, runs on our own "
+            "server's CPU: no API, no per-use cost, about 2.5 minutes per 5-second line.\n"
+            "- **How it clones.** It's given a few seconds of a person's enrolled sample plus "
+            "the exact words said in it, and a new line to say. It generates the new line "
+            "with the same pitch, tone and accent. Nothing is learnt permanently: it copies "
+            "the voice from that one clip each time.\n"
+            "- **Assembly.** Each line is generated on its own, then the lines are joined with "
+            "short pauses, and every line's start and end time is saved. That timed script is "
+            "what the ▶ buttons under each demo recording use.\n"
+            "- **Checked before use.** Whisper must hear the scripted words, and the voice "
+            "match must name the right person (all 64 lines passed). The guest is a built-in "
+            "Mac voice that nobody enrolled, so the Listener must leave it *unknown*.\n"
+            "- **Consent and privacy.** Everyone whose voice is cloned agreed to it. The audio "
+            "stays on the server and is never committed to the public repository."
+        )
+
     st.subheader("Guardrails")
     st.markdown(
         "- Transcript and slide text is treated as **data, never instructions** "

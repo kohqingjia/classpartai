@@ -123,16 +123,52 @@ def test_a_line_whose_own_voice_names_someone_else_is_not_credited():
         {**WHISPER[0], "start": 4.4, "words": WHISPER[0]["words"][4:], "text": "b"},
     ]
     identify = own_voice(
-        scores(("tina", 0.70), ("tasmin", 0.20)), scores(("tasmin", 0.62), ("tina", 0.35))
+        scores(("tina", 0.48), ("tasmin", 0.44)),  # the whole turn: both voices, so unclear
+        scores(("tina", 0.70), ("tasmin", 0.20)),
+        scores(("tasmin", 0.62), ("tina", 0.35)),
     )
     result = decide_speakers(
         pipeline_result(speaker_segments=turns, whisper_segments=segments), identify
     )
+    assert identify.calls[0] == (0.0, 10.0)
     assert [s["speaker"] for s in result["segments"]] == ["tina", "AMBIGUOUS"]
     vetoed = result["aligned_segments"][1]["voice_match"]
     assert vetoed["status"] == "vetoed" and vetoed["speaker_name"] == "tina"
     turn = to_transcript(result, {"tasmin": "t1", "tina": "t2"}, "v").turns[1]
     assert turn.speaker.kind == "uncertain"
+
+
+def test_a_turn_cut_into_lines_too_short_to_check_is_checked_as_a_whole():
+    # Demo 7: diarisation gave the end of the professor's last line (2.5 s) to Tina's
+    # speaker, and Whisper cut it into three lines under 1 s, so none was checked on its own.
+    turns = [
+        {"start": 0.0, "end": 4.0, "speaker": "SPEAKER_00"},
+        {"start": 4.0, "end": 6.5, "speaker": "SPEAKER_01"},
+    ]
+    # One Whisper segment per word: the professor's long line, then three under 1 s.
+    words = [
+        word(0.0, 3.9, "evidence"),
+        word(4.0, 4.9, "retrieval"),
+        word(5.1, 5.8, "usually"),
+        word(5.9, 6.5, "stop."),
+    ]
+    whisper = [{"start": w["start"], "end": w["end"], "text": "", "words": [w]} for w in words]
+    result = pipeline_result(speaker_segments=turns, whisper_segments=whisper)
+    result["voice_matches"]["SPEAKER_00"]["matches"] = scores(("prof", 0.86), ("tina", 0.06))
+    result["voice_matches"]["SPEAKER_01"]["matches"] = scores(("tina", 0.74), ("prof", 0.14))
+    identify = own_voice(
+        scores(("prof", 0.78), ("tina", 0.07)),  # the whole 2.5 s turn: the professor
+        scores(("prof", 0.85), ("tina", 0.05)),  # the professor's own line
+    )
+    decided = decide_speakers(result, identify)
+    assert identify.calls == [(4.0, 6.5), (0.0, 3.9)]
+    assert [s["speaker"] for s in decided["aligned_segments"]] == [
+        "SPEAKER_00",
+        *["SPEAKER_01"] * 3,
+    ]
+    assert [s["speaker"] for s in decided["segments"]] == ["prof", "AMBIGUOUS"]
+    line = decided["aligned_segments"][1]["voice_match"]
+    assert line["status"] == "vetoed" and line["turn"]["start"] == 4.0
 
 
 def test_without_word_timings_the_pipeline_alignment_is_used():
