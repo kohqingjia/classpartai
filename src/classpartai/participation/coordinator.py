@@ -222,6 +222,13 @@ def _coordinate(
     turns = inputs.transcript.turns
     auditor = AuditorSession()  # one-round re-judge state, for this run only
     review_refusals = 0
+    # Each run scores the students itself. An earlier run's draft is history, not this run's
+    # findings: reusing it skipped the Judge on a re-run (run 7dd54fa5).
+    judged = False
+    NOT_JUDGED = (
+        "No scores in this run yet: call propose_rubric_assessment first (an earlier run's "
+        "draft is not reused)"
+    )
     stop_reason = "shared_budget_exhausted"
     try:
         while True:
@@ -344,10 +351,10 @@ def _coordinate(
                     # those students instead of everyone.
                     revision = (
                         Revision(args.note, draft.content.findings, draft.content.audit.issues)
-                        if draft
+                        if draft and judged
                         else None
                     )
-                    judged = judge(
+                    scored = judge(
                         inputs,
                         records.evidence_for(session_id),
                         budget,
@@ -355,10 +362,11 @@ def _coordinate(
                         session_id,
                         revision,
                     )
-                    judged.feedback = draft.content.feedback if draft else []
+                    scored.feedback = draft.content.feedback if draft and judged else []
                     nxt = records.append_draft(
-                        session_id, judged, "model", args.note, draft.version if draft else 0
+                        session_id, scored, "model", args.note, draft.version if draft else 0
                     )
+                    judged = True
                     progress.latestDraftId = nxt.id
                     output = {
                         "draftId": nxt.id,
@@ -370,6 +378,8 @@ def _coordinate(
                     action["arguments"] = args.model_dump_json()
                     if draft is None:
                         raise Unprocessable("Create a provisional draft before audit")
+                    if not judged:
+                        raise Unprocessable(NOT_JUDGED)
                     # Le Yong's Auditor agent; falls back to the single-call model_audit.
                     audit = agent_audit(
                         inputs,
@@ -391,6 +401,8 @@ def _coordinate(
                     action["arguments"] = args.model_dump_json()
                     if draft is None:
                         raise Unprocessable("Create findings before feedback")
+                    if not judged:
+                        raise Unprocessable(NOT_JUDGED)
                     result = feedback_for(
                         args.studentId,
                         inputs,
@@ -428,6 +440,8 @@ def _coordinate(
                     action["arguments"] = args.model_dump_json()
                     if draft is None:
                         raise Unprocessable("No provisional draft exists")
+                    if not judged:
+                        raise Unprocessable(NOT_JUDGED)
                     # Say exactly what is missing: a vague refusal had the model retry this
                     # call over and over instead of fixing the draft.
                     blocking = [
