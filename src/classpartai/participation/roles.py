@@ -156,7 +156,9 @@ def model_audit(
         "reduce scores. Resolve prior model issue IDs only with a specific explanation. "
         "Deterministic validation remains authoritative.",
         {
-            "inputs": inputs.model_dump(),
+            # Without the course documents (158 KB on Demo 3): they alone broke the 100 KB
+            # history limit. The evidence below carries what was cited from them.
+            "inputs": inputs.model_dump(exclude={"documents"}),
             "draft": draft.model_dump(),
             "evidence": evidence_json(evidence),
         },
