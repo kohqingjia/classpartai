@@ -37,9 +37,9 @@ def measured(path: Path = MEASURED, listener: Path = LISTENER) -> dict | None:
     """The measured run, plus the Listener's measured speed."""
     if not (path.exists() and listener.exists()):
         return None
-    timings = json.loads(listener.read_text())["timings"].values()
+    timings = json.loads(listener.read_text(encoding="utf-8"))["timings"].values()
     return {
-        **json.loads(path.read_text()),
+        **json.loads(path.read_text(encoding="utf-8")),
         "listener": {
             "pipeline_seconds": sum(t["total_s"] for t in timings),
             "audio_seconds": LISTENER_AUDIO_SECONDS,

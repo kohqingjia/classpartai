@@ -31,7 +31,8 @@ from classpartai.auditor_agent.examples.demo import (
     run_demo,
 )
 from classpartai.auditor_agent.harness import Budget
-from classpartai.auditor_agent.tools import AuditTools, correlation, injection_signal
+from classpartai.auditor_agent.tools import AuditTools, correlation
+from classpartai.injection import injection_signal
 
 
 class ScriptedDouble:
@@ -226,13 +227,7 @@ class AuditorTests(unittest.TestCase):
         self.assertEqual(injection_signal(mixed)["classification"], "suspected_instruction")
         value = fictional_request()
         value["contributions"][0]["text"] = attack
-        tools = tools_for(value)
-        self.assertEqual(
-            tools.detect_injection(target="contribution", target_id="contribution-a")[
-                "original_text"
-            ],
-            attack,
-        )
+        value["contributions"][0]["listener_injection"] = "suspected_instruction"
         result = audit_proposal(
             value, model=FictionalModelDouble(), evidence_reader=fictional_reader()
         )
@@ -1557,12 +1552,6 @@ class ArgumentQualityTests(unittest.TestCase):
         examples = [
             ("compare_similar", {"finding_id": "finding-a", "k": True}, "wrong_type", ["k"]),
             ("compare_similar", {"finding_id": "finding-a", "k": 6}, "number_out_of_range", ["k"]),
-            (
-                "detect_injection",
-                {"target": "PRIVATE-UNKNOWN", "target_id": "finding-a"},
-                "invalid_enum",
-                ["target"],
-            ),
             (
                 "request_rejudge",
                 {"issues": [issue]},

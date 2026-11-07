@@ -41,7 +41,7 @@ Every tool call and role output is schema-checked; a refused call goes back to t
 
 | Part | Fixed workflow (code) | Agentic (the model decides) |
 |---|---|---|
-| Listener | transcribe → diarise → identify | — (the professor resolves uncertain speakers) |
+| Listener | transcribe → diarise → identify → screen each line for instructions aimed at the grader | — (the professor resolves uncertain speakers) |
 | Coordinator | budget, tool validation, refusal of unsafe actions | which tool next, when to retrieve more, revise, or finish |
 | Research agent (②) | session index, budgets, retry limits, verbatim-quote and exact-excerpt checks | course notes or web, queries and rewrites, which passages to grade, the answer's claims and expected points |
 | Judge | every score is checked by `validate_proposal` (ranges, attribution, silence); budget; no approval or delivery tools | which tool next (rubric, evidence, a student's turns), the scores, confidence, justifications, what to flag |
@@ -69,7 +69,7 @@ for the data sources, course-topic mapping and diagnostics recorded by new runs.
 
 | Part | What we measure |
 |---|---|
-| ① Listener | word error rate; speaker-attribution accuracy |
+| ① Listener | word error rate; speaker-attribution accuracy; injection screen: attacks caught and false alarms (`eval/injection_eval.py`) |
 | ② Research agent | single-pass vs agentic RAG on 20 labelled IS469 Q&A pairs (`eval/research_eval.py`): routing, correctness, answers-the-question, context precision, cost. Results: [eval/results/research-is469-library.md](eval/results/research-is469-library.md) |
 | ③ Judge | output: agreement with human scores on 20 hand-scored contributions (Spearman, quadratic-weighted Cohen's kappa; `eval/judge_eval.py`). Trajectory: finished, rules passed first try, scoring calls needed, flagged the injection, calls and cost |
 | ④ Auditor | judge alone vs judge + auditor: issues caught, injected instructions flagged |
@@ -145,7 +145,12 @@ deploy/                 Docker deploy for the VPS
    redeploys. Costs come from `data/model_prices.json` (edit it to match your plan; a model with no
    price shows "no price", never $0); the OpenAI usage page is the source of truth for the bill.
    Each run's trace is also on the Coordinator tab of its Agent workspace.
-5. **🧭 How it works**: the whole system on one page (pipeline diagram, why it's agentic,
+5. **💡 Reflection & risks**: what worked and why, what did not, where it goes next, and each
+   risk with its mitigation and what is left. The project is presented from the site, so this is
+   its reflective analysis.
+6. **⬇ Download data**: one zip of the server's recordings, voice samples, evaluation cache and
+   database. Off unless `EXPORT_PASSWORD` is set on the server.
+7. **🧭 How it works**: the whole system on one page (pipeline diagram, why it's agentic,
    guardrails, IS469 topic map), for presenting.
 
 No recording to hand? **▶ Use the demo recording** processes `data/demo_audio/seminar.ogg`, a
@@ -155,6 +160,8 @@ demo voices; remove them on Class & voices). Regenerate it with `python scripts/
 Without access to the gated pyannote diarisation model, the Listener falls back to matching each
 transcribed sentence against the enrolled voices (`agents/listener.py`): the best match must
 score at least 0.35 and lead the runner-up by 0.10, otherwise the line stays unknown.
+
+How to run the whole workflow and what to check is in [docs/TESTING.md](docs/TESTING.md).
 
 ## Setup
 

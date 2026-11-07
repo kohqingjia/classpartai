@@ -118,9 +118,12 @@ class OpenAIDriver:
             "tool_choice": "required",
             "parallel_tool_calls": False,
         }
-        # A thinking level can be set for the Judge's calls alone (JUDGE_REASONING_EFFORT).
-        if config.JUDGE_REASONING_EFFORT and ledger.current().get("agent") == "judge":
-            kwargs["reasoning_effort"] = config.JUDGE_REASONING_EFFORT
+        # A thinking level per agent (config.REASONING_EFFORT). Only OpenAI's own models are
+        # given one unprompted: a local or compatible endpoint may not accept the setting.
+        agent = ledger.current().get("agent")
+        effort = config.REASONING_EFFORT.get(agent)
+        if effort and (self.provider == "openai" or agent == "judge"):
+            kwargs["reasoning_effort"] = effort
         started = ledger.begin()
         try:
             response = self.client.chat.completions.create(**kwargs)

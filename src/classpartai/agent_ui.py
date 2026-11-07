@@ -250,8 +250,19 @@ def listener_view(records, session_id, inputs):
         else:
             st.caption("No enrolled voices.")
     section(2, "Tools it may call")
-    st.code("Whisper → pyannote diarisation → SpeechBrain verification", language=None)
+    st.code(
+        "Whisper → pyannote diarisation → SpeechBrain verification → injection screen",
+        language=None,
+    )
     st.caption("Fixed preprocessing pipeline; no planner or scoring tool.")
+    flagged = [t for t in inputs.transcript.turns if t.injection]
+    if flagged:
+        st.warning(
+            "Injection screen flagged: "
+            + ", ".join(f"{t.id} ({t.injection.replace('_', ' ')})" for t in flagged)
+        )
+    else:
+        st.caption("Injection screen: no turn tries to instruct the grader.")
     section(3, "Trajectory / timeline")
     if diagnostics:
         if diagnostics.get("note"):

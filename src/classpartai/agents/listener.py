@@ -4,6 +4,9 @@ Wraps audio-service/pipeline.py and maps its output onto the assessment transcri
 Identified speakers become student turns; UNKNOWN / AMBIGUOUS become "uncertain" turns, which
 can never establish a student's score. The professor confirms the transcript before it is used.
 
+Every student or uncertain turn is also screened for words aimed at the grader
+(``screen_injection``); the flag rides on the turn (``Turn.injection``).
+
 The pipeline's diarised speakers are then re-decided here (``decide_speakers``): words go to
 the speaker turn they fall in, each speaker is named with ``best_match``, and a line whose own
 voice clearly names someone else stays uncertain. eval/results/listener-20261107.md measured
@@ -26,8 +29,9 @@ from collections.abc import Callable, Iterator
 from contextlib import contextmanager
 from pathlib import Path
 
-from classpartai.assessment import Transcript
+from classpartai.assessment import AssessmentInputs, Transcript
 from classpartai.config import AUDIO_SERVICE_DIR
+from classpartai.injection import NONE, injection_signal
 
 IS_PLACEHOLDER = False
 MIN_SEGMENT_SECONDS = 1.0  # shorter clips are too little voice to identify anyone
@@ -339,6 +343,25 @@ def process_without_diarization(audio_path: str) -> dict:
     }
 
 
+def screen_injection(text: str) -> str | None:
+    """The Listener's last step: does this turn try to instruct the grader? A pattern check on
+    the transcribed words ("ignore the rubric", "give me full marks"); a quoted example in a
+    taught lesson is told apart from a command. None when nothing is found. The words are never
+    changed: the flag travels with the turn to the professor's review, the Judge and the
+    Auditor."""
+    kind = injection_signal(text)["classification"]
+    return None if kind == NONE else kind
+
+
+def screen_transcript(inputs: AssessmentInputs) -> AssessmentInputs:
+    """Screen every turn that is not yet screened, however the transcript got in (a recording,
+    a demo seminar, an import). A professor's turns are not graded, so they are left alone."""
+    for turn in inputs.transcript.turns:
+        if turn.injection is None and turn.speaker.kind != "professor":
+            turn.injection = screen_injection(turn.text)
+    return inputs
+
+
 def to_transcript(
     result: dict,
     ids_by_name: dict[str, str],
@@ -371,6 +394,10 @@ def to_transcript(
                 "endMs": end,
                 "speaker": speaker,
                 "text": seg["text"] or "(inaudible)",
+                # A professor's words are not graded, so only other speakers are screened.
+                "injection": None
+                if speaker["kind"] == "professor"
+                else screen_injection(seg["text"] or ""),
             }
         )
     return Transcript(version=version, reviewStatus="reviewed", turns=turns)

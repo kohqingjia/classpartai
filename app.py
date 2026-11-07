@@ -29,7 +29,7 @@ from dotenv import load_dotenv
 from groq import Groq
 from openai import OpenAI
 
-from classpartai import config, course_map, demo_seminars, usage
+from classpartai import config, course_map, demo_seminars, exports, reflection_ui, usage
 from classpartai import snippets as code_snippets
 from classpartai.agent_ui import TABS, overview, render_agent
 from classpartai.agents import listener
@@ -90,8 +90,10 @@ VIEWS = {
     "library",
     "voices",
     "how",
+    "reflection",
     "monitoring",
     "evaluation",
+    "downloads",
 }
 RECORDINGS = DATA_DIR / "recordings"  # class recordings, kept for playback (server volume only)
 DEMO_AUDIO = DATA / "demo_audio"
@@ -137,6 +139,18 @@ button[data-testid="stBaseButton-primary"] p { color:#141415; }
   background:#232325; border-color:#e8b03c; color:#ededed;
   box-shadow:inset 0 -3px 0 #e8b03c; }
 .st-key-stepbar button[data-testid="stBaseButton-primary"] p { color:#ededed; }
+/* Finished steps are green, so "where am I, what is done" reads at a glance. */
+[class*="st-key-stepdone-"] button { border-color:#3fb27f; color:#8fe0b6; }
+[class*="st-key-stepdone-"] button p { color:#8fe0b6; }
+[class*="st-key-stepdone-"] button:disabled { opacity:1; }
+/* The one thing to do now. */
+.next-hint { margin:10px 0 4px; padding:10px 14px; border-left:4px solid #e8b03c;
+  background:#232325; border-radius:6px; color:#ededed; font-size:1rem; }
+.next-hint b { color:#f0c25e; }
+/* Captions were too faint on the dark background. */
+[data-testid="stCaptionContainer"], [data-testid="stCaptionContainer"] p { color:#b9b9be; }
+/* Warnings, errors and successes: stronger bars, so a status is seen before it is read. */
+[data-testid="stAlert"] { border-left-width:5px; border-left-style:solid; }
 /* Pressable things answer the press. */
 button { transition:transform 160ms cubic-bezier(0.23,1,0.32,1),
   background-color 160ms cubic-bezier(0.23,1,0.32,1); }
@@ -602,6 +616,14 @@ STEP_AGENTS = {
     4: "Professor · human approval gate",
     5: "Delivery · AgentMail",
 }
+# What the person should do at each step, in plain words (shown under the step bar).
+STEP_NOW = {
+    1: "record or upload the class audio, then press Transcribe.",
+    2: "check who said what (▶ plays anything unsure), tick the box, then Create session.",
+    3: "press Generate assessment and wait. The agents prepare a draft; nothing is sent.",
+    4: "read each student's email, then approve this exact version.",
+    5: "press Send; accepted emails are never sent twice.",
+}
 STEP_PARAMS = {name: n for n, name in enumerate(STEPS, start=1)}  # ?step=<name>
 
 
@@ -609,17 +631,22 @@ def step_bar(view: str, current: int, done: set[int], reachable: set[int]) -> No
     """The five steps, each naming its agents; reachable steps are buttons (1-based)."""
     with st.container(key="stepbar"):
         for n, col in enumerate(st.columns(len(STEPS)), start=1):
-            mark = "✓" if n in done and n != current else str(n)
-            col.button(
-                f"{mark} · {STEPS[n - 1]}",
-                key=f"stepbar-{n}",
-                width="stretch",
-                type="primary" if n == current else "secondary",
-                disabled=n not in reachable,
-                on_click=go,
-                args=(view, st.session_state.session_id if view == "session" else None, n),
-            )
-            col.caption(STEP_AGENTS[n])
+            finished = n in done and n != current
+            mark = "✓" if finished else str(n)
+            with col, st.container(key=f"step{'done' if finished else 'todo'}-{n}"):
+                st.button(
+                    f"{mark} · {STEPS[n - 1]}",
+                    key=f"stepbar-{n}",
+                    width="stretch",
+                    type="primary" if n == current else "secondary",
+                    disabled=n not in reachable,
+                    on_click=go,
+                    args=(view, st.session_state.session_id if view == "session" else None, n),
+                )
+                st.caption(STEP_AGENTS[n])
+    st.markdown(
+        f'<div class="next-hint"><b>Now:</b> {STEP_NOW[current]}</div>', unsafe_allow_html=True
+    )
     if current > 1 and current - 1 in reachable:
         st.button(
             f"← Back to {STEPS[current - 2]}",
@@ -648,6 +675,13 @@ def who_spoke(turns, names: dict[str, str], audio: Path | None, player_key: str)
         st.caption(
             "Not heard in this recording (they'll get 'No observed contribution'): "
             + ", ".join(silent)
+        )
+    attacks = [t for t in turns if t.injection == "suspected_instruction"]
+    if attacks:
+        st.warning(
+            f"The Listener flagged {len(attacks)} line(s) that seem to give the grader "
+            "instructions (" + ", ".join(t.id for t in attacks) + "). The words stay in the "
+            "transcript and are scored on their content only; the Judge and Auditor are told."
         )
     if audio and audio.exists():
         recording_player(audio, player_key)
@@ -881,8 +915,10 @@ with st.sidebar:
     nav("Class & voices", "voices", icon=":material/group:")
     st.caption("Present")
     nav("How it works", "how", icon=":material/account_tree:")
+    nav("Reflection & risks", "reflection", icon=":material/lightbulb:")
     nav("Monitoring", "monitoring", icon=":material/monitoring:")
     nav("Evaluation", "evaluation", icon=":material/balance:")
+    nav("Download data", "downloads", icon=":material/download:")
     if os.getenv("EMAIL_TEST_MODE", "true").lower() != "false":
         recipient = os.getenv("EMAIL_TEST_RECIPIENT", "(not set)")
         st.caption(f"Test mode: every email goes to {recipient}")
@@ -1880,8 +1916,69 @@ elif view == "how":
 
 # --- Session Summary ----------------------------------------------------------
 
+elif view == "reflection":
+    reflection_ui.render()
+
 elif view == "monitoring":
     monitoring_view(records, go)
+
+elif view == "downloads":
+    st.title("Download data")
+    st.markdown(
+        '<p class="muted">The recordings, voice samples and database live only on this server. '
+        "Choose what you need, prepare one zip and download it, for example to run the "
+        "Listener or the evaluations on your own machine.</p>",
+        unsafe_allow_html=True,
+    )
+    password = os.getenv("EXPORT_PASSWORD", "")
+    if not password:
+        st.warning(
+            "Downloads are switched off. Recordings and the database hold students' voices and "
+            "assessments, so set EXPORT_PASSWORD in the server's .env and redeploy to turn "
+            "this page on."
+        )
+    elif not exports.allowed(st.text_input("Download password", type="password"), password):
+        st.info("Enter the download password to continue.")
+    else:
+        choices = exports.groups(DATA_DIR, ENROLLMENT_DIR, REPO_ROOT)
+        sizes = {g.key: g.files() for g in choices if g.key != "database"}
+        picked = []
+        for group in choices:
+            files = sizes.get(group.key)
+            count = (
+                f"{len(files)} files, {sum(f.stat().st_size for f, _ in files) / 1e6:.1f} MB"
+                if files is not None
+                else "one SQLite file"
+            )
+            tag = " · personal data" if group.personal else ""
+            if st.checkbox(
+                f"**{group.label}** ({count}{tag})",
+                value=group.key in ("demo-seminars", "voices", "results"),
+                key=f"export-{group.key}",
+                help=group.note,
+            ):
+                picked.append(group)
+        if any(g.personal for g in picked):
+            st.warning(
+                "This includes voices or student records. Keep the zip off shared drives and "
+                "delete it when you are done."
+            )
+        if picked and st.button("Prepare zip", type="primary"):
+            with st.spinner("Zipping…"):
+                tmp = tempfile.NamedTemporaryFile(suffix=".zip", delete=False)
+                with tmp:
+                    rows = exports.build_archive(picked, DATA_DIR, tmp)
+                st.session_state["export"] = {"path": tmp.name, "rows": rows}
+        ready = st.session_state.get("export")
+        if ready and Path(ready["path"]).is_file():
+            st.dataframe(ready["rows"], hide_index=True, width="stretch")
+            with open(ready["path"], "rb") as zipped:
+                st.download_button(
+                    "Download classpartai-data.zip",
+                    zipped,
+                    file_name="classpartai-data.zip",
+                    mime="application/zip",
+                )
 
 elif view == "evaluation":
     evaluation_view()

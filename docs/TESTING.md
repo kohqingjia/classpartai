@@ -1,0 +1,94 @@
+# Testing the whole workflow, by hand
+
+How to run ClassPart AI end to end and what to look at. This is for trying the system and
+collecting evidence, not for the unit tests (`uv run pytest`).
+
+## What you need
+
+| Need | For | Where |
+|---|---|---|
+| `OPENAI_API_KEY` in `.env` | every model call (Coordinator, Research, Judge, Auditor, Feedback) | `.env.example` |
+| `HF_TOKEN` (account has accepted the pyannote terms) | speaker separation; without it the Listener falls back to matching each sentence to a voice | `.env.example` |
+| `AGENTMAIL_API_KEY`, `EMAIL_TEST_RECIPIENT` | actually sending the emails; test mode sends everything to that one inbox | `.env.example` |
+| The course slides, uploaded in **Course library** | evidence the Research agent can quote (the sample session carries its own small set) | the app |
+| Audio | only for the Listener path (C below) | see "Getting the audio" |
+
+Start the app with `uv run streamlit run app.py` (http://localhost:8501). Open **Monitoring**
+beside it: every model call, its tokens and its cost appear there as the run goes.
+
+## Pick a path
+
+### A. Everything except the audio (fastest, needs only the OpenAI key)
+
+1. **New class session → Skip to the demo transcript.** This opens a session at step 3 with a
+   ready-made transcript, four students and a rubric.
+2. Step **③ AI assessment → Generate assessment.** Watch the agents work. Nothing is sent.
+3. Open the agent tabs (Coordinator, Research, Judge, Auditor, Feedback writer) to see each one's
+   inputs, tool calls and outputs.
+4. Step **④ Approve**: read each email preview, tick the box, approve.
+5. Step **⑤ Send**: with no AgentMail key this stays a preview; with one, the emails go to
+   `EMAIL_TEST_RECIPIENT`.
+
+Also available on the same page: **IS469 Week 7 seminar** (needs the slides in the Course
+library) and **Le Yong's fixture**.
+
+### B. Try an attack without audio
+
+1. **New class session → Import a session file (JSON)**, choose a file from
+   `eval/guardrails/cases/` (for example `01-direct-injection.json`).
+2. Step **② Who spoke?** shows a yellow warning naming the flagged line. This is the Listener's
+   injection screen working before any agent has read the text.
+3. Generate the assessment. The Judge tab shows the line flagged for the professor and scored on
+   its content only; the Auditor tab lists the matching issue.
+
+### C. The full path from audio
+
+1. **New class session → ▶ Use the demo recording** (a 48-second mock seminar in
+   `data/demo_audio/`), or upload any WAV, MP3 or M4A.
+2. **Class & voices** needs one professor and at least one student with a voice sample; the demo
+   recording enrols its own synthetic voices.
+3. Continue as in path A from step ② on.
+
+The seven scripted demo seminars (everyone speaks, one silent, nobody speaks, a misconception,
+an injection, one dominant speaker, a guest) are in `data/demo-seminars/` in the repo. The app
+reads them from `var/demo-seminars/`, so copy them once:
+
+```bash
+cp -r data/demo-seminars var/demo-seminars     # PowerShell: Copy-Item -Recurse data\demo-seminars var\
+```
+
+The first run downloads the speech models (several minutes).
+
+### D. Run the evaluations
+
+```bash
+uv run python eval/injection_eval.py       # no key, no cost: attacks caught vs false alarms
+uv run python eval/listener/compare.py     # no key: scores the Listener offline from its cache
+uv run python eval/guardrails/run.py       # key: 10 attack cases through the real workflow (~US$1)
+uv run python eval/research_eval.py        # key: single-pass vs agentic RAG (20 items)
+uv run python eval/judge_eval.py           # key: Judge agreement with the 20 hand-scored answers
+```
+
+Results land in `eval/results/` and appear on the **Evaluation** page. The Judge key is a draft
+until the team marks `data/is469/judge_labels.jsonl` rows `"reviewed": true`.
+
+## What to check, and what "good" looks like
+
+| Where | Check | Expect |
+|---|---|---|
+| Monitoring → by agent | model calls per assessment | Judge about 1; Feedback one per student who spoke (none for a silent student); Coordinator single digits; Research the most (about 25 per investigation) |
+| Monitoring → traces | pick the latest run | steps in order: retrieve evidence, judge, audit, feedback, review; no repeated refusals |
+| Judge tab | each finding | score within the range, the student's own turns cited, confidence shown, flags for anything odd |
+| Auditor tab | issues | citations verified; the Listener's injection flag listed for an attack |
+| Approve → email preview | wording | quotes of what the student said, never "turn-003"; course references listed once; no other student named |
+| Send | recipients | with test mode on, every email goes to the one test inbox |
+
+If a run ends "needs review" with a stop reason, that is a safe stop, not a crash: the reason is on
+the Coordinator tab.
+
+## Getting the audio from the deployed server
+
+The recordings, voice samples and database live on the server's volume. Set `EXPORT_PASSWORD`
+in the server's `.env`, wait for the next deploy, then open **Download data** in the sidebar, enter
+the password, tick what you need and download one zip. Without the password set, the page stays
+off. The zip may contain students' voices and names: keep it off shared drives.

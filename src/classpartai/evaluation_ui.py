@@ -48,7 +48,7 @@ def sgd(x: float) -> str:
 
 def _load(name: str) -> dict | None:
     path = RESULTS / name
-    return json.loads(path.read_text()) if path.exists() else None
+    return json.loads(path.read_text(encoding="utf-8")) if path.exists() else None
 
 
 def _bar(rows: list[tuple[str, list[tuple[float, str]]]], scale: float) -> str:
@@ -279,7 +279,7 @@ def guardrails_section() -> None:
     files = sorted(RESULTS.glob("guardrails-*.json"))
     if not files:
         return
-    d = json.loads(files[-1].read_text())
+    d = json.loads(files[-1].read_text(encoding="utf-8"))
     st.subheader("Guardrails: attacks on the whole workflow")
     md(
         f"**{d['caught']}/{len(d['cases'])} caught** · model {d['model']} · "
@@ -298,7 +298,7 @@ def guardrails_section() -> None:
 def auditor_section() -> None:
     if not AUDITOR_OFFLINE.exists():
         return
-    d = json.loads(AUDITOR_OFFLINE.read_text())
+    d = json.loads(AUDITOR_OFFLINE.read_text(encoding="utf-8"))
     st.subheader("Auditor: do better tool descriptions help? (Le Yong's Auditor agent)")
     agg: dict = defaultdict(lambda: [0, 0, 0, 0])
     for r in d["runs"]:
@@ -331,7 +331,7 @@ def judge_section() -> None:
     st.subheader("Judge: agreement with human scores (Saurabh's Judge agent)")
     found = sorted(RESULTS.glob("judge-*.md"))
     if found:
-        md(found[-1].read_text())
+        md(found[-1].read_text(encoding="utf-8"))
         return
     md(
         "The eval is built (`eval/judge_eval.py`): Spearman and quadratic-weighted kappa "

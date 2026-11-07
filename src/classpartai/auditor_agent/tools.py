@@ -9,6 +9,8 @@ import re
 from dataclasses import asdict, dataclass
 from typing import Protocol
 
+from classpartai.injection import injection_signal
+
 from .contracts import (
     AuditRequest,
     ContractError,
@@ -65,40 +67,6 @@ class EvidenceReader(Protocol):
         """Enforce owner/course/session access in the backing query. None means not available."""
 
 
-def injection_signal(original: str) -> dict:
-    matches = list(
-        re.finditer(
-            (
-                "ignore (?:all |previous |the "
-                ")*(?:instructions|rubric|rules)|give (?:me|this student) "
-                "(?:full|maximum|5/5)|system prompt|you are now (?:the |a "
-                ")?grader|override (?:the )?(?:grade|score)"
-            ),
-            original,
-            re.I,
-        )
-    )
-    # Narrow contextual heuristic: quoted commands explicitly discussed as an attack/example.
-    # Mixed text with an instruction outside quotes remains suspicious. Not a security proof.
-    quoted = [(m.start(), m.end()) for m in re.finditer(r'"[^"\n]*"|“[^”\n]*”', original)]
-    teaching = bool(re.search(r"example|quoted|injection|attack|do not follow", original, re.I))
-    benign = (
-        bool(matches)
-        and teaching
-        and all(any(a <= m.start() and m.end() <= b for a, b in quoted) for m in matches)
-    )
-    return {
-        "classification": "benign_quoted_example"
-        if benign
-        else "suspected_instruction"
-        if matches
-        else "no_pattern_detected",
-        "original_text": original,
-        "sanitised_view": None,
-        "limitation": "Heuristic suspicion only; no pattern is not proof of safety",
-    }
-
-
 class AuditTools:
     def __init__(self, request: AuditRequest, model: Model, reader: EvidenceReader, budget: Budget):
         self.request, self.model, self.reader, self.budget = request, model, reader, budget
@@ -119,7 +87,8 @@ class AuditTools:
                     "Reviewed attribution is uncertain; professor resolution required",
                     "review",
                 )
-            if injection_signal(c.text)["classification"] == "suspected_instruction":
+            # Contributions were screened by the Listener; the Auditor trusts that flag.
+            if c.listener_injection == "suspected_instruction":
                 self.add_issue(
                     "injection",
                     [
@@ -128,7 +97,7 @@ class AuditTools:
                         if f.contribution_id == c.contribution_id
                     ],
                     [],
-                    "Suspected instructions aimed at grader in untrusted transcript",
+                    "The Listener flagged instructions aimed at the grader in this contribution",
                     "review",
                 )
         for f in request.proposal.findings:
@@ -271,21 +240,6 @@ class AuditTools:
                 matches, key=lambda m: (-m["lexical_jaccard"], m["turn_id"], m["peer_turn_id"])
             )[:3]
         return matches
-
-    def detect_injection(self, *, target: str, target_id: str) -> dict:
-        identifier(target_id)
-        if target == "rationale":
-            original = self.finding(target_id).rationale
-        elif target == "contribution":
-            contribution = next(
-                (c for c in self.request.contributions if c.contribution_id == target_id), None
-            )
-            if contribution is None:
-                raise ContractError("Unknown contribution")
-            original = contribution.text
-        else:
-            raise ContractError("Invalid injection target")
-        return injection_signal(original)
 
     def verify_citation(self, *, finding_id: str, evidence_id: str) -> dict:
         f = self.finding(finding_id)

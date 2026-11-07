@@ -19,6 +19,7 @@ Scripts that score the system, and the results they produce (`eval/results/`). E
       coverage: a wrong answer covers no expected points, so it gets "no", where the labels say
       a wrong answer still answers the question ("yes"). The labels and the definition disagree.
     - It still searched the course for the two items that need no evidence (i01, i02).
+- `injection_eval.py`: ① Listener injection screen: the first pattern against the widened one on 40 labelled lines in `data/is469/injection_cases.jsonl` (attacks caught, false alarms). No model, no cost. The attacks were written alongside the widened pattern, so its score is an upper bound, not a held-out result.
 - `judge_eval.py`: ③ Judge agent trajectory/output evaluation: agreement with human scores
   (Spearman, quadratic-weighted kappa) on the 20 hand-scored contributions in
   `data/is469/judge_labels.jsonl` (drafts until reviewed), plus how it got there (scoring
