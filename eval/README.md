@@ -19,3 +19,8 @@ Scripts that score the system, and the results they produce (`eval/results/`). E
       coverage: a wrong answer covers no expected points, so it gets "no", where the labels say
       a wrong answer still answers the question ("yes"). The labels and the definition disagree.
     - It still searched the course for the two items that need no evidence (i01, i02).
+- `guardrails/run.py`: adversarial cases (`guardrails/cases/`, fictional) through the real
+  assessment workflow; reports what the guardrails catch. Cases and checks:
+  `src/classpartai/participation/adversarial.py`; model-free tests: `tests/test_guardrails.py`.
+  - [`results/guardrails-20261107-000458.md`](results/guardrails-20261107-000458.md): the run
+    on `gpt-5-mini` (8/10 caught, US$0.95).
