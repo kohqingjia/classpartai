@@ -559,3 +559,20 @@ def test_monitoring_page_and_coordinator_tab_show_usage_and_the_runs_trace(app):
     assert not at.exception
     assert any("Usage & trace" in m.value for m in at.markdown)
     assert "draft_student_feedback" in steps_shown(at)
+
+
+def test_agent_log_and_step_cards_carry_each_agents_ink():
+    from classpartai.ui import AGENT_INKS, NOT_AGENT_INK, log_plain, log_tag, log_tool, tool_owner
+
+    assert tool_owner("retrieve_evidence") == "Research"
+    assert tool_owner("audit_assessment") == "Auditor"
+    assert tool_owner("inspect_transcript_context") == "Coordinator"
+    assert tool_owner("draft_student_feedback") == "Feedback writer"
+    assert AGENT_INKS["Judge"] in log_tag("Judge")
+    assert NOT_AGENT_INK in log_tool("draft_student_feedback", "Feedback writer")
+    # model text in the log is shown as text, never as markup
+    assert log_plain("<img src=x> $5 *bold* a_b") == (
+        "&lt;img src=x&gt; &#36;5 &#42;bold&#42; a&#95;b"
+    )
+    page = flow_html(active="judge")
+    assert AGENT_INKS["Auditor"] in page and NOT_AGENT_INK in page

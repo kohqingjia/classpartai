@@ -65,7 +65,18 @@ from classpartai.research.materials import split_into_chunks
 from classpartai.retrieval import examined_of, searches_of
 from classpartai.summary.agent import analyse_session
 from classpartai.summary.ui import render_session_summary
-from classpartai.ui import STAGES, TOOL_STAGE, board_html, flow_html, system_html, vault_html
+from classpartai.ui import (
+    STAGES,
+    TOOL_STAGE,
+    board_html,
+    flow_html,
+    log_plain,
+    log_tag,
+    log_tool,
+    system_html,
+    tool_owner,
+    vault_html,
+)
 from classpartai.voices import GOOD_SECONDS, Voices
 
 load_dotenv()  # the Session Summary's API key
@@ -256,11 +267,16 @@ def fold_events(events, inputs: AssessmentInputs) -> dict:
             view["active"] = "research"
             tool = detail["tool"].replace("_", " ")
             view["banner"] = f"Evidence agent step {detail['step']}: {tool}"
-            view["lines"].append(f"&emsp;↳ evidence agent: `{detail['tool']}`")
+            view["lines"].append(
+                f"&emsp;↳ {log_tag('Research')} {log_tool(detail['tool'], 'Research')}"
+            )
         elif kind == "retrieval":
             view["searches"].append(detail)
             hits = len(detail["hits"])
-            view["lines"].append(f"&emsp;↳ retrieved {hits} passage(s) for “{detail['query']}”")
+            view["lines"].append(
+                f"&emsp;↳ {log_tag('Research')} retrieved {hits} passage(s) for "
+                f"“{log_plain(detail['query'])}”"
+            )
         elif kind == "done":
             view["active"] = None
             view["done"].add("coordinator")
@@ -268,7 +284,11 @@ def fold_events(events, inputs: AssessmentInputs) -> dict:
         else:
             stage, ok = TOOL_STAGE.get(detail["tool"]), detail["outcome"] == "ok"
             mark = ":green[:material/check:]" if ok else ":red[:material/block:]"
-            view["lines"].append(f"{mark} `{detail['tool']}`: {detail['summary']}")
+            owner = tool_owner(detail["tool"])
+            view["lines"].append(
+                f"{mark} {log_tag(owner)} {log_tool(detail['tool'], owner)}: "
+                f"{log_plain(detail['summary'])}"
+            )
             if stage:
                 counts[stage] = counts.get(stage, 0) + 1
                 refused[stage] = refused.get(stage, 0) + (not ok)
@@ -326,7 +346,7 @@ def run_panel(session_id: str, inputs: AssessmentInputs) -> None:
             )
         with st.expander("Agent log", expanded=alive):
             with st.container(height=240, border=False):
-                st.markdown("  \n".join(view["lines"]) or "Starting…")
+                st.markdown("  \n".join(view["lines"]) or "Starting…", unsafe_allow_html=True)
         if entry["error"]:
             st.error(entry["error"])
         if not alive and not entry.get("reported"):
@@ -509,7 +529,7 @@ def replay_section(session_id: str, inputs: AssessmentInputs) -> tuple[bool, Dra
         )
         with st.expander("Agent log", expanded=True):
             with st.container(height=240, border=False):
-                st.markdown("  \n".join(fold["lines"]) or "Nothing yet.")
+                st.markdown("  \n".join(fold["lines"]) or "Nothing yet.", unsafe_allow_html=True)
         if finished:
             reason = (run["stop_reason"] or "finished").replace("_", " ")
             st.success(
