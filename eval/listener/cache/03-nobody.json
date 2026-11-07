@@ -1,0 +1,3390 @@
+{
+ "id": "03-nobody",
+ "audio_seconds": 40.5079375,
+ "script": {
+  "id": "03-nobody",
+  "title": "Demo 3 \u00b7 Evaluation: nobody answers",
+  "case": "The professor asks questions but no student speaks. Every student must get 'no observed participation'; the run must not invent contributions.",
+  "lines": [
+   {
+    "speaker": "Prof Wynter",
+    "text": "Let's talk about evaluating language models. Suppose you build a chatbot for course questions. How would you know it is any good? Anyone? No? Alright.",
+    "start": 0.8,
+    "end": 7.95
+   },
+   {
+    "speaker": "Prof Wynter",
+    "text": "One option is a human rubric. Another is to use a second model as the judge. What could go wrong with a model as a judge? Take a moment.",
+    "start": 8.7,
+    "end": 15.18
+   },
+   {
+    "speaker": "Prof Wynter",
+    "text": "Okay, I'll answer it. Judges can prefer longer answers, they can prefer their own style, and they can be swayed by the position of an answer in the prompt. So we check the judge against human labels, for example with a correlation, before we trust it.",
+    "start": 16.57,
+    "end": 28.55
+   },
+   {
+    "speaker": "Prof Wynter",
+    "text": "We also separate an answer that is wrong from an answer we cannot assess. If there is no evidence, the honest result is insufficient evidence, not a low score. Please read the evaluation chapter before Thursday.",
+    "start": 29.43,
+    "end": 39.5
+   }
+  ]
+ },
+ "registry": {
+  "koh-qing-jia": "Koh Qing Jia",
+  "tasmin": "tasmin",
+  "tina": "tina",
+  "le-yong": "le yong",
+  "prof": "prof"
+ },
+ "pipeline": {
+  "language": "en",
+  "whisper_segments": [
+   {
+    "start": 0.9400000000000015,
+    "end": 3.0,
+    "text": "Let's talk about evaluating language models.",
+    "words": [
+     {
+      "start": 0.9400000000000015,
+      "end": 1.34,
+      "word": " Let's"
+     },
+     {
+      "start": 1.34,
+      "end": 1.48,
+      "word": " talk"
+     },
+     {
+      "start": 1.48,
+      "end": 1.68,
+      "word": " about"
+     },
+     {
+      "start": 1.68,
+      "end": 2.14,
+      "word": " evaluating"
+     },
+     {
+      "start": 2.14,
+      "end": 2.58,
+      "word": " language"
+     },
+     {
+      "start": 2.58,
+      "end": 3.0,
+      "word": " models."
+     }
+    ]
+   },
+   {
+    "start": 3.22,
+    "end": 5.06,
+    "text": "Suppose you build a chatbot for course questions.",
+    "words": [
+     {
+      "start": 3.22,
+      "end": 3.3,
+      "word": " Suppose"
+     },
+     {
+      "start": 3.3,
+      "end": 3.48,
+      "word": " you"
+     },
+     {
+      "start": 3.48,
+      "end": 3.62,
+      "word": " build"
+     },
+     {
+      "start": 3.62,
+      "end": 3.76,
+      "word": " a"
+     },
+     {
+      "start": 3.76,
+      "end": 4.16,
+      "word": " chatbot"
+     },
+     {
+      "start": 4.16,
+      "end": 4.36,
+      "word": " for"
+     },
+     {
+      "start": 4.36,
+      "end": 4.6,
+      "word": " course"
+     },
+     {
+      "start": 4.6,
+      "end": 5.06,
+      "word": " questions."
+     }
+    ]
+   },
+   {
+    "start": 5.28,
+    "end": 6.38,
+    "text": "How would you know it is any good?",
+    "words": [
+     {
+      "start": 5.28,
+      "end": 5.34,
+      "word": " How"
+     },
+     {
+      "start": 5.34,
+      "end": 5.46,
+      "word": " would"
+     },
+     {
+      "start": 5.46,
+      "end": 5.58,
+      "word": " you"
+     },
+     {
+      "start": 5.58,
+      "end": 5.72,
+      "word": " know"
+     },
+     {
+      "start": 5.72,
+      "end": 5.86,
+      "word": " it"
+     },
+     {
+      "start": 5.86,
+      "end": 5.98,
+      "word": " is"
+     },
+     {
+      "start": 5.98,
+      "end": 6.14,
+      "word": " any"
+     },
+     {
+      "start": 6.14,
+      "end": 6.38,
+      "word": " good?"
+     }
+    ]
+   },
+   {
+    "start": 6.74,
+    "end": 6.92,
+    "text": "Anyone?",
+    "words": [
+     {
+      "start": 6.74,
+      "end": 6.92,
+      "word": " Anyone?"
+     }
+    ]
+   },
+   {
+    "start": 7.12,
+    "end": 7.22,
+    "text": "No.",
+    "words": [
+     {
+      "start": 7.12,
+      "end": 7.22,
+      "word": " No."
+     }
+    ]
+   },
+   {
+    "start": 7.58,
+    "end": 7.8,
+    "text": "All right.",
+    "words": [
+     {
+      "start": 7.58,
+      "end": 7.64,
+      "word": " All"
+     },
+     {
+      "start": 7.64,
+      "end": 7.8,
+      "word": " right."
+     }
+    ]
+   },
+   {
+    "start": 8.88,
+    "end": 10.4,
+    "text": "One option is a human rubric.",
+    "words": [
+     {
+      "start": 8.88,
+      "end": 9.14,
+      "word": " One"
+     },
+     {
+      "start": 9.14,
+      "end": 9.44,
+      "word": " option"
+     },
+     {
+      "start": 9.44,
+      "end": 9.62,
+      "word": " is"
+     },
+     {
+      "start": 9.62,
+      "end": 9.7,
+      "word": " a"
+     },
+     {
+      "start": 9.7,
+      "end": 9.96,
+      "word": " human"
+     },
+     {
+      "start": 9.96,
+      "end": 10.4,
+      "word": " rubric."
+     }
+    ]
+   },
+   {
+    "start": 10.68,
+    "end": 12.46,
+    "text": "Another is to use a second model as the judge.",
+    "words": [
+     {
+      "start": 10.68,
+      "end": 10.86,
+      "word": " Another"
+     },
+     {
+      "start": 10.86,
+      "end": 11.1,
+      "word": " is"
+     },
+     {
+      "start": 11.1,
+      "end": 11.2,
+      "word": " to"
+     },
+     {
+      "start": 11.2,
+      "end": 11.32,
+      "word": " use"
+     },
+     {
+      "start": 11.32,
+      "end": 11.46,
+      "word": " a"
+     },
+     {
+      "start": 11.46,
+      "end": 11.72,
+      "word": " second"
+     },
+     {
+      "start": 11.72,
+      "end": 12.0,
+      "word": " model"
+     },
+     {
+      "start": 12.0,
+      "end": 12.2,
+      "word": " as"
+     },
+     {
+      "start": 12.2,
+      "end": 12.28,
+      "word": " the"
+     },
+     {
+      "start": 12.28,
+      "end": 12.46,
+      "word": " judge."
+     }
+    ]
+   },
+   {
+    "start": 12.9,
+    "end": 14.34,
+    "text": "What could go wrong with a model as a judge?",
+    "words": [
+     {
+      "start": 12.9,
+      "end": 13.02,
+      "word": " What"
+     },
+     {
+      "start": 13.02,
+      "end": 13.12,
+      "word": " could"
+     },
+     {
+      "start": 13.12,
+      "end": 13.24,
+      "word": " go"
+     },
+     {
+      "start": 13.24,
+      "end": 13.4,
+      "word": " wrong"
+     },
+     {
+      "start": 13.4,
+      "end": 13.56,
+      "word": " with"
+     },
+     {
+      "start": 13.56,
+      "end": 13.6,
+      "word": " a"
+     },
+     {
+      "start": 13.6,
+      "end": 13.84,
+      "word": " model"
+     },
+     {
+      "start": 13.84,
+      "end": 14.02,
+      "word": " as"
+     },
+     {
+      "start": 14.02,
+      "end": 14.1,
+      "word": " a"
+     },
+     {
+      "start": 14.1,
+      "end": 14.34,
+      "word": " judge?"
+     }
+    ]
+   },
+   {
+    "start": 14.6,
+    "end": 15.06,
+    "text": "Take a moment.",
+    "words": [
+     {
+      "start": 14.6,
+      "end": 14.72,
+      "word": " Take"
+     },
+     {
+      "start": 14.72,
+      "end": 14.82,
+      "word": " a"
+     },
+     {
+      "start": 14.82,
+      "end": 15.06,
+      "word": " moment."
+     }
+    ]
+   },
+   {
+    "start": 16.8,
+    "end": 17.94,
+    "text": "OK, I'll answer it.",
+    "words": [
+     {
+      "start": 16.8,
+      "end": 17.2,
+      "word": " OK,"
+     },
+     {
+      "start": 17.28,
+      "end": 17.4,
+      "word": " I'll"
+     },
+     {
+      "start": 17.4,
+      "end": 17.7,
+      "word": " answer"
+     },
+     {
+      "start": 17.7,
+      "end": 17.94,
+      "word": " it."
+     }
+    ]
+   },
+   {
+    "start": 18.16,
+    "end": 19.62,
+    "text": "Judges can prefer longer answers.",
+    "words": [
+     {
+      "start": 18.16,
+      "end": 18.42,
+      "word": " Judges"
+     },
+     {
+      "start": 18.42,
+      "end": 18.6,
+      "word": " can"
+     },
+     {
+      "start": 18.6,
+      "end": 18.86,
+      "word": " prefer"
+     },
+     {
+      "start": 18.86,
+      "end": 19.24,
+      "word": " longer"
+     },
+     {
+      "start": 19.24,
+      "end": 19.62,
+      "word": " answers."
+     }
+    ]
+   },
+   {
+    "start": 19.82,
+    "end": 21.12,
+    "text": "They can prefer their own style,",
+    "words": [
+     {
+      "start": 19.82,
+      "end": 19.9,
+      "word": " They"
+     },
+     {
+      "start": 19.9,
+      "end": 20.02,
+      "word": " can"
+     },
+     {
+      "start": 20.02,
+      "end": 20.28,
+      "word": " prefer"
+     },
+     {
+      "start": 20.28,
+      "end": 20.52,
+      "word": " their"
+     },
+     {
+      "start": 20.52,
+      "end": 20.74,
+      "word": " own"
+     },
+     {
+      "start": 20.74,
+      "end": 21.12,
+      "word": " style,"
+     }
+    ]
+   },
+   {
+    "start": 21.12,
+    "end": 22.8,
+    "text": "and they can be swayed by the position",
+    "words": [
+     {
+      "start": 21.12,
+      "end": 21.6,
+      "word": " and"
+     },
+     {
+      "start": 21.6,
+      "end": 21.7,
+      "word": " they"
+     },
+     {
+      "start": 21.7,
+      "end": 21.82,
+      "word": " can"
+     },
+     {
+      "start": 21.82,
+      "end": 21.96,
+      "word": " be"
+     },
+     {
+      "start": 21.96,
+      "end": 22.26,
+      "word": " swayed"
+     },
+     {
+      "start": 22.26,
+      "end": 22.34,
+      "word": " by"
+     },
+     {
+      "start": 22.34,
+      "end": 22.44,
+      "word": " the"
+     },
+     {
+      "start": 22.44,
+      "end": 22.8,
+      "word": " position"
+     }
+    ]
+   },
+   {
+    "start": 22.8,
+    "end": 23.84,
+    "text": "of an answer in the prompt.",
+    "words": [
+     {
+      "start": 22.8,
+      "end": 22.98,
+      "word": " of"
+     },
+     {
+      "start": 22.98,
+      "end": 23.08,
+      "word": " an"
+     },
+     {
+      "start": 23.08,
+      "end": 23.36,
+      "word": " answer"
+     },
+     {
+      "start": 23.36,
+      "end": 23.54,
+      "word": " in"
+     },
+     {
+      "start": 23.54,
+      "end": 23.62,
+      "word": " the"
+     },
+     {
+      "start": 23.62,
+      "end": 23.84,
+      "word": " prompt."
+     }
+    ]
+   },
+   {
+    "start": 24.16,
+    "end": 25.92,
+    "text": "So we check the judge against human labels,",
+    "words": [
+     {
+      "start": 24.16,
+      "end": 24.3,
+      "word": " So"
+     },
+     {
+      "start": 24.3,
+      "end": 24.42,
+      "word": " we"
+     },
+     {
+      "start": 24.42,
+      "end": 24.6,
+      "word": " check"
+     },
+     {
+      "start": 24.6,
+      "end": 24.8,
+      "word": " the"
+     },
+     {
+      "start": 24.8,
+      "end": 24.98,
+      "word": " judge"
+     },
+     {
+      "start": 24.98,
+      "end": 25.32,
+      "word": " against"
+     },
+     {
+      "start": 25.32,
+      "end": 25.58,
+      "word": " human"
+     },
+     {
+      "start": 25.58,
+      "end": 25.92,
+      "word": " labels,"
+     }
+    ]
+   },
+   {
+    "start": 25.92,
+    "end": 28.48,
+    "text": "for example, with a correlation before we trust it.",
+    "words": [
+     {
+      "start": 25.92,
+      "end": 26.2,
+      "word": " for"
+     },
+     {
+      "start": 26.2,
+      "end": 26.56,
+      "word": " example,"
+     },
+     {
+      "start": 26.64,
+      "end": 26.84,
+      "word": " with"
+     },
+     {
+      "start": 26.84,
+      "end": 26.9,
+      "word": " a"
+     },
+     {
+      "start": 26.9,
+      "end": 27.26,
+      "word": " correlation"
+     },
+     {
+      "start": 27.26,
+      "end": 27.78,
+      "word": " before"
+     },
+     {
+      "start": 27.78,
+      "end": 27.98,
+      "word": " we"
+     },
+     {
+      "start": 27.98,
+      "end": 28.26,
+      "word": " trust"
+     },
+     {
+      "start": 28.26,
+      "end": 28.48,
+      "word": " it."
+     }
+    ]
+   },
+   {
+    "start": 29.380000000000003,
+    "end": 32.02,
+    "text": "We also separate an answer that is wrong from an answer",
+    "words": [
+     {
+      "start": 29.380000000000003,
+      "end": 29.86,
+      "word": " We"
+     },
+     {
+      "start": 29.86,
+      "end": 30.14,
+      "word": " also"
+     },
+     {
+      "start": 30.14,
+      "end": 30.48,
+      "word": " separate"
+     },
+     {
+      "start": 30.48,
+      "end": 30.66,
+      "word": " an"
+     },
+     {
+      "start": 30.66,
+      "end": 30.92,
+      "word": " answer"
+     },
+     {
+      "start": 30.92,
+      "end": 31.1,
+      "word": " that"
+     },
+     {
+      "start": 31.1,
+      "end": 31.26,
+      "word": " is"
+     },
+     {
+      "start": 31.26,
+      "end": 31.46,
+      "word": " wrong"
+     },
+     {
+      "start": 31.46,
+      "end": 31.68,
+      "word": " from"
+     },
+     {
+      "start": 31.68,
+      "end": 31.78,
+      "word": " an"
+     },
+     {
+      "start": 31.78,
+      "end": 32.02,
+      "word": " answer"
+     }
+    ]
+   },
+   {
+    "start": 32.02,
+    "end": 32.8,
+    "text": "we cannot assess.",
+    "words": [
+     {
+      "start": 32.02,
+      "end": 32.16,
+      "word": " we"
+     },
+     {
+      "start": 32.16,
+      "end": 32.4,
+      "word": " cannot"
+     },
+     {
+      "start": 32.4,
+      "end": 32.8,
+      "word": " assess."
+     }
+    ]
+   },
+   {
+    "start": 33.26,
+    "end": 34.84,
+    "text": "If there is no evidence, the honest result",
+    "words": [
+     {
+      "start": 33.26,
+      "end": 33.5,
+      "word": " If"
+     },
+     {
+      "start": 33.5,
+      "end": 33.62,
+      "word": " there"
+     },
+     {
+      "start": 33.62,
+      "end": 33.76,
+      "word": " is"
+     },
+     {
+      "start": 33.76,
+      "end": 33.9,
+      "word": " no"
+     },
+     {
+      "start": 33.9,
+      "end": 34.16,
+      "word": " evidence,"
+     },
+     {
+      "start": 34.26,
+      "end": 34.36,
+      "word": " the"
+     },
+     {
+      "start": 34.36,
+      "end": 34.52,
+      "word": " honest"
+     },
+     {
+      "start": 34.52,
+      "end": 34.84,
+      "word": " result"
+     }
+    ]
+   },
+   {
+    "start": 34.84,
+    "end": 36.6,
+    "text": "is insufficient evidence, not a low score,",
+    "words": [
+     {
+      "start": 34.84,
+      "end": 35.02,
+      "word": " is"
+     },
+     {
+      "start": 35.02,
+      "end": 35.38,
+      "word": " insufficient"
+     },
+     {
+      "start": 35.38,
+      "end": 35.8,
+      "word": " evidence,"
+     },
+     {
+      "start": 35.92,
+      "end": 36.02,
+      "word": " not"
+     },
+     {
+      "start": 36.02,
+      "end": 36.14,
+      "word": " a"
+     },
+     {
+      "start": 36.14,
+      "end": 36.26,
+      "word": " low"
+     },
+     {
+      "start": 36.26,
+      "end": 36.6,
+      "word": " score,"
+     }
+    ]
+   },
+   {
+    "start": 37.04,
+    "end": 39.26,
+    "text": "please read the evaluation chapter before Thursday.",
+    "words": [
+     {
+      "start": 37.04,
+      "end": 37.28,
+      "word": " please"
+     },
+     {
+      "start": 37.28,
+      "end": 37.5,
+      "word": " read"
+     },
+     {
+      "start": 37.5,
+      "end": 37.66,
+      "word": " the"
+     },
+     {
+      "start": 37.66,
+      "end": 38.02,
+      "word": " evaluation"
+     },
+     {
+      "start": 38.02,
+      "end": 38.54,
+      "word": " chapter"
+     },
+     {
+      "start": 38.54,
+      "end": 38.82,
+      "word": " before"
+     },
+     {
+      "start": 38.82,
+      "end": 39.26,
+      "word": " Thursday."
+     }
+    ]
+   }
+  ],
+  "speaker_segments": [
+   {
+    "start": 1.17846875,
+    "end": 7.945343750000001,
+    "speaker": "SPEAKER_00"
+   },
+   {
+    "start": 9.025343750000001,
+    "end": 15.20159375,
+    "speaker": "SPEAKER_00"
+   },
+   {
+    "start": 16.95659375,
+    "end": 28.566593750000003,
+    "speaker": "SPEAKER_00"
+   },
+   {
+    "start": 29.781593750000003,
+    "end": 39.53534375,
+    "speaker": "SPEAKER_00"
+   }
+  ],
+  "aligned_segments": [
+   {
+    "start": 0.9400000000000015,
+    "end": 3.0,
+    "speaker": "SPEAKER_00",
+    "text": "Let's talk about evaluating language models."
+   },
+   {
+    "start": 3.22,
+    "end": 5.06,
+    "speaker": "SPEAKER_00",
+    "text": "Suppose you build a chatbot for course questions."
+   },
+   {
+    "start": 5.28,
+    "end": 6.38,
+    "speaker": "SPEAKER_00",
+    "text": "How would you know it is any good?"
+   },
+   {
+    "start": 6.74,
+    "end": 6.92,
+    "speaker": "SPEAKER_00",
+    "text": "Anyone?"
+   },
+   {
+    "start": 7.12,
+    "end": 7.22,
+    "speaker": "SPEAKER_00",
+    "text": "No."
+   },
+   {
+    "start": 7.58,
+    "end": 7.8,
+    "speaker": "SPEAKER_00",
+    "text": "All right."
+   },
+   {
+    "start": 8.88,
+    "end": 10.4,
+    "speaker": "SPEAKER_00",
+    "text": "One option is a human rubric."
+   },
+   {
+    "start": 10.68,
+    "end": 12.46,
+    "speaker": "SPEAKER_00",
+    "text": "Another is to use a second model as the judge."
+   },
+   {
+    "start": 12.9,
+    "end": 14.34,
+    "speaker": "SPEAKER_00",
+    "text": "What could go wrong with a model as a judge?"
+   },
+   {
+    "start": 14.6,
+    "end": 15.06,
+    "speaker": "SPEAKER_00",
+    "text": "Take a moment."
+   },
+   {
+    "start": 16.8,
+    "end": 17.94,
+    "speaker": "SPEAKER_00",
+    "text": "OK, I'll answer it."
+   },
+   {
+    "start": 18.16,
+    "end": 19.62,
+    "speaker": "SPEAKER_00",
+    "text": "Judges can prefer longer answers."
+   },
+   {
+    "start": 19.82,
+    "end": 21.12,
+    "speaker": "SPEAKER_00",
+    "text": "They can prefer their own style,"
+   },
+   {
+    "start": 21.12,
+    "end": 22.8,
+    "speaker": "SPEAKER_00",
+    "text": "and they can be swayed by the position"
+   },
+   {
+    "start": 22.8,
+    "end": 23.84,
+    "speaker": "SPEAKER_00",
+    "text": "of an answer in the prompt."
+   },
+   {
+    "start": 24.16,
+    "end": 25.92,
+    "speaker": "SPEAKER_00",
+    "text": "So we check the judge against human labels,"
+   },
+   {
+    "start": 25.92,
+    "end": 28.48,
+    "speaker": "SPEAKER_00",
+    "text": "for example, with a correlation before we trust it."
+   },
+   {
+    "start": 29.380000000000003,
+    "end": 32.02,
+    "speaker": "SPEAKER_00",
+    "text": "We also separate an answer that is wrong from an answer"
+   },
+   {
+    "start": 32.02,
+    "end": 32.8,
+    "speaker": "SPEAKER_00",
+    "text": "we cannot assess."
+   },
+   {
+    "start": 33.26,
+    "end": 34.84,
+    "speaker": "SPEAKER_00",
+    "text": "If there is no evidence, the honest result"
+   },
+   {
+    "start": 34.84,
+    "end": 36.6,
+    "speaker": "SPEAKER_00",
+    "text": "is insufficient evidence, not a low score,"
+   },
+   {
+    "start": 37.04,
+    "end": 39.26,
+    "speaker": "SPEAKER_00",
+    "text": "please read the evaluation chapter before Thursday."
+   }
+  ],
+  "voice_matches": {
+   "SPEAKER_00": {
+    "name": "prof",
+    "status": "identified",
+    "score": 0.8734226822853088,
+    "matches": [
+     {
+      "person_id": "prof",
+      "name": "prof",
+      "score": 0.8734226822853088,
+      "same_speaker": true
+     },
+     {
+      "person_id": "tina",
+      "name": "tina",
+      "score": 0.08236177265644073,
+      "same_speaker": false
+     },
+     {
+      "person_id": "koh-qing-jia",
+      "name": "Koh Qing Jia",
+      "score": 0.07238028198480606,
+      "same_speaker": false
+     },
+     {
+      "person_id": "tasmin",
+      "name": "tasmin",
+      "score": 0.0434773713350296,
+      "same_speaker": false
+     },
+     {
+      "person_id": "le-yong",
+      "name": "le yong",
+      "score": -0.060534410178661346,
+      "same_speaker": false
+     }
+    ]
+   }
+  },
+  "speaker_identities": {
+   "SPEAKER_00": "prof"
+  },
+  "segments": [
+   {
+    "start": 0.9400000000000015,
+    "end": 39.26,
+    "speaker": "prof",
+    "original_speaker": "SPEAKER_00",
+    "text": "Let's talk about evaluating language models. Suppose you build a chatbot for course questions. How would you know it is any good? Anyone? No. All right. One option is a human rubric. Another is to use a second model as the judge. What could go wrong with a model as a judge? Take a moment. OK, I'll answer it. Judges can prefer longer answers. They can prefer their own style, and they can be swayed by the position of an answer in the prompt. So we check the judge against human labels, for example, with a correlation before we trust it. We also separate an answer that is wrong from an answer we cannot assess. If there is no evidence, the honest result is insufficient evidence, not a low score, please read the evaluation chapter before Thursday."
+   }
+  ],
+  "diarization_turns": [
+   {
+    "start": 1.17846875,
+    "end": 7.945343750000001,
+    "speaker": "SPEAKER_00"
+   },
+   {
+    "start": 9.025343750000001,
+    "end": 15.20159375,
+    "speaker": "SPEAKER_00"
+   },
+   {
+    "start": 16.95659375,
+    "end": 28.566593750000003,
+    "speaker": "SPEAKER_00"
+   },
+   {
+    "start": 29.781593750000003,
+    "end": 39.53534375,
+    "speaker": "SPEAKER_00"
+   }
+  ],
+  "timings": {
+   "transcription_s": 6.005928127095103,
+   "diarization_s": 45.38404409494251,
+   "total_s": 60.44421986909583
+  }
+ },
+ "segment_matches": [
+  [
+   {
+    "person_id": "prof",
+    "name": "prof",
+    "score": 0.7509162425994873,
+    "same_speaker": true
+   },
+   {
+    "person_id": "tina",
+    "name": "tina",
+    "score": 0.14662723243236542,
+    "same_speaker": false
+   },
+   {
+    "person_id": "koh-qing-jia",
+    "name": "Koh Qing Jia",
+    "score": 0.08145853132009506,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tasmin",
+    "name": "tasmin",
+    "score": 0.03834958374500275,
+    "same_speaker": false
+   },
+   {
+    "person_id": "le-yong",
+    "name": "le yong",
+    "score": -0.041192494332790375,
+    "same_speaker": false
+   }
+  ],
+  [
+   {
+    "person_id": "prof",
+    "name": "prof",
+    "score": 0.7465165257453918,
+    "same_speaker": true
+   },
+   {
+    "person_id": "tina",
+    "name": "tina",
+    "score": 0.1561129093170166,
+    "same_speaker": false
+   },
+   {
+    "person_id": "koh-qing-jia",
+    "name": "Koh Qing Jia",
+    "score": 0.09126079082489014,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tasmin",
+    "name": "tasmin",
+    "score": 0.0884031355381012,
+    "same_speaker": false
+   },
+   {
+    "person_id": "le-yong",
+    "name": "le yong",
+    "score": -0.11228975653648376,
+    "same_speaker": false
+   }
+  ],
+  [
+   {
+    "person_id": "prof",
+    "name": "prof",
+    "score": 0.6488762497901917,
+    "same_speaker": true
+   },
+   {
+    "person_id": "tina",
+    "name": "tina",
+    "score": 0.07692812383174896,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tasmin",
+    "name": "tasmin",
+    "score": 0.05692660063505173,
+    "same_speaker": false
+   },
+   {
+    "person_id": "le-yong",
+    "name": "le yong",
+    "score": -0.006084586959332228,
+    "same_speaker": false
+   },
+   {
+    "person_id": "koh-qing-jia",
+    "name": "Koh Qing Jia",
+    "score": -0.01060725748538971,
+    "same_speaker": false
+   }
+  ],
+  null,
+  null,
+  null,
+  [
+   {
+    "person_id": "prof",
+    "name": "prof",
+    "score": 0.8111758232116699,
+    "same_speaker": true
+   },
+   {
+    "person_id": "tasmin",
+    "name": "tasmin",
+    "score": 0.05361174792051315,
+    "same_speaker": false
+   },
+   {
+    "person_id": "koh-qing-jia",
+    "name": "Koh Qing Jia",
+    "score": 0.052934665232896805,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tina",
+    "name": "tina",
+    "score": -0.000950920395553112,
+    "same_speaker": false
+   },
+   {
+    "person_id": "le-yong",
+    "name": "le yong",
+    "score": -0.02429801970720291,
+    "same_speaker": false
+   }
+  ],
+  [
+   {
+    "person_id": "prof",
+    "name": "prof",
+    "score": 0.6790319681167603,
+    "same_speaker": true
+   },
+   {
+    "person_id": "tina",
+    "name": "tina",
+    "score": 0.07299242913722992,
+    "same_speaker": false
+   },
+   {
+    "person_id": "koh-qing-jia",
+    "name": "Koh Qing Jia",
+    "score": 0.03958054259419441,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tasmin",
+    "name": "tasmin",
+    "score": 0.03884626179933548,
+    "same_speaker": false
+   },
+   {
+    "person_id": "le-yong",
+    "name": "le yong",
+    "score": -0.08790108561515808,
+    "same_speaker": false
+   }
+  ],
+  [
+   {
+    "person_id": "prof",
+    "name": "prof",
+    "score": 0.6885230541229248,
+    "same_speaker": true
+   },
+   {
+    "person_id": "tasmin",
+    "name": "tasmin",
+    "score": 0.12710928916931152,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tina",
+    "name": "tina",
+    "score": 0.11526866257190704,
+    "same_speaker": false
+   },
+   {
+    "person_id": "koh-qing-jia",
+    "name": "Koh Qing Jia",
+    "score": 0.05585906654596329,
+    "same_speaker": false
+   },
+   {
+    "person_id": "le-yong",
+    "name": "le yong",
+    "score": -0.10107174515724182,
+    "same_speaker": false
+   }
+  ],
+  null,
+  [
+   {
+    "person_id": "prof",
+    "name": "prof",
+    "score": 0.658618688583374,
+    "same_speaker": true
+   },
+   {
+    "person_id": "tina",
+    "name": "tina",
+    "score": 0.02965337038040161,
+    "same_speaker": false
+   },
+   {
+    "person_id": "koh-qing-jia",
+    "name": "Koh Qing Jia",
+    "score": 0.017923366278409958,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tasmin",
+    "name": "tasmin",
+    "score": -0.01386496052145958,
+    "same_speaker": false
+   },
+   {
+    "person_id": "le-yong",
+    "name": "le yong",
+    "score": -0.16503924131393433,
+    "same_speaker": false
+   }
+  ],
+  [
+   {
+    "person_id": "prof",
+    "name": "prof",
+    "score": 0.6935767531394958,
+    "same_speaker": true
+   },
+   {
+    "person_id": "tina",
+    "name": "tina",
+    "score": 0.0709339827299118,
+    "same_speaker": false
+   },
+   {
+    "person_id": "koh-qing-jia",
+    "name": "Koh Qing Jia",
+    "score": 0.05207742005586624,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tasmin",
+    "name": "tasmin",
+    "score": -0.04396625608205795,
+    "same_speaker": false
+   },
+   {
+    "person_id": "le-yong",
+    "name": "le yong",
+    "score": -0.05290625989437103,
+    "same_speaker": false
+   }
+  ],
+  [
+   {
+    "person_id": "prof",
+    "name": "prof",
+    "score": 0.7194201946258545,
+    "same_speaker": true
+   },
+   {
+    "person_id": "tina",
+    "name": "tina",
+    "score": 0.07387867569923401,
+    "same_speaker": false
+   },
+   {
+    "person_id": "koh-qing-jia",
+    "name": "Koh Qing Jia",
+    "score": 0.052794940769672394,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tasmin",
+    "name": "tasmin",
+    "score": -0.03663459047675133,
+    "same_speaker": false
+   },
+   {
+    "person_id": "le-yong",
+    "name": "le yong",
+    "score": -0.06356845796108246,
+    "same_speaker": false
+   }
+  ],
+  [
+   {
+    "person_id": "prof",
+    "name": "prof",
+    "score": 0.7418085336685181,
+    "same_speaker": true
+   },
+   {
+    "person_id": "tasmin",
+    "name": "tasmin",
+    "score": 0.07811079919338226,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tina",
+    "name": "tina",
+    "score": 0.0458054393529892,
+    "same_speaker": false
+   },
+   {
+    "person_id": "koh-qing-jia",
+    "name": "Koh Qing Jia",
+    "score": 0.03396199271082878,
+    "same_speaker": false
+   },
+   {
+    "person_id": "le-yong",
+    "name": "le yong",
+    "score": 0.022463899105787277,
+    "same_speaker": false
+   }
+  ],
+  [
+   {
+    "person_id": "prof",
+    "name": "prof",
+    "score": 0.6756815910339355,
+    "same_speaker": true
+   },
+   {
+    "person_id": "koh-qing-jia",
+    "name": "Koh Qing Jia",
+    "score": 0.07035639882087708,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tasmin",
+    "name": "tasmin",
+    "score": 0.03946780413389206,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tina",
+    "name": "tina",
+    "score": 0.02916085347533226,
+    "same_speaker": false
+   },
+   {
+    "person_id": "le-yong",
+    "name": "le yong",
+    "score": -0.04334430769085884,
+    "same_speaker": false
+   }
+  ],
+  [
+   {
+    "person_id": "prof",
+    "name": "prof",
+    "score": 0.6778128147125244,
+    "same_speaker": true
+   },
+   {
+    "person_id": "koh-qing-jia",
+    "name": "Koh Qing Jia",
+    "score": 0.10011862218379974,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tina",
+    "name": "tina",
+    "score": 0.0653521940112114,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tasmin",
+    "name": "tasmin",
+    "score": -0.02139231748878956,
+    "same_speaker": false
+   },
+   {
+    "person_id": "le-yong",
+    "name": "le yong",
+    "score": -0.08683145046234131,
+    "same_speaker": false
+   }
+  ],
+  [
+   {
+    "person_id": "prof",
+    "name": "prof",
+    "score": 0.6890074014663696,
+    "same_speaker": true
+   },
+   {
+    "person_id": "koh-qing-jia",
+    "name": "Koh Qing Jia",
+    "score": 0.15384848415851593,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tina",
+    "name": "tina",
+    "score": 0.07558886706829071,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tasmin",
+    "name": "tasmin",
+    "score": 0.055843986570835114,
+    "same_speaker": false
+   },
+   {
+    "person_id": "le-yong",
+    "name": "le yong",
+    "score": -0.04282276704907417,
+    "same_speaker": false
+   }
+  ],
+  [
+   {
+    "person_id": "prof",
+    "name": "prof",
+    "score": 0.7870012521743774,
+    "same_speaker": true
+   },
+   {
+    "person_id": "tina",
+    "name": "tina",
+    "score": 0.11928282678127289,
+    "same_speaker": false
+   },
+   {
+    "person_id": "koh-qing-jia",
+    "name": "Koh Qing Jia",
+    "score": 0.07110627740621567,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tasmin",
+    "name": "tasmin",
+    "score": -0.0010523796081542969,
+    "same_speaker": false
+   },
+   {
+    "person_id": "le-yong",
+    "name": "le yong",
+    "score": -0.014392530545592308,
+    "same_speaker": false
+   }
+  ],
+  [
+   {
+    "person_id": "prof",
+    "name": "prof",
+    "score": 0.6713987588882446,
+    "same_speaker": true
+   },
+   {
+    "person_id": "tina",
+    "name": "tina",
+    "score": 0.09573830664157867,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tasmin",
+    "name": "tasmin",
+    "score": 0.0812377780675888,
+    "same_speaker": false
+   },
+   {
+    "person_id": "le-yong",
+    "name": "le yong",
+    "score": 0.04015171155333519,
+    "same_speaker": false
+   },
+   {
+    "person_id": "koh-qing-jia",
+    "name": "Koh Qing Jia",
+    "score": 0.005853204056620598,
+    "same_speaker": false
+   }
+  ],
+  [
+   {
+    "person_id": "prof",
+    "name": "prof",
+    "score": 0.7205533385276794,
+    "same_speaker": true
+   },
+   {
+    "person_id": "koh-qing-jia",
+    "name": "Koh Qing Jia",
+    "score": 0.07205646485090256,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tasmin",
+    "name": "tasmin",
+    "score": 0.06558308005332947,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tina",
+    "name": "tina",
+    "score": 0.05325614660978317,
+    "same_speaker": false
+   },
+   {
+    "person_id": "le-yong",
+    "name": "le yong",
+    "score": -0.05496805161237717,
+    "same_speaker": false
+   }
+  ],
+  [
+   {
+    "person_id": "prof",
+    "name": "prof",
+    "score": 0.6976410150527954,
+    "same_speaker": true
+   },
+   {
+    "person_id": "tasmin",
+    "name": "tasmin",
+    "score": 0.11062668263912201,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tina",
+    "name": "tina",
+    "score": 0.08251964300870895,
+    "same_speaker": false
+   },
+   {
+    "person_id": "le-yong",
+    "name": "le yong",
+    "score": 0.011708758771419525,
+    "same_speaker": false
+   },
+   {
+    "person_id": "koh-qing-jia",
+    "name": "Koh Qing Jia",
+    "score": -0.03853309154510498,
+    "same_speaker": false
+   }
+  ],
+  [
+   {
+    "person_id": "prof",
+    "name": "prof",
+    "score": 0.6921977400779724,
+    "same_speaker": true
+   },
+   {
+    "person_id": "koh-qing-jia",
+    "name": "Koh Qing Jia",
+    "score": 0.06445158272981644,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tina",
+    "name": "tina",
+    "score": 0.03454287722706795,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tasmin",
+    "name": "tasmin",
+    "score": -0.014450554735958576,
+    "same_speaker": false
+   },
+   {
+    "person_id": "le-yong",
+    "name": "le yong",
+    "score": -0.044352129101753235,
+    "same_speaker": false
+   }
+  ]
+ ],
+ "segment_scoring_s": 1.5546568888239563,
+ "line_matches": [
+  [
+   {
+    "person_id": "prof",
+    "name": "prof",
+    "score": 0.854070782661438,
+    "same_speaker": true
+   },
+   {
+    "person_id": "tina",
+    "name": "tina",
+    "score": 0.08525876700878143,
+    "same_speaker": false
+   },
+   {
+    "person_id": "koh-qing-jia",
+    "name": "Koh Qing Jia",
+    "score": 0.07706285268068314,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tasmin",
+    "name": "tasmin",
+    "score": 0.03435773029923439,
+    "same_speaker": false
+   },
+   {
+    "person_id": "le-yong",
+    "name": "le yong",
+    "score": -0.05427953228354454,
+    "same_speaker": false
+   }
+  ],
+  [
+   {
+    "person_id": "prof",
+    "name": "prof",
+    "score": 0.8384866714477539,
+    "same_speaker": true
+   },
+   {
+    "person_id": "tina",
+    "name": "tina",
+    "score": 0.07775958627462387,
+    "same_speaker": false
+   },
+   {
+    "person_id": "koh-qing-jia",
+    "name": "Koh Qing Jia",
+    "score": 0.056722402572631836,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tasmin",
+    "name": "tasmin",
+    "score": 0.055426016449928284,
+    "same_speaker": false
+   },
+   {
+    "person_id": "le-yong",
+    "name": "le yong",
+    "score": -0.08586283028125763,
+    "same_speaker": false
+   }
+  ],
+  [
+   {
+    "person_id": "prof",
+    "name": "prof",
+    "score": 0.833441436290741,
+    "same_speaker": true
+   },
+   {
+    "person_id": "koh-qing-jia",
+    "name": "Koh Qing Jia",
+    "score": 0.09500712156295776,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tina",
+    "name": "tina",
+    "score": 0.05864206701517105,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tasmin",
+    "name": "tasmin",
+    "score": 0.02268216200172901,
+    "same_speaker": false
+   },
+   {
+    "person_id": "le-yong",
+    "name": "le yong",
+    "score": -0.07084223628044128,
+    "same_speaker": false
+   }
+  ],
+  [
+   {
+    "person_id": "prof",
+    "name": "prof",
+    "score": 0.8532990217208862,
+    "same_speaker": true
+   },
+   {
+    "person_id": "tina",
+    "name": "tina",
+    "score": 0.1039680540561676,
+    "same_speaker": false
+   },
+   {
+    "person_id": "koh-qing-jia",
+    "name": "Koh Qing Jia",
+    "score": 0.061360061168670654,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tasmin",
+    "name": "tasmin",
+    "score": 0.05152856931090355,
+    "same_speaker": false
+   },
+   {
+    "person_id": "le-yong",
+    "name": "le yong",
+    "score": -0.03658033907413483,
+    "same_speaker": false
+   }
+  ]
+ ],
+ "whisper_words": {
+  "seconds": 4.496584112988785,
+  "segments": [
+   {
+    "start": 0.9400000000000015,
+    "end": 3.0,
+    "text": "Let's talk about evaluating language models.",
+    "words": [
+     {
+      "start": 0.9400000000000015,
+      "end": 1.34,
+      "word": " Let's"
+     },
+     {
+      "start": 1.34,
+      "end": 1.48,
+      "word": " talk"
+     },
+     {
+      "start": 1.48,
+      "end": 1.68,
+      "word": " about"
+     },
+     {
+      "start": 1.68,
+      "end": 2.14,
+      "word": " evaluating"
+     },
+     {
+      "start": 2.14,
+      "end": 2.58,
+      "word": " language"
+     },
+     {
+      "start": 2.58,
+      "end": 3.0,
+      "word": " models."
+     }
+    ]
+   },
+   {
+    "start": 3.22,
+    "end": 5.06,
+    "text": "Suppose you build a chatbot for course questions.",
+    "words": [
+     {
+      "start": 3.22,
+      "end": 3.3,
+      "word": " Suppose"
+     },
+     {
+      "start": 3.3,
+      "end": 3.48,
+      "word": " you"
+     },
+     {
+      "start": 3.48,
+      "end": 3.62,
+      "word": " build"
+     },
+     {
+      "start": 3.62,
+      "end": 3.76,
+      "word": " a"
+     },
+     {
+      "start": 3.76,
+      "end": 4.16,
+      "word": " chatbot"
+     },
+     {
+      "start": 4.16,
+      "end": 4.36,
+      "word": " for"
+     },
+     {
+      "start": 4.36,
+      "end": 4.6,
+      "word": " course"
+     },
+     {
+      "start": 4.6,
+      "end": 5.06,
+      "word": " questions."
+     }
+    ]
+   },
+   {
+    "start": 5.28,
+    "end": 6.38,
+    "text": "How would you know it is any good?",
+    "words": [
+     {
+      "start": 5.28,
+      "end": 5.34,
+      "word": " How"
+     },
+     {
+      "start": 5.34,
+      "end": 5.46,
+      "word": " would"
+     },
+     {
+      "start": 5.46,
+      "end": 5.58,
+      "word": " you"
+     },
+     {
+      "start": 5.58,
+      "end": 5.72,
+      "word": " know"
+     },
+     {
+      "start": 5.72,
+      "end": 5.86,
+      "word": " it"
+     },
+     {
+      "start": 5.86,
+      "end": 5.98,
+      "word": " is"
+     },
+     {
+      "start": 5.98,
+      "end": 6.14,
+      "word": " any"
+     },
+     {
+      "start": 6.14,
+      "end": 6.38,
+      "word": " good?"
+     }
+    ]
+   },
+   {
+    "start": 6.74,
+    "end": 6.92,
+    "text": "Anyone?",
+    "words": [
+     {
+      "start": 6.74,
+      "end": 6.92,
+      "word": " Anyone?"
+     }
+    ]
+   },
+   {
+    "start": 7.12,
+    "end": 7.22,
+    "text": "No.",
+    "words": [
+     {
+      "start": 7.12,
+      "end": 7.22,
+      "word": " No."
+     }
+    ]
+   },
+   {
+    "start": 7.58,
+    "end": 7.8,
+    "text": "All right.",
+    "words": [
+     {
+      "start": 7.58,
+      "end": 7.64,
+      "word": " All"
+     },
+     {
+      "start": 7.64,
+      "end": 7.8,
+      "word": " right."
+     }
+    ]
+   },
+   {
+    "start": 8.88,
+    "end": 10.4,
+    "text": "One option is a human rubric.",
+    "words": [
+     {
+      "start": 8.88,
+      "end": 9.14,
+      "word": " One"
+     },
+     {
+      "start": 9.14,
+      "end": 9.44,
+      "word": " option"
+     },
+     {
+      "start": 9.44,
+      "end": 9.62,
+      "word": " is"
+     },
+     {
+      "start": 9.62,
+      "end": 9.7,
+      "word": " a"
+     },
+     {
+      "start": 9.7,
+      "end": 9.96,
+      "word": " human"
+     },
+     {
+      "start": 9.96,
+      "end": 10.4,
+      "word": " rubric."
+     }
+    ]
+   },
+   {
+    "start": 10.68,
+    "end": 12.46,
+    "text": "Another is to use a second model as the judge.",
+    "words": [
+     {
+      "start": 10.68,
+      "end": 10.86,
+      "word": " Another"
+     },
+     {
+      "start": 10.86,
+      "end": 11.1,
+      "word": " is"
+     },
+     {
+      "start": 11.1,
+      "end": 11.2,
+      "word": " to"
+     },
+     {
+      "start": 11.2,
+      "end": 11.32,
+      "word": " use"
+     },
+     {
+      "start": 11.32,
+      "end": 11.46,
+      "word": " a"
+     },
+     {
+      "start": 11.46,
+      "end": 11.72,
+      "word": " second"
+     },
+     {
+      "start": 11.72,
+      "end": 12.0,
+      "word": " model"
+     },
+     {
+      "start": 12.0,
+      "end": 12.2,
+      "word": " as"
+     },
+     {
+      "start": 12.2,
+      "end": 12.28,
+      "word": " the"
+     },
+     {
+      "start": 12.28,
+      "end": 12.46,
+      "word": " judge."
+     }
+    ]
+   },
+   {
+    "start": 12.9,
+    "end": 14.34,
+    "text": "What could go wrong with a model as a judge?",
+    "words": [
+     {
+      "start": 12.9,
+      "end": 13.02,
+      "word": " What"
+     },
+     {
+      "start": 13.02,
+      "end": 13.12,
+      "word": " could"
+     },
+     {
+      "start": 13.12,
+      "end": 13.24,
+      "word": " go"
+     },
+     {
+      "start": 13.24,
+      "end": 13.4,
+      "word": " wrong"
+     },
+     {
+      "start": 13.4,
+      "end": 13.56,
+      "word": " with"
+     },
+     {
+      "start": 13.56,
+      "end": 13.6,
+      "word": " a"
+     },
+     {
+      "start": 13.6,
+      "end": 13.84,
+      "word": " model"
+     },
+     {
+      "start": 13.84,
+      "end": 14.02,
+      "word": " as"
+     },
+     {
+      "start": 14.02,
+      "end": 14.1,
+      "word": " a"
+     },
+     {
+      "start": 14.1,
+      "end": 14.34,
+      "word": " judge?"
+     }
+    ]
+   },
+   {
+    "start": 14.6,
+    "end": 15.06,
+    "text": "Take a moment.",
+    "words": [
+     {
+      "start": 14.6,
+      "end": 14.72,
+      "word": " Take"
+     },
+     {
+      "start": 14.72,
+      "end": 14.82,
+      "word": " a"
+     },
+     {
+      "start": 14.82,
+      "end": 15.06,
+      "word": " moment."
+     }
+    ]
+   },
+   {
+    "start": 16.8,
+    "end": 17.94,
+    "text": "OK, I'll answer it.",
+    "words": [
+     {
+      "start": 16.8,
+      "end": 17.2,
+      "word": " OK,"
+     },
+     {
+      "start": 17.28,
+      "end": 17.4,
+      "word": " I'll"
+     },
+     {
+      "start": 17.4,
+      "end": 17.7,
+      "word": " answer"
+     },
+     {
+      "start": 17.7,
+      "end": 17.94,
+      "word": " it."
+     }
+    ]
+   },
+   {
+    "start": 18.16,
+    "end": 19.62,
+    "text": "Judges can prefer longer answers.",
+    "words": [
+     {
+      "start": 18.16,
+      "end": 18.42,
+      "word": " Judges"
+     },
+     {
+      "start": 18.42,
+      "end": 18.6,
+      "word": " can"
+     },
+     {
+      "start": 18.6,
+      "end": 18.86,
+      "word": " prefer"
+     },
+     {
+      "start": 18.86,
+      "end": 19.24,
+      "word": " longer"
+     },
+     {
+      "start": 19.24,
+      "end": 19.62,
+      "word": " answers."
+     }
+    ]
+   },
+   {
+    "start": 19.82,
+    "end": 21.12,
+    "text": "They can prefer their own style,",
+    "words": [
+     {
+      "start": 19.82,
+      "end": 19.9,
+      "word": " They"
+     },
+     {
+      "start": 19.9,
+      "end": 20.02,
+      "word": " can"
+     },
+     {
+      "start": 20.02,
+      "end": 20.28,
+      "word": " prefer"
+     },
+     {
+      "start": 20.28,
+      "end": 20.52,
+      "word": " their"
+     },
+     {
+      "start": 20.52,
+      "end": 20.74,
+      "word": " own"
+     },
+     {
+      "start": 20.74,
+      "end": 21.12,
+      "word": " style,"
+     }
+    ]
+   },
+   {
+    "start": 21.12,
+    "end": 22.8,
+    "text": "and they can be swayed by the position",
+    "words": [
+     {
+      "start": 21.12,
+      "end": 21.6,
+      "word": " and"
+     },
+     {
+      "start": 21.6,
+      "end": 21.7,
+      "word": " they"
+     },
+     {
+      "start": 21.7,
+      "end": 21.82,
+      "word": " can"
+     },
+     {
+      "start": 21.82,
+      "end": 21.96,
+      "word": " be"
+     },
+     {
+      "start": 21.96,
+      "end": 22.26,
+      "word": " swayed"
+     },
+     {
+      "start": 22.26,
+      "end": 22.34,
+      "word": " by"
+     },
+     {
+      "start": 22.34,
+      "end": 22.44,
+      "word": " the"
+     },
+     {
+      "start": 22.44,
+      "end": 22.8,
+      "word": " position"
+     }
+    ]
+   },
+   {
+    "start": 22.8,
+    "end": 23.84,
+    "text": "of an answer in the prompt.",
+    "words": [
+     {
+      "start": 22.8,
+      "end": 22.98,
+      "word": " of"
+     },
+     {
+      "start": 22.98,
+      "end": 23.08,
+      "word": " an"
+     },
+     {
+      "start": 23.08,
+      "end": 23.36,
+      "word": " answer"
+     },
+     {
+      "start": 23.36,
+      "end": 23.54,
+      "word": " in"
+     },
+     {
+      "start": 23.54,
+      "end": 23.62,
+      "word": " the"
+     },
+     {
+      "start": 23.62,
+      "end": 23.84,
+      "word": " prompt."
+     }
+    ]
+   },
+   {
+    "start": 24.16,
+    "end": 25.92,
+    "text": "So we check the judge against human labels,",
+    "words": [
+     {
+      "start": 24.16,
+      "end": 24.3,
+      "word": " So"
+     },
+     {
+      "start": 24.3,
+      "end": 24.42,
+      "word": " we"
+     },
+     {
+      "start": 24.42,
+      "end": 24.6,
+      "word": " check"
+     },
+     {
+      "start": 24.6,
+      "end": 24.8,
+      "word": " the"
+     },
+     {
+      "start": 24.8,
+      "end": 24.98,
+      "word": " judge"
+     },
+     {
+      "start": 24.98,
+      "end": 25.32,
+      "word": " against"
+     },
+     {
+      "start": 25.32,
+      "end": 25.58,
+      "word": " human"
+     },
+     {
+      "start": 25.58,
+      "end": 25.92,
+      "word": " labels,"
+     }
+    ]
+   },
+   {
+    "start": 25.92,
+    "end": 28.48,
+    "text": "for example, with a correlation before we trust it.",
+    "words": [
+     {
+      "start": 25.92,
+      "end": 26.2,
+      "word": " for"
+     },
+     {
+      "start": 26.2,
+      "end": 26.56,
+      "word": " example,"
+     },
+     {
+      "start": 26.64,
+      "end": 26.84,
+      "word": " with"
+     },
+     {
+      "start": 26.84,
+      "end": 26.9,
+      "word": " a"
+     },
+     {
+      "start": 26.9,
+      "end": 27.26,
+      "word": " correlation"
+     },
+     {
+      "start": 27.26,
+      "end": 27.78,
+      "word": " before"
+     },
+     {
+      "start": 27.78,
+      "end": 27.98,
+      "word": " we"
+     },
+     {
+      "start": 27.98,
+      "end": 28.26,
+      "word": " trust"
+     },
+     {
+      "start": 28.26,
+      "end": 28.48,
+      "word": " it."
+     }
+    ]
+   },
+   {
+    "start": 29.380000000000003,
+    "end": 32.02,
+    "text": "We also separate an answer that is wrong from an answer",
+    "words": [
+     {
+      "start": 29.380000000000003,
+      "end": 29.86,
+      "word": " We"
+     },
+     {
+      "start": 29.86,
+      "end": 30.14,
+      "word": " also"
+     },
+     {
+      "start": 30.14,
+      "end": 30.48,
+      "word": " separate"
+     },
+     {
+      "start": 30.48,
+      "end": 30.66,
+      "word": " an"
+     },
+     {
+      "start": 30.66,
+      "end": 30.92,
+      "word": " answer"
+     },
+     {
+      "start": 30.92,
+      "end": 31.1,
+      "word": " that"
+     },
+     {
+      "start": 31.1,
+      "end": 31.26,
+      "word": " is"
+     },
+     {
+      "start": 31.26,
+      "end": 31.46,
+      "word": " wrong"
+     },
+     {
+      "start": 31.46,
+      "end": 31.68,
+      "word": " from"
+     },
+     {
+      "start": 31.68,
+      "end": 31.78,
+      "word": " an"
+     },
+     {
+      "start": 31.78,
+      "end": 32.02,
+      "word": " answer"
+     }
+    ]
+   },
+   {
+    "start": 32.02,
+    "end": 32.8,
+    "text": "we cannot assess.",
+    "words": [
+     {
+      "start": 32.02,
+      "end": 32.16,
+      "word": " we"
+     },
+     {
+      "start": 32.16,
+      "end": 32.4,
+      "word": " cannot"
+     },
+     {
+      "start": 32.4,
+      "end": 32.8,
+      "word": " assess."
+     }
+    ]
+   },
+   {
+    "start": 33.26,
+    "end": 34.84,
+    "text": "If there is no evidence, the honest result",
+    "words": [
+     {
+      "start": 33.26,
+      "end": 33.5,
+      "word": " If"
+     },
+     {
+      "start": 33.5,
+      "end": 33.62,
+      "word": " there"
+     },
+     {
+      "start": 33.62,
+      "end": 33.76,
+      "word": " is"
+     },
+     {
+      "start": 33.76,
+      "end": 33.9,
+      "word": " no"
+     },
+     {
+      "start": 33.9,
+      "end": 34.16,
+      "word": " evidence,"
+     },
+     {
+      "start": 34.26,
+      "end": 34.36,
+      "word": " the"
+     },
+     {
+      "start": 34.36,
+      "end": 34.52,
+      "word": " honest"
+     },
+     {
+      "start": 34.52,
+      "end": 34.84,
+      "word": " result"
+     }
+    ]
+   },
+   {
+    "start": 34.84,
+    "end": 36.6,
+    "text": "is insufficient evidence, not a low score,",
+    "words": [
+     {
+      "start": 34.84,
+      "end": 35.02,
+      "word": " is"
+     },
+     {
+      "start": 35.02,
+      "end": 35.38,
+      "word": " insufficient"
+     },
+     {
+      "start": 35.38,
+      "end": 35.8,
+      "word": " evidence,"
+     },
+     {
+      "start": 35.92,
+      "end": 36.02,
+      "word": " not"
+     },
+     {
+      "start": 36.02,
+      "end": 36.14,
+      "word": " a"
+     },
+     {
+      "start": 36.14,
+      "end": 36.26,
+      "word": " low"
+     },
+     {
+      "start": 36.26,
+      "end": 36.6,
+      "word": " score,"
+     }
+    ]
+   },
+   {
+    "start": 37.04,
+    "end": 39.26,
+    "text": "please read the evaluation chapter before Thursday.",
+    "words": [
+     {
+      "start": 37.04,
+      "end": 37.28,
+      "word": " please"
+     },
+     {
+      "start": 37.28,
+      "end": 37.5,
+      "word": " read"
+     },
+     {
+      "start": 37.5,
+      "end": 37.66,
+      "word": " the"
+     },
+     {
+      "start": 37.66,
+      "end": 38.02,
+      "word": " evaluation"
+     },
+     {
+      "start": 38.02,
+      "end": 38.54,
+      "word": " chapter"
+     },
+     {
+      "start": 38.54,
+      "end": 38.82,
+      "word": " before"
+     },
+     {
+      "start": 38.82,
+      "end": 39.26,
+      "word": " Thursday."
+     }
+    ]
+   }
+  ]
+ },
+ "word_segments": [
+  [
+   0.9400000000000015,
+   3.0
+  ],
+  [
+   3.22,
+   5.06
+  ],
+  [
+   5.28,
+   6.38
+  ],
+  [
+   6.74,
+   6.92
+  ],
+  [
+   7.12,
+   7.22
+  ],
+  [
+   7.58,
+   7.8
+  ],
+  [
+   8.88,
+   10.4
+  ],
+  [
+   10.68,
+   12.46
+  ],
+  [
+   12.9,
+   14.34
+  ],
+  [
+   14.6,
+   15.06
+  ],
+  [
+   16.8,
+   17.94
+  ],
+  [
+   18.16,
+   19.62
+  ],
+  [
+   19.82,
+   21.12
+  ],
+  [
+   21.12,
+   22.8
+  ],
+  [
+   22.8,
+   23.84
+  ],
+  [
+   24.16,
+   25.92
+  ],
+  [
+   25.92,
+   28.48
+  ],
+  [
+   29.380000000000003,
+   32.02
+  ],
+  [
+   32.02,
+   32.8
+  ],
+  [
+   33.26,
+   34.84
+  ],
+  [
+   34.84,
+   36.6
+  ],
+  [
+   37.04,
+   39.26
+  ]
+ ],
+ "word_segment_matches": [
+  [
+   {
+    "person_id": "prof",
+    "name": "prof",
+    "score": 0.7509162425994873,
+    "same_speaker": true
+   },
+   {
+    "person_id": "tina",
+    "name": "tina",
+    "score": 0.14662723243236542,
+    "same_speaker": false
+   },
+   {
+    "person_id": "koh-qing-jia",
+    "name": "Koh Qing Jia",
+    "score": 0.08145853132009506,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tasmin",
+    "name": "tasmin",
+    "score": 0.03834958374500275,
+    "same_speaker": false
+   },
+   {
+    "person_id": "le-yong",
+    "name": "le yong",
+    "score": -0.041192494332790375,
+    "same_speaker": false
+   }
+  ],
+  [
+   {
+    "person_id": "prof",
+    "name": "prof",
+    "score": 0.7465165257453918,
+    "same_speaker": true
+   },
+   {
+    "person_id": "tina",
+    "name": "tina",
+    "score": 0.1561129093170166,
+    "same_speaker": false
+   },
+   {
+    "person_id": "koh-qing-jia",
+    "name": "Koh Qing Jia",
+    "score": 0.09126079082489014,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tasmin",
+    "name": "tasmin",
+    "score": 0.0884031355381012,
+    "same_speaker": false
+   },
+   {
+    "person_id": "le-yong",
+    "name": "le yong",
+    "score": -0.11228975653648376,
+    "same_speaker": false
+   }
+  ],
+  [
+   {
+    "person_id": "prof",
+    "name": "prof",
+    "score": 0.6488762497901917,
+    "same_speaker": true
+   },
+   {
+    "person_id": "tina",
+    "name": "tina",
+    "score": 0.07692812383174896,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tasmin",
+    "name": "tasmin",
+    "score": 0.05692660063505173,
+    "same_speaker": false
+   },
+   {
+    "person_id": "le-yong",
+    "name": "le yong",
+    "score": -0.006084586959332228,
+    "same_speaker": false
+   },
+   {
+    "person_id": "koh-qing-jia",
+    "name": "Koh Qing Jia",
+    "score": -0.01060725748538971,
+    "same_speaker": false
+   }
+  ],
+  null,
+  null,
+  null,
+  [
+   {
+    "person_id": "prof",
+    "name": "prof",
+    "score": 0.8111758232116699,
+    "same_speaker": true
+   },
+   {
+    "person_id": "tasmin",
+    "name": "tasmin",
+    "score": 0.05361174792051315,
+    "same_speaker": false
+   },
+   {
+    "person_id": "koh-qing-jia",
+    "name": "Koh Qing Jia",
+    "score": 0.052934665232896805,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tina",
+    "name": "tina",
+    "score": -0.000950920395553112,
+    "same_speaker": false
+   },
+   {
+    "person_id": "le-yong",
+    "name": "le yong",
+    "score": -0.02429801970720291,
+    "same_speaker": false
+   }
+  ],
+  [
+   {
+    "person_id": "prof",
+    "name": "prof",
+    "score": 0.6790319681167603,
+    "same_speaker": true
+   },
+   {
+    "person_id": "tina",
+    "name": "tina",
+    "score": 0.07299242913722992,
+    "same_speaker": false
+   },
+   {
+    "person_id": "koh-qing-jia",
+    "name": "Koh Qing Jia",
+    "score": 0.03958054259419441,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tasmin",
+    "name": "tasmin",
+    "score": 0.03884626179933548,
+    "same_speaker": false
+   },
+   {
+    "person_id": "le-yong",
+    "name": "le yong",
+    "score": -0.08790108561515808,
+    "same_speaker": false
+   }
+  ],
+  [
+   {
+    "person_id": "prof",
+    "name": "prof",
+    "score": 0.6885230541229248,
+    "same_speaker": true
+   },
+   {
+    "person_id": "tasmin",
+    "name": "tasmin",
+    "score": 0.12710928916931152,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tina",
+    "name": "tina",
+    "score": 0.11526866257190704,
+    "same_speaker": false
+   },
+   {
+    "person_id": "koh-qing-jia",
+    "name": "Koh Qing Jia",
+    "score": 0.05585906654596329,
+    "same_speaker": false
+   },
+   {
+    "person_id": "le-yong",
+    "name": "le yong",
+    "score": -0.10107174515724182,
+    "same_speaker": false
+   }
+  ],
+  null,
+  [
+   {
+    "person_id": "prof",
+    "name": "prof",
+    "score": 0.658618688583374,
+    "same_speaker": true
+   },
+   {
+    "person_id": "tina",
+    "name": "tina",
+    "score": 0.02965337038040161,
+    "same_speaker": false
+   },
+   {
+    "person_id": "koh-qing-jia",
+    "name": "Koh Qing Jia",
+    "score": 0.017923366278409958,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tasmin",
+    "name": "tasmin",
+    "score": -0.01386496052145958,
+    "same_speaker": false
+   },
+   {
+    "person_id": "le-yong",
+    "name": "le yong",
+    "score": -0.16503924131393433,
+    "same_speaker": false
+   }
+  ],
+  [
+   {
+    "person_id": "prof",
+    "name": "prof",
+    "score": 0.6935767531394958,
+    "same_speaker": true
+   },
+   {
+    "person_id": "tina",
+    "name": "tina",
+    "score": 0.0709339827299118,
+    "same_speaker": false
+   },
+   {
+    "person_id": "koh-qing-jia",
+    "name": "Koh Qing Jia",
+    "score": 0.05207742005586624,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tasmin",
+    "name": "tasmin",
+    "score": -0.04396625608205795,
+    "same_speaker": false
+   },
+   {
+    "person_id": "le-yong",
+    "name": "le yong",
+    "score": -0.05290625989437103,
+    "same_speaker": false
+   }
+  ],
+  [
+   {
+    "person_id": "prof",
+    "name": "prof",
+    "score": 0.7194201946258545,
+    "same_speaker": true
+   },
+   {
+    "person_id": "tina",
+    "name": "tina",
+    "score": 0.07387867569923401,
+    "same_speaker": false
+   },
+   {
+    "person_id": "koh-qing-jia",
+    "name": "Koh Qing Jia",
+    "score": 0.052794940769672394,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tasmin",
+    "name": "tasmin",
+    "score": -0.03663459047675133,
+    "same_speaker": false
+   },
+   {
+    "person_id": "le-yong",
+    "name": "le yong",
+    "score": -0.06356845796108246,
+    "same_speaker": false
+   }
+  ],
+  [
+   {
+    "person_id": "prof",
+    "name": "prof",
+    "score": 0.7418085336685181,
+    "same_speaker": true
+   },
+   {
+    "person_id": "tasmin",
+    "name": "tasmin",
+    "score": 0.07811079919338226,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tina",
+    "name": "tina",
+    "score": 0.0458054393529892,
+    "same_speaker": false
+   },
+   {
+    "person_id": "koh-qing-jia",
+    "name": "Koh Qing Jia",
+    "score": 0.03396199271082878,
+    "same_speaker": false
+   },
+   {
+    "person_id": "le-yong",
+    "name": "le yong",
+    "score": 0.022463899105787277,
+    "same_speaker": false
+   }
+  ],
+  [
+   {
+    "person_id": "prof",
+    "name": "prof",
+    "score": 0.6756815910339355,
+    "same_speaker": true
+   },
+   {
+    "person_id": "koh-qing-jia",
+    "name": "Koh Qing Jia",
+    "score": 0.07035639882087708,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tasmin",
+    "name": "tasmin",
+    "score": 0.03946780413389206,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tina",
+    "name": "tina",
+    "score": 0.02916085347533226,
+    "same_speaker": false
+   },
+   {
+    "person_id": "le-yong",
+    "name": "le yong",
+    "score": -0.04334430769085884,
+    "same_speaker": false
+   }
+  ],
+  [
+   {
+    "person_id": "prof",
+    "name": "prof",
+    "score": 0.6778128147125244,
+    "same_speaker": true
+   },
+   {
+    "person_id": "koh-qing-jia",
+    "name": "Koh Qing Jia",
+    "score": 0.10011862218379974,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tina",
+    "name": "tina",
+    "score": 0.0653521940112114,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tasmin",
+    "name": "tasmin",
+    "score": -0.02139231748878956,
+    "same_speaker": false
+   },
+   {
+    "person_id": "le-yong",
+    "name": "le yong",
+    "score": -0.08683145046234131,
+    "same_speaker": false
+   }
+  ],
+  [
+   {
+    "person_id": "prof",
+    "name": "prof",
+    "score": 0.6890074014663696,
+    "same_speaker": true
+   },
+   {
+    "person_id": "koh-qing-jia",
+    "name": "Koh Qing Jia",
+    "score": 0.15384848415851593,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tina",
+    "name": "tina",
+    "score": 0.07558886706829071,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tasmin",
+    "name": "tasmin",
+    "score": 0.055843986570835114,
+    "same_speaker": false
+   },
+   {
+    "person_id": "le-yong",
+    "name": "le yong",
+    "score": -0.04282276704907417,
+    "same_speaker": false
+   }
+  ],
+  [
+   {
+    "person_id": "prof",
+    "name": "prof",
+    "score": 0.7870012521743774,
+    "same_speaker": true
+   },
+   {
+    "person_id": "tina",
+    "name": "tina",
+    "score": 0.11928282678127289,
+    "same_speaker": false
+   },
+   {
+    "person_id": "koh-qing-jia",
+    "name": "Koh Qing Jia",
+    "score": 0.07110627740621567,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tasmin",
+    "name": "tasmin",
+    "score": -0.0010523796081542969,
+    "same_speaker": false
+   },
+   {
+    "person_id": "le-yong",
+    "name": "le yong",
+    "score": -0.014392530545592308,
+    "same_speaker": false
+   }
+  ],
+  [
+   {
+    "person_id": "prof",
+    "name": "prof",
+    "score": 0.6713987588882446,
+    "same_speaker": true
+   },
+   {
+    "person_id": "tina",
+    "name": "tina",
+    "score": 0.09573830664157867,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tasmin",
+    "name": "tasmin",
+    "score": 0.0812377780675888,
+    "same_speaker": false
+   },
+   {
+    "person_id": "le-yong",
+    "name": "le yong",
+    "score": 0.04015171155333519,
+    "same_speaker": false
+   },
+   {
+    "person_id": "koh-qing-jia",
+    "name": "Koh Qing Jia",
+    "score": 0.005853204056620598,
+    "same_speaker": false
+   }
+  ],
+  [
+   {
+    "person_id": "prof",
+    "name": "prof",
+    "score": 0.7205533385276794,
+    "same_speaker": true
+   },
+   {
+    "person_id": "koh-qing-jia",
+    "name": "Koh Qing Jia",
+    "score": 0.07205646485090256,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tasmin",
+    "name": "tasmin",
+    "score": 0.06558308005332947,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tina",
+    "name": "tina",
+    "score": 0.05325614660978317,
+    "same_speaker": false
+   },
+   {
+    "person_id": "le-yong",
+    "name": "le yong",
+    "score": -0.05496805161237717,
+    "same_speaker": false
+   }
+  ],
+  [
+   {
+    "person_id": "prof",
+    "name": "prof",
+    "score": 0.6976410150527954,
+    "same_speaker": true
+   },
+   {
+    "person_id": "tasmin",
+    "name": "tasmin",
+    "score": 0.11062668263912201,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tina",
+    "name": "tina",
+    "score": 0.08251964300870895,
+    "same_speaker": false
+   },
+   {
+    "person_id": "le-yong",
+    "name": "le yong",
+    "score": 0.011708758771419525,
+    "same_speaker": false
+   },
+   {
+    "person_id": "koh-qing-jia",
+    "name": "Koh Qing Jia",
+    "score": -0.03853309154510498,
+    "same_speaker": false
+   }
+  ],
+  [
+   {
+    "person_id": "prof",
+    "name": "prof",
+    "score": 0.6921977400779724,
+    "same_speaker": true
+   },
+   {
+    "person_id": "koh-qing-jia",
+    "name": "Koh Qing Jia",
+    "score": 0.06445158272981644,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tina",
+    "name": "tina",
+    "score": 0.03454287722706795,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tasmin",
+    "name": "tasmin",
+    "score": -0.014450554735958576,
+    "same_speaker": false
+   },
+   {
+    "person_id": "le-yong",
+    "name": "le yong",
+    "score": -0.044352129101753235,
+    "same_speaker": false
+   }
+  ]
+ ],
+ "word_segment_scoring_s": 1.4799970018211752,
+ "turn_spans": [
+  [
+   0.9400000000000015,
+   39.26
+  ]
+ ],
+ "turn_matches": [
+  [
+   {
+    "person_id": "prof",
+    "name": "prof",
+    "score": 0.87505042552948,
+    "same_speaker": true
+   },
+   {
+    "person_id": "tina",
+    "name": "tina",
+    "score": 0.08117856085300446,
+    "same_speaker": false
+   },
+   {
+    "person_id": "koh-qing-jia",
+    "name": "Koh Qing Jia",
+    "score": 0.07102537155151367,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tasmin",
+    "name": "tasmin",
+    "score": 0.03588733822107315,
+    "same_speaker": false
+   },
+   {
+    "person_id": "le-yong",
+    "name": "le yong",
+    "score": -0.06542176008224487,
+    "same_speaker": false
+   }
+  ]
+ ]
+}

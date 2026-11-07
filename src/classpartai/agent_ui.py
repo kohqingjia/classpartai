@@ -45,6 +45,9 @@ ROLE_NAMES = {
 }
 # Runs recorded before the Judge became an agent used one structured call under this name.
 LEGACY_ROLE_NAMES = {"Judge": "finish_rubric_judgement"}
+# Roles run as a multi-step agent rather than one structured call (the Auditor agent falls back
+# to the single-call role above if it errors).
+AGENT_ROLES = {"Auditor": ("auditor_agent", "finish_feedback_audit")}
 
 
 def section(number, title, note=None):
@@ -118,7 +121,7 @@ def timeline(actions):
 
 
 def role_calls(records, session_id, name, newest_first=True):
-    roles = {ROLE_NAMES[name], LEGACY_ROLE_NAMES.get(name)}
+    roles = {ROLE_NAMES[name], LEGACY_ROLE_NAMES.get(name), *AGENT_ROLES.get(name, ())}
     return [
         (run, call)
         for run in records.runs(session_id)
@@ -253,7 +256,11 @@ def listener_view(records, session_id, inputs):
         if diagnostics.get("note"):
             st.warning(diagnostics["note"])
         with st.expander("Whisper segments", expanded=True):
-            st.dataframe(diagnostics.get("whisper_segments", []), hide_index=True, width="stretch")
+            whisper = [
+                {k: v for k, v in seg.items() if k != "words"}  # word timings: raw response
+                for seg in diagnostics.get("whisper_segments", [])
+            ]
+            st.dataframe(whisper, hide_index=True, width="stretch")
         rows = match_rows(diagnostics)
         if rows:
             st.dataframe(rows, hide_index=True, width="stretch")
@@ -261,7 +268,16 @@ def listener_view(records, session_id, inputs):
     else:
         empty("Listener diagnostics were not recorded for this imported or older session.")
     matching = (diagnostics or {}).get("matching")
-    if matching:
+    if matching and matching.get("per") == "speaker":
+        st.caption(
+            f"Each diarised speaker is named when its best voice has cosine ≥ "
+            f"{matching['minScore']:g} and a lead of ≥ {matching['minMargin']:g} over the "
+            "runner-up, otherwise unknown or ambiguous. Each line of 1 s or more is also scored "
+            'on its own voice and becomes ambiguous ("vetoed") if that clearly names someone '
+            "else. SpeechBrain's own verifier decision is kept under voice_matches → verifier "
+            "in the raw response."
+        )
+    elif matching:
         st.caption(
             f"Per-sentence matching: the best voice needs cosine ≥ {matching['minScore']:g} and a "
             f"lead of ≥ {matching['minMargin']:g} over the runner-up, otherwise the line stays "
@@ -339,7 +355,9 @@ def coordinator_view(records, session_id, inputs):
         ]
         + (
             [f"Run stopped: {run['stop_reason']}"]
-            if run and run["stop_reason"] not in (None, "ready_for_professor_review")
+            if run
+            and run["stop_reason"]
+            not in (None, "ready_for_professor_review", "escalated_with_open_issues")
             else []
         ),
         "One shared budget covers all roles and research. Tools are schema checked. "
@@ -487,6 +505,17 @@ def role_view(records, session_id, inputs, name):
         st.caption(
             "An agent: it picks its next tool from each result. The harness validates every "
             "score and refuses a rule-breaking call with the reason. Topic 7 · Agents."
+        )
+    elif name == "Auditor":
+        from classpartai.auditor_agent.harness import TOOLS
+
+        st.code(", ".join(t["function"]["name"] for t in TOOLS), language=None)
+        st.caption(
+            "Le Yong's Auditor agent chooses one read-only tool at a time (citation checks "
+            "include a nested model review) and can only raise issues, request one re-judge or "
+            "escalate to the professor. Feedback drafts get a separate structured review "
+            "(finish_feedback_audit). If the agent errors, the workflow falls back to the "
+            f"single structured call {ROLE_NAMES[name]}. Topic 7 · Agents."
         )
     else:
         st.code(ROLE_NAMES[name], language=None)
@@ -694,12 +723,17 @@ def run_label(run):
         return "Assessment in progress. You can explore each agent as it works."
     if run["stop_reason"] == "ready_for_professor_review":
         return "The assessment is ready for your review."
+    if run["stop_reason"] == "escalated_with_open_issues":
+        return (
+            "Ready for your review, with open issues the agents couldn't resolve. Approval stays "
+            "locked while any issue is blocking."
+        )
     return "Run " + run["status"].replace("_", " ") + ". See inspection details for the reason."
 
 
 def result_card(title, text, note=None):
     with st.container(border=True):
-        st.caption(title.upper())
+        st.caption(title)
         st.write(text)
         if note:
             st.caption(note)

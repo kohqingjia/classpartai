@@ -1,0 +1,5298 @@
+{
+ "demos": [
+  "01-everyone",
+  "02-one-silent",
+  "03-nobody",
+  "04-misconception",
+  "05-injection",
+  "06-dominant",
+  "07-guest"
+ ],
+ "A": {
+  "totals": {
+   "student": {
+    "lines": 26,
+    "correct": 17,
+    "wrong": 1,
+    "unattributed": 8
+   },
+   "professor": {
+    "lines": 36,
+    "correct": 35,
+    "wrong": 0,
+    "unattributed": 1
+   },
+   "guest": {
+    "lines": 2,
+    "correct": 2,
+    "wrong": 0,
+    "unattributed": 0
+   },
+   "wrong_person": 0,
+   "seconds": {
+    "right": 436.09000000000003,
+    "wrong_student": 0.38000000000000256,
+    "wrong_other": 7.560000000000006,
+    "unattributed": 40.40000000000001
+   }
+  },
+  "lines": {
+   "01-everyone": [
+    {
+     "speaker": "Prof Lim (demo)",
+     "role": "professor",
+     "outcome": "correct",
+     "credited": [],
+     "wrong_student": false
+    },
+    {
+     "speaker": "Koh Qing Jia",
+     "role": "student",
+     "outcome": "correct",
+     "credited": [],
+     "wrong_student": false
+    },
+    {
+     "speaker": "Prof Lim (demo)",
+     "role": "professor",
+     "outcome": "unattributed",
+     "credited": [],
+     "wrong_student": false
+    },
+    {
+     "speaker": "Tasmin",
+     "role": "student",
+     "outcome": "wrong",
+     "credited": [
+      "Prof Lim (demo)"
+     ],
+     "wrong_student": false
+    },
+    {
+     "speaker": "Prof Lim (demo)",
+     "role": "professor",
+     "outcome": "correct",
+     "credited": [],
+     "wrong_student": false
+    },
+    {
+     "speaker": "Tina",
+     "role": "student",
+     "outcome": "unattributed",
+     "credited": [],
+     "wrong_student": false
+    },
+    {
+     "speaker": "Prof Lim (demo)",
+     "role": "professor",
+     "outcome": "correct",
+     "credited": [],
+     "wrong_student": false
+    },
+    {
+     "speaker": "Le Yong",
+     "role": "student",
+     "outcome": "correct",
+     "credited": [],
+     "wrong_student": false
+    },
+    {
+     "speaker": "Prof Lim (demo)",
+     "role": "professor",
+     "outcome": "correct",
+     "credited": [],
+     "wrong_student": false
+    },
+    {
+     "speaker": "Koh Qing Jia",
+     "role": "student",
+     "outcome": "correct",
+     "credited": [],
+     "wrong_student": false
+    },
+    {
+     "speaker": "Prof Lim (demo)",
+     "role": "professor",
+     "outcome": "correct",
+     "credited": [],
+     "wrong_student": false
+    }
+   ],
+   "02-one-silent": [
+    {
+     "speaker": "Prof Lim (demo)",
+     "role": "professor",
+     "outcome": "correct",
+     "credited": [],
+     "wrong_student": false
+    },
+    {
+     "speaker": "Tasmin",
+     "role": "student",
+     "outcome": "unattributed",
+     "credited": [],
+     "wrong_student": false
+    },
+    {
+     "speaker": "Prof Lim (demo)",
+     "role": "professor",
+     "outcome": "correct",
+     "credited": [],
+     "wrong_student": false
+    },
+    {
+     "speaker": "Koh Qing Jia",
+     "role": "student",
+     "outcome": "correct",
+     "credited": [],
+     "wrong_student": false
+    },
+    {
+     "speaker": "Prof Lim (demo)",
+     "role": "professor",
+     "outcome": "correct",
+     "credited": [],
+     "wrong_student": false
+    },
+    {
+     "speaker": "Tina",
+     "role": "student",
+     "outcome": "correct",
+     "credited": [],
+     "wrong_student": false
+    },
+    {
+     "speaker": "Prof Lim (demo)",
+     "role": "professor",
+     "outcome": "correct",
+     "credited": [],
+     "wrong_student": false
+    },
+    {
+     "speaker": "Tasmin",
+     "role": "student",
+     "outcome": "unattributed",
+     "credited": [],
+     "wrong_student": false
+    },
+    {
+     "speaker": "Prof Lim (demo)",
+     "role": "professor",
+     "outcome": "correct",
+     "credited": [],
+     "wrong_student": false
+    }
+   ],
+   "03-nobody": [
+    {
+     "speaker": "Prof Lim (demo)",
+     "role": "professor",
+     "outcome": "correct",
+     "credited": [],
+     "wrong_student": false
+    },
+    {
+     "speaker": "Prof Lim (demo)",
+     "role": "professor",
+     "outcome": "correct",
+     "credited": [],
+     "wrong_student": false
+    },
+    {
+     "speaker": "Prof Lim (demo)",
+     "role": "professor",
+     "outcome": "correct",
+     "credited": [],
+     "wrong_student": false
+    },
+    {
+     "speaker": "Prof Lim (demo)",
+     "role": "professor",
+     "outcome": "correct",
+     "credited": [],
+     "wrong_student": false
+    }
+   ],
+   "04-misconception": [
+    {
+     "speaker": "Prof Lim (demo)",
+     "role": "professor",
+     "outcome": "correct",
+     "credited": [],
+     "wrong_student": false
+    },
+    {
+     "speaker": "Tina",
+     "role": "student",
+     "outcome": "correct",
+     "credited": [],
+     "wrong_student": false
+    },
+    {
+     "speaker": "Prof Lim (demo)",
+     "role": "professor",
+     "outcome": "correct",
+     "credited": [],
+     "wrong_student": false
+    },
+    {
+     "speaker": "Koh Qing Jia",
+     "role": "student",
+     "outcome": "correct",
+     "credited": [],
+     "wrong_student": false
+    },
+    {
+     "speaker": "Prof Lim (demo)",
+     "role": "professor",
+     "outcome": "correct",
+     "credited": [],
+     "wrong_student": false
+    },
+    {
+     "speaker": "Tina",
+     "role": "student",
+     "outcome": "correct",
+     "credited": [],
+     "wrong_student": false
+    },
+    {
+     "speaker": "Prof Lim (demo)",
+     "role": "professor",
+     "outcome": "correct",
+     "credited": [],
+     "wrong_student": false
+    },
+    {
+     "speaker": "Le Yong",
+     "role": "student",
+     "outcome": "correct",
+     "credited": [],
+     "wrong_student": false
+    },
+    {
+     "speaker": "Prof Lim (demo)",
+     "role": "professor",
+     "outcome": "correct",
+     "credited": [],
+     "wrong_student": false
+    },
+    {
+     "speaker": "Tasmin",
+     "role": "student",
+     "outcome": "unattributed",
+     "credited": [],
+     "wrong_student": false
+    },
+    {
+     "speaker": "Prof Lim (demo)",
+     "role": "professor",
+     "outcome": "correct",
+     "credited": [],
+     "wrong_student": false
+    }
+   ],
+   "05-injection": [
+    {
+     "speaker": "Prof Lim (demo)",
+     "role": "professor",
+     "outcome": "correct",
+     "credited": [],
+     "wrong_student": false
+    },
+    {
+     "speaker": "Tasmin",
+     "role": "student",
+     "outcome": "unattributed",
+     "credited": [],
+     "wrong_student": false
+    },
+    {
+     "speaker": "Prof Lim (demo)",
+     "role": "professor",
+     "outcome": "correct",
+     "credited": [],
+     "wrong_student": false
+    },
+    {
+     "speaker": "Le Yong",
+     "role": "student",
+     "outcome": "correct",
+     "credited": [],
+     "wrong_student": false
+    },
+    {
+     "speaker": "Prof Lim (demo)",
+     "role": "professor",
+     "outcome": "correct",
+     "credited": [],
+     "wrong_student": false
+    },
+    {
+     "speaker": "Koh Qing Jia",
+     "role": "student",
+     "outcome": "correct",
+     "credited": [],
+     "wrong_student": false
+    },
+    {
+     "speaker": "Prof Lim (demo)",
+     "role": "professor",
+     "outcome": "correct",
+     "credited": [],
+     "wrong_student": false
+    },
+    {
+     "speaker": "Tina",
+     "role": "student",
+     "outcome": "unattributed",
+     "credited": [],
+     "wrong_student": false
+    },
+    {
+     "speaker": "Prof Lim (demo)",
+     "role": "professor",
+     "outcome": "correct",
+     "credited": [],
+     "wrong_student": false
+    }
+   ],
+   "06-dominant": [
+    {
+     "speaker": "Prof Lim (demo)",
+     "role": "professor",
+     "outcome": "correct",
+     "credited": [],
+     "wrong_student": false
+    },
+    {
+     "speaker": "Koh Qing Jia",
+     "role": "student",
+     "outcome": "correct",
+     "credited": [],
+     "wrong_student": false
+    },
+    {
+     "speaker": "Prof Lim (demo)",
+     "role": "professor",
+     "outcome": "correct",
+     "credited": [],
+     "wrong_student": false
+    },
+    {
+     "speaker": "Koh Qing Jia",
+     "role": "student",
+     "outcome": "correct",
+     "credited": [],
+     "wrong_student": false
+    },
+    {
+     "speaker": "Prof Lim (demo)",
+     "role": "professor",
+     "outcome": "correct",
+     "credited": [],
+     "wrong_student": false
+    },
+    {
+     "speaker": "Tina",
+     "role": "student",
+     "outcome": "unattributed",
+     "credited": [],
+     "wrong_student": false
+    },
+    {
+     "speaker": "Prof Lim (demo)",
+     "role": "professor",
+     "outcome": "correct",
+     "credited": [],
+     "wrong_student": false
+    },
+    {
+     "speaker": "Tasmin",
+     "role": "student",
+     "outcome": "unattributed",
+     "credited": [],
+     "wrong_student": false
+    },
+    {
+     "speaker": "Prof Lim (demo)",
+     "role": "professor",
+     "outcome": "correct",
+     "credited": [],
+     "wrong_student": false
+    },
+    {
+     "speaker": "Le Yong",
+     "role": "student",
+     "outcome": "correct",
+     "credited": [],
+     "wrong_student": false
+    },
+    {
+     "speaker": "Prof Lim (demo)",
+     "role": "professor",
+     "outcome": "correct",
+     "credited": [],
+     "wrong_student": false
+    }
+   ],
+   "07-guest": [
+    {
+     "speaker": "Prof Lim (demo)",
+     "role": "professor",
+     "outcome": "correct",
+     "credited": [],
+     "wrong_student": false
+    },
+    {
+     "speaker": "Guest",
+     "role": "guest",
+     "outcome": "correct",
+     "credited": [],
+     "wrong_student": false
+    },
+    {
+     "speaker": "Prof Lim (demo)",
+     "role": "professor",
+     "outcome": "correct",
+     "credited": [],
+     "wrong_student": false
+    },
+    {
+     "speaker": "Tasmin",
+     "role": "student",
+     "outcome": "correct",
+     "credited": [],
+     "wrong_student": false
+    },
+    {
+     "speaker": "Prof Lim (demo)",
+     "role": "professor",
+     "outcome": "correct",
+     "credited": [],
+     "wrong_student": false
+    },
+    {
+     "speaker": "Koh Qing Jia",
+     "role": "student",
+     "outcome": "correct",
+     "credited": [],
+     "wrong_student": false
+    },
+    {
+     "speaker": "Guest",
+     "role": "guest",
+     "outcome": "correct",
+     "credited": [],
+     "wrong_student": false
+    },
+    {
+     "speaker": "Tina",
+     "role": "student",
+     "outcome": "correct",
+     "credited": [],
+     "wrong_student": false
+    },
+    {
+     "speaker": "Prof Lim (demo)",
+     "role": "professor",
+     "outcome": "correct",
+     "credited": [],
+     "wrong_student": false
+    }
+   ]
+  }
+ },
+ "default": {
+  "B": {
+   "totals": {
+    "student": {
+     "lines": 26,
+     "correct": 24,
+     "wrong": 2,
+     "unattributed": 0
+    },
+    "professor": {
+     "lines": 36,
+     "correct": 35,
+     "wrong": 0,
+     "unattributed": 1
+    },
+    "guest": {
+     "lines": 2,
+     "correct": 2,
+     "wrong": 0,
+     "unattributed": 0
+    },
+    "wrong_person": 1,
+    "seconds": {
+     "right": 474.83000000000004,
+     "wrong_student": 2.0400000000000134,
+     "wrong_other": 7.560000000000006,
+     "unattributed": 0.0
+    }
+   },
+   "lines": {
+    "01-everyone": [
+     {
+      "speaker": "Prof Lim (demo)",
+      "role": "professor",
+      "outcome": "correct",
+      "credited": [],
+      "wrong_student": false
+     },
+     {
+      "speaker": "Koh Qing Jia",
+      "role": "student",
+      "outcome": "correct",
+      "credited": [],
+      "wrong_student": false
+     },
+     {
+      "speaker": "Prof Lim (demo)",
+      "role": "professor",
+      "outcome": "unattributed",
+      "credited": [],
+      "wrong_student": false
+     },
+     {
+      "speaker": "Tasmin",
+      "role": "student",
+      "outcome": "wrong",
+      "credited": [
+       "Prof Lim (demo)"
+      ],
+      "wrong_student": false
+     },
+     {
+      "speaker": "Prof Lim (demo)",
+      "role": "professor",
+      "outcome": "correct",
+      "credited": [],
+      "wrong_student": false
+     },
+     {
+      "speaker": "Tina",
+      "role": "student",
+      "outcome": "correct",
+      "credited": [],
+      "wrong_student": false
+     },
+     {
+      "speaker": "Prof Lim (demo)",
+      "role": "professor",
+      "outcome": "correct",
+      "credited": [],
+      "wrong_student": false
+     },
+     {
+      "speaker": "Le Yong",
+      "role": "student",
+      "outcome": "correct",
+      "credited": [],
+      "wrong_student": false
+     },
+     {
+      "speaker": "Prof Lim (demo)",
+      "role": "professor",
+      "outcome": "correct",
+      "credited": [],
+      "wrong_student": false
+     },
+     {
+      "speaker": "Koh Qing Jia",
+      "role": "student",
+      "outcome": "correct",
+      "credited": [],
+      "wrong_student": false
+     },
+     {
+      "speaker": "Prof Lim (demo)",
+      "role": "professor",
+      "outcome": "correct",
+      "credited": [],
+      "wrong_student": false
+     }
+    ],
+    "02-one-silent": [
+     {
+      "speaker": "Prof Lim (demo)",
+      "role": "professor",
+      "outcome": "correct",
+      "credited": [],
+      "wrong_student": false
+     },
+     {
+      "speaker": "Tasmin",
+      "role": "student",
+      "outcome": "correct",
+      "credited": [],
+      "wrong_student": false
+     },
+     {
+      "speaker": "Prof Lim (demo)",
+      "role": "professor",
+      "outcome": "correct",
+      "credited": [],
+      "wrong_student": false
+     },
+     {
+      "speaker": "Koh Qing Jia",
+      "role": "student",
+      "outcome": "correct",
+      "credited": [],
+      "wrong_student": false
+     },
+     {
+      "speaker": "Prof Lim (demo)",
+      "role": "professor",
+      "outcome": "correct",
+      "credited": [],
+      "wrong_student": false
+     },
+     {
+      "speaker": "Tina",
+      "role": "student",
+      "outcome": "correct",
+      "credited": [],
+      "wrong_student": false
+     },
+     {
+      "speaker": "Prof Lim (demo)",
+      "role": "professor",
+      "outcome": "correct",
+      "credited": [],
+      "wrong_student": false
+     },
+     {
+      "speaker": "Tasmin",
+      "role": "student",
+      "outcome": "correct",
+      "credited": [],
+      "wrong_student": false
+     },
+     {
+      "speaker": "Prof Lim (demo)",
+      "role": "professor",
+      "outcome": "correct",
+      "credited": [],
+      "wrong_student": false
+     }
+    ],
+    "03-nobody": [
+     {
+      "speaker": "Prof Lim (demo)",
+      "role": "professor",
+      "outcome": "correct",
+      "credited": [],
+      "wrong_student": false
+     },
+     {
+      "speaker": "Prof Lim (demo)",
+      "role": "professor",
+      "outcome": "correct",
+      "credited": [],
+      "wrong_student": false
+     },
+     {
+      "speaker": "Prof Lim (demo)",
+      "role": "professor",
+      "outcome": "correct",
+      "credited": [],
+      "wrong_student": false
+     },
+     {
+      "speaker": "Prof Lim (demo)",
+      "role": "professor",
+      "outcome": "correct",
+      "credited": [],
+      "wrong_student": false
+     }
+    ],
+    "04-misconception": [
+     {
+      "speaker": "Prof Lim (demo)",
+      "role": "professor",
+      "outcome": "correct",
+      "credited": [],
+      "wrong_student": false
+     },
+     {
+      "speaker": "Tina",
+      "role": "student",
+      "outcome": "correct",
+      "credited": [],
+      "wrong_student": false
+     },
+     {
+      "speaker": "Prof Lim (demo)",
+      "role": "professor",
+      "outcome": "correct",
+      "credited": [],
+      "wrong_student": false
+     },
+     {
+      "speaker": "Koh Qing Jia",
+      "role": "student",
+      "outcome": "correct",
+      "credited": [],
+      "wrong_student": false
+     },
+     {
+      "speaker": "Prof Lim (demo)",
+      "role": "professor",
+      "outcome": "correct",
+      "credited": [],
+      "wrong_student": false
+     },
+     {
+      "speaker": "Tina",
+      "role": "student",
+      "outcome": "correct",
+      "credited": [],
+      "wrong_student": false
+     },
+     {
+      "speaker": "Prof Lim (demo)",
+      "role": "professor",
+      "outcome": "correct",
+      "credited": [],
+      "wrong_student": false
+     },
+     {
+      "speaker": "Le Yong",
+      "role": "student",
+      "outcome": "correct",
+      "credited": [],
+      "wrong_student": false
+     },
+     {
+      "speaker": "Prof Lim (demo)",
+      "role": "professor",
+      "outcome": "correct",
+      "credited": [],
+      "wrong_student": false
+     },
+     {
+      "speaker": "Tasmin",
+      "role": "student",
+      "outcome": "correct",
+      "credited": [],
+      "wrong_student": false
+     },
+     {
+      "speaker": "Prof Lim (demo)",
+      "role": "professor",
+      "outcome": "correct",
+      "credited": [],
+      "wrong_student": false
+     }
+    ],
+    "05-injection": [
+     {
+      "speaker": "Prof Lim (demo)",
+      "role": "professor",
+      "outcome": "correct",
+      "credited": [],
+      "wrong_student": false
+     },
+     {
+      "speaker": "Tasmin",
+      "role": "student",
+      "outcome": "correct",
+      "credited": [],
+      "wrong_student": false
+     },
+     {
+      "speaker": "Prof Lim (demo)",
+      "role": "professor",
+      "outcome": "correct",
+      "credited": [],
+      "wrong_student": false
+     },
+     {
+      "speaker": "Le Yong",
+      "role": "student",
+      "outcome": "correct",
+      "credited": [],
+      "wrong_student": false
+     },
+     {
+      "speaker": "Prof Lim (demo)",
+      "role": "professor",
+      "outcome": "correct",
+      "credited": [],
+      "wrong_student": false
+     },
+     {
+      "speaker": "Koh Qing Jia",
+      "role": "student",
+      "outcome": "correct",
+      "credited": [],
+      "wrong_student": false
+     },
+     {
+      "speaker": "Prof Lim (demo)",
+      "role": "professor",
+      "outcome": "correct",
+      "credited": [],
+      "wrong_student": false
+     },
+     {
+      "speaker": "Tina",
+      "role": "student",
+      "outcome": "correct",
+      "credited": [],
+      "wrong_student": false
+     },
+     {
+      "speaker": "Prof Lim (demo)",
+      "role": "professor",
+      "outcome": "correct",
+      "credited": [],
+      "wrong_student": false
+     }
+    ],
+    "06-dominant": [
+     {
+      "speaker": "Prof Lim (demo)",
+      "role": "professor",
+      "outcome": "correct",
+      "credited": [],
+      "wrong_student": false
+     },
+     {
+      "speaker": "Koh Qing Jia",
+      "role": "student",
+      "outcome": "correct",
+      "credited": [],
+      "wrong_student": false
+     },
+     {
+      "speaker": "Prof Lim (demo)",
+      "role": "professor",
+      "outcome": "correct",
+      "credited": [],
+      "wrong_student": false
+     },
+     {
+      "speaker": "Koh Qing Jia",
+      "role": "student",
+      "outcome": "correct",
+      "credited": [],
+      "wrong_student": false
+     },
+     {
+      "speaker": "Prof Lim (demo)",
+      "role": "professor",
+      "outcome": "correct",
+      "credited": [],
+      "wrong_student": false
+     },
+     {
+      "speaker": "Tina",
+      "role": "student",
+      "outcome": "correct",
+      "credited": [],
+      "wrong_student": false
+     },
+     {
+      "speaker": "Prof Lim (demo)",
+      "role": "professor",
+      "outcome": "correct",
+      "credited": [],
+      "wrong_student": false
+     },
+     {
+      "speaker": "Tasmin",
+      "role": "student",
+      "outcome": "wrong",
+      "credited": [
+       "tina"
+      ],
+      "wrong_student": true
+     },
+     {
+      "speaker": "Prof Lim (demo)",
+      "role": "professor",
+      "outcome": "correct",
+      "credited": [],
+      "wrong_student": false
+     },
+     {
+      "speaker": "Le Yong",
+      "role": "student",
+      "outcome": "correct",
+      "credited": [],
+      "wrong_student": false
+     },
+     {
+      "speaker": "Prof Lim (demo)",
+      "role": "professor",
+      "outcome": "correct",
+      "credited": [],
+      "wrong_student": false
+     }
+    ],
+    "07-guest": [
+     {
+      "speaker": "Prof Lim (demo)",
+      "role": "professor",
+      "outcome": "correct",
+      "credited": [],
+      "wrong_student": false
+     },
+     {
+      "speaker": "Guest",
+      "role": "guest",
+      "outcome": "correct",
+      "credited": [],
+      "wrong_student": false
+     },
+     {
+      "speaker": "Prof Lim (demo)",
+      "role": "professor",
+      "outcome": "correct",
+      "credited": [],
+      "wrong_student": false
+     },
+     {
+      "speaker": "Tasmin",
+      "role": "student",
+      "outcome": "correct",
+      "credited": [],
+      "wrong_student": false
+     },
+     {
+      "speaker": "Prof Lim (demo)",
+      "role": "professor",
+      "outcome": "correct",
+      "credited": [],
+      "wrong_student": false
+     },
+     {
+      "speaker": "Koh Qing Jia",
+      "role": "student",
+      "outcome": "correct",
+      "credited": [],
+      "wrong_student": false
+     },
+     {
+      "speaker": "Guest",
+      "role": "guest",
+      "outcome": "correct",
+      "credited": [],
+      "wrong_student": false
+     },
+     {
+      "speaker": "Tina",
+      "role": "student",
+      "outcome": "correct",
+      "credited": [],
+      "wrong_student": false
+     },
+     {
+      "speaker": "Prof Lim (demo)",
+      "role": "professor",
+      "outcome": "correct",
+      "credited": [],
+      "wrong_student": false
+     }
+    ]
+   }
+  },
+  "C": {
+   "totals": {
+    "student": {
+     "lines": 26,
+     "correct": 25,
+     "wrong": 1,
+     "unattributed": 0
+    },
+    "professor": {
+     "lines": 36,
+     "correct": 35,
+     "wrong": 0,
+     "unattributed": 1
+    },
+    "guest": {
+     "lines": 2,
+     "correct": 2,
+     "wrong": 0,
+     "unattributed": 0
+    },
+    "wrong_person": 0,
+    "seconds": {
+     "right": 476.31000000000006,
+     "wrong_student": 0.5600000000000094,
+     "wrong_other": 7.560000000000006,
+     "unattributed": 0.0
+    }
+   },
+   "lines": {
+    "01-everyone": [
+     {
+      "speaker": "Prof Lim (demo)",
+      "role": "professor",
+      "outcome": "correct",
+      "credited": [],
+      "wrong_student": false
+     },
+     {
+      "speaker": "Koh Qing Jia",
+      "role": "student",
+      "outcome": "correct",
+      "credited": [],
+      "wrong_student": false
+     },
+     {
+      "speaker": "Prof Lim (demo)",
+      "role": "professor",
+      "outcome": "unattributed",
+      "credited": [],
+      "wrong_student": false
+     },
+     {
+      "speaker": "Tasmin",
+      "role": "student",
+      "outcome": "wrong",
+      "credited": [
+       "Prof Lim (demo)"
+      ],
+      "wrong_student": false
+     },
+     {
+      "speaker": "Prof Lim (demo)",
+      "role": "professor",
+      "outcome": "correct",
+      "credited": [],
+      "wrong_student": false
+     },
+     {
+      "speaker": "Tina",
+      "role": "student",
+      "outcome": "correct",
+      "credited": [],
+      "wrong_student": false
+     },
+     {
+      "speaker": "Prof Lim (demo)",
+      "role": "professor",
+      "outcome": "correct",
+      "credited": [],
+      "wrong_student": false
+     },
+     {
+      "speaker": "Le Yong",
+      "role": "student",
+      "outcome": "correct",
+      "credited": [],
+      "wrong_student": false
+     },
+     {
+      "speaker": "Prof Lim (demo)",
+      "role": "professor",
+      "outcome": "correct",
+      "credited": [],
+      "wrong_student": false
+     },
+     {
+      "speaker": "Koh Qing Jia",
+      "role": "student",
+      "outcome": "correct",
+      "credited": [],
+      "wrong_student": false
+     },
+     {
+      "speaker": "Prof Lim (demo)",
+      "role": "professor",
+      "outcome": "correct",
+      "credited": [],
+      "wrong_student": false
+     }
+    ],
+    "02-one-silent": [
+     {
+      "speaker": "Prof Lim (demo)",
+      "role": "professor",
+      "outcome": "correct",
+      "credited": [],
+      "wrong_student": false
+     },
+     {
+      "speaker": "Tasmin",
+      "role": "student",
+      "outcome": "correct",
+      "credited": [],
+      "wrong_student": false
+     },
+     {
+      "speaker": "Prof Lim (demo)",
+      "role": "professor",
+      "outcome": "correct",
+      "credited": [],
+      "wrong_student": false
+     },
+     {
+      "speaker": "Koh Qing Jia",
+      "role": "student",
+      "outcome": "correct",
+      "credited": [],
+      "wrong_student": false
+     },
+     {
+      "speaker": "Prof Lim (demo)",
+      "role": "professor",
+      "outcome": "correct",
+      "credited": [],
+      "wrong_student": false
+     },
+     {
+      "speaker": "Tina",
+      "role": "student",
+      "outcome": "correct",
+      "credited": [],
+      "wrong_student": false
+     },
+     {
+      "speaker": "Prof Lim (demo)",
+      "role": "professor",
+      "outcome": "correct",
+      "credited": [],
+      "wrong_student": false
+     },
+     {
+      "speaker": "Tasmin",
+      "role": "student",
+      "outcome": "correct",
+      "credited": [],
+      "wrong_student": false
+     },
+     {
+      "speaker": "Prof Lim (demo)",
+      "role": "professor",
+      "outcome": "correct",
+      "credited": [],
+      "wrong_student": false
+     }
+    ],
+    "03-nobody": [
+     {
+      "speaker": "Prof Lim (demo)",
+      "role": "professor",
+      "outcome": "correct",
+      "credited": [],
+      "wrong_student": false
+     },
+     {
+      "speaker": "Prof Lim (demo)",
+      "role": "professor",
+      "outcome": "correct",
+      "credited": [],
+      "wrong_student": false
+     },
+     {
+      "speaker": "Prof Lim (demo)",
+      "role": "professor",
+      "outcome": "correct",
+      "credited": [],
+      "wrong_student": false
+     },
+     {
+      "speaker": "Prof Lim (demo)",
+      "role": "professor",
+      "outcome": "correct",
+      "credited": [],
+      "wrong_student": false
+     }
+    ],
+    "04-misconception": [
+     {
+      "speaker": "Prof Lim (demo)",
+      "role": "professor",
+      "outcome": "correct",
+      "credited": [],
+      "wrong_student": false
+     },
+     {
+      "speaker": "Tina",
+      "role": "student",
+      "outcome": "correct",
+      "credited": [],
+      "wrong_student": false
+     },
+     {
+      "speaker": "Prof Lim (demo)",
+      "role": "professor",
+      "outcome": "correct",
+      "credited": [],
+      "wrong_student": false
+     },
+     {
+      "speaker": "Koh Qing Jia",
+      "role": "student",
+      "outcome": "correct",
+      "credited": [],
+      "wrong_student": false
+     },
+     {
+      "speaker": "Prof Lim (demo)",
+      "role": "professor",
+      "outcome": "correct",
+      "credited": [],
+      "wrong_student": false
+     },
+     {
+      "speaker": "Tina",
+      "role": "student",
+      "outcome": "correct",
+      "credited": [],
+      "wrong_student": false
+     },
+     {
+      "speaker": "Prof Lim (demo)",
+      "role": "professor",
+      "outcome": "correct",
+      "credited": [],
+      "wrong_student": false
+     },
+     {
+      "speaker": "Le Yong",
+      "role": "student",
+      "outcome": "correct",
+      "credited": [],
+      "wrong_student": false
+     },
+     {
+      "speaker": "Prof Lim (demo)",
+      "role": "professor",
+      "outcome": "correct",
+      "credited": [],
+      "wrong_student": false
+     },
+     {
+      "speaker": "Tasmin",
+      "role": "student",
+      "outcome": "correct",
+      "credited": [],
+      "wrong_student": false
+     },
+     {
+      "speaker": "Prof Lim (demo)",
+      "role": "professor",
+      "outcome": "correct",
+      "credited": [],
+      "wrong_student": false
+     }
+    ],
+    "05-injection": [
+     {
+      "speaker": "Prof Lim (demo)",
+      "role": "professor",
+      "outcome": "correct",
+      "credited": [],
+      "wrong_student": false
+     },
+     {
+      "speaker": "Tasmin",
+      "role": "student",
+      "outcome": "correct",
+      "credited": [],
+      "wrong_student": false
+     },
+     {
+      "speaker": "Prof Lim (demo)",
+      "role": "professor",
+      "outcome": "correct",
+      "credited": [],
+      "wrong_student": false
+     },
+     {
+      "speaker": "Le Yong",
+      "role": "student",
+      "outcome": "correct",
+      "credited": [],
+      "wrong_student": false
+     },
+     {
+      "speaker": "Prof Lim (demo)",
+      "role": "professor",
+      "outcome": "correct",
+      "credited": [],
+      "wrong_student": false
+     },
+     {
+      "speaker": "Koh Qing Jia",
+      "role": "student",
+      "outcome": "correct",
+      "credited": [],
+      "wrong_student": false
+     },
+     {
+      "speaker": "Prof Lim (demo)",
+      "role": "professor",
+      "outcome": "correct",
+      "credited": [],
+      "wrong_student": false
+     },
+     {
+      "speaker": "Tina",
+      "role": "student",
+      "outcome": "correct",
+      "credited": [],
+      "wrong_student": false
+     },
+     {
+      "speaker": "Prof Lim (demo)",
+      "role": "professor",
+      "outcome": "correct",
+      "credited": [],
+      "wrong_student": false
+     }
+    ],
+    "06-dominant": [
+     {
+      "speaker": "Prof Lim (demo)",
+      "role": "professor",
+      "outcome": "correct",
+      "credited": [],
+      "wrong_student": false
+     },
+     {
+      "speaker": "Koh Qing Jia",
+      "role": "student",
+      "outcome": "correct",
+      "credited": [],
+      "wrong_student": false
+     },
+     {
+      "speaker": "Prof Lim (demo)",
+      "role": "professor",
+      "outcome": "correct",
+      "credited": [],
+      "wrong_student": false
+     },
+     {
+      "speaker": "Koh Qing Jia",
+      "role": "student",
+      "outcome": "correct",
+      "credited": [],
+      "wrong_student": false
+     },
+     {
+      "speaker": "Prof Lim (demo)",
+      "role": "professor",
+      "outcome": "correct",
+      "credited": [],
+      "wrong_student": false
+     },
+     {
+      "speaker": "Tina",
+      "role": "student",
+      "outcome": "correct",
+      "credited": [],
+      "wrong_student": false
+     },
+     {
+      "speaker": "Prof Lim (demo)",
+      "role": "professor",
+      "outcome": "correct",
+      "credited": [],
+      "wrong_student": false
+     },
+     {
+      "speaker": "Tasmin",
+      "role": "student",
+      "outcome": "correct",
+      "credited": [],
+      "wrong_student": false
+     },
+     {
+      "speaker": "Prof Lim (demo)",
+      "role": "professor",
+      "outcome": "correct",
+      "credited": [],
+      "wrong_student": false
+     },
+     {
+      "speaker": "Le Yong",
+      "role": "student",
+      "outcome": "correct",
+      "credited": [],
+      "wrong_student": false
+     },
+     {
+      "speaker": "Prof Lim (demo)",
+      "role": "professor",
+      "outcome": "correct",
+      "credited": [],
+      "wrong_student": false
+     }
+    ],
+    "07-guest": [
+     {
+      "speaker": "Prof Lim (demo)",
+      "role": "professor",
+      "outcome": "correct",
+      "credited": [],
+      "wrong_student": false
+     },
+     {
+      "speaker": "Guest",
+      "role": "guest",
+      "outcome": "correct",
+      "credited": [],
+      "wrong_student": false
+     },
+     {
+      "speaker": "Prof Lim (demo)",
+      "role": "professor",
+      "outcome": "correct",
+      "credited": [],
+      "wrong_student": false
+     },
+     {
+      "speaker": "Tasmin",
+      "role": "student",
+      "outcome": "correct",
+      "credited": [],
+      "wrong_student": false
+     },
+     {
+      "speaker": "Prof Lim (demo)",
+      "role": "professor",
+      "outcome": "correct",
+      "credited": [],
+      "wrong_student": false
+     },
+     {
+      "speaker": "Koh Qing Jia",
+      "role": "student",
+      "outcome": "correct",
+      "credited": [],
+      "wrong_student": false
+     },
+     {
+      "speaker": "Guest",
+      "role": "guest",
+      "outcome": "correct",
+      "credited": [],
+      "wrong_student": false
+     },
+     {
+      "speaker": "Tina",
+      "role": "student",
+      "outcome": "correct",
+      "credited": [],
+      "wrong_student": false
+     },
+     {
+      "speaker": "Prof Lim (demo)",
+      "role": "professor",
+      "outcome": "correct",
+      "credited": [],
+      "wrong_student": false
+     }
+    ]
+   }
+  },
+  "B+veto": {
+   "totals": {
+    "student": {
+     "lines": 26,
+     "correct": 24,
+     "wrong": 1,
+     "unattributed": 1
+    },
+    "professor": {
+     "lines": 36,
+     "correct": 35,
+     "wrong": 0,
+     "unattributed": 1
+    },
+    "guest": {
+     "lines": 2,
+     "correct": 2,
+     "wrong": 0,
+     "unattributed": 0
+    },
+    "wrong_person": 0,
+    "seconds": {
+     "right": 474.83000000000004,
+     "wrong_student": 0.5600000000000094,
+     "wrong_other": 7.560000000000006,
+     "unattributed": 1.480000000000004
+    }
+   },
+   "lines": {
+    "01-everyone": [
+     {
+      "speaker": "Prof Lim (demo)",
+      "role": "professor",
+      "outcome": "correct",
+      "credited": [],
+      "wrong_student": false
+     },
+     {
+      "speaker": "Koh Qing Jia",
+      "role": "student",
+      "outcome": "correct",
+      "credited": [],
+      "wrong_student": false
+     },
+     {
+      "speaker": "Prof Lim (demo)",
+      "role": "professor",
+      "outcome": "unattributed",
+      "credited": [],
+      "wrong_student": false
+     },
+     {
+      "speaker": "Tasmin",
+      "role": "student",
+      "outcome": "wrong",
+      "credited": [
+       "Prof Lim (demo)"
+      ],
+      "wrong_student": false
+     },
+     {
+      "speaker": "Prof Lim (demo)",
+      "role": "professor",
+      "outcome": "correct",
+      "credited": [],
+      "wrong_student": false
+     },
+     {
+      "speaker": "Tina",
+      "role": "student",
+      "outcome": "correct",
+      "credited": [],
+      "wrong_student": false
+     },
+     {
+      "speaker": "Prof Lim (demo)",
+      "role": "professor",
+      "outcome": "correct",
+      "credited": [],
+      "wrong_student": false
+     },
+     {
+      "speaker": "Le Yong",
+      "role": "student",
+      "outcome": "correct",
+      "credited": [],
+      "wrong_student": false
+     },
+     {
+      "speaker": "Prof Lim (demo)",
+      "role": "professor",
+      "outcome": "correct",
+      "credited": [],
+      "wrong_student": false
+     },
+     {
+      "speaker": "Koh Qing Jia",
+      "role": "student",
+      "outcome": "correct",
+      "credited": [],
+      "wrong_student": false
+     },
+     {
+      "speaker": "Prof Lim (demo)",
+      "role": "professor",
+      "outcome": "correct",
+      "credited": [],
+      "wrong_student": false
+     }
+    ],
+    "02-one-silent": [
+     {
+      "speaker": "Prof Lim (demo)",
+      "role": "professor",
+      "outcome": "correct",
+      "credited": [],
+      "wrong_student": false
+     },
+     {
+      "speaker": "Tasmin",
+      "role": "student",
+      "outcome": "correct",
+      "credited": [],
+      "wrong_student": false
+     },
+     {
+      "speaker": "Prof Lim (demo)",
+      "role": "professor",
+      "outcome": "correct",
+      "credited": [],
+      "wrong_student": false
+     },
+     {
+      "speaker": "Koh Qing Jia",
+      "role": "student",
+      "outcome": "correct",
+      "credited": [],
+      "wrong_student": false
+     },
+     {
+      "speaker": "Prof Lim (demo)",
+      "role": "professor",
+      "outcome": "correct",
+      "credited": [],
+      "wrong_student": false
+     },
+     {
+      "speaker": "Tina",
+      "role": "student",
+      "outcome": "correct",
+      "credited": [],
+      "wrong_student": false
+     },
+     {
+      "speaker": "Prof Lim (demo)",
+      "role": "professor",
+      "outcome": "correct",
+      "credited": [],
+      "wrong_student": false
+     },
+     {
+      "speaker": "Tasmin",
+      "role": "student",
+      "outcome": "correct",
+      "credited": [],
+      "wrong_student": false
+     },
+     {
+      "speaker": "Prof Lim (demo)",
+      "role": "professor",
+      "outcome": "correct",
+      "credited": [],
+      "wrong_student": false
+     }
+    ],
+    "03-nobody": [
+     {
+      "speaker": "Prof Lim (demo)",
+      "role": "professor",
+      "outcome": "correct",
+      "credited": [],
+      "wrong_student": false
+     },
+     {
+      "speaker": "Prof Lim (demo)",
+      "role": "professor",
+      "outcome": "correct",
+      "credited": [],
+      "wrong_student": false
+     },
+     {
+      "speaker": "Prof Lim (demo)",
+      "role": "professor",
+      "outcome": "correct",
+      "credited": [],
+      "wrong_student": false
+     },
+     {
+      "speaker": "Prof Lim (demo)",
+      "role": "professor",
+      "outcome": "correct",
+      "credited": [],
+      "wrong_student": false
+     }
+    ],
+    "04-misconception": [
+     {
+      "speaker": "Prof Lim (demo)",
+      "role": "professor",
+      "outcome": "correct",
+      "credited": [],
+      "wrong_student": false
+     },
+     {
+      "speaker": "Tina",
+      "role": "student",
+      "outcome": "correct",
+      "credited": [],
+      "wrong_student": false
+     },
+     {
+      "speaker": "Prof Lim (demo)",
+      "role": "professor",
+      "outcome": "correct",
+      "credited": [],
+      "wrong_student": false
+     },
+     {
+      "speaker": "Koh Qing Jia",
+      "role": "student",
+      "outcome": "correct",
+      "credited": [],
+      "wrong_student": false
+     },
+     {
+      "speaker": "Prof Lim (demo)",
+      "role": "professor",
+      "outcome": "correct",
+      "credited": [],
+      "wrong_student": false
+     },
+     {
+      "speaker": "Tina",
+      "role": "student",
+      "outcome": "correct",
+      "credited": [],
+      "wrong_student": false
+     },
+     {
+      "speaker": "Prof Lim (demo)",
+      "role": "professor",
+      "outcome": "correct",
+      "credited": [],
+      "wrong_student": false
+     },
+     {
+      "speaker": "Le Yong",
+      "role": "student",
+      "outcome": "correct",
+      "credited": [],
+      "wrong_student": false
+     },
+     {
+      "speaker": "Prof Lim (demo)",
+      "role": "professor",
+      "outcome": "correct",
+      "credited": [],
+      "wrong_student": false
+     },
+     {
+      "speaker": "Tasmin",
+      "role": "student",
+      "outcome": "correct",
+      "credited": [],
+      "wrong_student": false
+     },
+     {
+      "speaker": "Prof Lim (demo)",
+      "role": "professor",
+      "outcome": "correct",
+      "credited": [],
+      "wrong_student": false
+     }
+    ],
+    "05-injection": [
+     {
+      "speaker": "Prof Lim (demo)",
+      "role": "professor",
+      "outcome": "correct",
+      "credited": [],
+      "wrong_student": false
+     },
+     {
+      "speaker": "Tasmin",
+      "role": "student",
+      "outcome": "correct",
+      "credited": [],
+      "wrong_student": false
+     },
+     {
+      "speaker": "Prof Lim (demo)",
+      "role": "professor",
+      "outcome": "correct",
+      "credited": [],
+      "wrong_student": false
+     },
+     {
+      "speaker": "Le Yong",
+      "role": "student",
+      "outcome": "correct",
+      "credited": [],
+      "wrong_student": false
+     },
+     {
+      "speaker": "Prof Lim (demo)",
+      "role": "professor",
+      "outcome": "correct",
+      "credited": [],
+      "wrong_student": false
+     },
+     {
+      "speaker": "Koh Qing Jia",
+      "role": "student",
+      "outcome": "correct",
+      "credited": [],
+      "wrong_student": false
+     },
+     {
+      "speaker": "Prof Lim (demo)",
+      "role": "professor",
+      "outcome": "correct",
+      "credited": [],
+      "wrong_student": false
+     },
+     {
+      "speaker": "Tina",
+      "role": "student",
+      "outcome": "correct",
+      "credited": [],
+      "wrong_student": false
+     },
+     {
+      "speaker": "Prof Lim (demo)",
+      "role": "professor",
+      "outcome": "correct",
+      "credited": [],
+      "wrong_student": false
+     }
+    ],
+    "06-dominant": [
+     {
+      "speaker": "Prof Lim (demo)",
+      "role": "professor",
+      "outcome": "correct",
+      "credited": [],
+      "wrong_student": false
+     },
+     {
+      "speaker": "Koh Qing Jia",
+      "role": "student",
+      "outcome": "correct",
+      "credited": [],
+      "wrong_student": false
+     },
+     {
+      "speaker": "Prof Lim (demo)",
+      "role": "professor",
+      "outcome": "correct",
+      "credited": [],
+      "wrong_student": false
+     },
+     {
+      "speaker": "Koh Qing Jia",
+      "role": "student",
+      "outcome": "correct",
+      "credited": [],
+      "wrong_student": false
+     },
+     {
+      "speaker": "Prof Lim (demo)",
+      "role": "professor",
+      "outcome": "correct",
+      "credited": [],
+      "wrong_student": false
+     },
+     {
+      "speaker": "Tina",
+      "role": "student",
+      "outcome": "correct",
+      "credited": [],
+      "wrong_student": false
+     },
+     {
+      "speaker": "Prof Lim (demo)",
+      "role": "professor",
+      "outcome": "correct",
+      "credited": [],
+      "wrong_student": false
+     },
+     {
+      "speaker": "Tasmin",
+      "role": "student",
+      "outcome": "unattributed",
+      "credited": [],
+      "wrong_student": false
+     },
+     {
+      "speaker": "Prof Lim (demo)",
+      "role": "professor",
+      "outcome": "correct",
+      "credited": [],
+      "wrong_student": false
+     },
+     {
+      "speaker": "Le Yong",
+      "role": "student",
+      "outcome": "correct",
+      "credited": [],
+      "wrong_student": false
+     },
+     {
+      "speaker": "Prof Lim (demo)",
+      "role": "professor",
+      "outcome": "correct",
+      "credited": [],
+      "wrong_student": false
+     }
+    ],
+    "07-guest": [
+     {
+      "speaker": "Prof Lim (demo)",
+      "role": "professor",
+      "outcome": "correct",
+      "credited": [],
+      "wrong_student": false
+     },
+     {
+      "speaker": "Guest",
+      "role": "guest",
+      "outcome": "correct",
+      "credited": [],
+      "wrong_student": false
+     },
+     {
+      "speaker": "Prof Lim (demo)",
+      "role": "professor",
+      "outcome": "correct",
+      "credited": [],
+      "wrong_student": false
+     },
+     {
+      "speaker": "Tasmin",
+      "role": "student",
+      "outcome": "correct",
+      "credited": [],
+      "wrong_student": false
+     },
+     {
+      "speaker": "Prof Lim (demo)",
+      "role": "professor",
+      "outcome": "correct",
+      "credited": [],
+      "wrong_student": false
+     },
+     {
+      "speaker": "Koh Qing Jia",
+      "role": "student",
+      "outcome": "correct",
+      "credited": [],
+      "wrong_student": false
+     },
+     {
+      "speaker": "Guest",
+      "role": "guest",
+      "outcome": "correct",
+      "credited": [],
+      "wrong_student": false
+     },
+     {
+      "speaker": "Tina",
+      "role": "student",
+      "outcome": "correct",
+      "credited": [],
+      "wrong_student": false
+     },
+     {
+      "speaker": "Prof Lim (demo)",
+      "role": "professor",
+      "outcome": "correct",
+      "credited": [],
+      "wrong_student": false
+     }
+    ]
+   }
+  },
+  "W": {
+   "totals": {
+    "student": {
+     "lines": 26,
+     "correct": 25,
+     "wrong": 1,
+     "unattributed": 0
+    },
+    "professor": {
+     "lines": 36,
+     "correct": 36,
+     "wrong": 0,
+     "unattributed": 0
+    },
+    "guest": {
+     "lines": 2,
+     "correct": 2,
+     "wrong": 0,
+     "unattributed": 0
+    },
+    "wrong_person": 1,
+    "seconds": {
+     "right": 459.2,
+     "wrong_student": 1.5600000000000058,
+     "wrong_other": 0.0899999999999892,
+     "unattributed": 0.0
+    }
+   },
+   "lines": {
+    "01-everyone": [
+     {
+      "speaker": "Prof Lim (demo)",
+      "role": "professor",
+      "outcome": "correct",
+      "credited": [],
+      "wrong_student": false
+     },
+     {
+      "speaker": "Koh Qing Jia",
+      "role": "student",
+      "outcome": "correct",
+      "credited": [],
+      "wrong_student": false
+     },
+     {
+      "speaker": "Prof Lim (demo)",
+      "role": "professor",
+      "outcome": "correct",
+      "credited": [],
+      "wrong_student": false
+     },
+     {
+      "speaker": "Tasmin",
+      "role": "student",
+      "outcome": "correct",
+      "credited": [],
+      "wrong_student": false
+     },
+     {
+      "speaker": "Prof Lim (demo)",
+      "role": "professor",
+      "outcome": "correct",
+      "credited": [],
+      "wrong_student": false
+     },
+     {
+      "speaker": "Tina",
+      "role": "student",
+      "outcome": "correct",
+      "credited": [],
+      "wrong_student": false
+     },
+     {
+      "speaker": "Prof Lim (demo)",
+      "role": "professor",
+      "outcome": "correct",
+      "credited": [],
+      "wrong_student": false
+     },
+     {
+      "speaker": "Le Yong",
+      "role": "student",
+      "outcome": "correct",
+      "credited": [],
+      "wrong_student": false
+     },
+     {
+      "speaker": "Prof Lim (demo)",
+      "role": "professor",
+      "outcome": "correct",
+      "credited": [],
+      "wrong_student": false
+     },
+     {
+      "speaker": "Koh Qing Jia",
+      "role": "student",
+      "outcome": "correct",
+      "credited": [],
+      "wrong_student": false
+     },
+     {
+      "speaker": "Prof Lim (demo)",
+      "role": "professor",
+      "outcome": "correct",
+      "credited": [],
+      "wrong_student": false
+     }
+    ],
+    "02-one-silent": [
+     {
+      "speaker": "Prof Lim (demo)",
+      "role": "professor",
+      "outcome": "correct",
+      "credited": [],
+      "wrong_student": false
+     },
+     {
+      "speaker": "Tasmin",
+      "role": "student",
+      "outcome": "correct",
+      "credited": [],
+      "wrong_student": false
+     },
+     {
+      "speaker": "Prof Lim (demo)",
+      "role": "professor",
+      "outcome": "correct",
+      "credited": [],
+      "wrong_student": false
+     },
+     {
+      "speaker": "Koh Qing Jia",
+      "role": "student",
+      "outcome": "correct",
+      "credited": [],
+      "wrong_student": false
+     },
+     {
+      "speaker": "Prof Lim (demo)",
+      "role": "professor",
+      "outcome": "correct",
+      "credited": [],
+      "wrong_student": false
+     },
+     {
+      "speaker": "Tina",
+      "role": "student",
+      "outcome": "correct",
+      "credited": [],
+      "wrong_student": false
+     },
+     {
+      "speaker": "Prof Lim (demo)",
+      "role": "professor",
+      "outcome": "correct",
+      "credited": [],
+      "wrong_student": false
+     },
+     {
+      "speaker": "Tasmin",
+      "role": "student",
+      "outcome": "correct",
+      "credited": [],
+      "wrong_student": false
+     },
+     {
+      "speaker": "Prof Lim (demo)",
+      "role": "professor",
+      "outcome": "correct",
+      "credited": [],
+      "wrong_student": false
+     }
+    ],
+    "03-nobody": [
+     {
+      "speaker": "Prof Lim (demo)",
+      "role": "professor",
+      "outcome": "correct",
+      "credited": [],
+      "wrong_student": false
+     },
+     {
+      "speaker": "Prof Lim (demo)",
+      "role": "professor",
+      "outcome": "correct",
+      "credited": [],
+      "wrong_student": false
+     },
+     {
+      "speaker": "Prof Lim (demo)",
+      "role": "professor",
+      "outcome": "correct",
+      "credited": [],
+      "wrong_student": false
+     },
+     {
+      "speaker": "Prof Lim (demo)",
+      "role": "professor",
+      "outcome": "correct",
+      "credited": [],
+      "wrong_student": false
+     }
+    ],
+    "04-misconception": [
+     {
+      "speaker": "Prof Lim (demo)",
+      "role": "professor",
+      "outcome": "correct",
+      "credited": [],
+      "wrong_student": false
+     },
+     {
+      "speaker": "Tina",
+      "role": "student",
+      "outcome": "correct",
+      "credited": [],
+      "wrong_student": false
+     },
+     {
+      "speaker": "Prof Lim (demo)",
+      "role": "professor",
+      "outcome": "correct",
+      "credited": [],
+      "wrong_student": false
+     },
+     {
+      "speaker": "Koh Qing Jia",
+      "role": "student",
+      "outcome": "correct",
+      "credited": [],
+      "wrong_student": false
+     },
+     {
+      "speaker": "Prof Lim (demo)",
+      "role": "professor",
+      "outcome": "correct",
+      "credited": [],
+      "wrong_student": false
+     },
+     {
+      "speaker": "Tina",
+      "role": "student",
+      "outcome": "correct",
+      "credited": [],
+      "wrong_student": false
+     },
+     {
+      "speaker": "Prof Lim (demo)",
+      "role": "professor",
+      "outcome": "correct",
+      "credited": [],
+      "wrong_student": false
+     },
+     {
+      "speaker": "Le Yong",
+      "role": "student",
+      "outcome": "correct",
+      "credited": [],
+      "wrong_student": false
+     },
+     {
+      "speaker": "Prof Lim (demo)",
+      "role": "professor",
+      "outcome": "correct",
+      "credited": [],
+      "wrong_student": false
+     },
+     {
+      "speaker": "Tasmin",
+      "role": "student",
+      "outcome": "correct",
+      "credited": [],
+      "wrong_student": false
+     },
+     {
+      "speaker": "Prof Lim (demo)",
+      "role": "professor",
+      "outcome": "correct",
+      "credited": [],
+      "wrong_student": false
+     }
+    ],
+    "05-injection": [
+     {
+      "speaker": "Prof Lim (demo)",
+      "role": "professor",
+      "outcome": "correct",
+      "credited": [],
+      "wrong_student": false
+     },
+     {
+      "speaker": "Tasmin",
+      "role": "student",
+      "outcome": "correct",
+      "credited": [],
+      "wrong_student": false
+     },
+     {
+      "speaker": "Prof Lim (demo)",
+      "role": "professor",
+      "outcome": "correct",
+      "credited": [],
+      "wrong_student": false
+     },
+     {
+      "speaker": "Le Yong",
+      "role": "student",
+      "outcome": "correct",
+      "credited": [],
+      "wrong_student": false
+     },
+     {
+      "speaker": "Prof Lim (demo)",
+      "role": "professor",
+      "outcome": "correct",
+      "credited": [],
+      "wrong_student": false
+     },
+     {
+      "speaker": "Koh Qing Jia",
+      "role": "student",
+      "outcome": "correct",
+      "credited": [],
+      "wrong_student": false
+     },
+     {
+      "speaker": "Prof Lim (demo)",
+      "role": "professor",
+      "outcome": "correct",
+      "credited": [],
+      "wrong_student": false
+     },
+     {
+      "speaker": "Tina",
+      "role": "student",
+      "outcome": "correct",
+      "credited": [],
+      "wrong_student": false
+     },
+     {
+      "speaker": "Prof Lim (demo)",
+      "role": "professor",
+      "outcome": "correct",
+      "credited": [],
+      "wrong_student": false
+     }
+    ],
+    "06-dominant": [
+     {
+      "speaker": "Prof Lim (demo)",
+      "role": "professor",
+      "outcome": "correct",
+      "credited": [],
+      "wrong_student": false
+     },
+     {
+      "speaker": "Koh Qing Jia",
+      "role": "student",
+      "outcome": "correct",
+      "credited": [],
+      "wrong_student": false
+     },
+     {
+      "speaker": "Prof Lim (demo)",
+      "role": "professor",
+      "outcome": "correct",
+      "credited": [],
+      "wrong_student": false
+     },
+     {
+      "speaker": "Koh Qing Jia",
+      "role": "student",
+      "outcome": "correct",
+      "credited": [],
+      "wrong_student": false
+     },
+     {
+      "speaker": "Prof Lim (demo)",
+      "role": "professor",
+      "outcome": "correct",
+      "credited": [],
+      "wrong_student": false
+     },
+     {
+      "speaker": "Tina",
+      "role": "student",
+      "outcome": "correct",
+      "credited": [],
+      "wrong_student": false
+     },
+     {
+      "speaker": "Prof Lim (demo)",
+      "role": "professor",
+      "outcome": "correct",
+      "credited": [],
+      "wrong_student": false
+     },
+     {
+      "speaker": "Tasmin",
+      "role": "student",
+      "outcome": "wrong",
+      "credited": [
+       "tina"
+      ],
+      "wrong_student": true
+     },
+     {
+      "speaker": "Prof Lim (demo)",
+      "role": "professor",
+      "outcome": "correct",
+      "credited": [],
+      "wrong_student": false
+     },
+     {
+      "speaker": "Le Yong",
+      "role": "student",
+      "outcome": "correct",
+      "credited": [],
+      "wrong_student": false
+     },
+     {
+      "speaker": "Prof Lim (demo)",
+      "role": "professor",
+      "outcome": "correct",
+      "credited": [],
+      "wrong_student": false
+     }
+    ],
+    "07-guest": [
+     {
+      "speaker": "Prof Lim (demo)",
+      "role": "professor",
+      "outcome": "correct",
+      "credited": [],
+      "wrong_student": false
+     },
+     {
+      "speaker": "Guest",
+      "role": "guest",
+      "outcome": "correct",
+      "credited": [],
+      "wrong_student": false
+     },
+     {
+      "speaker": "Prof Lim (demo)",
+      "role": "professor",
+      "outcome": "correct",
+      "credited": [],
+      "wrong_student": false
+     },
+     {
+      "speaker": "Tasmin",
+      "role": "student",
+      "outcome": "correct",
+      "credited": [],
+      "wrong_student": false
+     },
+     {
+      "speaker": "Prof Lim (demo)",
+      "role": "professor",
+      "outcome": "correct",
+      "credited": [],
+      "wrong_student": false
+     },
+     {
+      "speaker": "Koh Qing Jia",
+      "role": "student",
+      "outcome": "correct",
+      "credited": [],
+      "wrong_student": false
+     },
+     {
+      "speaker": "Guest",
+      "role": "guest",
+      "outcome": "correct",
+      "credited": [],
+      "wrong_student": false
+     },
+     {
+      "speaker": "Tina",
+      "role": "student",
+      "outcome": "correct",
+      "credited": [],
+      "wrong_student": false
+     },
+     {
+      "speaker": "Prof Lim (demo)",
+      "role": "professor",
+      "outcome": "correct",
+      "credited": [],
+      "wrong_student": false
+     }
+    ]
+   }
+  },
+  "W+veto": {
+   "totals": {
+    "student": {
+     "lines": 26,
+     "correct": 25,
+     "wrong": 0,
+     "unattributed": 1
+    },
+    "professor": {
+     "lines": 36,
+     "correct": 36,
+     "wrong": 0,
+     "unattributed": 0
+    },
+    "guest": {
+     "lines": 2,
+     "correct": 2,
+     "wrong": 0,
+     "unattributed": 0
+    },
+    "wrong_person": 0,
+    "seconds": {
+     "right": 459.2,
+     "wrong_student": 0.08000000000000185,
+     "wrong_other": 0.0899999999999892,
+     "unattributed": 1.480000000000004
+    }
+   },
+   "lines": {
+    "01-everyone": [
+     {
+      "speaker": "Prof Lim (demo)",
+      "role": "professor",
+      "outcome": "correct",
+      "credited": [],
+      "wrong_student": false
+     },
+     {
+      "speaker": "Koh Qing Jia",
+      "role": "student",
+      "outcome": "correct",
+      "credited": [],
+      "wrong_student": false
+     },
+     {
+      "speaker": "Prof Lim (demo)",
+      "role": "professor",
+      "outcome": "correct",
+      "credited": [],
+      "wrong_student": false
+     },
+     {
+      "speaker": "Tasmin",
+      "role": "student",
+      "outcome": "correct",
+      "credited": [],
+      "wrong_student": false
+     },
+     {
+      "speaker": "Prof Lim (demo)",
+      "role": "professor",
+      "outcome": "correct",
+      "credited": [],
+      "wrong_student": false
+     },
+     {
+      "speaker": "Tina",
+      "role": "student",
+      "outcome": "correct",
+      "credited": [],
+      "wrong_student": false
+     },
+     {
+      "speaker": "Prof Lim (demo)",
+      "role": "professor",
+      "outcome": "correct",
+      "credited": [],
+      "wrong_student": false
+     },
+     {
+      "speaker": "Le Yong",
+      "role": "student",
+      "outcome": "correct",
+      "credited": [],
+      "wrong_student": false
+     },
+     {
+      "speaker": "Prof Lim (demo)",
+      "role": "professor",
+      "outcome": "correct",
+      "credited": [],
+      "wrong_student": false
+     },
+     {
+      "speaker": "Koh Qing Jia",
+      "role": "student",
+      "outcome": "correct",
+      "credited": [],
+      "wrong_student": false
+     },
+     {
+      "speaker": "Prof Lim (demo)",
+      "role": "professor",
+      "outcome": "correct",
+      "credited": [],
+      "wrong_student": false
+     }
+    ],
+    "02-one-silent": [
+     {
+      "speaker": "Prof Lim (demo)",
+      "role": "professor",
+      "outcome": "correct",
+      "credited": [],
+      "wrong_student": false
+     },
+     {
+      "speaker": "Tasmin",
+      "role": "student",
+      "outcome": "correct",
+      "credited": [],
+      "wrong_student": false
+     },
+     {
+      "speaker": "Prof Lim (demo)",
+      "role": "professor",
+      "outcome": "correct",
+      "credited": [],
+      "wrong_student": false
+     },
+     {
+      "speaker": "Koh Qing Jia",
+      "role": "student",
+      "outcome": "correct",
+      "credited": [],
+      "wrong_student": false
+     },
+     {
+      "speaker": "Prof Lim (demo)",
+      "role": "professor",
+      "outcome": "correct",
+      "credited": [],
+      "wrong_student": false
+     },
+     {
+      "speaker": "Tina",
+      "role": "student",
+      "outcome": "correct",
+      "credited": [],
+      "wrong_student": false
+     },
+     {
+      "speaker": "Prof Lim (demo)",
+      "role": "professor",
+      "outcome": "correct",
+      "credited": [],
+      "wrong_student": false
+     },
+     {
+      "speaker": "Tasmin",
+      "role": "student",
+      "outcome": "correct",
+      "credited": [],
+      "wrong_student": false
+     },
+     {
+      "speaker": "Prof Lim (demo)",
+      "role": "professor",
+      "outcome": "correct",
+      "credited": [],
+      "wrong_student": false
+     }
+    ],
+    "03-nobody": [
+     {
+      "speaker": "Prof Lim (demo)",
+      "role": "professor",
+      "outcome": "correct",
+      "credited": [],
+      "wrong_student": false
+     },
+     {
+      "speaker": "Prof Lim (demo)",
+      "role": "professor",
+      "outcome": "correct",
+      "credited": [],
+      "wrong_student": false
+     },
+     {
+      "speaker": "Prof Lim (demo)",
+      "role": "professor",
+      "outcome": "correct",
+      "credited": [],
+      "wrong_student": false
+     },
+     {
+      "speaker": "Prof Lim (demo)",
+      "role": "professor",
+      "outcome": "correct",
+      "credited": [],
+      "wrong_student": false
+     }
+    ],
+    "04-misconception": [
+     {
+      "speaker": "Prof Lim (demo)",
+      "role": "professor",
+      "outcome": "correct",
+      "credited": [],
+      "wrong_student": false
+     },
+     {
+      "speaker": "Tina",
+      "role": "student",
+      "outcome": "correct",
+      "credited": [],
+      "wrong_student": false
+     },
+     {
+      "speaker": "Prof Lim (demo)",
+      "role": "professor",
+      "outcome": "correct",
+      "credited": [],
+      "wrong_student": false
+     },
+     {
+      "speaker": "Koh Qing Jia",
+      "role": "student",
+      "outcome": "correct",
+      "credited": [],
+      "wrong_student": false
+     },
+     {
+      "speaker": "Prof Lim (demo)",
+      "role": "professor",
+      "outcome": "correct",
+      "credited": [],
+      "wrong_student": false
+     },
+     {
+      "speaker": "Tina",
+      "role": "student",
+      "outcome": "correct",
+      "credited": [],
+      "wrong_student": false
+     },
+     {
+      "speaker": "Prof Lim (demo)",
+      "role": "professor",
+      "outcome": "correct",
+      "credited": [],
+      "wrong_student": false
+     },
+     {
+      "speaker": "Le Yong",
+      "role": "student",
+      "outcome": "correct",
+      "credited": [],
+      "wrong_student": false
+     },
+     {
+      "speaker": "Prof Lim (demo)",
+      "role": "professor",
+      "outcome": "correct",
+      "credited": [],
+      "wrong_student": false
+     },
+     {
+      "speaker": "Tasmin",
+      "role": "student",
+      "outcome": "correct",
+      "credited": [],
+      "wrong_student": false
+     },
+     {
+      "speaker": "Prof Lim (demo)",
+      "role": "professor",
+      "outcome": "correct",
+      "credited": [],
+      "wrong_student": false
+     }
+    ],
+    "05-injection": [
+     {
+      "speaker": "Prof Lim (demo)",
+      "role": "professor",
+      "outcome": "correct",
+      "credited": [],
+      "wrong_student": false
+     },
+     {
+      "speaker": "Tasmin",
+      "role": "student",
+      "outcome": "correct",
+      "credited": [],
+      "wrong_student": false
+     },
+     {
+      "speaker": "Prof Lim (demo)",
+      "role": "professor",
+      "outcome": "correct",
+      "credited": [],
+      "wrong_student": false
+     },
+     {
+      "speaker": "Le Yong",
+      "role": "student",
+      "outcome": "correct",
+      "credited": [],
+      "wrong_student": false
+     },
+     {
+      "speaker": "Prof Lim (demo)",
+      "role": "professor",
+      "outcome": "correct",
+      "credited": [],
+      "wrong_student": false
+     },
+     {
+      "speaker": "Koh Qing Jia",
+      "role": "student",
+      "outcome": "correct",
+      "credited": [],
+      "wrong_student": false
+     },
+     {
+      "speaker": "Prof Lim (demo)",
+      "role": "professor",
+      "outcome": "correct",
+      "credited": [],
+      "wrong_student": false
+     },
+     {
+      "speaker": "Tina",
+      "role": "student",
+      "outcome": "correct",
+      "credited": [],
+      "wrong_student": false
+     },
+     {
+      "speaker": "Prof Lim (demo)",
+      "role": "professor",
+      "outcome": "correct",
+      "credited": [],
+      "wrong_student": false
+     }
+    ],
+    "06-dominant": [
+     {
+      "speaker": "Prof Lim (demo)",
+      "role": "professor",
+      "outcome": "correct",
+      "credited": [],
+      "wrong_student": false
+     },
+     {
+      "speaker": "Koh Qing Jia",
+      "role": "student",
+      "outcome": "correct",
+      "credited": [],
+      "wrong_student": false
+     },
+     {
+      "speaker": "Prof Lim (demo)",
+      "role": "professor",
+      "outcome": "correct",
+      "credited": [],
+      "wrong_student": false
+     },
+     {
+      "speaker": "Koh Qing Jia",
+      "role": "student",
+      "outcome": "correct",
+      "credited": [],
+      "wrong_student": false
+     },
+     {
+      "speaker": "Prof Lim (demo)",
+      "role": "professor",
+      "outcome": "correct",
+      "credited": [],
+      "wrong_student": false
+     },
+     {
+      "speaker": "Tina",
+      "role": "student",
+      "outcome": "correct",
+      "credited": [],
+      "wrong_student": false
+     },
+     {
+      "speaker": "Prof Lim (demo)",
+      "role": "professor",
+      "outcome": "correct",
+      "credited": [],
+      "wrong_student": false
+     },
+     {
+      "speaker": "Tasmin",
+      "role": "student",
+      "outcome": "unattributed",
+      "credited": [],
+      "wrong_student": false
+     },
+     {
+      "speaker": "Prof Lim (demo)",
+      "role": "professor",
+      "outcome": "correct",
+      "credited": [],
+      "wrong_student": false
+     },
+     {
+      "speaker": "Le Yong",
+      "role": "student",
+      "outcome": "correct",
+      "credited": [],
+      "wrong_student": false
+     },
+     {
+      "speaker": "Prof Lim (demo)",
+      "role": "professor",
+      "outcome": "correct",
+      "credited": [],
+      "wrong_student": false
+     }
+    ],
+    "07-guest": [
+     {
+      "speaker": "Prof Lim (demo)",
+      "role": "professor",
+      "outcome": "correct",
+      "credited": [],
+      "wrong_student": false
+     },
+     {
+      "speaker": "Guest",
+      "role": "guest",
+      "outcome": "correct",
+      "credited": [],
+      "wrong_student": false
+     },
+     {
+      "speaker": "Prof Lim (demo)",
+      "role": "professor",
+      "outcome": "correct",
+      "credited": [],
+      "wrong_student": false
+     },
+     {
+      "speaker": "Tasmin",
+      "role": "student",
+      "outcome": "correct",
+      "credited": [],
+      "wrong_student": false
+     },
+     {
+      "speaker": "Prof Lim (demo)",
+      "role": "professor",
+      "outcome": "correct",
+      "credited": [],
+      "wrong_student": false
+     },
+     {
+      "speaker": "Koh Qing Jia",
+      "role": "student",
+      "outcome": "correct",
+      "credited": [],
+      "wrong_student": false
+     },
+     {
+      "speaker": "Guest",
+      "role": "guest",
+      "outcome": "correct",
+      "credited": [],
+      "wrong_student": false
+     },
+     {
+      "speaker": "Tina",
+      "role": "student",
+      "outcome": "correct",
+      "credited": [],
+      "wrong_student": false
+     },
+     {
+      "speaker": "Prof Lim (demo)",
+      "role": "professor",
+      "outcome": "correct",
+      "credited": [],
+      "wrong_student": false
+     }
+    ]
+   }
+  }
+ },
+ "shipped": {
+  "totals": {
+   "student": {
+    "lines": 26,
+    "correct": 25,
+    "wrong": 0,
+    "unattributed": 1
+   },
+   "professor": {
+    "lines": 36,
+    "correct": 36,
+    "wrong": 0,
+    "unattributed": 0
+   },
+   "guest": {
+    "lines": 2,
+    "correct": 2,
+    "wrong": 0,
+    "unattributed": 0
+   },
+   "wrong_person": 0,
+   "seconds": {
+    "right": 459.2,
+    "wrong_student": 0.08000000000000185,
+    "wrong_other": 0.0899999999999892,
+    "unattributed": 1.480000000000004
+   }
+  },
+  "lines": {
+   "01-everyone": [
+    {
+     "speaker": "Prof Lim (demo)",
+     "role": "professor",
+     "outcome": "correct",
+     "credited": [],
+     "wrong_student": false
+    },
+    {
+     "speaker": "Koh Qing Jia",
+     "role": "student",
+     "outcome": "correct",
+     "credited": [],
+     "wrong_student": false
+    },
+    {
+     "speaker": "Prof Lim (demo)",
+     "role": "professor",
+     "outcome": "correct",
+     "credited": [],
+     "wrong_student": false
+    },
+    {
+     "speaker": "Tasmin",
+     "role": "student",
+     "outcome": "correct",
+     "credited": [],
+     "wrong_student": false
+    },
+    {
+     "speaker": "Prof Lim (demo)",
+     "role": "professor",
+     "outcome": "correct",
+     "credited": [],
+     "wrong_student": false
+    },
+    {
+     "speaker": "Tina",
+     "role": "student",
+     "outcome": "correct",
+     "credited": [],
+     "wrong_student": false
+    },
+    {
+     "speaker": "Prof Lim (demo)",
+     "role": "professor",
+     "outcome": "correct",
+     "credited": [],
+     "wrong_student": false
+    },
+    {
+     "speaker": "Le Yong",
+     "role": "student",
+     "outcome": "correct",
+     "credited": [],
+     "wrong_student": false
+    },
+    {
+     "speaker": "Prof Lim (demo)",
+     "role": "professor",
+     "outcome": "correct",
+     "credited": [],
+     "wrong_student": false
+    },
+    {
+     "speaker": "Koh Qing Jia",
+     "role": "student",
+     "outcome": "correct",
+     "credited": [],
+     "wrong_student": false
+    },
+    {
+     "speaker": "Prof Lim (demo)",
+     "role": "professor",
+     "outcome": "correct",
+     "credited": [],
+     "wrong_student": false
+    }
+   ],
+   "02-one-silent": [
+    {
+     "speaker": "Prof Lim (demo)",
+     "role": "professor",
+     "outcome": "correct",
+     "credited": [],
+     "wrong_student": false
+    },
+    {
+     "speaker": "Tasmin",
+     "role": "student",
+     "outcome": "correct",
+     "credited": [],
+     "wrong_student": false
+    },
+    {
+     "speaker": "Prof Lim (demo)",
+     "role": "professor",
+     "outcome": "correct",
+     "credited": [],
+     "wrong_student": false
+    },
+    {
+     "speaker": "Koh Qing Jia",
+     "role": "student",
+     "outcome": "correct",
+     "credited": [],
+     "wrong_student": false
+    },
+    {
+     "speaker": "Prof Lim (demo)",
+     "role": "professor",
+     "outcome": "correct",
+     "credited": [],
+     "wrong_student": false
+    },
+    {
+     "speaker": "Tina",
+     "role": "student",
+     "outcome": "correct",
+     "credited": [],
+     "wrong_student": false
+    },
+    {
+     "speaker": "Prof Lim (demo)",
+     "role": "professor",
+     "outcome": "correct",
+     "credited": [],
+     "wrong_student": false
+    },
+    {
+     "speaker": "Tasmin",
+     "role": "student",
+     "outcome": "correct",
+     "credited": [],
+     "wrong_student": false
+    },
+    {
+     "speaker": "Prof Lim (demo)",
+     "role": "professor",
+     "outcome": "correct",
+     "credited": [],
+     "wrong_student": false
+    }
+   ],
+   "03-nobody": [
+    {
+     "speaker": "Prof Lim (demo)",
+     "role": "professor",
+     "outcome": "correct",
+     "credited": [],
+     "wrong_student": false
+    },
+    {
+     "speaker": "Prof Lim (demo)",
+     "role": "professor",
+     "outcome": "correct",
+     "credited": [],
+     "wrong_student": false
+    },
+    {
+     "speaker": "Prof Lim (demo)",
+     "role": "professor",
+     "outcome": "correct",
+     "credited": [],
+     "wrong_student": false
+    },
+    {
+     "speaker": "Prof Lim (demo)",
+     "role": "professor",
+     "outcome": "correct",
+     "credited": [],
+     "wrong_student": false
+    }
+   ],
+   "04-misconception": [
+    {
+     "speaker": "Prof Lim (demo)",
+     "role": "professor",
+     "outcome": "correct",
+     "credited": [],
+     "wrong_student": false
+    },
+    {
+     "speaker": "Tina",
+     "role": "student",
+     "outcome": "correct",
+     "credited": [],
+     "wrong_student": false
+    },
+    {
+     "speaker": "Prof Lim (demo)",
+     "role": "professor",
+     "outcome": "correct",
+     "credited": [],
+     "wrong_student": false
+    },
+    {
+     "speaker": "Koh Qing Jia",
+     "role": "student",
+     "outcome": "correct",
+     "credited": [],
+     "wrong_student": false
+    },
+    {
+     "speaker": "Prof Lim (demo)",
+     "role": "professor",
+     "outcome": "correct",
+     "credited": [],
+     "wrong_student": false
+    },
+    {
+     "speaker": "Tina",
+     "role": "student",
+     "outcome": "correct",
+     "credited": [],
+     "wrong_student": false
+    },
+    {
+     "speaker": "Prof Lim (demo)",
+     "role": "professor",
+     "outcome": "correct",
+     "credited": [],
+     "wrong_student": false
+    },
+    {
+     "speaker": "Le Yong",
+     "role": "student",
+     "outcome": "correct",
+     "credited": [],
+     "wrong_student": false
+    },
+    {
+     "speaker": "Prof Lim (demo)",
+     "role": "professor",
+     "outcome": "correct",
+     "credited": [],
+     "wrong_student": false
+    },
+    {
+     "speaker": "Tasmin",
+     "role": "student",
+     "outcome": "correct",
+     "credited": [],
+     "wrong_student": false
+    },
+    {
+     "speaker": "Prof Lim (demo)",
+     "role": "professor",
+     "outcome": "correct",
+     "credited": [],
+     "wrong_student": false
+    }
+   ],
+   "05-injection": [
+    {
+     "speaker": "Prof Lim (demo)",
+     "role": "professor",
+     "outcome": "correct",
+     "credited": [],
+     "wrong_student": false
+    },
+    {
+     "speaker": "Tasmin",
+     "role": "student",
+     "outcome": "correct",
+     "credited": [],
+     "wrong_student": false
+    },
+    {
+     "speaker": "Prof Lim (demo)",
+     "role": "professor",
+     "outcome": "correct",
+     "credited": [],
+     "wrong_student": false
+    },
+    {
+     "speaker": "Le Yong",
+     "role": "student",
+     "outcome": "correct",
+     "credited": [],
+     "wrong_student": false
+    },
+    {
+     "speaker": "Prof Lim (demo)",
+     "role": "professor",
+     "outcome": "correct",
+     "credited": [],
+     "wrong_student": false
+    },
+    {
+     "speaker": "Koh Qing Jia",
+     "role": "student",
+     "outcome": "correct",
+     "credited": [],
+     "wrong_student": false
+    },
+    {
+     "speaker": "Prof Lim (demo)",
+     "role": "professor",
+     "outcome": "correct",
+     "credited": [],
+     "wrong_student": false
+    },
+    {
+     "speaker": "Tina",
+     "role": "student",
+     "outcome": "correct",
+     "credited": [],
+     "wrong_student": false
+    },
+    {
+     "speaker": "Prof Lim (demo)",
+     "role": "professor",
+     "outcome": "correct",
+     "credited": [],
+     "wrong_student": false
+    }
+   ],
+   "06-dominant": [
+    {
+     "speaker": "Prof Lim (demo)",
+     "role": "professor",
+     "outcome": "correct",
+     "credited": [],
+     "wrong_student": false
+    },
+    {
+     "speaker": "Koh Qing Jia",
+     "role": "student",
+     "outcome": "correct",
+     "credited": [],
+     "wrong_student": false
+    },
+    {
+     "speaker": "Prof Lim (demo)",
+     "role": "professor",
+     "outcome": "correct",
+     "credited": [],
+     "wrong_student": false
+    },
+    {
+     "speaker": "Koh Qing Jia",
+     "role": "student",
+     "outcome": "correct",
+     "credited": [],
+     "wrong_student": false
+    },
+    {
+     "speaker": "Prof Lim (demo)",
+     "role": "professor",
+     "outcome": "correct",
+     "credited": [],
+     "wrong_student": false
+    },
+    {
+     "speaker": "Tina",
+     "role": "student",
+     "outcome": "correct",
+     "credited": [],
+     "wrong_student": false
+    },
+    {
+     "speaker": "Prof Lim (demo)",
+     "role": "professor",
+     "outcome": "correct",
+     "credited": [],
+     "wrong_student": false
+    },
+    {
+     "speaker": "Tasmin",
+     "role": "student",
+     "outcome": "unattributed",
+     "credited": [],
+     "wrong_student": false
+    },
+    {
+     "speaker": "Prof Lim (demo)",
+     "role": "professor",
+     "outcome": "correct",
+     "credited": [],
+     "wrong_student": false
+    },
+    {
+     "speaker": "Le Yong",
+     "role": "student",
+     "outcome": "correct",
+     "credited": [],
+     "wrong_student": false
+    },
+    {
+     "speaker": "Prof Lim (demo)",
+     "role": "professor",
+     "outcome": "correct",
+     "credited": [],
+     "wrong_student": false
+    }
+   ],
+   "07-guest": [
+    {
+     "speaker": "Prof Lim (demo)",
+     "role": "professor",
+     "outcome": "correct",
+     "credited": [],
+     "wrong_student": false
+    },
+    {
+     "speaker": "Guest",
+     "role": "guest",
+     "outcome": "correct",
+     "credited": [],
+     "wrong_student": false
+    },
+    {
+     "speaker": "Prof Lim (demo)",
+     "role": "professor",
+     "outcome": "correct",
+     "credited": [],
+     "wrong_student": false
+    },
+    {
+     "speaker": "Tasmin",
+     "role": "student",
+     "outcome": "correct",
+     "credited": [],
+     "wrong_student": false
+    },
+    {
+     "speaker": "Prof Lim (demo)",
+     "role": "professor",
+     "outcome": "correct",
+     "credited": [],
+     "wrong_student": false
+    },
+    {
+     "speaker": "Koh Qing Jia",
+     "role": "student",
+     "outcome": "correct",
+     "credited": [],
+     "wrong_student": false
+    },
+    {
+     "speaker": "Guest",
+     "role": "guest",
+     "outcome": "correct",
+     "credited": [],
+     "wrong_student": false
+    },
+    {
+     "speaker": "Tina",
+     "role": "student",
+     "outcome": "correct",
+     "credited": [],
+     "wrong_student": false
+    },
+    {
+     "speaker": "Prof Lim (demo)",
+     "role": "professor",
+     "outcome": "correct",
+     "credited": [],
+     "wrong_student": false
+    }
+   ]
+  }
+ },
+ "grid": {
+  "B 0.25/0.05": {
+   "student": {
+    "lines": 26,
+    "correct": 24,
+    "wrong": 2,
+    "unattributed": 0
+   },
+   "professor": {
+    "lines": 36,
+    "correct": 35,
+    "wrong": 0,
+    "unattributed": 1
+   },
+   "guest": {
+    "lines": 2,
+    "correct": 2,
+    "wrong": 0,
+    "unattributed": 0
+   },
+   "wrong_person": 1,
+   "seconds": {
+    "right": 474.83000000000004,
+    "wrong_student": 2.0400000000000134,
+    "wrong_other": 7.560000000000006,
+    "unattributed": 0.0
+   }
+  },
+  "B 0.25/0.10": {
+   "student": {
+    "lines": 26,
+    "correct": 24,
+    "wrong": 2,
+    "unattributed": 0
+   },
+   "professor": {
+    "lines": 36,
+    "correct": 35,
+    "wrong": 0,
+    "unattributed": 1
+   },
+   "guest": {
+    "lines": 2,
+    "correct": 2,
+    "wrong": 0,
+    "unattributed": 0
+   },
+   "wrong_person": 1,
+   "seconds": {
+    "right": 474.83000000000004,
+    "wrong_student": 2.0400000000000134,
+    "wrong_other": 7.560000000000006,
+    "unattributed": 0.0
+   }
+  },
+  "B 0.25/0.15": {
+   "student": {
+    "lines": 26,
+    "correct": 24,
+    "wrong": 2,
+    "unattributed": 0
+   },
+   "professor": {
+    "lines": 36,
+    "correct": 35,
+    "wrong": 0,
+    "unattributed": 1
+   },
+   "guest": {
+    "lines": 2,
+    "correct": 2,
+    "wrong": 0,
+    "unattributed": 0
+   },
+   "wrong_person": 1,
+   "seconds": {
+    "right": 474.83000000000004,
+    "wrong_student": 2.0400000000000134,
+    "wrong_other": 7.560000000000006,
+    "unattributed": 0.0
+   }
+  },
+  "B 0.35/0.05": {
+   "student": {
+    "lines": 26,
+    "correct": 24,
+    "wrong": 2,
+    "unattributed": 0
+   },
+   "professor": {
+    "lines": 36,
+    "correct": 35,
+    "wrong": 0,
+    "unattributed": 1
+   },
+   "guest": {
+    "lines": 2,
+    "correct": 2,
+    "wrong": 0,
+    "unattributed": 0
+   },
+   "wrong_person": 1,
+   "seconds": {
+    "right": 474.83000000000004,
+    "wrong_student": 2.0400000000000134,
+    "wrong_other": 7.560000000000006,
+    "unattributed": 0.0
+   }
+  },
+  "B 0.35/0.10": {
+   "student": {
+    "lines": 26,
+    "correct": 24,
+    "wrong": 2,
+    "unattributed": 0
+   },
+   "professor": {
+    "lines": 36,
+    "correct": 35,
+    "wrong": 0,
+    "unattributed": 1
+   },
+   "guest": {
+    "lines": 2,
+    "correct": 2,
+    "wrong": 0,
+    "unattributed": 0
+   },
+   "wrong_person": 1,
+   "seconds": {
+    "right": 474.83000000000004,
+    "wrong_student": 2.0400000000000134,
+    "wrong_other": 7.560000000000006,
+    "unattributed": 0.0
+   }
+  },
+  "B 0.35/0.15": {
+   "student": {
+    "lines": 26,
+    "correct": 24,
+    "wrong": 2,
+    "unattributed": 0
+   },
+   "professor": {
+    "lines": 36,
+    "correct": 35,
+    "wrong": 0,
+    "unattributed": 1
+   },
+   "guest": {
+    "lines": 2,
+    "correct": 2,
+    "wrong": 0,
+    "unattributed": 0
+   },
+   "wrong_person": 1,
+   "seconds": {
+    "right": 474.83000000000004,
+    "wrong_student": 2.0400000000000134,
+    "wrong_other": 7.560000000000006,
+    "unattributed": 0.0
+   }
+  },
+  "B 0.45/0.05": {
+   "student": {
+    "lines": 26,
+    "correct": 24,
+    "wrong": 2,
+    "unattributed": 0
+   },
+   "professor": {
+    "lines": 36,
+    "correct": 35,
+    "wrong": 0,
+    "unattributed": 1
+   },
+   "guest": {
+    "lines": 2,
+    "correct": 2,
+    "wrong": 0,
+    "unattributed": 0
+   },
+   "wrong_person": 1,
+   "seconds": {
+    "right": 474.83000000000004,
+    "wrong_student": 2.0400000000000134,
+    "wrong_other": 7.560000000000006,
+    "unattributed": 0.0
+   }
+  },
+  "B 0.45/0.10": {
+   "student": {
+    "lines": 26,
+    "correct": 24,
+    "wrong": 2,
+    "unattributed": 0
+   },
+   "professor": {
+    "lines": 36,
+    "correct": 35,
+    "wrong": 0,
+    "unattributed": 1
+   },
+   "guest": {
+    "lines": 2,
+    "correct": 2,
+    "wrong": 0,
+    "unattributed": 0
+   },
+   "wrong_person": 1,
+   "seconds": {
+    "right": 474.83000000000004,
+    "wrong_student": 2.0400000000000134,
+    "wrong_other": 7.560000000000006,
+    "unattributed": 0.0
+   }
+  },
+  "B 0.45/0.15": {
+   "student": {
+    "lines": 26,
+    "correct": 24,
+    "wrong": 2,
+    "unattributed": 0
+   },
+   "professor": {
+    "lines": 36,
+    "correct": 35,
+    "wrong": 0,
+    "unattributed": 1
+   },
+   "guest": {
+    "lines": 2,
+    "correct": 2,
+    "wrong": 0,
+    "unattributed": 0
+   },
+   "wrong_person": 1,
+   "seconds": {
+    "right": 474.83000000000004,
+    "wrong_student": 2.0400000000000134,
+    "wrong_other": 7.560000000000006,
+    "unattributed": 0.0
+   }
+  },
+  "C 0.25/0.05": {
+   "student": {
+    "lines": 26,
+    "correct": 25,
+    "wrong": 1,
+    "unattributed": 0
+   },
+   "professor": {
+    "lines": 36,
+    "correct": 35,
+    "wrong": 0,
+    "unattributed": 1
+   },
+   "guest": {
+    "lines": 2,
+    "correct": 2,
+    "wrong": 0,
+    "unattributed": 0
+   },
+   "wrong_person": 0,
+   "seconds": {
+    "right": 476.31000000000006,
+    "wrong_student": 0.5600000000000094,
+    "wrong_other": 7.560000000000006,
+    "unattributed": 0.0
+   }
+  },
+  "C 0.25/0.10": {
+   "student": {
+    "lines": 26,
+    "correct": 25,
+    "wrong": 1,
+    "unattributed": 0
+   },
+   "professor": {
+    "lines": 36,
+    "correct": 35,
+    "wrong": 0,
+    "unattributed": 1
+   },
+   "guest": {
+    "lines": 2,
+    "correct": 2,
+    "wrong": 0,
+    "unattributed": 0
+   },
+   "wrong_person": 0,
+   "seconds": {
+    "right": 476.31000000000006,
+    "wrong_student": 0.5600000000000094,
+    "wrong_other": 7.560000000000006,
+    "unattributed": 0.0
+   }
+  },
+  "C 0.25/0.15": {
+   "student": {
+    "lines": 26,
+    "correct": 25,
+    "wrong": 1,
+    "unattributed": 0
+   },
+   "professor": {
+    "lines": 36,
+    "correct": 35,
+    "wrong": 0,
+    "unattributed": 1
+   },
+   "guest": {
+    "lines": 2,
+    "correct": 2,
+    "wrong": 0,
+    "unattributed": 0
+   },
+   "wrong_person": 0,
+   "seconds": {
+    "right": 476.31000000000006,
+    "wrong_student": 0.5600000000000094,
+    "wrong_other": 7.560000000000006,
+    "unattributed": 0.0
+   }
+  },
+  "C 0.35/0.05": {
+   "student": {
+    "lines": 26,
+    "correct": 25,
+    "wrong": 1,
+    "unattributed": 0
+   },
+   "professor": {
+    "lines": 36,
+    "correct": 35,
+    "wrong": 0,
+    "unattributed": 1
+   },
+   "guest": {
+    "lines": 2,
+    "correct": 2,
+    "wrong": 0,
+    "unattributed": 0
+   },
+   "wrong_person": 0,
+   "seconds": {
+    "right": 476.31000000000006,
+    "wrong_student": 0.5600000000000094,
+    "wrong_other": 7.560000000000006,
+    "unattributed": 0.0
+   }
+  },
+  "C 0.35/0.10": {
+   "student": {
+    "lines": 26,
+    "correct": 25,
+    "wrong": 1,
+    "unattributed": 0
+   },
+   "professor": {
+    "lines": 36,
+    "correct": 35,
+    "wrong": 0,
+    "unattributed": 1
+   },
+   "guest": {
+    "lines": 2,
+    "correct": 2,
+    "wrong": 0,
+    "unattributed": 0
+   },
+   "wrong_person": 0,
+   "seconds": {
+    "right": 476.31000000000006,
+    "wrong_student": 0.5600000000000094,
+    "wrong_other": 7.560000000000006,
+    "unattributed": 0.0
+   }
+  },
+  "C 0.35/0.15": {
+   "student": {
+    "lines": 26,
+    "correct": 25,
+    "wrong": 1,
+    "unattributed": 0
+   },
+   "professor": {
+    "lines": 36,
+    "correct": 35,
+    "wrong": 0,
+    "unattributed": 1
+   },
+   "guest": {
+    "lines": 2,
+    "correct": 2,
+    "wrong": 0,
+    "unattributed": 0
+   },
+   "wrong_person": 0,
+   "seconds": {
+    "right": 476.31000000000006,
+    "wrong_student": 0.5600000000000094,
+    "wrong_other": 7.560000000000006,
+    "unattributed": 0.0
+   }
+  },
+  "C 0.45/0.05": {
+   "student": {
+    "lines": 26,
+    "correct": 25,
+    "wrong": 1,
+    "unattributed": 0
+   },
+   "professor": {
+    "lines": 36,
+    "correct": 35,
+    "wrong": 0,
+    "unattributed": 1
+   },
+   "guest": {
+    "lines": 2,
+    "correct": 2,
+    "wrong": 0,
+    "unattributed": 0
+   },
+   "wrong_person": 0,
+   "seconds": {
+    "right": 476.31000000000006,
+    "wrong_student": 0.5600000000000094,
+    "wrong_other": 7.560000000000006,
+    "unattributed": 0.0
+   }
+  },
+  "C 0.45/0.10": {
+   "student": {
+    "lines": 26,
+    "correct": 25,
+    "wrong": 1,
+    "unattributed": 0
+   },
+   "professor": {
+    "lines": 36,
+    "correct": 35,
+    "wrong": 0,
+    "unattributed": 1
+   },
+   "guest": {
+    "lines": 2,
+    "correct": 2,
+    "wrong": 0,
+    "unattributed": 0
+   },
+   "wrong_person": 0,
+   "seconds": {
+    "right": 476.31000000000006,
+    "wrong_student": 0.5600000000000094,
+    "wrong_other": 7.560000000000006,
+    "unattributed": 0.0
+   }
+  },
+  "C 0.45/0.15": {
+   "student": {
+    "lines": 26,
+    "correct": 25,
+    "wrong": 1,
+    "unattributed": 0
+   },
+   "professor": {
+    "lines": 36,
+    "correct": 35,
+    "wrong": 0,
+    "unattributed": 1
+   },
+   "guest": {
+    "lines": 2,
+    "correct": 2,
+    "wrong": 0,
+    "unattributed": 0
+   },
+   "wrong_person": 0,
+   "seconds": {
+    "right": 476.31000000000006,
+    "wrong_student": 0.5600000000000094,
+    "wrong_other": 7.560000000000006,
+    "unattributed": 0.0
+   }
+  },
+  "B+veto 0.25/0.05": {
+   "student": {
+    "lines": 26,
+    "correct": 24,
+    "wrong": 1,
+    "unattributed": 1
+   },
+   "professor": {
+    "lines": 36,
+    "correct": 35,
+    "wrong": 0,
+    "unattributed": 1
+   },
+   "guest": {
+    "lines": 2,
+    "correct": 2,
+    "wrong": 0,
+    "unattributed": 0
+   },
+   "wrong_person": 0,
+   "seconds": {
+    "right": 474.83000000000004,
+    "wrong_student": 0.5600000000000094,
+    "wrong_other": 7.560000000000006,
+    "unattributed": 1.480000000000004
+   }
+  },
+  "B+veto 0.25/0.10": {
+   "student": {
+    "lines": 26,
+    "correct": 24,
+    "wrong": 1,
+    "unattributed": 1
+   },
+   "professor": {
+    "lines": 36,
+    "correct": 35,
+    "wrong": 0,
+    "unattributed": 1
+   },
+   "guest": {
+    "lines": 2,
+    "correct": 2,
+    "wrong": 0,
+    "unattributed": 0
+   },
+   "wrong_person": 0,
+   "seconds": {
+    "right": 474.83000000000004,
+    "wrong_student": 0.5600000000000094,
+    "wrong_other": 7.560000000000006,
+    "unattributed": 1.480000000000004
+   }
+  },
+  "B+veto 0.25/0.15": {
+   "student": {
+    "lines": 26,
+    "correct": 24,
+    "wrong": 1,
+    "unattributed": 1
+   },
+   "professor": {
+    "lines": 36,
+    "correct": 35,
+    "wrong": 0,
+    "unattributed": 1
+   },
+   "guest": {
+    "lines": 2,
+    "correct": 2,
+    "wrong": 0,
+    "unattributed": 0
+   },
+   "wrong_person": 0,
+   "seconds": {
+    "right": 474.83000000000004,
+    "wrong_student": 0.5600000000000094,
+    "wrong_other": 7.560000000000006,
+    "unattributed": 1.480000000000004
+   }
+  },
+  "B+veto 0.35/0.05": {
+   "student": {
+    "lines": 26,
+    "correct": 24,
+    "wrong": 1,
+    "unattributed": 1
+   },
+   "professor": {
+    "lines": 36,
+    "correct": 35,
+    "wrong": 0,
+    "unattributed": 1
+   },
+   "guest": {
+    "lines": 2,
+    "correct": 2,
+    "wrong": 0,
+    "unattributed": 0
+   },
+   "wrong_person": 0,
+   "seconds": {
+    "right": 474.83000000000004,
+    "wrong_student": 0.5600000000000094,
+    "wrong_other": 7.560000000000006,
+    "unattributed": 1.480000000000004
+   }
+  },
+  "B+veto 0.35/0.10": {
+   "student": {
+    "lines": 26,
+    "correct": 24,
+    "wrong": 1,
+    "unattributed": 1
+   },
+   "professor": {
+    "lines": 36,
+    "correct": 35,
+    "wrong": 0,
+    "unattributed": 1
+   },
+   "guest": {
+    "lines": 2,
+    "correct": 2,
+    "wrong": 0,
+    "unattributed": 0
+   },
+   "wrong_person": 0,
+   "seconds": {
+    "right": 474.83000000000004,
+    "wrong_student": 0.5600000000000094,
+    "wrong_other": 7.560000000000006,
+    "unattributed": 1.480000000000004
+   }
+  },
+  "B+veto 0.35/0.15": {
+   "student": {
+    "lines": 26,
+    "correct": 24,
+    "wrong": 1,
+    "unattributed": 1
+   },
+   "professor": {
+    "lines": 36,
+    "correct": 35,
+    "wrong": 0,
+    "unattributed": 1
+   },
+   "guest": {
+    "lines": 2,
+    "correct": 2,
+    "wrong": 0,
+    "unattributed": 0
+   },
+   "wrong_person": 0,
+   "seconds": {
+    "right": 474.83000000000004,
+    "wrong_student": 0.5600000000000094,
+    "wrong_other": 7.560000000000006,
+    "unattributed": 1.480000000000004
+   }
+  },
+  "B+veto 0.45/0.05": {
+   "student": {
+    "lines": 26,
+    "correct": 24,
+    "wrong": 1,
+    "unattributed": 1
+   },
+   "professor": {
+    "lines": 36,
+    "correct": 35,
+    "wrong": 0,
+    "unattributed": 1
+   },
+   "guest": {
+    "lines": 2,
+    "correct": 2,
+    "wrong": 0,
+    "unattributed": 0
+   },
+   "wrong_person": 0,
+   "seconds": {
+    "right": 474.83000000000004,
+    "wrong_student": 0.5600000000000094,
+    "wrong_other": 7.560000000000006,
+    "unattributed": 1.480000000000004
+   }
+  },
+  "B+veto 0.45/0.10": {
+   "student": {
+    "lines": 26,
+    "correct": 24,
+    "wrong": 1,
+    "unattributed": 1
+   },
+   "professor": {
+    "lines": 36,
+    "correct": 35,
+    "wrong": 0,
+    "unattributed": 1
+   },
+   "guest": {
+    "lines": 2,
+    "correct": 2,
+    "wrong": 0,
+    "unattributed": 0
+   },
+   "wrong_person": 0,
+   "seconds": {
+    "right": 474.83000000000004,
+    "wrong_student": 0.5600000000000094,
+    "wrong_other": 7.560000000000006,
+    "unattributed": 1.480000000000004
+   }
+  },
+  "B+veto 0.45/0.15": {
+   "student": {
+    "lines": 26,
+    "correct": 24,
+    "wrong": 1,
+    "unattributed": 1
+   },
+   "professor": {
+    "lines": 36,
+    "correct": 35,
+    "wrong": 0,
+    "unattributed": 1
+   },
+   "guest": {
+    "lines": 2,
+    "correct": 2,
+    "wrong": 0,
+    "unattributed": 0
+   },
+   "wrong_person": 0,
+   "seconds": {
+    "right": 474.83000000000004,
+    "wrong_student": 0.5600000000000094,
+    "wrong_other": 7.560000000000006,
+    "unattributed": 1.480000000000004
+   }
+  },
+  "W 0.25/0.05": {
+   "student": {
+    "lines": 26,
+    "correct": 25,
+    "wrong": 1,
+    "unattributed": 0
+   },
+   "professor": {
+    "lines": 36,
+    "correct": 36,
+    "wrong": 0,
+    "unattributed": 0
+   },
+   "guest": {
+    "lines": 2,
+    "correct": 2,
+    "wrong": 0,
+    "unattributed": 0
+   },
+   "wrong_person": 1,
+   "seconds": {
+    "right": 459.2,
+    "wrong_student": 1.5600000000000058,
+    "wrong_other": 0.0899999999999892,
+    "unattributed": 0.0
+   }
+  },
+  "W 0.25/0.10": {
+   "student": {
+    "lines": 26,
+    "correct": 25,
+    "wrong": 1,
+    "unattributed": 0
+   },
+   "professor": {
+    "lines": 36,
+    "correct": 36,
+    "wrong": 0,
+    "unattributed": 0
+   },
+   "guest": {
+    "lines": 2,
+    "correct": 2,
+    "wrong": 0,
+    "unattributed": 0
+   },
+   "wrong_person": 1,
+   "seconds": {
+    "right": 459.2,
+    "wrong_student": 1.5600000000000058,
+    "wrong_other": 0.0899999999999892,
+    "unattributed": 0.0
+   }
+  },
+  "W 0.25/0.15": {
+   "student": {
+    "lines": 26,
+    "correct": 25,
+    "wrong": 1,
+    "unattributed": 0
+   },
+   "professor": {
+    "lines": 36,
+    "correct": 36,
+    "wrong": 0,
+    "unattributed": 0
+   },
+   "guest": {
+    "lines": 2,
+    "correct": 2,
+    "wrong": 0,
+    "unattributed": 0
+   },
+   "wrong_person": 1,
+   "seconds": {
+    "right": 459.2,
+    "wrong_student": 1.5600000000000058,
+    "wrong_other": 0.0899999999999892,
+    "unattributed": 0.0
+   }
+  },
+  "W 0.35/0.05": {
+   "student": {
+    "lines": 26,
+    "correct": 25,
+    "wrong": 1,
+    "unattributed": 0
+   },
+   "professor": {
+    "lines": 36,
+    "correct": 36,
+    "wrong": 0,
+    "unattributed": 0
+   },
+   "guest": {
+    "lines": 2,
+    "correct": 2,
+    "wrong": 0,
+    "unattributed": 0
+   },
+   "wrong_person": 1,
+   "seconds": {
+    "right": 459.2,
+    "wrong_student": 1.5600000000000058,
+    "wrong_other": 0.0899999999999892,
+    "unattributed": 0.0
+   }
+  },
+  "W 0.35/0.10": {
+   "student": {
+    "lines": 26,
+    "correct": 25,
+    "wrong": 1,
+    "unattributed": 0
+   },
+   "professor": {
+    "lines": 36,
+    "correct": 36,
+    "wrong": 0,
+    "unattributed": 0
+   },
+   "guest": {
+    "lines": 2,
+    "correct": 2,
+    "wrong": 0,
+    "unattributed": 0
+   },
+   "wrong_person": 1,
+   "seconds": {
+    "right": 459.2,
+    "wrong_student": 1.5600000000000058,
+    "wrong_other": 0.0899999999999892,
+    "unattributed": 0.0
+   }
+  },
+  "W 0.35/0.15": {
+   "student": {
+    "lines": 26,
+    "correct": 25,
+    "wrong": 1,
+    "unattributed": 0
+   },
+   "professor": {
+    "lines": 36,
+    "correct": 36,
+    "wrong": 0,
+    "unattributed": 0
+   },
+   "guest": {
+    "lines": 2,
+    "correct": 2,
+    "wrong": 0,
+    "unattributed": 0
+   },
+   "wrong_person": 1,
+   "seconds": {
+    "right": 459.2,
+    "wrong_student": 1.5600000000000058,
+    "wrong_other": 0.0899999999999892,
+    "unattributed": 0.0
+   }
+  },
+  "W 0.45/0.05": {
+   "student": {
+    "lines": 26,
+    "correct": 25,
+    "wrong": 1,
+    "unattributed": 0
+   },
+   "professor": {
+    "lines": 36,
+    "correct": 36,
+    "wrong": 0,
+    "unattributed": 0
+   },
+   "guest": {
+    "lines": 2,
+    "correct": 2,
+    "wrong": 0,
+    "unattributed": 0
+   },
+   "wrong_person": 1,
+   "seconds": {
+    "right": 459.2,
+    "wrong_student": 1.5600000000000058,
+    "wrong_other": 0.0899999999999892,
+    "unattributed": 0.0
+   }
+  },
+  "W 0.45/0.10": {
+   "student": {
+    "lines": 26,
+    "correct": 25,
+    "wrong": 1,
+    "unattributed": 0
+   },
+   "professor": {
+    "lines": 36,
+    "correct": 36,
+    "wrong": 0,
+    "unattributed": 0
+   },
+   "guest": {
+    "lines": 2,
+    "correct": 2,
+    "wrong": 0,
+    "unattributed": 0
+   },
+   "wrong_person": 1,
+   "seconds": {
+    "right": 459.2,
+    "wrong_student": 1.5600000000000058,
+    "wrong_other": 0.0899999999999892,
+    "unattributed": 0.0
+   }
+  },
+  "W 0.45/0.15": {
+   "student": {
+    "lines": 26,
+    "correct": 25,
+    "wrong": 1,
+    "unattributed": 0
+   },
+   "professor": {
+    "lines": 36,
+    "correct": 36,
+    "wrong": 0,
+    "unattributed": 0
+   },
+   "guest": {
+    "lines": 2,
+    "correct": 2,
+    "wrong": 0,
+    "unattributed": 0
+   },
+   "wrong_person": 1,
+   "seconds": {
+    "right": 459.2,
+    "wrong_student": 1.5600000000000058,
+    "wrong_other": 0.0899999999999892,
+    "unattributed": 0.0
+   }
+  },
+  "W+veto 0.25/0.05": {
+   "student": {
+    "lines": 26,
+    "correct": 25,
+    "wrong": 0,
+    "unattributed": 1
+   },
+   "professor": {
+    "lines": 36,
+    "correct": 36,
+    "wrong": 0,
+    "unattributed": 0
+   },
+   "guest": {
+    "lines": 2,
+    "correct": 2,
+    "wrong": 0,
+    "unattributed": 0
+   },
+   "wrong_person": 0,
+   "seconds": {
+    "right": 459.2,
+    "wrong_student": 0.08000000000000185,
+    "wrong_other": 0.0899999999999892,
+    "unattributed": 1.480000000000004
+   }
+  },
+  "W+veto 0.25/0.10": {
+   "student": {
+    "lines": 26,
+    "correct": 25,
+    "wrong": 0,
+    "unattributed": 1
+   },
+   "professor": {
+    "lines": 36,
+    "correct": 36,
+    "wrong": 0,
+    "unattributed": 0
+   },
+   "guest": {
+    "lines": 2,
+    "correct": 2,
+    "wrong": 0,
+    "unattributed": 0
+   },
+   "wrong_person": 0,
+   "seconds": {
+    "right": 459.2,
+    "wrong_student": 0.08000000000000185,
+    "wrong_other": 0.0899999999999892,
+    "unattributed": 1.480000000000004
+   }
+  },
+  "W+veto 0.25/0.15": {
+   "student": {
+    "lines": 26,
+    "correct": 25,
+    "wrong": 0,
+    "unattributed": 1
+   },
+   "professor": {
+    "lines": 36,
+    "correct": 36,
+    "wrong": 0,
+    "unattributed": 0
+   },
+   "guest": {
+    "lines": 2,
+    "correct": 2,
+    "wrong": 0,
+    "unattributed": 0
+   },
+   "wrong_person": 0,
+   "seconds": {
+    "right": 459.2,
+    "wrong_student": 0.08000000000000185,
+    "wrong_other": 0.0899999999999892,
+    "unattributed": 1.480000000000004
+   }
+  },
+  "W+veto 0.35/0.05": {
+   "student": {
+    "lines": 26,
+    "correct": 25,
+    "wrong": 0,
+    "unattributed": 1
+   },
+   "professor": {
+    "lines": 36,
+    "correct": 36,
+    "wrong": 0,
+    "unattributed": 0
+   },
+   "guest": {
+    "lines": 2,
+    "correct": 2,
+    "wrong": 0,
+    "unattributed": 0
+   },
+   "wrong_person": 0,
+   "seconds": {
+    "right": 459.2,
+    "wrong_student": 0.08000000000000185,
+    "wrong_other": 0.0899999999999892,
+    "unattributed": 1.480000000000004
+   }
+  },
+  "W+veto 0.35/0.10": {
+   "student": {
+    "lines": 26,
+    "correct": 25,
+    "wrong": 0,
+    "unattributed": 1
+   },
+   "professor": {
+    "lines": 36,
+    "correct": 36,
+    "wrong": 0,
+    "unattributed": 0
+   },
+   "guest": {
+    "lines": 2,
+    "correct": 2,
+    "wrong": 0,
+    "unattributed": 0
+   },
+   "wrong_person": 0,
+   "seconds": {
+    "right": 459.2,
+    "wrong_student": 0.08000000000000185,
+    "wrong_other": 0.0899999999999892,
+    "unattributed": 1.480000000000004
+   }
+  },
+  "W+veto 0.35/0.15": {
+   "student": {
+    "lines": 26,
+    "correct": 25,
+    "wrong": 0,
+    "unattributed": 1
+   },
+   "professor": {
+    "lines": 36,
+    "correct": 36,
+    "wrong": 0,
+    "unattributed": 0
+   },
+   "guest": {
+    "lines": 2,
+    "correct": 2,
+    "wrong": 0,
+    "unattributed": 0
+   },
+   "wrong_person": 0,
+   "seconds": {
+    "right": 459.2,
+    "wrong_student": 0.08000000000000185,
+    "wrong_other": 0.0899999999999892,
+    "unattributed": 1.480000000000004
+   }
+  },
+  "W+veto 0.45/0.05": {
+   "student": {
+    "lines": 26,
+    "correct": 25,
+    "wrong": 0,
+    "unattributed": 1
+   },
+   "professor": {
+    "lines": 36,
+    "correct": 36,
+    "wrong": 0,
+    "unattributed": 0
+   },
+   "guest": {
+    "lines": 2,
+    "correct": 2,
+    "wrong": 0,
+    "unattributed": 0
+   },
+   "wrong_person": 0,
+   "seconds": {
+    "right": 459.2,
+    "wrong_student": 0.08000000000000185,
+    "wrong_other": 0.0899999999999892,
+    "unattributed": 1.480000000000004
+   }
+  },
+  "W+veto 0.45/0.10": {
+   "student": {
+    "lines": 26,
+    "correct": 25,
+    "wrong": 0,
+    "unattributed": 1
+   },
+   "professor": {
+    "lines": 36,
+    "correct": 36,
+    "wrong": 0,
+    "unattributed": 0
+   },
+   "guest": {
+    "lines": 2,
+    "correct": 2,
+    "wrong": 0,
+    "unattributed": 0
+   },
+   "wrong_person": 0,
+   "seconds": {
+    "right": 459.2,
+    "wrong_student": 0.08000000000000185,
+    "wrong_other": 0.0899999999999892,
+    "unattributed": 1.480000000000004
+   }
+  },
+  "W+veto 0.45/0.15": {
+   "student": {
+    "lines": 26,
+    "correct": 25,
+    "wrong": 0,
+    "unattributed": 1
+   },
+   "professor": {
+    "lines": 36,
+    "correct": 36,
+    "wrong": 0,
+    "unattributed": 0
+   },
+   "guest": {
+    "lines": 2,
+    "correct": 2,
+    "wrong": 0,
+    "unattributed": 0
+   },
+   "wrong_person": 0,
+   "seconds": {
+    "right": 459.2,
+    "wrong_student": 0.08000000000000185,
+    "wrong_other": 0.0899999999999892,
+    "unattributed": 1.480000000000004
+   }
+  }
+ },
+ "oracle": {
+  "totals": {
+   "student": {
+    "lines": 26,
+    "correct": 26,
+    "wrong": 0,
+    "unattributed": 0
+   },
+   "professor": {
+    "lines": 36,
+    "correct": 36,
+    "wrong": 0,
+    "unattributed": 0
+   },
+   "guest": {
+    "lines": 2,
+    "correct": 2,
+    "wrong": 0,
+    "unattributed": 0
+   },
+   "wrong_person": 0,
+   "seconds": {
+    "right": 487.75,
+    "wrong_student": 0.0,
+    "wrong_other": 0.0,
+    "unattributed": 0.0
+   }
+  },
+  "lines": {
+   "01-everyone": [
+    {
+     "speaker": "Prof Lim (demo)",
+     "role": "professor",
+     "outcome": "correct",
+     "credited": [],
+     "wrong_student": false
+    },
+    {
+     "speaker": "Koh Qing Jia",
+     "role": "student",
+     "outcome": "correct",
+     "credited": [],
+     "wrong_student": false
+    },
+    {
+     "speaker": "Prof Lim (demo)",
+     "role": "professor",
+     "outcome": "correct",
+     "credited": [],
+     "wrong_student": false
+    },
+    {
+     "speaker": "Tasmin",
+     "role": "student",
+     "outcome": "correct",
+     "credited": [],
+     "wrong_student": false
+    },
+    {
+     "speaker": "Prof Lim (demo)",
+     "role": "professor",
+     "outcome": "correct",
+     "credited": [],
+     "wrong_student": false
+    },
+    {
+     "speaker": "Tina",
+     "role": "student",
+     "outcome": "correct",
+     "credited": [],
+     "wrong_student": false
+    },
+    {
+     "speaker": "Prof Lim (demo)",
+     "role": "professor",
+     "outcome": "correct",
+     "credited": [],
+     "wrong_student": false
+    },
+    {
+     "speaker": "Le Yong",
+     "role": "student",
+     "outcome": "correct",
+     "credited": [],
+     "wrong_student": false
+    },
+    {
+     "speaker": "Prof Lim (demo)",
+     "role": "professor",
+     "outcome": "correct",
+     "credited": [],
+     "wrong_student": false
+    },
+    {
+     "speaker": "Koh Qing Jia",
+     "role": "student",
+     "outcome": "correct",
+     "credited": [],
+     "wrong_student": false
+    },
+    {
+     "speaker": "Prof Lim (demo)",
+     "role": "professor",
+     "outcome": "correct",
+     "credited": [],
+     "wrong_student": false
+    }
+   ],
+   "02-one-silent": [
+    {
+     "speaker": "Prof Lim (demo)",
+     "role": "professor",
+     "outcome": "correct",
+     "credited": [],
+     "wrong_student": false
+    },
+    {
+     "speaker": "Tasmin",
+     "role": "student",
+     "outcome": "correct",
+     "credited": [],
+     "wrong_student": false
+    },
+    {
+     "speaker": "Prof Lim (demo)",
+     "role": "professor",
+     "outcome": "correct",
+     "credited": [],
+     "wrong_student": false
+    },
+    {
+     "speaker": "Koh Qing Jia",
+     "role": "student",
+     "outcome": "correct",
+     "credited": [],
+     "wrong_student": false
+    },
+    {
+     "speaker": "Prof Lim (demo)",
+     "role": "professor",
+     "outcome": "correct",
+     "credited": [],
+     "wrong_student": false
+    },
+    {
+     "speaker": "Tina",
+     "role": "student",
+     "outcome": "correct",
+     "credited": [],
+     "wrong_student": false
+    },
+    {
+     "speaker": "Prof Lim (demo)",
+     "role": "professor",
+     "outcome": "correct",
+     "credited": [],
+     "wrong_student": false
+    },
+    {
+     "speaker": "Tasmin",
+     "role": "student",
+     "outcome": "correct",
+     "credited": [],
+     "wrong_student": false
+    },
+    {
+     "speaker": "Prof Lim (demo)",
+     "role": "professor",
+     "outcome": "correct",
+     "credited": [],
+     "wrong_student": false
+    }
+   ],
+   "03-nobody": [
+    {
+     "speaker": "Prof Lim (demo)",
+     "role": "professor",
+     "outcome": "correct",
+     "credited": [],
+     "wrong_student": false
+    },
+    {
+     "speaker": "Prof Lim (demo)",
+     "role": "professor",
+     "outcome": "correct",
+     "credited": [],
+     "wrong_student": false
+    },
+    {
+     "speaker": "Prof Lim (demo)",
+     "role": "professor",
+     "outcome": "correct",
+     "credited": [],
+     "wrong_student": false
+    },
+    {
+     "speaker": "Prof Lim (demo)",
+     "role": "professor",
+     "outcome": "correct",
+     "credited": [],
+     "wrong_student": false
+    }
+   ],
+   "04-misconception": [
+    {
+     "speaker": "Prof Lim (demo)",
+     "role": "professor",
+     "outcome": "correct",
+     "credited": [],
+     "wrong_student": false
+    },
+    {
+     "speaker": "Tina",
+     "role": "student",
+     "outcome": "correct",
+     "credited": [],
+     "wrong_student": false
+    },
+    {
+     "speaker": "Prof Lim (demo)",
+     "role": "professor",
+     "outcome": "correct",
+     "credited": [],
+     "wrong_student": false
+    },
+    {
+     "speaker": "Koh Qing Jia",
+     "role": "student",
+     "outcome": "correct",
+     "credited": [],
+     "wrong_student": false
+    },
+    {
+     "speaker": "Prof Lim (demo)",
+     "role": "professor",
+     "outcome": "correct",
+     "credited": [],
+     "wrong_student": false
+    },
+    {
+     "speaker": "Tina",
+     "role": "student",
+     "outcome": "correct",
+     "credited": [],
+     "wrong_student": false
+    },
+    {
+     "speaker": "Prof Lim (demo)",
+     "role": "professor",
+     "outcome": "correct",
+     "credited": [],
+     "wrong_student": false
+    },
+    {
+     "speaker": "Le Yong",
+     "role": "student",
+     "outcome": "correct",
+     "credited": [],
+     "wrong_student": false
+    },
+    {
+     "speaker": "Prof Lim (demo)",
+     "role": "professor",
+     "outcome": "correct",
+     "credited": [],
+     "wrong_student": false
+    },
+    {
+     "speaker": "Tasmin",
+     "role": "student",
+     "outcome": "correct",
+     "credited": [],
+     "wrong_student": false
+    },
+    {
+     "speaker": "Prof Lim (demo)",
+     "role": "professor",
+     "outcome": "correct",
+     "credited": [],
+     "wrong_student": false
+    }
+   ],
+   "05-injection": [
+    {
+     "speaker": "Prof Lim (demo)",
+     "role": "professor",
+     "outcome": "correct",
+     "credited": [],
+     "wrong_student": false
+    },
+    {
+     "speaker": "Tasmin",
+     "role": "student",
+     "outcome": "correct",
+     "credited": [],
+     "wrong_student": false
+    },
+    {
+     "speaker": "Prof Lim (demo)",
+     "role": "professor",
+     "outcome": "correct",
+     "credited": [],
+     "wrong_student": false
+    },
+    {
+     "speaker": "Le Yong",
+     "role": "student",
+     "outcome": "correct",
+     "credited": [],
+     "wrong_student": false
+    },
+    {
+     "speaker": "Prof Lim (demo)",
+     "role": "professor",
+     "outcome": "correct",
+     "credited": [],
+     "wrong_student": false
+    },
+    {
+     "speaker": "Koh Qing Jia",
+     "role": "student",
+     "outcome": "correct",
+     "credited": [],
+     "wrong_student": false
+    },
+    {
+     "speaker": "Prof Lim (demo)",
+     "role": "professor",
+     "outcome": "correct",
+     "credited": [],
+     "wrong_student": false
+    },
+    {
+     "speaker": "Tina",
+     "role": "student",
+     "outcome": "correct",
+     "credited": [],
+     "wrong_student": false
+    },
+    {
+     "speaker": "Prof Lim (demo)",
+     "role": "professor",
+     "outcome": "correct",
+     "credited": [],
+     "wrong_student": false
+    }
+   ],
+   "06-dominant": [
+    {
+     "speaker": "Prof Lim (demo)",
+     "role": "professor",
+     "outcome": "correct",
+     "credited": [],
+     "wrong_student": false
+    },
+    {
+     "speaker": "Koh Qing Jia",
+     "role": "student",
+     "outcome": "correct",
+     "credited": [],
+     "wrong_student": false
+    },
+    {
+     "speaker": "Prof Lim (demo)",
+     "role": "professor",
+     "outcome": "correct",
+     "credited": [],
+     "wrong_student": false
+    },
+    {
+     "speaker": "Koh Qing Jia",
+     "role": "student",
+     "outcome": "correct",
+     "credited": [],
+     "wrong_student": false
+    },
+    {
+     "speaker": "Prof Lim (demo)",
+     "role": "professor",
+     "outcome": "correct",
+     "credited": [],
+     "wrong_student": false
+    },
+    {
+     "speaker": "Tina",
+     "role": "student",
+     "outcome": "correct",
+     "credited": [],
+     "wrong_student": false
+    },
+    {
+     "speaker": "Prof Lim (demo)",
+     "role": "professor",
+     "outcome": "correct",
+     "credited": [],
+     "wrong_student": false
+    },
+    {
+     "speaker": "Tasmin",
+     "role": "student",
+     "outcome": "correct",
+     "credited": [],
+     "wrong_student": false
+    },
+    {
+     "speaker": "Prof Lim (demo)",
+     "role": "professor",
+     "outcome": "correct",
+     "credited": [],
+     "wrong_student": false
+    },
+    {
+     "speaker": "Le Yong",
+     "role": "student",
+     "outcome": "correct",
+     "credited": [],
+     "wrong_student": false
+    },
+    {
+     "speaker": "Prof Lim (demo)",
+     "role": "professor",
+     "outcome": "correct",
+     "credited": [],
+     "wrong_student": false
+    }
+   ],
+   "07-guest": [
+    {
+     "speaker": "Prof Lim (demo)",
+     "role": "professor",
+     "outcome": "correct",
+     "credited": [],
+     "wrong_student": false
+    },
+    {
+     "speaker": "Guest",
+     "role": "guest",
+     "outcome": "correct",
+     "credited": [],
+     "wrong_student": false
+    },
+    {
+     "speaker": "Prof Lim (demo)",
+     "role": "professor",
+     "outcome": "correct",
+     "credited": [],
+     "wrong_student": false
+    },
+    {
+     "speaker": "Tasmin",
+     "role": "student",
+     "outcome": "correct",
+     "credited": [],
+     "wrong_student": false
+    },
+    {
+     "speaker": "Prof Lim (demo)",
+     "role": "professor",
+     "outcome": "correct",
+     "credited": [],
+     "wrong_student": false
+    },
+    {
+     "speaker": "Koh Qing Jia",
+     "role": "student",
+     "outcome": "correct",
+     "credited": [],
+     "wrong_student": false
+    },
+    {
+     "speaker": "Guest",
+     "role": "guest",
+     "outcome": "correct",
+     "credited": [],
+     "wrong_student": false
+    },
+    {
+     "speaker": "Tina",
+     "role": "student",
+     "outcome": "correct",
+     "credited": [],
+     "wrong_student": false
+    },
+    {
+     "speaker": "Prof Lim (demo)",
+     "role": "professor",
+     "outcome": "correct",
+     "credited": [],
+     "wrong_student": false
+    }
+   ]
+  }
+ },
+ "wer": {
+  "base-beam5-pipeline": 0.032520325203252036
+ },
+ "whisper": {
+  "tiny-beam5": {
+   "errors": 55,
+   "words": 1353,
+   "s": 44.91751767601818,
+   "demos": {
+    "01-everyone": 0.026717557251908396,
+    "02-one-silent": 0.05759162303664921,
+    "03-nobody": 0.0,
+    "04-misconception": 0.024752475247524754,
+    "05-injection": 0.06875,
+    "06-dominant": 0.045454545454545456,
+    "07-guest": 0.06043956043956044
+   }
+  },
+  "base-beam1": {
+   "errors": 49,
+   "words": 1353,
+   "s": 49.474122969433665,
+   "demos": {
+    "01-everyone": 0.022900763358778626,
+    "02-one-silent": 0.04712041884816754,
+    "03-nobody": 0.014705882352941176,
+    "04-misconception": 0.024752475247524754,
+    "05-injection": 0.05,
+    "06-dominant": 0.031818181818181815,
+    "07-guest": 0.06593406593406594
+   }
+  },
+  "base-beam5": {
+   "errors": 44,
+   "words": 1353,
+   "s": 76.30174079118297,
+   "demos": {
+    "01-everyone": 0.011450381679389313,
+    "02-one-silent": 0.02617801047120419,
+    "03-nobody": 0.029411764705882353,
+    "04-misconception": 0.0297029702970297,
+    "05-injection": 0.05,
+    "06-dominant": 0.031818181818181815,
+    "07-guest": 0.06043956043956044
+   }
+  },
+  "small-beam5": {
+   "errors": 32,
+   "words": 1353,
+   "s": 189.24245906923898,
+   "demos": {
+    "01-everyone": 0.007633587786259542,
+    "02-one-silent": 0.005235602094240838,
+    "03-nobody": 0.0,
+    "04-misconception": 0.034653465346534656,
+    "05-injection": 0.03125,
+    "06-dominant": 0.031818181818181815,
+    "07-guest": 0.054945054945054944
+   }
+  },
+  "base-beam5 + word timings": {
+   "errors": 44,
+   "words": 1353,
+   "s": 76.97616094909608,
+   "demos": {
+    "01-everyone": 0.015267175572519083,
+    "02-one-silent": 0.02617801047120419,
+    "03-nobody": 0.029411764705882353,
+    "04-misconception": 0.0297029702970297,
+    "05-injection": 0.05625,
+    "06-dominant": 0.022727272727272728,
+    "07-guest": 0.06043956043956044
+   }
+  }
+ },
+ "timings": {
+  "01-everyone": {
+   "transcription_s": 15.12077668402344,
+   "diarization_s": 210.16818832582794,
+   "total_s": 324.9594746869989
+  },
+  "02-one-silent": {
+   "transcription_s": 11.271287087118253,
+   "diarization_s": 132.9640534638893,
+   "total_s": 209.11587261594832
+  },
+  "03-nobody": {
+   "transcription_s": 8.770052873063833,
+   "diarization_s": 83.800836318871,
+   "total_s": 121.47711744299158
+  },
+  "04-misconception": {
+   "transcription_s": 12.891700125066563,
+   "diarization_s": 165.73921197489835,
+   "total_s": 255.82499199802987
+  },
+  "05-injection": {
+   "transcription_s": 10.264261867152527,
+   "diarization_s": 120.1022784661036,
+   "total_s": 207.2521847630851
+  },
+  "06-dominant": {
+   "transcription_s": 14.60585590195842,
+   "diarization_s": 174.6628559809178,
+   "total_s": 260.4306699791923
+  },
+  "07-guest": {
+   "transcription_s": 10.645192643860355,
+   "diarization_s": 129.94095132686198,
+   "total_s": 213.58624328509904
+  }
+ }
+}

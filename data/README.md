@@ -19,6 +19,10 @@ Small datasets and evaluation sets live here. Large or licensed files go in `dat
   each rubric criterion of those 20 contributions, whether the Judge should flag the contribution for
   the professor, and a one-line reason. Used by `eval/judge_eval.py`. **Drafts**: every row says
   `"reviewed": false` until a teammate has checked it and flipped it to `true`.
+- `is469/week7_seminar.json` (committed): Tasmin's mock Week 7 (Agentic AI) seminar, using the
+  lecture's real questions with our team answering: roster, 10-turn transcript and rubric. Its
+  documents are left out (they are slide text); the **IS469 Week 7 seminar** button on New class
+  session adds the course library's documents, so upload the slides first.
 - `raw/is469/` (**git-ignored**): the lecture files themselves, which are the instructor's and are
   not ours to commit. Source: the IS469 course materials (Topic 1–8 decks as `.pptx`/`.pdf`, labs as
   `.ipynb`). Each teammate copies them in, all in one folder; keep one copy of any file downloaded

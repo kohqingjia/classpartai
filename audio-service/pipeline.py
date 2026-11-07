@@ -85,6 +85,7 @@ def process_audio(audio_path: str):
     return {
         "language": transcription["language"],
         "whisper_segments": transcription["segments"],
+        "speaker_segments": speaker_segments,
         "aligned_segments": aligned_segments,
         "voice_matches": voice_matches,
         "speaker_identities": speaker_identities,

@@ -165,6 +165,36 @@ def model_audit(
     )
 
 
+@ledger.tracked("auditor")
+def feedback_audit(
+    inputs: AssessmentInputs,
+    draft: DraftContent,
+    evidence: EvidenceMap,
+    budget: SharedBudget,
+    factory: DriverFactory,
+) -> ModelAudit:
+    """Semantic review of the feedback drafts only; the Auditor agent audits the findings."""
+    return role_result(
+        "finish_feedback_audit",
+        ModelAudit,
+        "Review only the individual feedback drafts. Check that each strength and next step is "
+        "supported by that student's own turns and the supplied validated evidence, is suitable "
+        "and constructive, makes no ability or motivation claim, and names no other student. "
+        "Findings and scores are audited separately: do not review them. Issues request "
+        "review/revision, never automatically reduce scores. Resolve prior model issue IDs only "
+        "with a specific explanation. Deterministic validation remains authoritative.",
+        {
+            "roster": [s.model_dump() for s in inputs.roster],
+            "transcript": inputs.transcript.model_dump(),
+            "goals": [g.model_dump() for g in inputs.learningGoals or []],
+            "draft": draft.model_dump(),
+            "evidence": evidence_json(evidence),
+        },
+        budget,
+        factory,
+    )
+
+
 @ledger.tracked("feedback")
 def feedback_for(
     student_id: str,

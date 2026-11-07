@@ -1,0 +1,916 @@
+{
+  "execution": "fictional_test_double_not_live_evidence",
+  "budget": {
+    "model_calls": 16,
+    "steps": 12,
+    "seconds": 30.0
+  },
+  "model": "EvaluationDouble",
+  "expectation_source": "fictional_authored_not_independently_human_validated",
+  "runs": [
+    {
+      "variant": "original",
+      "case": "defensible",
+      "expected_verdict": "audit_passed",
+      "verdict": "audit_passed",
+      "matches_authored_expectation": true,
+      "stop_reason": "model_completed_validated",
+      "usage": {
+        "model_calls": 4,
+        "tool_steps": 3,
+        "elapsed_ms": 0.806,
+        "tokens": null,
+        "token_accounting": "not_reported_by_interface"
+      },
+      "tool_route": [
+        "get_session_scores",
+        "verify_citation",
+        "complete_audit"
+      ],
+      "invalid_calls": 0,
+      "pass_blocked_observations": 0,
+      "comparison_calls": 0,
+      "comparison_case_expected": false,
+      "comparison_support_requires_professor_check": false,
+      "useful_comparisons_fixture_proxy": 0,
+      "unnecessary_comparisons_fixture_proxy": 0,
+      "issues": []
+    },
+    {
+      "variant": "original",
+      "case": "overstated_score",
+      "expected_verdict": "rejudge_requested",
+      "verdict": "rejudge_requested",
+      "matches_authored_expectation": true,
+      "stop_reason": "targeted_rejudge",
+      "usage": {
+        "model_calls": 4,
+        "tool_steps": 3,
+        "elapsed_ms": 0.768,
+        "tokens": null,
+        "token_accounting": "not_reported_by_interface"
+      },
+      "tool_route": [
+        "get_session_scores",
+        "verify_citation",
+        "request_rejudge"
+      ],
+      "invalid_calls": 0,
+      "pass_blocked_observations": 0,
+      "comparison_calls": 0,
+      "comparison_case_expected": false,
+      "comparison_support_requires_professor_check": false,
+      "useful_comparisons_fixture_proxy": 0,
+      "unnecessary_comparisons_fixture_proxy": 0,
+      "issues": [
+        {
+          "issue_id": "evaluation-objection",
+          "kind": "rationale",
+          "severity": "material",
+          "finding_ids": [
+            "finding-a"
+          ],
+          "evidence_ids": [
+            "evidence-a"
+          ],
+          "objection": "Level 3 requires application to a concrete example; the reviewed turn only names concepts. A supporting definition does not demonstrate application."
+        }
+      ]
+    },
+    {
+      "variant": "original",
+      "case": "inconsistent_scores",
+      "expected_verdict": "rejudge_requested",
+      "verdict": "rejudge_requested",
+      "matches_authored_expectation": true,
+      "stop_reason": "targeted_rejudge",
+      "usage": {
+        "model_calls": 7,
+        "tool_steps": 5,
+        "elapsed_ms": 1.355,
+        "tokens": null,
+        "token_accounting": "not_reported_by_interface"
+      },
+      "tool_route": [
+        "get_session_scores",
+        "compare_similar",
+        "verify_citation",
+        "verify_citation",
+        "request_rejudge"
+      ],
+      "invalid_calls": 0,
+      "pass_blocked_observations": 0,
+      "comparison_calls": 1,
+      "comparison_case_expected": true,
+      "comparison_support_requires_professor_check": false,
+      "useful_comparisons_fixture_proxy": 1,
+      "unnecessary_comparisons_fixture_proxy": 0,
+      "issues": [
+        {
+          "issue_id": "evaluation-objection",
+          "kind": "consistency",
+          "severity": "material",
+          "finding_ids": [
+            "finding-a",
+            "finding-b"
+          ],
+          "evidence_ids": [
+            "evidence-a"
+          ],
+          "objection": "Comparable reviewed contributions have different levels with no contextual justification; investigate the discrepancy against the exact descriptors, not wording alone."
+        }
+      ]
+    },
+    {
+      "variant": "original",
+      "case": "unresolved_revision",
+      "expected_verdict": "professor_review_required",
+      "verdict": "professor_review_required",
+      "matches_authored_expectation": true,
+      "stop_reason": "one_rejudge_limit",
+      "usage": {
+        "model_calls": 4,
+        "tool_steps": 3,
+        "elapsed_ms": 0.597,
+        "tokens": null,
+        "token_accounting": "not_reported_by_interface"
+      },
+      "tool_route": [
+        "get_session_scores",
+        "verify_citation",
+        "request_rejudge"
+      ],
+      "invalid_calls": 0,
+      "pass_blocked_observations": 0,
+      "comparison_calls": 0,
+      "comparison_case_expected": false,
+      "comparison_support_requires_professor_check": false,
+      "useful_comparisons_fixture_proxy": 0,
+      "unnecessary_comparisons_fixture_proxy": 0,
+      "issues": [
+        {
+          "issue_id": "evaluation-objection",
+          "kind": "citation",
+          "severity": "material",
+          "finding_ids": [
+            "finding-a"
+          ],
+          "evidence_ids": [
+            "evidence-a"
+          ],
+          "objection": "The cited passage contradicts the rationale; revise that evidential claim."
+        },
+        {
+          "issue_id": "guard-a99b50186fe63116",
+          "kind": "citation",
+          "severity": "material",
+          "finding_ids": [
+            "finding-a"
+          ],
+          "evidence_ids": [
+            "evidence-a"
+          ],
+          "objection": "Citation does not fully support the rationale: Fictional support-review double; does not decide whether the score matches rubric level"
+        },
+        {
+          "issue_id": "unsupported-rationale",
+          "kind": "citation",
+          "severity": "material",
+          "finding_ids": [
+            "finding-a"
+          ],
+          "evidence_ids": [
+            "evidence-a"
+          ],
+          "objection": "The exact source quotation does not support the rationale; revise the rationale against the cited passage, retaining uncertainty."
+        },
+        {
+          "issue_id": "guard-5a8fced12ea2ac58",
+          "kind": "citation",
+          "severity": "material",
+          "finding_ids": [
+            "finding-a"
+          ],
+          "evidence_ids": [
+            "evidence-a"
+          ],
+          "objection": "Citation does not fully support the rationale: Fictional semantic-review double: rationale contradicts the passage"
+        }
+      ]
+    },
+    {
+      "variant": "original",
+      "case": "early_finish",
+      "expected_verdict": "audit_passed",
+      "verdict": "professor_review_required",
+      "matches_authored_expectation": false,
+      "stop_reason": "unresolved_audit_issues",
+      "usage": {
+        "model_calls": 1,
+        "tool_steps": 1,
+        "elapsed_ms": 0.192,
+        "tokens": null,
+        "token_accounting": "not_reported_by_interface"
+      },
+      "tool_route": [
+        "complete_audit"
+      ],
+      "invalid_calls": 0,
+      "pass_blocked_observations": 0,
+      "comparison_calls": 0,
+      "comparison_case_expected": false,
+      "comparison_support_requires_professor_check": false,
+      "useful_comparisons_fixture_proxy": 0,
+      "unnecessary_comparisons_fixture_proxy": 0,
+      "issues": [
+        {
+          "issue_id": "execution-6e0cd99079bfe3fe",
+          "kind": "execution",
+          "severity": "review",
+          "finding_ids": [],
+          "evidence_ids": [],
+          "objection": "A citation remains invalid, unverified or unsupported"
+        },
+        {
+          "issue_id": "execution-d6841944efcc64bb",
+          "kind": "execution",
+          "severity": "review",
+          "finding_ids": [],
+          "evidence_ids": [],
+          "objection": "Not all findings were inspected"
+        }
+      ]
+    },
+    {
+      "variant": "description_only",
+      "case": "defensible",
+      "expected_verdict": "audit_passed",
+      "verdict": "audit_passed",
+      "matches_authored_expectation": true,
+      "stop_reason": "model_completed_validated",
+      "usage": {
+        "model_calls": 4,
+        "tool_steps": 3,
+        "elapsed_ms": 0.45,
+        "tokens": null,
+        "token_accounting": "not_reported_by_interface"
+      },
+      "tool_route": [
+        "get_session_scores",
+        "verify_citation",
+        "complete_audit"
+      ],
+      "invalid_calls": 0,
+      "pass_blocked_observations": 0,
+      "comparison_calls": 0,
+      "comparison_case_expected": false,
+      "comparison_support_requires_professor_check": false,
+      "useful_comparisons_fixture_proxy": 0,
+      "unnecessary_comparisons_fixture_proxy": 0,
+      "issues": []
+    },
+    {
+      "variant": "description_only",
+      "case": "overstated_score",
+      "expected_verdict": "rejudge_requested",
+      "verdict": "rejudge_requested",
+      "matches_authored_expectation": true,
+      "stop_reason": "targeted_rejudge",
+      "usage": {
+        "model_calls": 4,
+        "tool_steps": 3,
+        "elapsed_ms": 0.64,
+        "tokens": null,
+        "token_accounting": "not_reported_by_interface"
+      },
+      "tool_route": [
+        "get_session_scores",
+        "verify_citation",
+        "request_rejudge"
+      ],
+      "invalid_calls": 0,
+      "pass_blocked_observations": 0,
+      "comparison_calls": 0,
+      "comparison_case_expected": false,
+      "comparison_support_requires_professor_check": false,
+      "useful_comparisons_fixture_proxy": 0,
+      "unnecessary_comparisons_fixture_proxy": 0,
+      "issues": [
+        {
+          "issue_id": "evaluation-objection",
+          "kind": "rationale",
+          "severity": "material",
+          "finding_ids": [
+            "finding-a"
+          ],
+          "evidence_ids": [
+            "evidence-a"
+          ],
+          "objection": "Level 3 requires application to a concrete example; the reviewed turn only names concepts. A supporting definition does not demonstrate application."
+        }
+      ]
+    },
+    {
+      "variant": "description_only",
+      "case": "inconsistent_scores",
+      "expected_verdict": "rejudge_requested",
+      "verdict": "rejudge_requested",
+      "matches_authored_expectation": true,
+      "stop_reason": "targeted_rejudge",
+      "usage": {
+        "model_calls": 7,
+        "tool_steps": 5,
+        "elapsed_ms": 1.079,
+        "tokens": null,
+        "token_accounting": "not_reported_by_interface"
+      },
+      "tool_route": [
+        "get_session_scores",
+        "compare_similar",
+        "verify_citation",
+        "verify_citation",
+        "request_rejudge"
+      ],
+      "invalid_calls": 0,
+      "pass_blocked_observations": 0,
+      "comparison_calls": 1,
+      "comparison_case_expected": true,
+      "comparison_support_requires_professor_check": false,
+      "useful_comparisons_fixture_proxy": 1,
+      "unnecessary_comparisons_fixture_proxy": 0,
+      "issues": [
+        {
+          "issue_id": "evaluation-objection",
+          "kind": "consistency",
+          "severity": "material",
+          "finding_ids": [
+            "finding-a",
+            "finding-b"
+          ],
+          "evidence_ids": [
+            "evidence-a"
+          ],
+          "objection": "Comparable reviewed contributions have different levels with no contextual justification; investigate the discrepancy against the exact descriptors, not wording alone."
+        }
+      ]
+    },
+    {
+      "variant": "description_only",
+      "case": "unresolved_revision",
+      "expected_verdict": "professor_review_required",
+      "verdict": "professor_review_required",
+      "matches_authored_expectation": true,
+      "stop_reason": "one_rejudge_limit",
+      "usage": {
+        "model_calls": 4,
+        "tool_steps": 3,
+        "elapsed_ms": 0.569,
+        "tokens": null,
+        "token_accounting": "not_reported_by_interface"
+      },
+      "tool_route": [
+        "get_session_scores",
+        "verify_citation",
+        "request_rejudge"
+      ],
+      "invalid_calls": 0,
+      "pass_blocked_observations": 0,
+      "comparison_calls": 0,
+      "comparison_case_expected": false,
+      "comparison_support_requires_professor_check": false,
+      "useful_comparisons_fixture_proxy": 0,
+      "unnecessary_comparisons_fixture_proxy": 0,
+      "issues": [
+        {
+          "issue_id": "evaluation-objection",
+          "kind": "citation",
+          "severity": "material",
+          "finding_ids": [
+            "finding-a"
+          ],
+          "evidence_ids": [
+            "evidence-a"
+          ],
+          "objection": "The cited passage contradicts the rationale; revise that evidential claim."
+        },
+        {
+          "issue_id": "guard-a99b50186fe63116",
+          "kind": "citation",
+          "severity": "material",
+          "finding_ids": [
+            "finding-a"
+          ],
+          "evidence_ids": [
+            "evidence-a"
+          ],
+          "objection": "Citation does not fully support the rationale: Fictional support-review double; does not decide whether the score matches rubric level"
+        },
+        {
+          "issue_id": "unsupported-rationale",
+          "kind": "citation",
+          "severity": "material",
+          "finding_ids": [
+            "finding-a"
+          ],
+          "evidence_ids": [
+            "evidence-a"
+          ],
+          "objection": "The exact source quotation does not support the rationale; revise the rationale against the cited passage, retaining uncertainty."
+        },
+        {
+          "issue_id": "guard-5a8fced12ea2ac58",
+          "kind": "citation",
+          "severity": "material",
+          "finding_ids": [
+            "finding-a"
+          ],
+          "evidence_ids": [
+            "evidence-a"
+          ],
+          "objection": "Citation does not fully support the rationale: Fictional semantic-review double: rationale contradicts the passage"
+        }
+      ]
+    },
+    {
+      "variant": "description_only",
+      "case": "early_finish",
+      "expected_verdict": "audit_passed",
+      "verdict": "professor_review_required",
+      "matches_authored_expectation": false,
+      "stop_reason": "unresolved_audit_issues",
+      "usage": {
+        "model_calls": 1,
+        "tool_steps": 1,
+        "elapsed_ms": 0.259,
+        "tokens": null,
+        "token_accounting": "not_reported_by_interface"
+      },
+      "tool_route": [
+        "complete_audit"
+      ],
+      "invalid_calls": 0,
+      "pass_blocked_observations": 0,
+      "comparison_calls": 0,
+      "comparison_case_expected": false,
+      "comparison_support_requires_professor_check": false,
+      "useful_comparisons_fixture_proxy": 0,
+      "unnecessary_comparisons_fixture_proxy": 0,
+      "issues": [
+        {
+          "issue_id": "execution-6e0cd99079bfe3fe",
+          "kind": "execution",
+          "severity": "review",
+          "finding_ids": [],
+          "evidence_ids": [],
+          "objection": "A citation remains invalid, unverified or unsupported"
+        },
+        {
+          "issue_id": "execution-d6841944efcc64bb",
+          "kind": "execution",
+          "severity": "review",
+          "finding_ids": [],
+          "evidence_ids": [],
+          "objection": "Not all findings were inspected"
+        }
+      ]
+    },
+    {
+      "variant": "description_and_recovery",
+      "case": "defensible",
+      "expected_verdict": "audit_passed",
+      "verdict": "audit_passed",
+      "matches_authored_expectation": true,
+      "stop_reason": "model_completed_validated",
+      "usage": {
+        "model_calls": 4,
+        "tool_steps": 3,
+        "elapsed_ms": 0.509,
+        "tokens": null,
+        "token_accounting": "not_reported_by_interface"
+      },
+      "tool_route": [
+        "get_session_scores",
+        "verify_citation",
+        "complete_audit"
+      ],
+      "invalid_calls": 0,
+      "pass_blocked_observations": 0,
+      "comparison_calls": 0,
+      "comparison_case_expected": false,
+      "comparison_support_requires_professor_check": false,
+      "useful_comparisons_fixture_proxy": 0,
+      "unnecessary_comparisons_fixture_proxy": 0,
+      "issues": []
+    },
+    {
+      "variant": "description_and_recovery",
+      "case": "overstated_score",
+      "expected_verdict": "rejudge_requested",
+      "verdict": "rejudge_requested",
+      "matches_authored_expectation": true,
+      "stop_reason": "targeted_rejudge",
+      "usage": {
+        "model_calls": 4,
+        "tool_steps": 3,
+        "elapsed_ms": 0.554,
+        "tokens": null,
+        "token_accounting": "not_reported_by_interface"
+      },
+      "tool_route": [
+        "get_session_scores",
+        "verify_citation",
+        "request_rejudge"
+      ],
+      "invalid_calls": 0,
+      "pass_blocked_observations": 0,
+      "comparison_calls": 0,
+      "comparison_case_expected": false,
+      "comparison_support_requires_professor_check": false,
+      "useful_comparisons_fixture_proxy": 0,
+      "unnecessary_comparisons_fixture_proxy": 0,
+      "issues": [
+        {
+          "issue_id": "evaluation-objection",
+          "kind": "rationale",
+          "severity": "material",
+          "finding_ids": [
+            "finding-a"
+          ],
+          "evidence_ids": [
+            "evidence-a"
+          ],
+          "objection": "Level 3 requires application to a concrete example; the reviewed turn only names concepts. A supporting definition does not demonstrate application."
+        }
+      ]
+    },
+    {
+      "variant": "description_and_recovery",
+      "case": "inconsistent_scores",
+      "expected_verdict": "rejudge_requested",
+      "verdict": "rejudge_requested",
+      "matches_authored_expectation": true,
+      "stop_reason": "targeted_rejudge",
+      "usage": {
+        "model_calls": 7,
+        "tool_steps": 5,
+        "elapsed_ms": 0.948,
+        "tokens": null,
+        "token_accounting": "not_reported_by_interface"
+      },
+      "tool_route": [
+        "get_session_scores",
+        "compare_similar",
+        "verify_citation",
+        "verify_citation",
+        "request_rejudge"
+      ],
+      "invalid_calls": 0,
+      "pass_blocked_observations": 0,
+      "comparison_calls": 1,
+      "comparison_case_expected": true,
+      "comparison_support_requires_professor_check": false,
+      "useful_comparisons_fixture_proxy": 1,
+      "unnecessary_comparisons_fixture_proxy": 0,
+      "issues": [
+        {
+          "issue_id": "evaluation-objection",
+          "kind": "consistency",
+          "severity": "material",
+          "finding_ids": [
+            "finding-a",
+            "finding-b"
+          ],
+          "evidence_ids": [
+            "evidence-a"
+          ],
+          "objection": "Comparable reviewed contributions have different levels with no contextual justification; investigate the discrepancy against the exact descriptors, not wording alone."
+        }
+      ]
+    },
+    {
+      "variant": "description_and_recovery",
+      "case": "unresolved_revision",
+      "expected_verdict": "professor_review_required",
+      "verdict": "professor_review_required",
+      "matches_authored_expectation": true,
+      "stop_reason": "one_rejudge_limit",
+      "usage": {
+        "model_calls": 4,
+        "tool_steps": 3,
+        "elapsed_ms": 0.582,
+        "tokens": null,
+        "token_accounting": "not_reported_by_interface"
+      },
+      "tool_route": [
+        "get_session_scores",
+        "verify_citation",
+        "request_rejudge"
+      ],
+      "invalid_calls": 0,
+      "pass_blocked_observations": 0,
+      "comparison_calls": 0,
+      "comparison_case_expected": false,
+      "comparison_support_requires_professor_check": false,
+      "useful_comparisons_fixture_proxy": 0,
+      "unnecessary_comparisons_fixture_proxy": 0,
+      "issues": [
+        {
+          "issue_id": "evaluation-objection",
+          "kind": "citation",
+          "severity": "material",
+          "finding_ids": [
+            "finding-a"
+          ],
+          "evidence_ids": [
+            "evidence-a"
+          ],
+          "objection": "The cited passage contradicts the rationale; revise that evidential claim."
+        },
+        {
+          "issue_id": "guard-a99b50186fe63116",
+          "kind": "citation",
+          "severity": "material",
+          "finding_ids": [
+            "finding-a"
+          ],
+          "evidence_ids": [
+            "evidence-a"
+          ],
+          "objection": "Citation does not fully support the rationale: Fictional support-review double; does not decide whether the score matches rubric level"
+        },
+        {
+          "issue_id": "unsupported-rationale",
+          "kind": "citation",
+          "severity": "material",
+          "finding_ids": [
+            "finding-a"
+          ],
+          "evidence_ids": [
+            "evidence-a"
+          ],
+          "objection": "The exact source quotation does not support the rationale; revise the rationale against the cited passage, retaining uncertainty."
+        },
+        {
+          "issue_id": "guard-5a8fced12ea2ac58",
+          "kind": "citation",
+          "severity": "material",
+          "finding_ids": [
+            "finding-a"
+          ],
+          "evidence_ids": [
+            "evidence-a"
+          ],
+          "objection": "Citation does not fully support the rationale: Fictional semantic-review double: rationale contradicts the passage"
+        }
+      ]
+    },
+    {
+      "variant": "description_and_recovery",
+      "case": "early_finish",
+      "expected_verdict": "audit_passed",
+      "verdict": "audit_passed",
+      "matches_authored_expectation": true,
+      "stop_reason": "model_completed_validated",
+      "usage": {
+        "model_calls": 5,
+        "tool_steps": 4,
+        "elapsed_ms": 0.583,
+        "tokens": null,
+        "token_accounting": "not_reported_by_interface"
+      },
+      "tool_route": [
+        "complete_audit",
+        "get_session_scores",
+        "verify_citation",
+        "complete_audit"
+      ],
+      "invalid_calls": 0,
+      "pass_blocked_observations": 1,
+      "comparison_calls": 0,
+      "comparison_case_expected": false,
+      "comparison_support_requires_professor_check": false,
+      "useful_comparisons_fixture_proxy": 0,
+      "unnecessary_comparisons_fixture_proxy": 0,
+      "issues": []
+    },
+    {
+      "variant": "all_three",
+      "case": "defensible",
+      "expected_verdict": "audit_passed",
+      "verdict": "audit_passed",
+      "matches_authored_expectation": true,
+      "stop_reason": "model_completed_validated",
+      "usage": {
+        "model_calls": 4,
+        "tool_steps": 3,
+        "elapsed_ms": 0.516,
+        "tokens": null,
+        "token_accounting": "not_reported_by_interface"
+      },
+      "tool_route": [
+        "get_session_scores",
+        "verify_citation",
+        "complete_audit"
+      ],
+      "invalid_calls": 0,
+      "pass_blocked_observations": 0,
+      "comparison_calls": 0,
+      "comparison_case_expected": false,
+      "comparison_support_requires_professor_check": false,
+      "useful_comparisons_fixture_proxy": 0,
+      "unnecessary_comparisons_fixture_proxy": 0,
+      "issues": []
+    },
+    {
+      "variant": "all_three",
+      "case": "overstated_score",
+      "expected_verdict": "rejudge_requested",
+      "verdict": "rejudge_requested",
+      "matches_authored_expectation": true,
+      "stop_reason": "targeted_rejudge",
+      "usage": {
+        "model_calls": 4,
+        "tool_steps": 3,
+        "elapsed_ms": 0.544,
+        "tokens": null,
+        "token_accounting": "not_reported_by_interface"
+      },
+      "tool_route": [
+        "get_session_scores",
+        "verify_citation",
+        "request_rejudge"
+      ],
+      "invalid_calls": 0,
+      "pass_blocked_observations": 0,
+      "comparison_calls": 0,
+      "comparison_case_expected": false,
+      "comparison_support_requires_professor_check": false,
+      "useful_comparisons_fixture_proxy": 0,
+      "unnecessary_comparisons_fixture_proxy": 0,
+      "issues": [
+        {
+          "issue_id": "evaluation-objection",
+          "kind": "rationale",
+          "severity": "material",
+          "finding_ids": [
+            "finding-a"
+          ],
+          "evidence_ids": [
+            "evidence-a"
+          ],
+          "objection": "Level 3 requires application to a concrete example; the reviewed turn only names concepts. A supporting definition does not demonstrate application."
+        }
+      ]
+    },
+    {
+      "variant": "all_three",
+      "case": "inconsistent_scores",
+      "expected_verdict": "rejudge_requested",
+      "verdict": "rejudge_requested",
+      "matches_authored_expectation": true,
+      "stop_reason": "targeted_rejudge",
+      "usage": {
+        "model_calls": 7,
+        "tool_steps": 5,
+        "elapsed_ms": 1.109,
+        "tokens": null,
+        "token_accounting": "not_reported_by_interface"
+      },
+      "tool_route": [
+        "get_session_scores",
+        "compare_similar",
+        "verify_citation",
+        "verify_citation",
+        "request_rejudge"
+      ],
+      "invalid_calls": 0,
+      "pass_blocked_observations": 0,
+      "comparison_calls": 1,
+      "comparison_case_expected": true,
+      "comparison_support_requires_professor_check": false,
+      "useful_comparisons_fixture_proxy": 1,
+      "unnecessary_comparisons_fixture_proxy": 0,
+      "issues": [
+        {
+          "issue_id": "evaluation-objection",
+          "kind": "consistency",
+          "severity": "material",
+          "finding_ids": [
+            "finding-a",
+            "finding-b"
+          ],
+          "evidence_ids": [
+            "evidence-a"
+          ],
+          "objection": "Comparable reviewed contributions have different levels with no contextual justification; investigate the discrepancy against the exact descriptors, not wording alone."
+        }
+      ]
+    },
+    {
+      "variant": "all_three",
+      "case": "unresolved_revision",
+      "expected_verdict": "professor_review_required",
+      "verdict": "professor_review_required",
+      "matches_authored_expectation": true,
+      "stop_reason": "one_rejudge_limit",
+      "usage": {
+        "model_calls": 4,
+        "tool_steps": 3,
+        "elapsed_ms": 0.734,
+        "tokens": null,
+        "token_accounting": "not_reported_by_interface"
+      },
+      "tool_route": [
+        "get_session_scores",
+        "verify_citation",
+        "request_rejudge"
+      ],
+      "invalid_calls": 0,
+      "pass_blocked_observations": 0,
+      "comparison_calls": 0,
+      "comparison_case_expected": false,
+      "comparison_support_requires_professor_check": false,
+      "useful_comparisons_fixture_proxy": 0,
+      "unnecessary_comparisons_fixture_proxy": 0,
+      "issues": [
+        {
+          "issue_id": "evaluation-objection",
+          "kind": "citation",
+          "severity": "material",
+          "finding_ids": [
+            "finding-a"
+          ],
+          "evidence_ids": [
+            "evidence-a"
+          ],
+          "objection": "The cited passage contradicts the rationale; revise that evidential claim."
+        },
+        {
+          "issue_id": "guard-a99b50186fe63116",
+          "kind": "citation",
+          "severity": "material",
+          "finding_ids": [
+            "finding-a"
+          ],
+          "evidence_ids": [
+            "evidence-a"
+          ],
+          "objection": "Citation does not fully support the rationale: Fictional support-review double; does not decide whether the score matches rubric level"
+        },
+        {
+          "issue_id": "unsupported-rationale",
+          "kind": "citation",
+          "severity": "material",
+          "finding_ids": [
+            "finding-a"
+          ],
+          "evidence_ids": [
+            "evidence-a"
+          ],
+          "objection": "The exact source quotation does not support the rationale; revise the rationale against the cited passage, retaining uncertainty."
+        },
+        {
+          "issue_id": "guard-5a8fced12ea2ac58",
+          "kind": "citation",
+          "severity": "material",
+          "finding_ids": [
+            "finding-a"
+          ],
+          "evidence_ids": [
+            "evidence-a"
+          ],
+          "objection": "Citation does not fully support the rationale: Fictional semantic-review double: rationale contradicts the passage"
+        }
+      ]
+    },
+    {
+      "variant": "all_three",
+      "case": "early_finish",
+      "expected_verdict": "audit_passed",
+      "verdict": "audit_passed",
+      "matches_authored_expectation": true,
+      "stop_reason": "model_completed_validated",
+      "usage": {
+        "model_calls": 5,
+        "tool_steps": 4,
+        "elapsed_ms": 0.78,
+        "tokens": null,
+        "token_accounting": "not_reported_by_interface"
+      },
+      "tool_route": [
+        "complete_audit",
+        "get_session_scores",
+        "verify_citation",
+        "complete_audit"
+      ],
+      "invalid_calls": 0,
+      "pass_blocked_observations": 1,
+      "comparison_calls": 0,
+      "comparison_case_expected": false,
+      "comparison_support_requires_professor_check": false,
+      "useful_comparisons_fixture_proxy": 0,
+      "unnecessary_comparisons_fixture_proxy": 0,
+      "issues": []
+    }
+  ]
+}

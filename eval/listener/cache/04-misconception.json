@@ -1,0 +1,4787 @@
+{
+ "id": "04-misconception",
+ "audio_seconds": 77.921,
+ "script": {
+  "id": "04-misconception",
+  "title": "Demo 4 \u00b7 Training: a wrong claim, then a correction",
+  "case": "Tina states a misconception that contradicts the slides and later corrects it; Le Yong makes a confident claim the slides contradict.",
+  "lines": [
+   {
+    "speaker": "Prof Wynter",
+    "text": "Today, how large language models are trained. There are three stages: pre training, supervised fine tuning, and reinforcement learning from feedback. What is the objective during pre training?",
+    "start": 0.8,
+    "end": 9.96
+   },
+   {
+    "speaker": "Tina",
+    "text": "I think in pre training the model already learns to follow instructions, because it reads so many question and answer pages.",
+    "start": 11.14,
+    "end": 17.66
+   },
+   {
+    "speaker": "Prof Wynter",
+    "text": "Hmm, let's be careful. What is the actual loss function in that stage?",
+    "start": 18.76,
+    "end": 22.09
+   },
+   {
+    "speaker": "Koh Qing Jia",
+    "text": "It's next token prediction. The model just learns to predict the next token over a huge amount of text.",
+    "start": 22.79,
+    "end": 30.69
+   },
+   {
+    "speaker": "Prof Wynter",
+    "text": "Right. So does a pre trained model naturally follow instructions?",
+    "start": 31.73,
+    "end": 34.82
+   },
+   {
+    "speaker": "Tina",
+    "text": "Oh, then no. It only continues text, so following instructions comes later from supervised fine tuning on instruction and response pairs.",
+    "start": 35.52,
+    "end": 42.73
+   },
+   {
+    "speaker": "Prof Wynter",
+    "text": "Exactly, good correction. And what does the reinforcement learning stage add?",
+    "start": 43.7,
+    "end": 47.36
+   },
+   {
+    "speaker": "Le Yong",
+    "text": "Reinforcement learning makes the model memorise the correct answers, so after that stage it can't hallucinate anymore.",
+    "start": 48.37,
+    "end": 56.55
+   },
+   {
+    "speaker": "Prof Wynter",
+    "text": "I would push back on that. It optimises a reward, for example human preferences, and hallucination is reduced but certainly not eliminated.",
+    "start": 57.75,
+    "end": 64.37
+   },
+   {
+    "speaker": "Tasmin",
+    "text": "So the reward model learns what people prefer, and the policy is updated to score higher on it, with a penalty so it doesn't drift too far from the original model.",
+    "start": 65.08,
+    "end": 73.78
+   },
+   {
+    "speaker": "Prof Wynter",
+    "text": "Yes, the KL penalty. Good. That's all for today.",
+    "start": 74.93,
+    "end": 77.21
+   }
+  ]
+ },
+ "registry": {
+  "koh-qing-jia": "Koh Qing Jia",
+  "tasmin": "tasmin",
+  "tina": "tina",
+  "le-yong": "le yong",
+  "prof": "prof"
+ },
+ "pipeline": {
+  "language": "en",
+  "whisper_segments": [
+   {
+    "start": 0.7800000000000056,
+    "end": 6.1,
+    "text": "Today, how large language models are trained, there are three stages pertaining supervised fine-tuning",
+    "words": [
+     {
+      "start": 0.7800000000000056,
+      "end": 1.38,
+      "word": " Today,"
+     },
+     {
+      "start": 1.58,
+      "end": 1.7,
+      "word": " how"
+     },
+     {
+      "start": 1.7,
+      "end": 1.98,
+      "word": " large"
+     },
+     {
+      "start": 1.98,
+      "end": 2.2,
+      "word": " language"
+     },
+     {
+      "start": 2.2,
+      "end": 2.52,
+      "word": " models"
+     },
+     {
+      "start": 2.52,
+      "end": 2.68,
+      "word": " are"
+     },
+     {
+      "start": 2.68,
+      "end": 3.0,
+      "word": " trained,"
+     },
+     {
+      "start": 3.14,
+      "end": 3.2,
+      "word": " there"
+     },
+     {
+      "start": 3.2,
+      "end": 3.32,
+      "word": " are"
+     },
+     {
+      "start": 3.32,
+      "end": 3.64,
+      "word": " three"
+     },
+     {
+      "start": 3.64,
+      "end": 4.1,
+      "word": " stages"
+     },
+     {
+      "start": 4.1,
+      "end": 4.62,
+      "word": " pertaining"
+     },
+     {
+      "start": 4.62,
+      "end": 5.32,
+      "word": " supervised"
+     },
+     {
+      "start": 5.32,
+      "end": 5.78,
+      "word": " fine"
+     },
+     {
+      "start": 5.78,
+      "end": 6.1,
+      "word": "-tuning"
+     }
+    ]
+   },
+   {
+    "start": 6.1,
+    "end": 7.94,
+    "text": "and reinforcement learning from feedback.",
+    "words": [
+     {
+      "start": 6.1,
+      "end": 6.32,
+      "word": " and"
+     },
+     {
+      "start": 6.32,
+      "end": 6.84,
+      "word": " reinforcement"
+     },
+     {
+      "start": 6.84,
+      "end": 7.36,
+      "word": " learning"
+     },
+     {
+      "start": 7.36,
+      "end": 7.6,
+      "word": " from"
+     },
+     {
+      "start": 7.6,
+      "end": 7.94,
+      "word": " feedback."
+     }
+    ]
+   },
+   {
+    "start": 8.24,
+    "end": 9.84,
+    "text": "What is the objective during pre-training?",
+    "words": [
+     {
+      "start": 8.24,
+      "end": 8.36,
+      "word": " What"
+     },
+     {
+      "start": 8.36,
+      "end": 8.52,
+      "word": " is"
+     },
+     {
+      "start": 8.52,
+      "end": 8.64,
+      "word": " the"
+     },
+     {
+      "start": 8.64,
+      "end": 9.0,
+      "word": " objective"
+     },
+     {
+      "start": 9.0,
+      "end": 9.3,
+      "word": " during"
+     },
+     {
+      "start": 9.3,
+      "end": 9.5,
+      "word": " pre"
+     },
+     {
+      "start": 9.5,
+      "end": 9.84,
+      "word": "-training?"
+     }
+    ]
+   },
+   {
+    "start": 10.940000000000005,
+    "end": 15.54,
+    "text": "I think in pre-training, the model already learns to follow instructions because it reads",
+    "words": [
+     {
+      "start": 10.940000000000005,
+      "end": 11.54,
+      "word": " I"
+     },
+     {
+      "start": 11.54,
+      "end": 11.74,
+      "word": " think"
+     },
+     {
+      "start": 11.74,
+      "end": 11.88,
+      "word": " in"
+     },
+     {
+      "start": 11.88,
+      "end": 12.06,
+      "word": " pre"
+     },
+     {
+      "start": 12.06,
+      "end": 12.46,
+      "word": "-training,"
+     },
+     {
+      "start": 12.62,
+      "end": 12.68,
+      "word": " the"
+     },
+     {
+      "start": 12.68,
+      "end": 12.92,
+      "word": " model"
+     },
+     {
+      "start": 12.92,
+      "end": 13.3,
+      "word": " already"
+     },
+     {
+      "start": 13.3,
+      "end": 13.58,
+      "word": " learns"
+     },
+     {
+      "start": 13.58,
+      "end": 13.8,
+      "word": " to"
+     },
+     {
+      "start": 13.8,
+      "end": 14.02,
+      "word": " follow"
+     },
+     {
+      "start": 14.02,
+      "end": 14.54,
+      "word": " instructions"
+     },
+     {
+      "start": 14.54,
+      "end": 14.94,
+      "word": " because"
+     },
+     {
+      "start": 14.94,
+      "end": 15.28,
+      "word": " it"
+     },
+     {
+      "start": 15.28,
+      "end": 15.54,
+      "word": " reads"
+     }
+    ]
+   },
+   {
+    "start": 15.54,
+    "end": 17.42,
+    "text": "so many questions and answer pages.",
+    "words": [
+     {
+      "start": 15.54,
+      "end": 15.84,
+      "word": " so"
+     },
+     {
+      "start": 15.84,
+      "end": 16.04,
+      "word": " many"
+     },
+     {
+      "start": 16.04,
+      "end": 16.5,
+      "word": " questions"
+     },
+     {
+      "start": 16.5,
+      "end": 16.76,
+      "word": " and"
+     },
+     {
+      "start": 16.76,
+      "end": 17.06,
+      "word": " answer"
+     },
+     {
+      "start": 17.06,
+      "end": 17.42,
+      "word": " pages."
+     }
+    ]
+   },
+   {
+    "start": 19.120000000000005,
+    "end": 22.04,
+    "text": "Let's be careful what is the actual loss function in that stage.",
+    "words": [
+     {
+      "start": 19.120000000000005,
+      "end": 19.72,
+      "word": " Let's"
+     },
+     {
+      "start": 19.72,
+      "end": 19.82,
+      "word": " be"
+     },
+     {
+      "start": 19.82,
+      "end": 20.12,
+      "word": " careful"
+     },
+     {
+      "start": 20.12,
+      "end": 20.3,
+      "word": " what"
+     },
+     {
+      "start": 20.3,
+      "end": 20.44,
+      "word": " is"
+     },
+     {
+      "start": 20.44,
+      "end": 20.54,
+      "word": " the"
+     },
+     {
+      "start": 20.54,
+      "end": 20.8,
+      "word": " actual"
+     },
+     {
+      "start": 20.8,
+      "end": 20.96,
+      "word": " loss"
+     },
+     {
+      "start": 20.96,
+      "end": 21.3,
+      "word": " function"
+     },
+     {
+      "start": 21.3,
+      "end": 21.44,
+      "word": " in"
+     },
+     {
+      "start": 21.44,
+      "end": 21.6,
+      "word": " that"
+     },
+     {
+      "start": 21.6,
+      "end": 22.04,
+      "word": " stage."
+     }
+    ]
+   },
+   {
+    "start": 22.98,
+    "end": 24.18,
+    "text": "Next token prediction.",
+    "words": [
+     {
+      "start": 22.98,
+      "end": 23.26,
+      "word": " Next"
+     },
+     {
+      "start": 23.26,
+      "end": 23.66,
+      "word": " token"
+     },
+     {
+      "start": 23.66,
+      "end": 24.18,
+      "word": " prediction."
+     }
+    ]
+   },
+   {
+    "start": 24.18,
+    "end": 30.64,
+    "text": "The model just learns to predict the next token over a huge amount of text.",
+    "words": [
+     {
+      "start": 24.18,
+      "end": 24.88,
+      "word": " The"
+     },
+     {
+      "start": 24.88,
+      "end": 25.18,
+      "word": " model"
+     },
+     {
+      "start": 25.18,
+      "end": 25.56,
+      "word": " just"
+     },
+     {
+      "start": 25.56,
+      "end": 25.96,
+      "word": " learns"
+     },
+     {
+      "start": 25.96,
+      "end": 26.3,
+      "word": " to"
+     },
+     {
+      "start": 26.3,
+      "end": 26.62,
+      "word": " predict"
+     },
+     {
+      "start": 26.62,
+      "end": 27.06,
+      "word": " the"
+     },
+     {
+      "start": 27.06,
+      "end": 27.42,
+      "word": " next"
+     },
+     {
+      "start": 27.42,
+      "end": 27.9,
+      "word": " token"
+     },
+     {
+      "start": 27.9,
+      "end": 28.72,
+      "word": " over"
+     },
+     {
+      "start": 28.72,
+      "end": 29.0,
+      "word": " a"
+     },
+     {
+      "start": 29.0,
+      "end": 29.38,
+      "word": " huge"
+     },
+     {
+      "start": 29.38,
+      "end": 29.64,
+      "word": " amount"
+     },
+     {
+      "start": 29.64,
+      "end": 30.18,
+      "word": " of"
+     },
+     {
+      "start": 30.18,
+      "end": 30.64,
+      "word": " text."
+     }
+    ]
+   },
+   {
+    "start": 31.52,
+    "end": 34.58,
+    "text": "Right, so does a pre-trained model naturally follow instructions?",
+    "words": [
+     {
+      "start": 31.52,
+      "end": 32.22,
+      "word": " Right,"
+     },
+     {
+      "start": 32.4,
+      "end": 32.46,
+      "word": " so"
+     },
+     {
+      "start": 32.46,
+      "end": 32.58,
+      "word": " does"
+     },
+     {
+      "start": 32.58,
+      "end": 32.7,
+      "word": " a"
+     },
+     {
+      "start": 32.7,
+      "end": 32.86,
+      "word": " pre"
+     },
+     {
+      "start": 32.86,
+      "end": 33.14,
+      "word": "-trained"
+     },
+     {
+      "start": 33.14,
+      "end": 33.36,
+      "word": " model"
+     },
+     {
+      "start": 33.36,
+      "end": 33.78,
+      "word": " naturally"
+     },
+     {
+      "start": 33.78,
+      "end": 34.0,
+      "word": " follow"
+     },
+     {
+      "start": 34.0,
+      "end": 34.58,
+      "word": " instructions?"
+     }
+    ]
+   },
+   {
+    "start": 35.9,
+    "end": 40.72,
+    "text": "Oh, then no, it only continues text, so following instructions comes later from supervised fine-tuning",
+    "words": [
+     {
+      "start": 35.9,
+      "end": 36.04,
+      "word": " Oh,"
+     },
+     {
+      "start": 36.12,
+      "end": 36.22,
+      "word": " then"
+     },
+     {
+      "start": 36.22,
+      "end": 36.42,
+      "word": " no,"
+     },
+     {
+      "start": 36.52,
+      "end": 36.58,
+      "word": " it"
+     },
+     {
+      "start": 36.58,
+      "end": 36.76,
+      "word": " only"
+     },
+     {
+      "start": 36.76,
+      "end": 37.22,
+      "word": " continues"
+     },
+     {
+      "start": 37.22,
+      "end": 37.48,
+      "word": " text,"
+     },
+     {
+      "start": 37.68,
+      "end": 37.72,
+      "word": " so"
+     },
+     {
+      "start": 37.72,
+      "end": 38.12,
+      "word": " following"
+     },
+     {
+      "start": 38.12,
+      "end": 38.72,
+      "word": " instructions"
+     },
+     {
+      "start": 38.72,
+      "end": 38.98,
+      "word": " comes"
+     },
+     {
+      "start": 38.98,
+      "end": 39.26,
+      "word": " later"
+     },
+     {
+      "start": 39.26,
+      "end": 39.48,
+      "word": " from"
+     },
+     {
+      "start": 39.48,
+      "end": 40.0,
+      "word": " supervised"
+     },
+     {
+      "start": 40.0,
+      "end": 40.4,
+      "word": " fine"
+     },
+     {
+      "start": 40.4,
+      "end": 40.72,
+      "word": "-tuning"
+     }
+    ]
+   },
+   {
+    "start": 40.72,
+    "end": 42.52,
+    "text": "on instruction and response pairs.",
+    "words": [
+     {
+      "start": 40.72,
+      "end": 40.9,
+      "word": " on"
+     },
+     {
+      "start": 40.9,
+      "end": 41.3,
+      "word": " instruction"
+     },
+     {
+      "start": 41.3,
+      "end": 41.72,
+      "word": " and"
+     },
+     {
+      "start": 41.72,
+      "end": 42.1,
+      "word": " response"
+     },
+     {
+      "start": 42.1,
+      "end": 42.52,
+      "word": " pairs."
+     }
+    ]
+   },
+   {
+    "start": 43.92,
+    "end": 47.2,
+    "text": "Exactly, good correction and what is the reinforcement learning stage add?",
+    "words": [
+     {
+      "start": 43.92,
+      "end": 44.34,
+      "word": " Exactly,"
+     },
+     {
+      "start": 44.6,
+      "end": 44.68,
+      "word": " good"
+     },
+     {
+      "start": 44.68,
+      "end": 45.14,
+      "word": " correction"
+     },
+     {
+      "start": 45.14,
+      "end": 45.34,
+      "word": " and"
+     },
+     {
+      "start": 45.34,
+      "end": 45.46,
+      "word": " what"
+     },
+     {
+      "start": 45.46,
+      "end": 45.58,
+      "word": " is"
+     },
+     {
+      "start": 45.58,
+      "end": 45.7,
+      "word": " the"
+     },
+     {
+      "start": 45.7,
+      "end": 46.06,
+      "word": " reinforcement"
+     },
+     {
+      "start": 46.06,
+      "end": 46.54,
+      "word": " learning"
+     },
+     {
+      "start": 46.54,
+      "end": 46.86,
+      "word": " stage"
+     },
+     {
+      "start": 46.86,
+      "end": 47.2,
+      "word": " add?"
+     }
+    ]
+   },
+   {
+    "start": 48.96,
+    "end": 52.84,
+    "text": "Reinforcement learning makes the model memorize the correct answers.",
+    "words": [
+     {
+      "start": 48.96,
+      "end": 49.66,
+      "word": " Reinforcement"
+     },
+     {
+      "start": 49.66,
+      "end": 50.18,
+      "word": " learning"
+     },
+     {
+      "start": 50.18,
+      "end": 50.6,
+      "word": " makes"
+     },
+     {
+      "start": 50.6,
+      "end": 50.96,
+      "word": " the"
+     },
+     {
+      "start": 50.96,
+      "end": 51.24,
+      "word": " model"
+     },
+     {
+      "start": 51.24,
+      "end": 51.72,
+      "word": " memorize"
+     },
+     {
+      "start": 51.72,
+      "end": 52.12,
+      "word": " the"
+     },
+     {
+      "start": 52.12,
+      "end": 52.38,
+      "word": " correct"
+     },
+     {
+      "start": 52.38,
+      "end": 52.84,
+      "word": " answers."
+     }
+    ]
+   },
+   {
+    "start": 53.480000000000004,
+    "end": 56.42,
+    "text": "So after that stage, it can't hallucinate anymore.",
+    "words": [
+     {
+      "start": 53.480000000000004,
+      "end": 53.74,
+      "word": " So"
+     },
+     {
+      "start": 53.74,
+      "end": 54.12,
+      "word": " after"
+     },
+     {
+      "start": 54.12,
+      "end": 54.34,
+      "word": " that"
+     },
+     {
+      "start": 54.34,
+      "end": 54.7,
+      "word": " stage,"
+     },
+     {
+      "start": 54.7,
+      "end": 54.94,
+      "word": " it"
+     },
+     {
+      "start": 54.94,
+      "end": 55.34,
+      "word": " can't"
+     },
+     {
+      "start": 55.34,
+      "end": 55.9,
+      "word": " hallucinate"
+     },
+     {
+      "start": 55.9,
+      "end": 56.42,
+      "word": " anymore."
+     }
+    ]
+   },
+   {
+    "start": 57.7,
+    "end": 61.4,
+    "text": "I would push back on that, it optimizes a reward for example, human preferences",
+    "words": [
+     {
+      "start": 57.7,
+      "end": 58.22,
+      "word": " I"
+     },
+     {
+      "start": 58.22,
+      "end": 58.34,
+      "word": " would"
+     },
+     {
+      "start": 58.34,
+      "end": 58.54,
+      "word": " push"
+     },
+     {
+      "start": 58.54,
+      "end": 58.74,
+      "word": " back"
+     },
+     {
+      "start": 58.74,
+      "end": 58.94,
+      "word": " on"
+     },
+     {
+      "start": 58.94,
+      "end": 59.06,
+      "word": " that,"
+     },
+     {
+      "start": 59.12,
+      "end": 59.18,
+      "word": " it"
+     },
+     {
+      "start": 59.18,
+      "end": 59.58,
+      "word": " optimizes"
+     },
+     {
+      "start": 59.58,
+      "end": 59.78,
+      "word": " a"
+     },
+     {
+      "start": 59.78,
+      "end": 60.06,
+      "word": " reward"
+     },
+     {
+      "start": 60.06,
+      "end": 60.3,
+      "word": " for"
+     },
+     {
+      "start": 60.3,
+      "end": 60.6,
+      "word": " example,"
+     },
+     {
+      "start": 60.6,
+      "end": 60.92,
+      "word": " human"
+     },
+     {
+      "start": 60.92,
+      "end": 61.4,
+      "word": " preferences"
+     }
+    ]
+   },
+   {
+    "start": 61.4,
+    "end": 64.26,
+    "text": "and hallucination is reduced but certainly not eliminated.",
+    "words": [
+     {
+      "start": 61.4,
+      "end": 61.78,
+      "word": " and"
+     },
+     {
+      "start": 61.78,
+      "end": 62.4,
+      "word": " hallucination"
+     },
+     {
+      "start": 62.4,
+      "end": 62.58,
+      "word": " is"
+     },
+     {
+      "start": 62.58,
+      "end": 62.86,
+      "word": " reduced"
+     },
+     {
+      "start": 62.86,
+      "end": 63.12,
+      "word": " but"
+     },
+     {
+      "start": 63.12,
+      "end": 63.48,
+      "word": " certainly"
+     },
+     {
+      "start": 63.48,
+      "end": 63.74,
+      "word": " not"
+     },
+     {
+      "start": 63.74,
+      "end": 64.26,
+      "word": " eliminated."
+     }
+    ]
+   },
+   {
+    "start": 65.26,
+    "end": 70.26,
+    "text": "So the reward model learns what people prefer and the policy is updated to score higher on it",
+    "words": [
+     {
+      "start": 65.26,
+      "end": 65.56,
+      "word": " So"
+     },
+     {
+      "start": 65.56,
+      "end": 65.7,
+      "word": " the"
+     },
+     {
+      "start": 65.7,
+      "end": 65.98,
+      "word": " reward"
+     },
+     {
+      "start": 65.98,
+      "end": 66.34,
+      "word": " model"
+     },
+     {
+      "start": 66.34,
+      "end": 66.56,
+      "word": " learns"
+     },
+     {
+      "start": 66.56,
+      "end": 66.78,
+      "word": " what"
+     },
+     {
+      "start": 66.78,
+      "end": 67.04,
+      "word": " people"
+     },
+     {
+      "start": 67.04,
+      "end": 67.44,
+      "word": " prefer"
+     },
+     {
+      "start": 67.44,
+      "end": 67.98,
+      "word": " and"
+     },
+     {
+      "start": 67.98,
+      "end": 68.08,
+      "word": " the"
+     },
+     {
+      "start": 68.08,
+      "end": 68.42,
+      "word": " policy"
+     },
+     {
+      "start": 68.42,
+      "end": 68.64,
+      "word": " is"
+     },
+     {
+      "start": 68.64,
+      "end": 68.98,
+      "word": " updated"
+     },
+     {
+      "start": 68.98,
+      "end": 69.24,
+      "word": " to"
+     },
+     {
+      "start": 69.24,
+      "end": 69.48,
+      "word": " score"
+     },
+     {
+      "start": 69.48,
+      "end": 69.84,
+      "word": " higher"
+     },
+     {
+      "start": 69.84,
+      "end": 70.06,
+      "word": " on"
+     },
+     {
+      "start": 70.06,
+      "end": 70.26,
+      "word": " it"
+     }
+    ]
+   },
+   {
+    "start": 70.26,
+    "end": 73.72,
+    "text": "with a penalty so it doesn't drift too far from the original model.",
+    "words": [
+     {
+      "start": 70.26,
+      "end": 70.78,
+      "word": " with"
+     },
+     {
+      "start": 70.78,
+      "end": 70.9,
+      "word": " a"
+     },
+     {
+      "start": 70.9,
+      "end": 71.14,
+      "word": " penalty"
+     },
+     {
+      "start": 71.14,
+      "end": 71.48,
+      "word": " so"
+     },
+     {
+      "start": 71.48,
+      "end": 71.6,
+      "word": " it"
+     },
+     {
+      "start": 71.6,
+      "end": 71.9,
+      "word": " doesn't"
+     },
+     {
+      "start": 71.9,
+      "end": 72.12,
+      "word": " drift"
+     },
+     {
+      "start": 72.12,
+      "end": 72.38,
+      "word": " too"
+     },
+     {
+      "start": 72.38,
+      "end": 72.62,
+      "word": " far"
+     },
+     {
+      "start": 72.62,
+      "end": 72.8,
+      "word": " from"
+     },
+     {
+      "start": 72.8,
+      "end": 72.94,
+      "word": " the"
+     },
+     {
+      "start": 72.94,
+      "end": 73.28,
+      "word": " original"
+     },
+     {
+      "start": 73.28,
+      "end": 73.72,
+      "word": " model."
+     }
+    ]
+   },
+   {
+    "start": 74.92,
+    "end": 77.06,
+    "text": "Yes, the kale penalty, good, that's all for today.",
+    "words": [
+     {
+      "start": 74.92,
+      "end": 75.44,
+      "word": " Yes,"
+     },
+     {
+      "start": 75.6,
+      "end": 75.68,
+      "word": " the"
+     },
+     {
+      "start": 75.68,
+      "end": 75.82,
+      "word": " kale"
+     },
+     {
+      "start": 75.82,
+      "end": 76.2,
+      "word": " penalty,"
+     },
+     {
+      "start": 76.28,
+      "end": 76.34,
+      "word": " good,"
+     },
+     {
+      "start": 76.4,
+      "end": 76.54,
+      "word": " that's"
+     },
+     {
+      "start": 76.54,
+      "end": 76.64,
+      "word": " all"
+     },
+     {
+      "start": 76.64,
+      "end": 76.78,
+      "word": " for"
+     },
+     {
+      "start": 76.78,
+      "end": 77.06,
+      "word": " today."
+     }
+    ]
+   }
+  ],
+  "speaker_segments": [
+   {
+    "start": 1.1953437500000001,
+    "end": 9.953468750000003,
+    "speaker": "SPEAKER_04"
+   },
+   {
+    "start": 11.45534375,
+    "end": 17.66534375,
+    "speaker": "SPEAKER_03"
+   },
+   {
+    "start": 19.234718750000003,
+    "end": 22.10346875,
+    "speaker": "SPEAKER_04"
+   },
+   {
+    "start": 22.980968750000002,
+    "end": 30.65909375,
+    "speaker": "SPEAKER_02"
+   },
+   {
+    "start": 32.05971875,
+    "end": 34.759718750000005,
+    "speaker": "SPEAKER_04"
+   },
+   {
+    "start": 35.90721875,
+    "end": 42.674093750000004,
+    "speaker": "SPEAKER_03"
+   },
+   {
+    "start": 44.05784375,
+    "end": 47.314718750000004,
+    "speaker": "SPEAKER_04"
+   },
+   {
+    "start": 49.01909375,
+    "end": 56.56221875000001,
+    "speaker": "SPEAKER_01"
+   },
+   {
+    "start": 58.09784375,
+    "end": 64.40909375,
+    "speaker": "SPEAKER_04"
+   },
+   {
+    "start": 65.43846875,
+    "end": 67.64909375,
+    "speaker": "SPEAKER_00"
+   },
+   {
+    "start": 67.85159375,
+    "end": 70.21409375,
+    "speaker": "SPEAKER_00"
+   },
+   {
+    "start": 70.70346875,
+    "end": 73.75784375,
+    "speaker": "SPEAKER_00"
+   },
+   {
+    "start": 75.25971875,
+    "end": 77.20034375,
+    "speaker": "SPEAKER_04"
+   }
+  ],
+  "aligned_segments": [
+   {
+    "start": 0.7800000000000056,
+    "end": 6.1,
+    "speaker": "SPEAKER_04",
+    "text": "Today, how large language models are trained, there are three stages pertaining supervised fine-tuning"
+   },
+   {
+    "start": 6.1,
+    "end": 7.94,
+    "speaker": "SPEAKER_04",
+    "text": "and reinforcement learning from feedback."
+   },
+   {
+    "start": 8.24,
+    "end": 9.84,
+    "speaker": "SPEAKER_04",
+    "text": "What is the objective during pre-training?"
+   },
+   {
+    "start": 10.940000000000005,
+    "end": 15.54,
+    "speaker": "SPEAKER_03",
+    "text": "I think in pre-training, the model already learns to follow instructions because it reads"
+   },
+   {
+    "start": 15.54,
+    "end": 17.42,
+    "speaker": "SPEAKER_03",
+    "text": "so many questions and answer pages."
+   },
+   {
+    "start": 19.120000000000005,
+    "end": 22.04,
+    "speaker": "SPEAKER_04",
+    "text": "Let's be careful what is the actual loss function in that stage."
+   },
+   {
+    "start": 22.98,
+    "end": 24.18,
+    "speaker": "SPEAKER_02",
+    "text": "Next token prediction."
+   },
+   {
+    "start": 24.18,
+    "end": 30.64,
+    "speaker": "SPEAKER_02",
+    "text": "The model just learns to predict the next token over a huge amount of text."
+   },
+   {
+    "start": 31.52,
+    "end": 34.58,
+    "speaker": "SPEAKER_04",
+    "text": "Right, so does a pre-trained model naturally follow instructions?"
+   },
+   {
+    "start": 35.9,
+    "end": 40.72,
+    "speaker": "SPEAKER_03",
+    "text": "Oh, then no, it only continues text, so following instructions comes later from supervised fine-tuning"
+   },
+   {
+    "start": 40.72,
+    "end": 42.52,
+    "speaker": "SPEAKER_03",
+    "text": "on instruction and response pairs."
+   },
+   {
+    "start": 43.92,
+    "end": 47.2,
+    "speaker": "SPEAKER_04",
+    "text": "Exactly, good correction and what is the reinforcement learning stage add?"
+   },
+   {
+    "start": 48.96,
+    "end": 52.84,
+    "speaker": "SPEAKER_01",
+    "text": "Reinforcement learning makes the model memorize the correct answers."
+   },
+   {
+    "start": 53.480000000000004,
+    "end": 56.42,
+    "speaker": "SPEAKER_01",
+    "text": "So after that stage, it can't hallucinate anymore."
+   },
+   {
+    "start": 57.7,
+    "end": 61.4,
+    "speaker": "SPEAKER_04",
+    "text": "I would push back on that, it optimizes a reward for example, human preferences"
+   },
+   {
+    "start": 61.4,
+    "end": 64.26,
+    "speaker": "SPEAKER_04",
+    "text": "and hallucination is reduced but certainly not eliminated."
+   },
+   {
+    "start": 65.26,
+    "end": 70.26,
+    "speaker": "SPEAKER_00",
+    "text": "So the reward model learns what people prefer and the policy is updated to score higher on it"
+   },
+   {
+    "start": 70.26,
+    "end": 73.72,
+    "speaker": "SPEAKER_00",
+    "text": "with a penalty so it doesn't drift too far from the original model."
+   },
+   {
+    "start": 74.92,
+    "end": 77.06,
+    "speaker": "SPEAKER_04",
+    "text": "Yes, the kale penalty, good, that's all for today."
+   }
+  ],
+  "voice_matches": {
+   "SPEAKER_04": {
+    "name": "prof",
+    "status": "identified",
+    "score": 0.8777016401290894,
+    "matches": [
+     {
+      "person_id": "prof",
+      "name": "prof",
+      "score": 0.8777016401290894,
+      "same_speaker": true
+     },
+     {
+      "person_id": "tina",
+      "name": "tina",
+      "score": 0.06649725139141083,
+      "same_speaker": false
+     },
+     {
+      "person_id": "koh-qing-jia",
+      "name": "Koh Qing Jia",
+      "score": 0.05650034546852112,
+      "same_speaker": false
+     },
+     {
+      "person_id": "tasmin",
+      "name": "tasmin",
+      "score": 0.033771634101867676,
+      "same_speaker": false
+     },
+     {
+      "person_id": "le-yong",
+      "name": "le yong",
+      "score": -0.060673315078020096,
+      "same_speaker": false
+     }
+    ]
+   },
+   "SPEAKER_03": {
+    "name": "tina",
+    "status": "identified",
+    "score": 0.8447704911231995,
+    "matches": [
+     {
+      "person_id": "tina",
+      "name": "tina",
+      "score": 0.8447704911231995,
+      "same_speaker": true
+     },
+     {
+      "person_id": "tasmin",
+      "name": "tasmin",
+      "score": 0.21465080976486206,
+      "same_speaker": false
+     },
+     {
+      "person_id": "koh-qing-jia",
+      "name": "Koh Qing Jia",
+      "score": 0.17594967782497406,
+      "same_speaker": false
+     },
+     {
+      "person_id": "prof",
+      "name": "prof",
+      "score": 0.07919284701347351,
+      "same_speaker": false
+     },
+     {
+      "person_id": "le-yong",
+      "name": "le yong",
+      "score": 0.06989912688732147,
+      "same_speaker": false
+     }
+    ]
+   },
+   "SPEAKER_02": {
+    "name": "Koh Qing Jia",
+    "status": "identified",
+    "score": 0.7527393102645874,
+    "matches": [
+     {
+      "person_id": "koh-qing-jia",
+      "name": "Koh Qing Jia",
+      "score": 0.7527393102645874,
+      "same_speaker": true
+     },
+     {
+      "person_id": "tina",
+      "name": "tina",
+      "score": 0.11330236494541168,
+      "same_speaker": false
+     },
+     {
+      "person_id": "prof",
+      "name": "prof",
+      "score": 0.0973743125796318,
+      "same_speaker": false
+     },
+     {
+      "person_id": "tasmin",
+      "name": "tasmin",
+      "score": 0.06917831301689148,
+      "same_speaker": false
+     },
+     {
+      "person_id": "le-yong",
+      "name": "le yong",
+      "score": 0.012041604146361351,
+      "same_speaker": false
+     }
+    ]
+   },
+   "SPEAKER_01": {
+    "name": "le yong",
+    "status": "identified",
+    "score": 0.8002800941467285,
+    "matches": [
+     {
+      "person_id": "le-yong",
+      "name": "le yong",
+      "score": 0.8002800941467285,
+      "same_speaker": true
+     },
+     {
+      "person_id": "koh-qing-jia",
+      "name": "Koh Qing Jia",
+      "score": 0.14155863225460052,
+      "same_speaker": false
+     },
+     {
+      "person_id": "tasmin",
+      "name": "tasmin",
+      "score": 0.0652906522154808,
+      "same_speaker": false
+     },
+     {
+      "person_id": "prof",
+      "name": "prof",
+      "score": -0.009618071839213371,
+      "same_speaker": false
+     },
+     {
+      "person_id": "tina",
+      "name": "tina",
+      "score": -0.04715797305107117,
+      "same_speaker": false
+     }
+    ]
+   },
+   "SPEAKER_00": {
+    "name": "AMBIGUOUS",
+    "status": "ambiguous",
+    "matches": [
+     {
+      "person_id": "tasmin",
+      "name": "tasmin",
+      "score": 0.7656339406967163,
+      "same_speaker": true
+     },
+     {
+      "person_id": "tina",
+      "name": "tina",
+      "score": 0.2726452350616455,
+      "same_speaker": true
+     },
+     {
+      "person_id": "le-yong",
+      "name": "le yong",
+      "score": 0.10635963827371597,
+      "same_speaker": false
+     },
+     {
+      "person_id": "prof",
+      "name": "prof",
+      "score": 0.06702570617198944,
+      "same_speaker": false
+     },
+     {
+      "person_id": "koh-qing-jia",
+      "name": "Koh Qing Jia",
+      "score": 0.051694996654987335,
+      "same_speaker": false
+     }
+    ]
+   }
+  },
+  "speaker_identities": {
+   "SPEAKER_04": "prof",
+   "SPEAKER_03": "tina",
+   "SPEAKER_02": "Koh Qing Jia",
+   "SPEAKER_01": "le yong",
+   "SPEAKER_00": "AMBIGUOUS"
+  },
+  "segments": [
+   {
+    "start": 0.7800000000000056,
+    "end": 9.84,
+    "speaker": "prof",
+    "original_speaker": "SPEAKER_04",
+    "text": "Today, how large language models are trained, there are three stages pertaining supervised fine-tuning and reinforcement learning from feedback. What is the objective during pre-training?"
+   },
+   {
+    "start": 10.940000000000005,
+    "end": 17.42,
+    "speaker": "tina",
+    "original_speaker": "SPEAKER_03",
+    "text": "I think in pre-training, the model already learns to follow instructions because it reads so many questions and answer pages."
+   },
+   {
+    "start": 19.120000000000005,
+    "end": 22.04,
+    "speaker": "prof",
+    "original_speaker": "SPEAKER_04",
+    "text": "Let's be careful what is the actual loss function in that stage."
+   },
+   {
+    "start": 22.98,
+    "end": 30.64,
+    "speaker": "Koh Qing Jia",
+    "original_speaker": "SPEAKER_02",
+    "text": "Next token prediction. The model just learns to predict the next token over a huge amount of text."
+   },
+   {
+    "start": 31.52,
+    "end": 34.58,
+    "speaker": "prof",
+    "original_speaker": "SPEAKER_04",
+    "text": "Right, so does a pre-trained model naturally follow instructions?"
+   },
+   {
+    "start": 35.9,
+    "end": 42.52,
+    "speaker": "tina",
+    "original_speaker": "SPEAKER_03",
+    "text": "Oh, then no, it only continues text, so following instructions comes later from supervised fine-tuning on instruction and response pairs."
+   },
+   {
+    "start": 43.92,
+    "end": 47.2,
+    "speaker": "prof",
+    "original_speaker": "SPEAKER_04",
+    "text": "Exactly, good correction and what is the reinforcement learning stage add?"
+   },
+   {
+    "start": 48.96,
+    "end": 56.42,
+    "speaker": "le yong",
+    "original_speaker": "SPEAKER_01",
+    "text": "Reinforcement learning makes the model memorize the correct answers. So after that stage, it can't hallucinate anymore."
+   },
+   {
+    "start": 57.7,
+    "end": 64.26,
+    "speaker": "prof",
+    "original_speaker": "SPEAKER_04",
+    "text": "I would push back on that, it optimizes a reward for example, human preferences and hallucination is reduced but certainly not eliminated."
+   },
+   {
+    "start": 65.26,
+    "end": 73.72,
+    "speaker": "AMBIGUOUS",
+    "original_speaker": "SPEAKER_00",
+    "text": "So the reward model learns what people prefer and the policy is updated to score higher on it with a penalty so it doesn't drift too far from the original model."
+   },
+   {
+    "start": 74.92,
+    "end": 77.06,
+    "speaker": "prof",
+    "original_speaker": "SPEAKER_04",
+    "text": "Yes, the kale penalty, good, that's all for today."
+   }
+  ],
+  "diarization_turns": [
+   {
+    "start": 1.1953437500000001,
+    "end": 9.953468750000003,
+    "speaker": "SPEAKER_04"
+   },
+   {
+    "start": 11.45534375,
+    "end": 17.66534375,
+    "speaker": "SPEAKER_03"
+   },
+   {
+    "start": 19.234718750000003,
+    "end": 22.10346875,
+    "speaker": "SPEAKER_04"
+   },
+   {
+    "start": 22.980968750000002,
+    "end": 30.65909375,
+    "speaker": "SPEAKER_02"
+   },
+   {
+    "start": 32.05971875,
+    "end": 34.759718750000005,
+    "speaker": "SPEAKER_04"
+   },
+   {
+    "start": 35.90721875,
+    "end": 42.674093750000004,
+    "speaker": "SPEAKER_03"
+   },
+   {
+    "start": 44.05784375,
+    "end": 47.314718750000004,
+    "speaker": "SPEAKER_04"
+   },
+   {
+    "start": 49.01909375,
+    "end": 56.56221875000001,
+    "speaker": "SPEAKER_01"
+   },
+   {
+    "start": 58.09784375,
+    "end": 64.40909375,
+    "speaker": "SPEAKER_04"
+   },
+   {
+    "start": 65.43846875,
+    "end": 67.64909375,
+    "speaker": "SPEAKER_00"
+   },
+   {
+    "start": 67.85159375,
+    "end": 70.21409375,
+    "speaker": "SPEAKER_00"
+   },
+   {
+    "start": 70.70346875,
+    "end": 73.75784375,
+    "speaker": "SPEAKER_00"
+   },
+   {
+    "start": 75.25971875,
+    "end": 77.20034375,
+    "speaker": "SPEAKER_04"
+   }
+  ],
+  "timings": {
+   "transcription_s": 8.08840669807978,
+   "diarization_s": 99.76994913793169,
+   "total_s": 133.81972228502855
+  }
+ },
+ "segment_matches": [
+  [
+   {
+    "person_id": "prof",
+    "name": "prof",
+    "score": 0.8302765488624573,
+    "same_speaker": true
+   },
+   {
+    "person_id": "tina",
+    "name": "tina",
+    "score": 0.09040012955665588,
+    "same_speaker": false
+   },
+   {
+    "person_id": "koh-qing-jia",
+    "name": "Koh Qing Jia",
+    "score": 0.08027957379817963,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tasmin",
+    "name": "tasmin",
+    "score": 0.05444109067320824,
+    "same_speaker": false
+   },
+   {
+    "person_id": "le-yong",
+    "name": "le yong",
+    "score": -0.06608720123767853,
+    "same_speaker": false
+   }
+  ],
+  [
+   {
+    "person_id": "prof",
+    "name": "prof",
+    "score": 0.6504896879196167,
+    "same_speaker": true
+   },
+   {
+    "person_id": "koh-qing-jia",
+    "name": "Koh Qing Jia",
+    "score": 0.11094523221254349,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tina",
+    "name": "tina",
+    "score": 0.07397030293941498,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tasmin",
+    "name": "tasmin",
+    "score": -0.0073003508150577545,
+    "same_speaker": false
+   },
+   {
+    "person_id": "le-yong",
+    "name": "le yong",
+    "score": -0.11521199345588684,
+    "same_speaker": false
+   }
+  ],
+  [
+   {
+    "person_id": "prof",
+    "name": "prof",
+    "score": 0.658249020576477,
+    "same_speaker": true
+   },
+   {
+    "person_id": "koh-qing-jia",
+    "name": "Koh Qing Jia",
+    "score": 0.1271975040435791,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tina",
+    "name": "tina",
+    "score": 0.09862270951271057,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tasmin",
+    "name": "tasmin",
+    "score": 0.05316217988729477,
+    "same_speaker": false
+   },
+   {
+    "person_id": "le-yong",
+    "name": "le yong",
+    "score": -0.008614461869001389,
+    "same_speaker": false
+   }
+  ],
+  [
+   {
+    "person_id": "tina",
+    "name": "tina",
+    "score": 0.7814838886260986,
+    "same_speaker": true
+   },
+   {
+    "person_id": "tasmin",
+    "name": "tasmin",
+    "score": 0.1947001814842224,
+    "same_speaker": false
+   },
+   {
+    "person_id": "koh-qing-jia",
+    "name": "Koh Qing Jia",
+    "score": 0.14501942694187164,
+    "same_speaker": false
+   },
+   {
+    "person_id": "le-yong",
+    "name": "le yong",
+    "score": 0.08429168164730072,
+    "same_speaker": false
+   },
+   {
+    "person_id": "prof",
+    "name": "prof",
+    "score": 0.041897304356098175,
+    "same_speaker": false
+   }
+  ],
+  [
+   {
+    "person_id": "tina",
+    "name": "tina",
+    "score": 0.6521062254905701,
+    "same_speaker": true
+   },
+   {
+    "person_id": "tasmin",
+    "name": "tasmin",
+    "score": 0.12123800069093704,
+    "same_speaker": false
+   },
+   {
+    "person_id": "koh-qing-jia",
+    "name": "Koh Qing Jia",
+    "score": 0.0981350690126419,
+    "same_speaker": false
+   },
+   {
+    "person_id": "le-yong",
+    "name": "le yong",
+    "score": 0.0906476229429245,
+    "same_speaker": false
+   },
+   {
+    "person_id": "prof",
+    "name": "prof",
+    "score": -0.004755478352308273,
+    "same_speaker": false
+   }
+  ],
+  [
+   {
+    "person_id": "prof",
+    "name": "prof",
+    "score": 0.798453688621521,
+    "same_speaker": true
+   },
+   {
+    "person_id": "koh-qing-jia",
+    "name": "Koh Qing Jia",
+    "score": 0.016477689146995544,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tasmin",
+    "name": "tasmin",
+    "score": 0.013974040746688843,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tina",
+    "name": "tina",
+    "score": 0.0020888205617666245,
+    "same_speaker": false
+   },
+   {
+    "person_id": "le-yong",
+    "name": "le yong",
+    "score": -0.04703967645764351,
+    "same_speaker": false
+   }
+  ],
+  [
+   {
+    "person_id": "koh-qing-jia",
+    "name": "Koh Qing Jia",
+    "score": 0.553466796875,
+    "same_speaker": true
+   },
+   {
+    "person_id": "prof",
+    "name": "prof",
+    "score": 0.11833866685628891,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tina",
+    "name": "tina",
+    "score": 0.07302934676408768,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tasmin",
+    "name": "tasmin",
+    "score": 0.017124250531196594,
+    "same_speaker": false
+   },
+   {
+    "person_id": "le-yong",
+    "name": "le yong",
+    "score": -0.016989748924970627,
+    "same_speaker": false
+   }
+  ],
+  [
+   {
+    "person_id": "koh-qing-jia",
+    "name": "Koh Qing Jia",
+    "score": 0.7343136668205261,
+    "same_speaker": true
+   },
+   {
+    "person_id": "tina",
+    "name": "tina",
+    "score": 0.12257583439350128,
+    "same_speaker": false
+   },
+   {
+    "person_id": "prof",
+    "name": "prof",
+    "score": 0.10299782454967499,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tasmin",
+    "name": "tasmin",
+    "score": 0.07138088345527649,
+    "same_speaker": false
+   },
+   {
+    "person_id": "le-yong",
+    "name": "le yong",
+    "score": 0.019297147169709206,
+    "same_speaker": false
+   }
+  ],
+  [
+   {
+    "person_id": "prof",
+    "name": "prof",
+    "score": 0.8284695744514465,
+    "same_speaker": true
+   },
+   {
+    "person_id": "tina",
+    "name": "tina",
+    "score": 0.03921548277139664,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tasmin",
+    "name": "tasmin",
+    "score": 0.03012331947684288,
+    "same_speaker": false
+   },
+   {
+    "person_id": "koh-qing-jia",
+    "name": "Koh Qing Jia",
+    "score": 0.008006582967936993,
+    "same_speaker": false
+   },
+   {
+    "person_id": "le-yong",
+    "name": "le yong",
+    "score": -0.08533403277397156,
+    "same_speaker": false
+   }
+  ],
+  [
+   {
+    "person_id": "tina",
+    "name": "tina",
+    "score": 0.8323388695716858,
+    "same_speaker": true
+   },
+   {
+    "person_id": "tasmin",
+    "name": "tasmin",
+    "score": 0.18868106603622437,
+    "same_speaker": false
+   },
+   {
+    "person_id": "koh-qing-jia",
+    "name": "Koh Qing Jia",
+    "score": 0.16587667167186737,
+    "same_speaker": false
+   },
+   {
+    "person_id": "prof",
+    "name": "prof",
+    "score": 0.09684281051158905,
+    "same_speaker": false
+   },
+   {
+    "person_id": "le-yong",
+    "name": "le yong",
+    "score": 0.03479365259408951,
+    "same_speaker": false
+   }
+  ],
+  [
+   {
+    "person_id": "tina",
+    "name": "tina",
+    "score": 0.7290027737617493,
+    "same_speaker": true
+   },
+   {
+    "person_id": "tasmin",
+    "name": "tasmin",
+    "score": 0.17752492427825928,
+    "same_speaker": false
+   },
+   {
+    "person_id": "koh-qing-jia",
+    "name": "Koh Qing Jia",
+    "score": 0.14641588926315308,
+    "same_speaker": false
+   },
+   {
+    "person_id": "le-yong",
+    "name": "le yong",
+    "score": 0.090004563331604,
+    "same_speaker": false
+   },
+   {
+    "person_id": "prof",
+    "name": "prof",
+    "score": 0.0731341540813446,
+    "same_speaker": false
+   }
+  ],
+  [
+   {
+    "person_id": "prof",
+    "name": "prof",
+    "score": 0.7816956043243408,
+    "same_speaker": true
+   },
+   {
+    "person_id": "koh-qing-jia",
+    "name": "Koh Qing Jia",
+    "score": 0.06365574896335602,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tina",
+    "name": "tina",
+    "score": 0.0518362782895565,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tasmin",
+    "name": "tasmin",
+    "score": 0.013105541467666626,
+    "same_speaker": false
+   },
+   {
+    "person_id": "le-yong",
+    "name": "le yong",
+    "score": -0.0592019185423851,
+    "same_speaker": false
+   }
+  ],
+  [
+   {
+    "person_id": "le-yong",
+    "name": "le yong",
+    "score": 0.7199910283088684,
+    "same_speaker": true
+   },
+   {
+    "person_id": "koh-qing-jia",
+    "name": "Koh Qing Jia",
+    "score": 0.1333845853805542,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tasmin",
+    "name": "tasmin",
+    "score": 0.05635777488350868,
+    "same_speaker": false
+   },
+   {
+    "person_id": "prof",
+    "name": "prof",
+    "score": 0.0024276096373796463,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tina",
+    "name": "tina",
+    "score": -0.03580920025706291,
+    "same_speaker": false
+   }
+  ],
+  [
+   {
+    "person_id": "le-yong",
+    "name": "le yong",
+    "score": 0.7560871839523315,
+    "same_speaker": true
+   },
+   {
+    "person_id": "koh-qing-jia",
+    "name": "Koh Qing Jia",
+    "score": 0.1566624790430069,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tasmin",
+    "name": "tasmin",
+    "score": 0.10191109031438828,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tina",
+    "name": "tina",
+    "score": -0.02592591941356659,
+    "same_speaker": false
+   },
+   {
+    "person_id": "prof",
+    "name": "prof",
+    "score": -0.04370119422674179,
+    "same_speaker": false
+   }
+  ],
+  [
+   {
+    "person_id": "prof",
+    "name": "prof",
+    "score": 0.8354023098945618,
+    "same_speaker": true
+   },
+   {
+    "person_id": "tina",
+    "name": "tina",
+    "score": 0.07352428883314133,
+    "same_speaker": false
+   },
+   {
+    "person_id": "koh-qing-jia",
+    "name": "Koh Qing Jia",
+    "score": 0.05801284685730934,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tasmin",
+    "name": "tasmin",
+    "score": 0.03874492272734642,
+    "same_speaker": false
+   },
+   {
+    "person_id": "le-yong",
+    "name": "le yong",
+    "score": -0.05953802540898323,
+    "same_speaker": false
+   }
+  ],
+  [
+   {
+    "person_id": "prof",
+    "name": "prof",
+    "score": 0.7852785587310791,
+    "same_speaker": true
+   },
+   {
+    "person_id": "tina",
+    "name": "tina",
+    "score": 0.04701477661728859,
+    "same_speaker": false
+   },
+   {
+    "person_id": "koh-qing-jia",
+    "name": "Koh Qing Jia",
+    "score": 0.00812502671033144,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tasmin",
+    "name": "tasmin",
+    "score": -0.014122303575277328,
+    "same_speaker": false
+   },
+   {
+    "person_id": "le-yong",
+    "name": "le yong",
+    "score": -0.0580010861158371,
+    "same_speaker": false
+   }
+  ],
+  [
+   {
+    "person_id": "tasmin",
+    "name": "tasmin",
+    "score": 0.7341921329498291,
+    "same_speaker": true
+   },
+   {
+    "person_id": "tina",
+    "name": "tina",
+    "score": 0.27557313442230225,
+    "same_speaker": true
+   },
+   {
+    "person_id": "koh-qing-jia",
+    "name": "Koh Qing Jia",
+    "score": 0.1086047887802124,
+    "same_speaker": false
+   },
+   {
+    "person_id": "le-yong",
+    "name": "le yong",
+    "score": 0.10376614332199097,
+    "same_speaker": false
+   },
+   {
+    "person_id": "prof",
+    "name": "prof",
+    "score": 0.05903870612382889,
+    "same_speaker": false
+   }
+  ],
+  [
+   {
+    "person_id": "tasmin",
+    "name": "tasmin",
+    "score": 0.7397368550300598,
+    "same_speaker": true
+   },
+   {
+    "person_id": "tina",
+    "name": "tina",
+    "score": 0.24101895093917847,
+    "same_speaker": false
+   },
+   {
+    "person_id": "le-yong",
+    "name": "le yong",
+    "score": 0.09666512906551361,
+    "same_speaker": false
+   },
+   {
+    "person_id": "prof",
+    "name": "prof",
+    "score": 0.08658966422080994,
+    "same_speaker": false
+   },
+   {
+    "person_id": "koh-qing-jia",
+    "name": "Koh Qing Jia",
+    "score": 0.040588416159152985,
+    "same_speaker": false
+   }
+  ],
+  [
+   {
+    "person_id": "prof",
+    "name": "prof",
+    "score": 0.7757397890090942,
+    "same_speaker": true
+   },
+   {
+    "person_id": "tina",
+    "name": "tina",
+    "score": 0.11111652106046677,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tasmin",
+    "name": "tasmin",
+    "score": 0.0546238087117672,
+    "same_speaker": false
+   },
+   {
+    "person_id": "koh-qing-jia",
+    "name": "Koh Qing Jia",
+    "score": 0.02921118400990963,
+    "same_speaker": false
+   },
+   {
+    "person_id": "le-yong",
+    "name": "le yong",
+    "score": -0.0593382902443409,
+    "same_speaker": false
+   }
+  ]
+ ],
+ "segment_scoring_s": 2.0314562630373985,
+ "line_matches": [
+  [
+   {
+    "person_id": "prof",
+    "name": "prof",
+    "score": 0.8227123022079468,
+    "same_speaker": true
+   },
+   {
+    "person_id": "koh-qing-jia",
+    "name": "Koh Qing Jia",
+    "score": 0.10492930561304092,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tina",
+    "name": "tina",
+    "score": 0.08832724392414093,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tasmin",
+    "name": "tasmin",
+    "score": 0.048946864902973175,
+    "same_speaker": false
+   },
+   {
+    "person_id": "le-yong",
+    "name": "le yong",
+    "score": -0.0639747604727745,
+    "same_speaker": false
+   }
+  ],
+  [
+   {
+    "person_id": "tina",
+    "name": "tina",
+    "score": 0.8076795935630798,
+    "same_speaker": true
+   },
+   {
+    "person_id": "tasmin",
+    "name": "tasmin",
+    "score": 0.2042517364025116,
+    "same_speaker": false
+   },
+   {
+    "person_id": "koh-qing-jia",
+    "name": "Koh Qing Jia",
+    "score": 0.15184524655342102,
+    "same_speaker": false
+   },
+   {
+    "person_id": "le-yong",
+    "name": "le yong",
+    "score": 0.07051350921392441,
+    "same_speaker": false
+   },
+   {
+    "person_id": "prof",
+    "name": "prof",
+    "score": 0.04844864457845688,
+    "same_speaker": false
+   }
+  ],
+  [
+   {
+    "person_id": "prof",
+    "name": "prof",
+    "score": 0.8042497634887695,
+    "same_speaker": true
+   },
+   {
+    "person_id": "tasmin",
+    "name": "tasmin",
+    "score": 0.021799419075250626,
+    "same_speaker": false
+   },
+   {
+    "person_id": "koh-qing-jia",
+    "name": "Koh Qing Jia",
+    "score": 0.014731679111719131,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tina",
+    "name": "tina",
+    "score": -0.00034818239510059357,
+    "same_speaker": false
+   },
+   {
+    "person_id": "le-yong",
+    "name": "le yong",
+    "score": -0.0526876226067543,
+    "same_speaker": false
+   }
+  ],
+  [
+   {
+    "person_id": "koh-qing-jia",
+    "name": "Koh Qing Jia",
+    "score": 0.7529689073562622,
+    "same_speaker": true
+   },
+   {
+    "person_id": "tina",
+    "name": "tina",
+    "score": 0.11283034831285477,
+    "same_speaker": false
+   },
+   {
+    "person_id": "prof",
+    "name": "prof",
+    "score": 0.10339242219924927,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tasmin",
+    "name": "tasmin",
+    "score": 0.0638589933514595,
+    "same_speaker": false
+   },
+   {
+    "person_id": "le-yong",
+    "name": "le yong",
+    "score": 0.011125709861516953,
+    "same_speaker": false
+   }
+  ],
+  [
+   {
+    "person_id": "prof",
+    "name": "prof",
+    "score": 0.8233487606048584,
+    "same_speaker": true
+   },
+   {
+    "person_id": "tina",
+    "name": "tina",
+    "score": 0.051480017602443695,
+    "same_speaker": false
+   },
+   {
+    "person_id": "koh-qing-jia",
+    "name": "Koh Qing Jia",
+    "score": 0.033785782754421234,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tasmin",
+    "name": "tasmin",
+    "score": 0.02645084261894226,
+    "same_speaker": false
+   },
+   {
+    "person_id": "le-yong",
+    "name": "le yong",
+    "score": -0.08089222013950348,
+    "same_speaker": false
+   }
+  ],
+  [
+   {
+    "person_id": "tina",
+    "name": "tina",
+    "score": 0.8500072956085205,
+    "same_speaker": true
+   },
+   {
+    "person_id": "tasmin",
+    "name": "tasmin",
+    "score": 0.22023893892765045,
+    "same_speaker": false
+   },
+   {
+    "person_id": "koh-qing-jia",
+    "name": "Koh Qing Jia",
+    "score": 0.18221282958984375,
+    "same_speaker": false
+   },
+   {
+    "person_id": "prof",
+    "name": "prof",
+    "score": 0.09525121748447418,
+    "same_speaker": false
+   },
+   {
+    "person_id": "le-yong",
+    "name": "le yong",
+    "score": 0.0635729730129242,
+    "same_speaker": false
+   }
+  ],
+  [
+   {
+    "person_id": "prof",
+    "name": "prof",
+    "score": 0.7959082126617432,
+    "same_speaker": true
+   },
+   {
+    "person_id": "koh-qing-jia",
+    "name": "Koh Qing Jia",
+    "score": 0.05300435423851013,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tina",
+    "name": "tina",
+    "score": 0.046643126755952835,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tasmin",
+    "name": "tasmin",
+    "score": 0.012174014002084732,
+    "same_speaker": false
+   },
+   {
+    "person_id": "le-yong",
+    "name": "le yong",
+    "score": -0.07087674736976624,
+    "same_speaker": false
+   }
+  ],
+  [
+   {
+    "person_id": "le-yong",
+    "name": "le yong",
+    "score": 0.8054532408714294,
+    "same_speaker": true
+   },
+   {
+    "person_id": "koh-qing-jia",
+    "name": "Koh Qing Jia",
+    "score": 0.13741351664066315,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tasmin",
+    "name": "tasmin",
+    "score": 0.06264950335025787,
+    "same_speaker": false
+   },
+   {
+    "person_id": "prof",
+    "name": "prof",
+    "score": -0.007308922708034515,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tina",
+    "name": "tina",
+    "score": -0.045741695910692215,
+    "same_speaker": false
+   }
+  ],
+  [
+   {
+    "person_id": "prof",
+    "name": "prof",
+    "score": 0.8766244649887085,
+    "same_speaker": true
+   },
+   {
+    "person_id": "tina",
+    "name": "tina",
+    "score": 0.07113054394721985,
+    "same_speaker": false
+   },
+   {
+    "person_id": "koh-qing-jia",
+    "name": "Koh Qing Jia",
+    "score": 0.04065079614520073,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tasmin",
+    "name": "tasmin",
+    "score": 0.021459368988871574,
+    "same_speaker": false
+   },
+   {
+    "person_id": "le-yong",
+    "name": "le yong",
+    "score": -0.06677228957414627,
+    "same_speaker": false
+   }
+  ],
+  [
+   {
+    "person_id": "tasmin",
+    "name": "tasmin",
+    "score": 0.7708386182785034,
+    "same_speaker": true
+   },
+   {
+    "person_id": "tina",
+    "name": "tina",
+    "score": 0.2737859785556793,
+    "same_speaker": true
+   },
+   {
+    "person_id": "le-yong",
+    "name": "le yong",
+    "score": 0.10760791599750519,
+    "same_speaker": false
+   },
+   {
+    "person_id": "koh-qing-jia",
+    "name": "Koh Qing Jia",
+    "score": 0.081672303378582,
+    "same_speaker": false
+   },
+   {
+    "person_id": "prof",
+    "name": "prof",
+    "score": 0.08040587604045868,
+    "same_speaker": false
+   }
+  ],
+  [
+   {
+    "person_id": "prof",
+    "name": "prof",
+    "score": 0.7950435876846313,
+    "same_speaker": true
+   },
+   {
+    "person_id": "tina",
+    "name": "tina",
+    "score": 0.09956255555152893,
+    "same_speaker": false
+   },
+   {
+    "person_id": "koh-qing-jia",
+    "name": "Koh Qing Jia",
+    "score": 0.039901066571474075,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tasmin",
+    "name": "tasmin",
+    "score": 0.03844977170228958,
+    "same_speaker": false
+   },
+   {
+    "person_id": "le-yong",
+    "name": "le yong",
+    "score": -0.05499342828989029,
+    "same_speaker": false
+   }
+  ]
+ ],
+ "whisper_words": {
+  "seconds": 6.756269110133871,
+  "segments": [
+   {
+    "start": 0.7800000000000056,
+    "end": 6.1,
+    "text": "Today, how large language models are trained, there are three stages pertaining supervised fine-tuning",
+    "words": [
+     {
+      "start": 0.7800000000000056,
+      "end": 1.38,
+      "word": " Today,"
+     },
+     {
+      "start": 1.58,
+      "end": 1.7,
+      "word": " how"
+     },
+     {
+      "start": 1.7,
+      "end": 1.98,
+      "word": " large"
+     },
+     {
+      "start": 1.98,
+      "end": 2.2,
+      "word": " language"
+     },
+     {
+      "start": 2.2,
+      "end": 2.52,
+      "word": " models"
+     },
+     {
+      "start": 2.52,
+      "end": 2.68,
+      "word": " are"
+     },
+     {
+      "start": 2.68,
+      "end": 3.0,
+      "word": " trained,"
+     },
+     {
+      "start": 3.14,
+      "end": 3.2,
+      "word": " there"
+     },
+     {
+      "start": 3.2,
+      "end": 3.32,
+      "word": " are"
+     },
+     {
+      "start": 3.32,
+      "end": 3.64,
+      "word": " three"
+     },
+     {
+      "start": 3.64,
+      "end": 4.1,
+      "word": " stages"
+     },
+     {
+      "start": 4.1,
+      "end": 4.62,
+      "word": " pertaining"
+     },
+     {
+      "start": 4.62,
+      "end": 5.32,
+      "word": " supervised"
+     },
+     {
+      "start": 5.32,
+      "end": 5.78,
+      "word": " fine"
+     },
+     {
+      "start": 5.78,
+      "end": 6.1,
+      "word": "-tuning"
+     }
+    ]
+   },
+   {
+    "start": 6.1,
+    "end": 7.94,
+    "text": "and reinforcement learning from feedback.",
+    "words": [
+     {
+      "start": 6.1,
+      "end": 6.32,
+      "word": " and"
+     },
+     {
+      "start": 6.32,
+      "end": 6.84,
+      "word": " reinforcement"
+     },
+     {
+      "start": 6.84,
+      "end": 7.36,
+      "word": " learning"
+     },
+     {
+      "start": 7.36,
+      "end": 7.6,
+      "word": " from"
+     },
+     {
+      "start": 7.6,
+      "end": 7.94,
+      "word": " feedback."
+     }
+    ]
+   },
+   {
+    "start": 8.24,
+    "end": 9.84,
+    "text": "What is the objective during pre-training?",
+    "words": [
+     {
+      "start": 8.24,
+      "end": 8.36,
+      "word": " What"
+     },
+     {
+      "start": 8.36,
+      "end": 8.52,
+      "word": " is"
+     },
+     {
+      "start": 8.52,
+      "end": 8.64,
+      "word": " the"
+     },
+     {
+      "start": 8.64,
+      "end": 9.0,
+      "word": " objective"
+     },
+     {
+      "start": 9.0,
+      "end": 9.3,
+      "word": " during"
+     },
+     {
+      "start": 9.3,
+      "end": 9.5,
+      "word": " pre"
+     },
+     {
+      "start": 9.5,
+      "end": 9.84,
+      "word": "-training?"
+     }
+    ]
+   },
+   {
+    "start": 10.940000000000005,
+    "end": 15.54,
+    "text": "I think in pre-training, the model already learns to follow instructions because it reads",
+    "words": [
+     {
+      "start": 10.940000000000005,
+      "end": 11.54,
+      "word": " I"
+     },
+     {
+      "start": 11.54,
+      "end": 11.74,
+      "word": " think"
+     },
+     {
+      "start": 11.74,
+      "end": 11.88,
+      "word": " in"
+     },
+     {
+      "start": 11.88,
+      "end": 12.06,
+      "word": " pre"
+     },
+     {
+      "start": 12.06,
+      "end": 12.46,
+      "word": "-training,"
+     },
+     {
+      "start": 12.62,
+      "end": 12.68,
+      "word": " the"
+     },
+     {
+      "start": 12.68,
+      "end": 12.92,
+      "word": " model"
+     },
+     {
+      "start": 12.92,
+      "end": 13.3,
+      "word": " already"
+     },
+     {
+      "start": 13.3,
+      "end": 13.58,
+      "word": " learns"
+     },
+     {
+      "start": 13.58,
+      "end": 13.8,
+      "word": " to"
+     },
+     {
+      "start": 13.8,
+      "end": 14.02,
+      "word": " follow"
+     },
+     {
+      "start": 14.02,
+      "end": 14.54,
+      "word": " instructions"
+     },
+     {
+      "start": 14.54,
+      "end": 14.94,
+      "word": " because"
+     },
+     {
+      "start": 14.94,
+      "end": 15.28,
+      "word": " it"
+     },
+     {
+      "start": 15.28,
+      "end": 15.54,
+      "word": " reads"
+     }
+    ]
+   },
+   {
+    "start": 15.54,
+    "end": 17.42,
+    "text": "so many questions and answer pages.",
+    "words": [
+     {
+      "start": 15.54,
+      "end": 15.84,
+      "word": " so"
+     },
+     {
+      "start": 15.84,
+      "end": 16.04,
+      "word": " many"
+     },
+     {
+      "start": 16.04,
+      "end": 16.5,
+      "word": " questions"
+     },
+     {
+      "start": 16.5,
+      "end": 16.76,
+      "word": " and"
+     },
+     {
+      "start": 16.76,
+      "end": 17.06,
+      "word": " answer"
+     },
+     {
+      "start": 17.06,
+      "end": 17.42,
+      "word": " pages."
+     }
+    ]
+   },
+   {
+    "start": 19.120000000000005,
+    "end": 22.04,
+    "text": "Let's be careful what is the actual loss function in that stage.",
+    "words": [
+     {
+      "start": 19.120000000000005,
+      "end": 19.72,
+      "word": " Let's"
+     },
+     {
+      "start": 19.72,
+      "end": 19.82,
+      "word": " be"
+     },
+     {
+      "start": 19.82,
+      "end": 20.12,
+      "word": " careful"
+     },
+     {
+      "start": 20.12,
+      "end": 20.3,
+      "word": " what"
+     },
+     {
+      "start": 20.3,
+      "end": 20.44,
+      "word": " is"
+     },
+     {
+      "start": 20.44,
+      "end": 20.54,
+      "word": " the"
+     },
+     {
+      "start": 20.54,
+      "end": 20.8,
+      "word": " actual"
+     },
+     {
+      "start": 20.8,
+      "end": 20.96,
+      "word": " loss"
+     },
+     {
+      "start": 20.96,
+      "end": 21.3,
+      "word": " function"
+     },
+     {
+      "start": 21.3,
+      "end": 21.44,
+      "word": " in"
+     },
+     {
+      "start": 21.44,
+      "end": 21.6,
+      "word": " that"
+     },
+     {
+      "start": 21.6,
+      "end": 22.04,
+      "word": " stage."
+     }
+    ]
+   },
+   {
+    "start": 22.98,
+    "end": 24.18,
+    "text": "Next token prediction.",
+    "words": [
+     {
+      "start": 22.98,
+      "end": 23.26,
+      "word": " Next"
+     },
+     {
+      "start": 23.26,
+      "end": 23.66,
+      "word": " token"
+     },
+     {
+      "start": 23.66,
+      "end": 24.18,
+      "word": " prediction."
+     }
+    ]
+   },
+   {
+    "start": 24.18,
+    "end": 30.64,
+    "text": "The model just learns to predict the next token over a huge amount of text.",
+    "words": [
+     {
+      "start": 24.18,
+      "end": 24.88,
+      "word": " The"
+     },
+     {
+      "start": 24.88,
+      "end": 25.18,
+      "word": " model"
+     },
+     {
+      "start": 25.18,
+      "end": 25.56,
+      "word": " just"
+     },
+     {
+      "start": 25.56,
+      "end": 25.96,
+      "word": " learns"
+     },
+     {
+      "start": 25.96,
+      "end": 26.3,
+      "word": " to"
+     },
+     {
+      "start": 26.3,
+      "end": 26.62,
+      "word": " predict"
+     },
+     {
+      "start": 26.62,
+      "end": 27.06,
+      "word": " the"
+     },
+     {
+      "start": 27.06,
+      "end": 27.42,
+      "word": " next"
+     },
+     {
+      "start": 27.42,
+      "end": 27.9,
+      "word": " token"
+     },
+     {
+      "start": 27.9,
+      "end": 28.72,
+      "word": " over"
+     },
+     {
+      "start": 28.72,
+      "end": 29.0,
+      "word": " a"
+     },
+     {
+      "start": 29.0,
+      "end": 29.38,
+      "word": " huge"
+     },
+     {
+      "start": 29.38,
+      "end": 29.64,
+      "word": " amount"
+     },
+     {
+      "start": 29.64,
+      "end": 30.18,
+      "word": " of"
+     },
+     {
+      "start": 30.18,
+      "end": 30.64,
+      "word": " text."
+     }
+    ]
+   },
+   {
+    "start": 31.52,
+    "end": 34.58,
+    "text": "Right, so does a pre-trained model naturally follow instructions?",
+    "words": [
+     {
+      "start": 31.52,
+      "end": 32.22,
+      "word": " Right,"
+     },
+     {
+      "start": 32.4,
+      "end": 32.46,
+      "word": " so"
+     },
+     {
+      "start": 32.46,
+      "end": 32.58,
+      "word": " does"
+     },
+     {
+      "start": 32.58,
+      "end": 32.7,
+      "word": " a"
+     },
+     {
+      "start": 32.7,
+      "end": 32.86,
+      "word": " pre"
+     },
+     {
+      "start": 32.86,
+      "end": 33.14,
+      "word": "-trained"
+     },
+     {
+      "start": 33.14,
+      "end": 33.36,
+      "word": " model"
+     },
+     {
+      "start": 33.36,
+      "end": 33.78,
+      "word": " naturally"
+     },
+     {
+      "start": 33.78,
+      "end": 34.0,
+      "word": " follow"
+     },
+     {
+      "start": 34.0,
+      "end": 34.58,
+      "word": " instructions?"
+     }
+    ]
+   },
+   {
+    "start": 35.9,
+    "end": 40.72,
+    "text": "Oh, then no, it only continues text, so following instructions comes later from supervised fine-tuning",
+    "words": [
+     {
+      "start": 35.9,
+      "end": 36.04,
+      "word": " Oh,"
+     },
+     {
+      "start": 36.12,
+      "end": 36.22,
+      "word": " then"
+     },
+     {
+      "start": 36.22,
+      "end": 36.42,
+      "word": " no,"
+     },
+     {
+      "start": 36.52,
+      "end": 36.58,
+      "word": " it"
+     },
+     {
+      "start": 36.58,
+      "end": 36.76,
+      "word": " only"
+     },
+     {
+      "start": 36.76,
+      "end": 37.22,
+      "word": " continues"
+     },
+     {
+      "start": 37.22,
+      "end": 37.48,
+      "word": " text,"
+     },
+     {
+      "start": 37.68,
+      "end": 37.72,
+      "word": " so"
+     },
+     {
+      "start": 37.72,
+      "end": 38.12,
+      "word": " following"
+     },
+     {
+      "start": 38.12,
+      "end": 38.72,
+      "word": " instructions"
+     },
+     {
+      "start": 38.72,
+      "end": 38.98,
+      "word": " comes"
+     },
+     {
+      "start": 38.98,
+      "end": 39.26,
+      "word": " later"
+     },
+     {
+      "start": 39.26,
+      "end": 39.48,
+      "word": " from"
+     },
+     {
+      "start": 39.48,
+      "end": 40.0,
+      "word": " supervised"
+     },
+     {
+      "start": 40.0,
+      "end": 40.4,
+      "word": " fine"
+     },
+     {
+      "start": 40.4,
+      "end": 40.72,
+      "word": "-tuning"
+     }
+    ]
+   },
+   {
+    "start": 40.72,
+    "end": 42.52,
+    "text": "on instruction and response pairs.",
+    "words": [
+     {
+      "start": 40.72,
+      "end": 40.9,
+      "word": " on"
+     },
+     {
+      "start": 40.9,
+      "end": 41.3,
+      "word": " instruction"
+     },
+     {
+      "start": 41.3,
+      "end": 41.72,
+      "word": " and"
+     },
+     {
+      "start": 41.72,
+      "end": 42.1,
+      "word": " response"
+     },
+     {
+      "start": 42.1,
+      "end": 42.52,
+      "word": " pairs."
+     }
+    ]
+   },
+   {
+    "start": 43.92,
+    "end": 47.2,
+    "text": "Exactly, good correction and what is the reinforcement learning stage add?",
+    "words": [
+     {
+      "start": 43.92,
+      "end": 44.34,
+      "word": " Exactly,"
+     },
+     {
+      "start": 44.6,
+      "end": 44.68,
+      "word": " good"
+     },
+     {
+      "start": 44.68,
+      "end": 45.14,
+      "word": " correction"
+     },
+     {
+      "start": 45.14,
+      "end": 45.34,
+      "word": " and"
+     },
+     {
+      "start": 45.34,
+      "end": 45.46,
+      "word": " what"
+     },
+     {
+      "start": 45.46,
+      "end": 45.58,
+      "word": " is"
+     },
+     {
+      "start": 45.58,
+      "end": 45.7,
+      "word": " the"
+     },
+     {
+      "start": 45.7,
+      "end": 46.06,
+      "word": " reinforcement"
+     },
+     {
+      "start": 46.06,
+      "end": 46.54,
+      "word": " learning"
+     },
+     {
+      "start": 46.54,
+      "end": 46.86,
+      "word": " stage"
+     },
+     {
+      "start": 46.86,
+      "end": 47.2,
+      "word": " add?"
+     }
+    ]
+   },
+   {
+    "start": 48.96,
+    "end": 52.84,
+    "text": "Reinforcement learning makes the model memorize the correct answers.",
+    "words": [
+     {
+      "start": 48.96,
+      "end": 49.66,
+      "word": " Reinforcement"
+     },
+     {
+      "start": 49.66,
+      "end": 50.18,
+      "word": " learning"
+     },
+     {
+      "start": 50.18,
+      "end": 50.6,
+      "word": " makes"
+     },
+     {
+      "start": 50.6,
+      "end": 50.96,
+      "word": " the"
+     },
+     {
+      "start": 50.96,
+      "end": 51.24,
+      "word": " model"
+     },
+     {
+      "start": 51.24,
+      "end": 51.72,
+      "word": " memorize"
+     },
+     {
+      "start": 51.72,
+      "end": 52.12,
+      "word": " the"
+     },
+     {
+      "start": 52.12,
+      "end": 52.38,
+      "word": " correct"
+     },
+     {
+      "start": 52.38,
+      "end": 52.84,
+      "word": " answers."
+     }
+    ]
+   },
+   {
+    "start": 53.480000000000004,
+    "end": 56.42,
+    "text": "So after that stage, it can't hallucinate anymore.",
+    "words": [
+     {
+      "start": 53.480000000000004,
+      "end": 53.74,
+      "word": " So"
+     },
+     {
+      "start": 53.74,
+      "end": 54.12,
+      "word": " after"
+     },
+     {
+      "start": 54.12,
+      "end": 54.34,
+      "word": " that"
+     },
+     {
+      "start": 54.34,
+      "end": 54.7,
+      "word": " stage,"
+     },
+     {
+      "start": 54.7,
+      "end": 54.94,
+      "word": " it"
+     },
+     {
+      "start": 54.94,
+      "end": 55.34,
+      "word": " can't"
+     },
+     {
+      "start": 55.34,
+      "end": 55.9,
+      "word": " hallucinate"
+     },
+     {
+      "start": 55.9,
+      "end": 56.42,
+      "word": " anymore."
+     }
+    ]
+   },
+   {
+    "start": 57.7,
+    "end": 61.4,
+    "text": "I would push back on that, it optimizes a reward for example, human preferences",
+    "words": [
+     {
+      "start": 57.7,
+      "end": 58.22,
+      "word": " I"
+     },
+     {
+      "start": 58.22,
+      "end": 58.34,
+      "word": " would"
+     },
+     {
+      "start": 58.34,
+      "end": 58.54,
+      "word": " push"
+     },
+     {
+      "start": 58.54,
+      "end": 58.74,
+      "word": " back"
+     },
+     {
+      "start": 58.74,
+      "end": 58.94,
+      "word": " on"
+     },
+     {
+      "start": 58.94,
+      "end": 59.06,
+      "word": " that,"
+     },
+     {
+      "start": 59.12,
+      "end": 59.18,
+      "word": " it"
+     },
+     {
+      "start": 59.18,
+      "end": 59.58,
+      "word": " optimizes"
+     },
+     {
+      "start": 59.58,
+      "end": 59.78,
+      "word": " a"
+     },
+     {
+      "start": 59.78,
+      "end": 60.06,
+      "word": " reward"
+     },
+     {
+      "start": 60.06,
+      "end": 60.3,
+      "word": " for"
+     },
+     {
+      "start": 60.3,
+      "end": 60.6,
+      "word": " example,"
+     },
+     {
+      "start": 60.6,
+      "end": 60.92,
+      "word": " human"
+     },
+     {
+      "start": 60.92,
+      "end": 61.4,
+      "word": " preferences"
+     }
+    ]
+   },
+   {
+    "start": 61.4,
+    "end": 64.26,
+    "text": "and hallucination is reduced but certainly not eliminated.",
+    "words": [
+     {
+      "start": 61.4,
+      "end": 61.78,
+      "word": " and"
+     },
+     {
+      "start": 61.78,
+      "end": 62.4,
+      "word": " hallucination"
+     },
+     {
+      "start": 62.4,
+      "end": 62.58,
+      "word": " is"
+     },
+     {
+      "start": 62.58,
+      "end": 62.86,
+      "word": " reduced"
+     },
+     {
+      "start": 62.86,
+      "end": 63.12,
+      "word": " but"
+     },
+     {
+      "start": 63.12,
+      "end": 63.48,
+      "word": " certainly"
+     },
+     {
+      "start": 63.48,
+      "end": 63.74,
+      "word": " not"
+     },
+     {
+      "start": 63.74,
+      "end": 64.26,
+      "word": " eliminated."
+     }
+    ]
+   },
+   {
+    "start": 65.26,
+    "end": 70.26,
+    "text": "So the reward model learns what people prefer and the policy is updated to score higher on it",
+    "words": [
+     {
+      "start": 65.26,
+      "end": 65.56,
+      "word": " So"
+     },
+     {
+      "start": 65.56,
+      "end": 65.7,
+      "word": " the"
+     },
+     {
+      "start": 65.7,
+      "end": 65.98,
+      "word": " reward"
+     },
+     {
+      "start": 65.98,
+      "end": 66.34,
+      "word": " model"
+     },
+     {
+      "start": 66.34,
+      "end": 66.56,
+      "word": " learns"
+     },
+     {
+      "start": 66.56,
+      "end": 66.78,
+      "word": " what"
+     },
+     {
+      "start": 66.78,
+      "end": 67.04,
+      "word": " people"
+     },
+     {
+      "start": 67.04,
+      "end": 67.44,
+      "word": " prefer"
+     },
+     {
+      "start": 67.44,
+      "end": 67.98,
+      "word": " and"
+     },
+     {
+      "start": 67.98,
+      "end": 68.08,
+      "word": " the"
+     },
+     {
+      "start": 68.08,
+      "end": 68.42,
+      "word": " policy"
+     },
+     {
+      "start": 68.42,
+      "end": 68.64,
+      "word": " is"
+     },
+     {
+      "start": 68.64,
+      "end": 68.98,
+      "word": " updated"
+     },
+     {
+      "start": 68.98,
+      "end": 69.24,
+      "word": " to"
+     },
+     {
+      "start": 69.24,
+      "end": 69.48,
+      "word": " score"
+     },
+     {
+      "start": 69.48,
+      "end": 69.84,
+      "word": " higher"
+     },
+     {
+      "start": 69.84,
+      "end": 70.06,
+      "word": " on"
+     },
+     {
+      "start": 70.06,
+      "end": 70.26,
+      "word": " it"
+     }
+    ]
+   },
+   {
+    "start": 70.26,
+    "end": 73.72,
+    "text": "with a penalty so it doesn't drift too far from the original model.",
+    "words": [
+     {
+      "start": 70.26,
+      "end": 70.78,
+      "word": " with"
+     },
+     {
+      "start": 70.78,
+      "end": 70.9,
+      "word": " a"
+     },
+     {
+      "start": 70.9,
+      "end": 71.14,
+      "word": " penalty"
+     },
+     {
+      "start": 71.14,
+      "end": 71.48,
+      "word": " so"
+     },
+     {
+      "start": 71.48,
+      "end": 71.6,
+      "word": " it"
+     },
+     {
+      "start": 71.6,
+      "end": 71.9,
+      "word": " doesn't"
+     },
+     {
+      "start": 71.9,
+      "end": 72.12,
+      "word": " drift"
+     },
+     {
+      "start": 72.12,
+      "end": 72.38,
+      "word": " too"
+     },
+     {
+      "start": 72.38,
+      "end": 72.62,
+      "word": " far"
+     },
+     {
+      "start": 72.62,
+      "end": 72.8,
+      "word": " from"
+     },
+     {
+      "start": 72.8,
+      "end": 72.94,
+      "word": " the"
+     },
+     {
+      "start": 72.94,
+      "end": 73.28,
+      "word": " original"
+     },
+     {
+      "start": 73.28,
+      "end": 73.72,
+      "word": " model."
+     }
+    ]
+   },
+   {
+    "start": 74.92,
+    "end": 77.06,
+    "text": "Yes, the kale penalty, good, that's all for today.",
+    "words": [
+     {
+      "start": 74.92,
+      "end": 75.44,
+      "word": " Yes,"
+     },
+     {
+      "start": 75.6,
+      "end": 75.68,
+      "word": " the"
+     },
+     {
+      "start": 75.68,
+      "end": 75.82,
+      "word": " kale"
+     },
+     {
+      "start": 75.82,
+      "end": 76.2,
+      "word": " penalty,"
+     },
+     {
+      "start": 76.28,
+      "end": 76.34,
+      "word": " good,"
+     },
+     {
+      "start": 76.4,
+      "end": 76.54,
+      "word": " that's"
+     },
+     {
+      "start": 76.54,
+      "end": 76.64,
+      "word": " all"
+     },
+     {
+      "start": 76.64,
+      "end": 76.78,
+      "word": " for"
+     },
+     {
+      "start": 76.78,
+      "end": 77.06,
+      "word": " today."
+     }
+    ]
+   }
+  ]
+ },
+ "word_segments": [
+  [
+   0.7800000000000056,
+   6.1
+  ],
+  [
+   6.1,
+   7.94
+  ],
+  [
+   8.24,
+   9.84
+  ],
+  [
+   10.940000000000005,
+   15.54
+  ],
+  [
+   15.54,
+   17.42
+  ],
+  [
+   19.120000000000005,
+   22.04
+  ],
+  [
+   22.98,
+   24.18
+  ],
+  [
+   24.18,
+   30.64
+  ],
+  [
+   31.52,
+   34.58
+  ],
+  [
+   35.9,
+   40.72
+  ],
+  [
+   40.72,
+   42.52
+  ],
+  [
+   43.92,
+   47.2
+  ],
+  [
+   48.96,
+   52.84
+  ],
+  [
+   53.480000000000004,
+   56.42
+  ],
+  [
+   57.7,
+   61.4
+  ],
+  [
+   61.4,
+   64.26
+  ],
+  [
+   65.26,
+   70.26
+  ],
+  [
+   70.26,
+   73.72
+  ],
+  [
+   74.92,
+   77.06
+  ]
+ ],
+ "word_segment_matches": [
+  [
+   {
+    "person_id": "prof",
+    "name": "prof",
+    "score": 0.8302765488624573,
+    "same_speaker": true
+   },
+   {
+    "person_id": "tina",
+    "name": "tina",
+    "score": 0.09040012955665588,
+    "same_speaker": false
+   },
+   {
+    "person_id": "koh-qing-jia",
+    "name": "Koh Qing Jia",
+    "score": 0.08027957379817963,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tasmin",
+    "name": "tasmin",
+    "score": 0.05444109067320824,
+    "same_speaker": false
+   },
+   {
+    "person_id": "le-yong",
+    "name": "le yong",
+    "score": -0.06608720123767853,
+    "same_speaker": false
+   }
+  ],
+  [
+   {
+    "person_id": "prof",
+    "name": "prof",
+    "score": 0.6504896879196167,
+    "same_speaker": true
+   },
+   {
+    "person_id": "koh-qing-jia",
+    "name": "Koh Qing Jia",
+    "score": 0.11094523221254349,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tina",
+    "name": "tina",
+    "score": 0.07397030293941498,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tasmin",
+    "name": "tasmin",
+    "score": -0.0073003508150577545,
+    "same_speaker": false
+   },
+   {
+    "person_id": "le-yong",
+    "name": "le yong",
+    "score": -0.11521199345588684,
+    "same_speaker": false
+   }
+  ],
+  [
+   {
+    "person_id": "prof",
+    "name": "prof",
+    "score": 0.658249020576477,
+    "same_speaker": true
+   },
+   {
+    "person_id": "koh-qing-jia",
+    "name": "Koh Qing Jia",
+    "score": 0.1271975040435791,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tina",
+    "name": "tina",
+    "score": 0.09862270951271057,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tasmin",
+    "name": "tasmin",
+    "score": 0.05316217988729477,
+    "same_speaker": false
+   },
+   {
+    "person_id": "le-yong",
+    "name": "le yong",
+    "score": -0.008614461869001389,
+    "same_speaker": false
+   }
+  ],
+  [
+   {
+    "person_id": "tina",
+    "name": "tina",
+    "score": 0.7814838886260986,
+    "same_speaker": true
+   },
+   {
+    "person_id": "tasmin",
+    "name": "tasmin",
+    "score": 0.1947001814842224,
+    "same_speaker": false
+   },
+   {
+    "person_id": "koh-qing-jia",
+    "name": "Koh Qing Jia",
+    "score": 0.14501942694187164,
+    "same_speaker": false
+   },
+   {
+    "person_id": "le-yong",
+    "name": "le yong",
+    "score": 0.08429168164730072,
+    "same_speaker": false
+   },
+   {
+    "person_id": "prof",
+    "name": "prof",
+    "score": 0.041897304356098175,
+    "same_speaker": false
+   }
+  ],
+  [
+   {
+    "person_id": "tina",
+    "name": "tina",
+    "score": 0.6521062254905701,
+    "same_speaker": true
+   },
+   {
+    "person_id": "tasmin",
+    "name": "tasmin",
+    "score": 0.12123800069093704,
+    "same_speaker": false
+   },
+   {
+    "person_id": "koh-qing-jia",
+    "name": "Koh Qing Jia",
+    "score": 0.0981350690126419,
+    "same_speaker": false
+   },
+   {
+    "person_id": "le-yong",
+    "name": "le yong",
+    "score": 0.0906476229429245,
+    "same_speaker": false
+   },
+   {
+    "person_id": "prof",
+    "name": "prof",
+    "score": -0.004755478352308273,
+    "same_speaker": false
+   }
+  ],
+  [
+   {
+    "person_id": "prof",
+    "name": "prof",
+    "score": 0.798453688621521,
+    "same_speaker": true
+   },
+   {
+    "person_id": "koh-qing-jia",
+    "name": "Koh Qing Jia",
+    "score": 0.016477689146995544,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tasmin",
+    "name": "tasmin",
+    "score": 0.013974040746688843,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tina",
+    "name": "tina",
+    "score": 0.0020888205617666245,
+    "same_speaker": false
+   },
+   {
+    "person_id": "le-yong",
+    "name": "le yong",
+    "score": -0.04703967645764351,
+    "same_speaker": false
+   }
+  ],
+  [
+   {
+    "person_id": "koh-qing-jia",
+    "name": "Koh Qing Jia",
+    "score": 0.553466796875,
+    "same_speaker": true
+   },
+   {
+    "person_id": "prof",
+    "name": "prof",
+    "score": 0.11833866685628891,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tina",
+    "name": "tina",
+    "score": 0.07302934676408768,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tasmin",
+    "name": "tasmin",
+    "score": 0.017124250531196594,
+    "same_speaker": false
+   },
+   {
+    "person_id": "le-yong",
+    "name": "le yong",
+    "score": -0.016989748924970627,
+    "same_speaker": false
+   }
+  ],
+  [
+   {
+    "person_id": "koh-qing-jia",
+    "name": "Koh Qing Jia",
+    "score": 0.7343136668205261,
+    "same_speaker": true
+   },
+   {
+    "person_id": "tina",
+    "name": "tina",
+    "score": 0.12257583439350128,
+    "same_speaker": false
+   },
+   {
+    "person_id": "prof",
+    "name": "prof",
+    "score": 0.10299782454967499,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tasmin",
+    "name": "tasmin",
+    "score": 0.07138088345527649,
+    "same_speaker": false
+   },
+   {
+    "person_id": "le-yong",
+    "name": "le yong",
+    "score": 0.019297147169709206,
+    "same_speaker": false
+   }
+  ],
+  [
+   {
+    "person_id": "prof",
+    "name": "prof",
+    "score": 0.8284695744514465,
+    "same_speaker": true
+   },
+   {
+    "person_id": "tina",
+    "name": "tina",
+    "score": 0.03921548277139664,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tasmin",
+    "name": "tasmin",
+    "score": 0.03012331947684288,
+    "same_speaker": false
+   },
+   {
+    "person_id": "koh-qing-jia",
+    "name": "Koh Qing Jia",
+    "score": 0.008006582967936993,
+    "same_speaker": false
+   },
+   {
+    "person_id": "le-yong",
+    "name": "le yong",
+    "score": -0.08533403277397156,
+    "same_speaker": false
+   }
+  ],
+  [
+   {
+    "person_id": "tina",
+    "name": "tina",
+    "score": 0.8323388695716858,
+    "same_speaker": true
+   },
+   {
+    "person_id": "tasmin",
+    "name": "tasmin",
+    "score": 0.18868106603622437,
+    "same_speaker": false
+   },
+   {
+    "person_id": "koh-qing-jia",
+    "name": "Koh Qing Jia",
+    "score": 0.16587667167186737,
+    "same_speaker": false
+   },
+   {
+    "person_id": "prof",
+    "name": "prof",
+    "score": 0.09684281051158905,
+    "same_speaker": false
+   },
+   {
+    "person_id": "le-yong",
+    "name": "le yong",
+    "score": 0.03479365259408951,
+    "same_speaker": false
+   }
+  ],
+  [
+   {
+    "person_id": "tina",
+    "name": "tina",
+    "score": 0.7290027737617493,
+    "same_speaker": true
+   },
+   {
+    "person_id": "tasmin",
+    "name": "tasmin",
+    "score": 0.17752492427825928,
+    "same_speaker": false
+   },
+   {
+    "person_id": "koh-qing-jia",
+    "name": "Koh Qing Jia",
+    "score": 0.14641588926315308,
+    "same_speaker": false
+   },
+   {
+    "person_id": "le-yong",
+    "name": "le yong",
+    "score": 0.090004563331604,
+    "same_speaker": false
+   },
+   {
+    "person_id": "prof",
+    "name": "prof",
+    "score": 0.0731341540813446,
+    "same_speaker": false
+   }
+  ],
+  [
+   {
+    "person_id": "prof",
+    "name": "prof",
+    "score": 0.7816956043243408,
+    "same_speaker": true
+   },
+   {
+    "person_id": "koh-qing-jia",
+    "name": "Koh Qing Jia",
+    "score": 0.06365574896335602,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tina",
+    "name": "tina",
+    "score": 0.0518362782895565,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tasmin",
+    "name": "tasmin",
+    "score": 0.013105541467666626,
+    "same_speaker": false
+   },
+   {
+    "person_id": "le-yong",
+    "name": "le yong",
+    "score": -0.0592019185423851,
+    "same_speaker": false
+   }
+  ],
+  [
+   {
+    "person_id": "le-yong",
+    "name": "le yong",
+    "score": 0.7199910283088684,
+    "same_speaker": true
+   },
+   {
+    "person_id": "koh-qing-jia",
+    "name": "Koh Qing Jia",
+    "score": 0.1333845853805542,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tasmin",
+    "name": "tasmin",
+    "score": 0.05635777488350868,
+    "same_speaker": false
+   },
+   {
+    "person_id": "prof",
+    "name": "prof",
+    "score": 0.0024276096373796463,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tina",
+    "name": "tina",
+    "score": -0.03580920025706291,
+    "same_speaker": false
+   }
+  ],
+  [
+   {
+    "person_id": "le-yong",
+    "name": "le yong",
+    "score": 0.7560871839523315,
+    "same_speaker": true
+   },
+   {
+    "person_id": "koh-qing-jia",
+    "name": "Koh Qing Jia",
+    "score": 0.1566624790430069,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tasmin",
+    "name": "tasmin",
+    "score": 0.10191109031438828,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tina",
+    "name": "tina",
+    "score": -0.02592591941356659,
+    "same_speaker": false
+   },
+   {
+    "person_id": "prof",
+    "name": "prof",
+    "score": -0.04370119422674179,
+    "same_speaker": false
+   }
+  ],
+  [
+   {
+    "person_id": "prof",
+    "name": "prof",
+    "score": 0.8354023098945618,
+    "same_speaker": true
+   },
+   {
+    "person_id": "tina",
+    "name": "tina",
+    "score": 0.07352428883314133,
+    "same_speaker": false
+   },
+   {
+    "person_id": "koh-qing-jia",
+    "name": "Koh Qing Jia",
+    "score": 0.05801284685730934,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tasmin",
+    "name": "tasmin",
+    "score": 0.03874492272734642,
+    "same_speaker": false
+   },
+   {
+    "person_id": "le-yong",
+    "name": "le yong",
+    "score": -0.05953802540898323,
+    "same_speaker": false
+   }
+  ],
+  [
+   {
+    "person_id": "prof",
+    "name": "prof",
+    "score": 0.7852785587310791,
+    "same_speaker": true
+   },
+   {
+    "person_id": "tina",
+    "name": "tina",
+    "score": 0.04701477661728859,
+    "same_speaker": false
+   },
+   {
+    "person_id": "koh-qing-jia",
+    "name": "Koh Qing Jia",
+    "score": 0.00812502671033144,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tasmin",
+    "name": "tasmin",
+    "score": -0.014122303575277328,
+    "same_speaker": false
+   },
+   {
+    "person_id": "le-yong",
+    "name": "le yong",
+    "score": -0.0580010861158371,
+    "same_speaker": false
+   }
+  ],
+  [
+   {
+    "person_id": "tasmin",
+    "name": "tasmin",
+    "score": 0.7341921329498291,
+    "same_speaker": true
+   },
+   {
+    "person_id": "tina",
+    "name": "tina",
+    "score": 0.27557313442230225,
+    "same_speaker": true
+   },
+   {
+    "person_id": "koh-qing-jia",
+    "name": "Koh Qing Jia",
+    "score": 0.1086047887802124,
+    "same_speaker": false
+   },
+   {
+    "person_id": "le-yong",
+    "name": "le yong",
+    "score": 0.10376614332199097,
+    "same_speaker": false
+   },
+   {
+    "person_id": "prof",
+    "name": "prof",
+    "score": 0.05903870612382889,
+    "same_speaker": false
+   }
+  ],
+  [
+   {
+    "person_id": "tasmin",
+    "name": "tasmin",
+    "score": 0.7397368550300598,
+    "same_speaker": true
+   },
+   {
+    "person_id": "tina",
+    "name": "tina",
+    "score": 0.24101895093917847,
+    "same_speaker": false
+   },
+   {
+    "person_id": "le-yong",
+    "name": "le yong",
+    "score": 0.09666512906551361,
+    "same_speaker": false
+   },
+   {
+    "person_id": "prof",
+    "name": "prof",
+    "score": 0.08658966422080994,
+    "same_speaker": false
+   },
+   {
+    "person_id": "koh-qing-jia",
+    "name": "Koh Qing Jia",
+    "score": 0.040588416159152985,
+    "same_speaker": false
+   }
+  ],
+  [
+   {
+    "person_id": "prof",
+    "name": "prof",
+    "score": 0.7757397890090942,
+    "same_speaker": true
+   },
+   {
+    "person_id": "tina",
+    "name": "tina",
+    "score": 0.11111652106046677,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tasmin",
+    "name": "tasmin",
+    "score": 0.0546238087117672,
+    "same_speaker": false
+   },
+   {
+    "person_id": "koh-qing-jia",
+    "name": "Koh Qing Jia",
+    "score": 0.02921118400990963,
+    "same_speaker": false
+   },
+   {
+    "person_id": "le-yong",
+    "name": "le yong",
+    "score": -0.0593382902443409,
+    "same_speaker": false
+   }
+  ]
+ ],
+ "word_segment_scoring_s": 2.2060490681324154,
+ "turn_spans": [
+  [
+   0.7800000000000056,
+   9.84
+  ],
+  [
+   10.940000000000005,
+   17.42
+  ],
+  [
+   22.98,
+   30.64
+  ],
+  [
+   35.9,
+   42.52
+  ],
+  [
+   48.96,
+   56.42
+  ],
+  [
+   57.7,
+   64.26
+  ],
+  [
+   65.26,
+   73.72
+  ]
+ ],
+ "turn_matches": [
+  [
+   {
+    "person_id": "prof",
+    "name": "prof",
+    "score": 0.8276524543762207,
+    "same_speaker": true
+   },
+   {
+    "person_id": "koh-qing-jia",
+    "name": "Koh Qing Jia",
+    "score": 0.10137596726417542,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tina",
+    "name": "tina",
+    "score": 0.08374074101448059,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tasmin",
+    "name": "tasmin",
+    "score": 0.04721497744321823,
+    "same_speaker": false
+   },
+   {
+    "person_id": "le-yong",
+    "name": "le yong",
+    "score": -0.06548181176185608,
+    "same_speaker": false
+   }
+  ],
+  [
+   {
+    "person_id": "tina",
+    "name": "tina",
+    "score": 0.8059403896331787,
+    "same_speaker": true
+   },
+   {
+    "person_id": "tasmin",
+    "name": "tasmin",
+    "score": 0.19972436130046844,
+    "same_speaker": false
+   },
+   {
+    "person_id": "koh-qing-jia",
+    "name": "Koh Qing Jia",
+    "score": 0.15061432123184204,
+    "same_speaker": false
+   },
+   {
+    "person_id": "le-yong",
+    "name": "le yong",
+    "score": 0.08393163979053497,
+    "same_speaker": false
+   },
+   {
+    "person_id": "prof",
+    "name": "prof",
+    "score": 0.04216523468494415,
+    "same_speaker": false
+   }
+  ],
+  [
+   {
+    "person_id": "koh-qing-jia",
+    "name": "Koh Qing Jia",
+    "score": 0.7476207613945007,
+    "same_speaker": true
+   },
+   {
+    "person_id": "tina",
+    "name": "tina",
+    "score": 0.1129429042339325,
+    "same_speaker": false
+   },
+   {
+    "person_id": "prof",
+    "name": "prof",
+    "score": 0.10423347353935242,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tasmin",
+    "name": "tasmin",
+    "score": 0.06560101360082626,
+    "same_speaker": false
+   },
+   {
+    "person_id": "le-yong",
+    "name": "le yong",
+    "score": 0.0093925129622221,
+    "same_speaker": false
+   }
+  ],
+  [
+   {
+    "person_id": "tina",
+    "name": "tina",
+    "score": 0.8464407324790955,
+    "same_speaker": true
+   },
+   {
+    "person_id": "tasmin",
+    "name": "tasmin",
+    "score": 0.20954599976539612,
+    "same_speaker": false
+   },
+   {
+    "person_id": "koh-qing-jia",
+    "name": "Koh Qing Jia",
+    "score": 0.17798364162445068,
+    "same_speaker": false
+   },
+   {
+    "person_id": "prof",
+    "name": "prof",
+    "score": 0.09389543533325195,
+    "same_speaker": false
+   },
+   {
+    "person_id": "le-yong",
+    "name": "le yong",
+    "score": 0.0584806427359581,
+    "same_speaker": false
+   }
+  ],
+  [
+   {
+    "person_id": "le-yong",
+    "name": "le yong",
+    "score": 0.7983821034431458,
+    "same_speaker": true
+   },
+   {
+    "person_id": "koh-qing-jia",
+    "name": "Koh Qing Jia",
+    "score": 0.1423627734184265,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tasmin",
+    "name": "tasmin",
+    "score": 0.06142417713999748,
+    "same_speaker": false
+   },
+   {
+    "person_id": "prof",
+    "name": "prof",
+    "score": -0.014290024526417255,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tina",
+    "name": "tina",
+    "score": -0.03974178060889244,
+    "same_speaker": false
+   }
+  ],
+  [
+   {
+    "person_id": "prof",
+    "name": "prof",
+    "score": 0.8732125163078308,
+    "same_speaker": true
+   },
+   {
+    "person_id": "tina",
+    "name": "tina",
+    "score": 0.07522503286600113,
+    "same_speaker": false
+   },
+   {
+    "person_id": "koh-qing-jia",
+    "name": "Koh Qing Jia",
+    "score": 0.040659099817276,
+    "same_speaker": false
+   },
+   {
+    "person_id": "tasmin",
+    "name": "tasmin",
+    "score": 0.023328129202127457,
+    "same_speaker": false
+   },
+   {
+    "person_id": "le-yong",
+    "name": "le yong",
+    "score": -0.06463567167520523,
+    "same_speaker": false
+   }
+  ],
+  [
+   {
+    "person_id": "tasmin",
+    "name": "tasmin",
+    "score": 0.7662243843078613,
+    "same_speaker": true
+   },
+   {
+    "person_id": "tina",
+    "name": "tina",
+    "score": 0.2726539969444275,
+    "same_speaker": true
+   },
+   {
+    "person_id": "le-yong",
+    "name": "le yong",
+    "score": 0.10634598135948181,
+    "same_speaker": false
+   },
+   {
+    "person_id": "koh-qing-jia",
+    "name": "Koh Qing Jia",
+    "score": 0.08399012684822083,
+    "same_speaker": false
+   },
+   {
+    "person_id": "prof",
+    "name": "prof",
+    "score": 0.07875829935073853,
+    "same_speaker": false
+   }
+  ]
+ ]
+}

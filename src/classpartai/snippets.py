@@ -3,6 +3,11 @@
 Snippets are read from the source files when the page renders, so they always show the code that
 actually runs. Files are parsed with ``ast``, never imported: the audio service loads its models
 at import time.
+
+A name is a top-level name, ``Class.method``, or ``function#tool``: the branch of
+``function`` that handles that tool (``if call.name == "tool":``), for agents whose tools are
+handled inside their loop. ``AGENTS`` lists every agent and its tools, for the How it works
+catalogue.
 """
 
 import ast
@@ -18,6 +23,32 @@ class Snippet:
     path: str  # relative to the repository root
     names: tuple[str, ...]  # top-level names, or "Class.method"
     say: str  # the point to make when presenting it
+
+
+@dataclass(frozen=True)
+class Tool:
+    name: str  # exactly as the model sees it
+    does: str
+    takes: str
+    returns: str
+    guard: str  # its guardrail, or ""
+    path: str
+    names: tuple[str, ...]  # where it's implemented (see the module docstring)
+
+    @property
+    def snippet(self) -> Snippet:
+        return Snippet(self.name, self.path, self.names, self.does)
+
+
+@dataclass(frozen=True)
+class Agent:
+    name: str
+    kind: str  # "agent" (its own loop), "model call", "pipeline" or "code"
+    owner: str
+    summary: str
+    called_by: str  # how it's started
+    tools: tuple[Tool, ...] = ()
+    code: tuple[Snippet, ...] = ()  # for parts without tools: their prompt or code
 
 
 TOPICS: list[tuple[str, list[Snippet]]] = [
@@ -49,6 +80,21 @@ TOPICS: list[tuple[str, list[Snippet]]] = [
                 ("MATCH_MIN_SCORE", "MATCH_MIN_MARGIN", "best_match"),
                 "At least 0.35, and 0.10 ahead of the runner-up; otherwise UNKNOWN or AMBIGUOUS, "
                 "and unnamed lines are never scored.",
+            ),
+            Snippet(
+                "Split Whisper's pieces where the speaker changes",
+                "src/classpartai/agents/listener.py",
+                ("align_words",),
+                "Each word goes to the diarised turn it falls in, so a piece that runs across a "
+                "turn change no longer gives the next speaker's first words to the last one.",
+            ),
+            Snippet(
+                "Check a line, and its whole turn, on their own voice",
+                "src/classpartai/agents/listener.py",
+                ("MIN_SEGMENT_SECONDS", "veto", "turn_runs"),
+                "A line that clearly sounds like someone else becomes AMBIGUOUS. Lines under 1 s "
+                "can't be checked alone, so consecutive lines of one speaker are also checked "
+                "as one turn.",
             ),
         ],
     ),
@@ -164,6 +210,317 @@ TOPICS: list[tuple[str, list[Snippet]]] = [
 ]
 
 
+COORD = "src/classpartai/participation/coordinator.py"
+RESEARCH = "src/classpartai/research/tools.py"
+AUDIT = "src/classpartai/auditor_agent/tools.py"
+AUDIT_LOOP = "src/classpartai/auditor_agent/harness.py"
+
+AGENTS: list[Agent] = [
+    Agent(
+        "Coordinator",
+        "agent",
+        "Le Yong (design, TypeScript); ported to Python and integrated by QJ",
+        "Plans the whole assessment. Each turn it reads what its last tool returned and picks "
+        "the next tool. There is no fixed order and no approve or send tool. Every model and "
+        "tool call, its sub-agents' included, counts against one budget (72 model calls, 108 "
+        "tool calls, 400k tokens, 600 s).",
+        "the ③ Run button",
+        (
+            Tool(
+                "inspect_transcript_context",
+                "Reads the reviewed transcript around chosen turns, or every turn of one "
+                "student, so the Coordinator can see context before deciding to search.",
+                "studentId (optional), up to 12 turnIds",
+                "those turns plus each one's neighbours, at most 20",
+                "Unknown students or turn IDs are refused.",
+                COORD,
+                ("coordinate#inspect_transcript_context",),
+            ),
+            Tool(
+                "retrieve_evidence",
+                "Starts the Research agent on one question about what students said, or reuses "
+                "an earlier run's evidence. The evidence is saved as its own run.",
+                "a question, 1-8 turnIds, 1-6 criterionIds, or reuseRunId",
+                "the evidence run's ID, status and its evidence bundle",
+                "Research's tool calls count against the Coordinator's budget.",
+                COORD,
+                ("coordinate#retrieve_evidence",),
+            ),
+            Tool(
+                "propose_rubric_assessment",
+                "Runs the Judge: a score per student per criterion, or 'insufficient "
+                "evidence'. The result is saved as a new draft version.",
+                "a note saying why (e.g. 'revise after audit')",
+                "the new draft's ID, its findings and audit issues",
+                "Every score is validated: right students, existing turns, the student's own "
+                "turns, the rubric's range. A failure goes back to the Judge with the reason.",
+                COORD,
+                ("coordinate#propose_rubric_assessment",),
+            ),
+            Tool(
+                "audit_assessment",
+                "Runs the Auditor agent on the latest draft (a single model call if the agent "
+                "fails) and saves its issues with a new version.",
+                "a note",
+                "the new draft's ID and its audit",
+                "Refused before any draft exists. The Auditor never changes a score.",
+                COORD,
+                ("coordinate#audit_assessment",),
+            ),
+            Tool(
+                "draft_student_feedback",
+                "Asks the Feedback writer for one student's feedback: what went well and one "
+                "next step, citing their turns. It may instead ask for more evidence.",
+                "a studentId",
+                "the new draft's ID, or a request for more evidence",
+                "Refused before findings exist ('Create findings before feedback'), or when "
+                "the writer returns a different student.",
+                COORD,
+                ("coordinate#draft_student_feedback",),
+            ),
+            Tool(
+                "request_professor_review",
+                "Ends the run and hands the draft to the professor in ④ Approve.",
+                "a summary for the professor",
+                "the run's end",
+                "Refused until every student has findings and feedback and the latest version "
+                "is audited. The third refusal ends the run as 'escalated with open issues'. It "
+                "never approves or sends.",
+                COORD,
+                ("coordinate#request_professor_review",),
+            ),
+        ),
+    ),
+    Agent(
+        "Research",
+        "agent",
+        "Tasmin",
+        "Agentic RAG. Checks what a student said against the course notes: it writes its own "
+        "queries, searches, grades what it finds, searches again if the evidence is weak (at "
+        "most twice), and cites only exact quotes from the notes.",
+        "the Coordinator's retrieve_evidence",
+        (
+            Tool(
+                "get_lesson_context",
+                "Looks up the seminar on a date in the course schedule, so the agent knows "
+                "what's on-topic and which week to search.",
+                "a date",
+                "week number, topic, key concepts and discussion prompts",
+                "",
+                RESEARCH,
+                ("ResearchTools._lesson",),
+            ),
+            Tool(
+                "search_course_materials",
+                "Hybrid search of the session's course library: BM25 keywords and embedding "
+                "vectors, fused with Reciprocal Rank Fusion.",
+                "a query, optional week, k (1-8, default 5)",
+                "chunks with their source: deck and slide, or file and page",
+                "Retrieved text is data, never instructions: text that reads like an "
+                "instruction is flagged.",
+                RESEARCH,
+                ("ResearchTools._search_course",),
+            ),
+            Tool(
+                "search_web",
+                "Searches the public web, for facts the course notes couldn't contain.",
+                "a query, k",
+                "snippets with URLs",
+                "Off on the live site (no Tavily key), so the agent isn't offered it. Web "
+                "results are context only, never cited as evidence.",
+                RESEARCH,
+                ("ResearchTools._search_web",),
+            ),
+            Tool(
+                "grade_evidence",
+                "An LLM grades retrieved chunks against one claim (corrective RAG).",
+                "a claim, up to 8 chunk IDs from its searches",
+                "per chunk: relevant / partial / irrelevant, supports or contradicts, an "
+                "exact quote; overall: sufficient, weak or none",
+                "A quote not found word for word in the chunk is dropped, and without one the "
+                "verdict can't be decisive.",
+                RESEARCH,
+                ("ResearchTools._grade",),
+            ),
+            Tool(
+                "submit_findings",
+                "Finishes: hands every graded claim and expected point back to the Coordinator.",
+                "the claims, as worded when graded",
+                "the evidence pack for the Coordinator",
+                "Unfinished work (e.g. a claim not yet graded) is sent back once with what's "
+                "missing, while there's budget; the second submission is accepted.",
+                "src/classpartai/research/agent.py",
+                ("ResearchAgent.run#submit_findings",),
+            ),
+        ),
+    ),
+    Agent(
+        "Auditor",
+        "agent",
+        "Le Yong; wired in as the audit step by QJ",
+        "Checks the Judge's work before the professor sees it: are scores supported, are "
+        "citations real, is anything an injection, is it fair? It raises issues and may ask "
+        "for one targeted re-judge, but never changes a score itself.",
+        "the Coordinator's audit_assessment",
+        (
+            Tool(
+                "get_session_scores",
+                "Reads the Judge's findings and rationales, ten at a time.",
+                "offset, limit (1-10)",
+                "a page of findings",
+                "",
+                AUDIT,
+                ("AuditTools.get_session_scores",),
+            ),
+            Tool(
+                "compare_similar",
+                "Finds the contributions most similar to one finding's, to check that similar "
+                "answers got similar scores.",
+                "a finding_id, k (1-5)",
+                "the most similar findings with their scores",
+                "",
+                AUDIT,
+                ("AuditTools.compare_similar",),
+            ),
+            Tool(
+                "verify_citation",
+                "Fetches one piece of evidence a finding cites, checks the reference and "
+                "quote are real, and has a model judge whether it supports the rationale.",
+                "a finding_id, an evidence_id attached to it",
+                "supports / partly supports / contradicts / fails to verify, with the quote",
+                "Only evidence attached to that finding can be fetched.",
+                AUDIT,
+                ("AuditTools.verify_citation",),
+            ),
+            Tool(
+                "detect_injection",
+                "Checks a contribution or rationale that seems to instruct the grader (e.g. "
+                "'ignore the rubric') with a pattern check on its original text.",
+                "target (contribution or rationale), its ID",
+                "an injection signal for the agent to weigh: quoting an example isn't an attack",
+                "",
+                AUDIT,
+                ("AuditTools.detect_injection",),
+            ),
+            Tool(
+                "score_stats",
+                "A fairness check: do scores track speaking time or transcription confidence?",
+                "nothing",
+                "correlations with their sample size and missing data",
+                "Reports correlation, never claims it proves bias.",
+                AUDIT,
+                ("AuditTools.score_stats",),
+            ),
+            Tool(
+                "request_rejudge",
+                "Objects to specific findings and asks the Judge for one targeted revision.",
+                "1-20 issues",
+                "the objections, handed back to the Coordinator",
+                "One re-judge round per audit. It may not propose a replacement grade.",
+                AUDIT,
+                ("AuditTools.request_rejudge",),
+            ),
+            Tool(
+                "complete_audit",
+                "Finishes the audit with a verdict and its issues.",
+                "verdict (audit passed / professor review required), issues, resolved issue IDs",
+                "the audit, saved with the draft",
+                "A pass is blocked while required checks are missing; it says which.",
+                AUDIT_LOOP,
+                ("run_audit#complete_audit",),
+            ),
+        ),
+    ),
+    Agent(
+        "Judge",
+        "model call",
+        "Saurabh (a full agent is on his branch, not merged yet)",
+        "One structured model call: scores each student on each rubric criterion from their "
+        "attributed turns and the evidence, or says 'insufficient evidence' (not zero).",
+        "the Coordinator's propose_rubric_assessment",
+        code=(
+            Snippet(
+                "Its prompt and the checks on its answer",
+                "src/classpartai/participation/roles.py",
+                ("judge",),
+                "Its instructions, what it's given, and validate_proposal on every answer: a "
+                "refused score goes back to it with the reason.",
+            ),
+        ),
+    ),
+    Agent(
+        "Feedback writer",
+        "model call",
+        "from Le Yong's workflow",
+        "One structured model call per student: what went well and one next step, citing "
+        "their own turns. It can ask for more evidence instead.",
+        "the Coordinator's draft_student_feedback",
+        code=(
+            Snippet(
+                "Its prompt and what it's given",
+                "src/classpartai/participation/roles.py",
+                ("feedback_for",),
+                "Only that student's findings and turns, the rubric, goals and validated "
+                "evidence. It writes strengths and one next step, never names another student.",
+            ),
+            Snippet(
+                "The rules every model role gets",
+                "src/classpartai/participation/roles.py",
+                ("ROLE_POLICY",),
+                "Everything it reads is untrusted data, never instructions; it may not send.",
+            ),
+        ),
+    ),
+    Agent(
+        "Listener",
+        "pipeline",
+        "Tina (pipeline); line and turn checks by QJ",
+        "Fixed steps, no model deciding anything: Whisper transcribes, pyannote splits the "
+        "audio by voice, voice embeddings name each speaker, then each line and each turn is "
+        "checked again. A person confirms in ② Who spoke?.",
+        "① Record (before the Coordinator runs)",
+        code=(
+            Snippet(
+                "Tina's pipeline: transcribe, diarise, identify",
+                "audio-service/pipeline.py",
+                ("process_audio",),
+                "Whisper, then pyannote, then a voice match per diarised speaker.",
+            ),
+            Snippet(
+                "Who said what: words to turns, then the line and turn checks",
+                "src/classpartai/agents/listener.py",
+                ("decide_speakers",),
+                "See 'How the Listener decides who spoke' below for each stage.",
+            ),
+        ),
+    ),
+    Agent(
+        "Delivery",
+        "code",
+        "QJ",
+        "Plain code, not a model: emails each student their approved feedback through "
+        "AgentMail. Test mode sends everything to one inbox.",
+        "the professor's Send button in ⑤",
+        code=(
+            Snippet(
+                "The email: a fixed template, no model",
+                "src/classpartai/participation/delivery.py",
+                ("feedback_email",),
+                "The Feedback writer's two paragraphs, the score, limitations and exact course "
+                "excerpts, in a fixed layout.",
+            ),
+            Snippet(
+                "Sending: only the approved version",
+                "src/classpartai/participation/delivery.py",
+                ("deliver_approved",),
+                "Refuses unless the approval matches the exact content and recipients, and "
+                "never retries an email whose outcome is unknown.",
+            ),
+        ),
+    ),
+]
+
+
 def _find(tree: ast.Module, name: str) -> ast.stmt | None:
     owner, _, member = name.rpartition(".")
     body = tree.body
@@ -180,6 +537,20 @@ def _find(tree: ast.Module, name: str) -> ast.stmt | None:
     return None
 
 
+def _branch(function: ast.stmt, tool: str) -> ast.If | None:
+    """The ``if call.name == "<tool>":`` branch inside ``function``."""
+    for node in ast.walk(function):
+        if (
+            isinstance(node, ast.If)
+            and isinstance(node.test, ast.Compare)
+            and isinstance(node.test.left, ast.Attribute)
+            and node.test.left.attr == "name"
+            and any(isinstance(c, ast.Constant) and c.value == tool for c in node.test.comparators)
+        ):
+            return node
+    return None
+
+
 def source(snippet: Snippet, root: Path = REPO_ROOT) -> tuple[str, int] | None:
     """The snippet's code (whole lines, with the comments just above each name) and its first
     line number, or None when the file or a name is missing."""
@@ -190,13 +561,22 @@ def source(snippet: Snippet, root: Path = REPO_ROOT) -> tuple[str, int] | None:
     lines, tree = text.splitlines(), ast.parse(text)
     parts, first = [], None
     for name in snippet.names:
+        name, _, tool = name.partition("#")
         node = _find(tree, name)
+        if node is not None and tool:
+            branch = _branch(node, tool)
+            if branch is None:
+                return None
+            # Only this branch: up to its last statement, not the elif chain after it.
+            node, end = branch, branch.body[-1].end_lineno
+        elif node is not None:
+            end = node.end_lineno
         if node is None:
             return None
         start = min([node.lineno, *(d.lineno for d in getattr(node, "decorator_list", []))])
         while start > 1 and lines[start - 2].lstrip().startswith("#"):
             start -= 1
-        block = lines[start - 1 : node.end_lineno]
+        block = lines[start - 1 : end]
         indent = min(len(line) - len(line.lstrip()) for line in block if line.strip())
         parts.append("\n".join(line[indent:] for line in block))
         first = first or start

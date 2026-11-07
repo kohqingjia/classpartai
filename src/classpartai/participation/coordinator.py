@@ -6,7 +6,8 @@ hand everything to the professor. It has no approval or delivery tools.
 
 ``on_event(kind, detail)`` lets the UI animate the run: "thinking" before each model call,
 "action" after each tool call (detail = the action record), "substep" for each tool the
-evidence agent runs inside retrieve_evidence, "done" at the end.
+evidence agent runs inside retrieve_evidence, "retrieval" for each course search, "done" at
+the end. Every event is also stored with its time (``Records.run_events``) for replay.
 """
 
 import json
@@ -29,13 +30,13 @@ from classpartai.models import (
     configured_driver,
     tool,
 )
+from classpartai.participation.auditor_bridge import AuditorSession, agent_audit
 from classpartai.participation.judge import Revision, judge
 from classpartai.participation.records import Draft, Records
 from classpartai.participation.roles import (
     ROLE_POLICY,
     DriverFactory,
     feedback_for,
-    model_audit,
 )
 from classpartai.participation.schema import Proposal
 from classpartai.participation.validation import Unprocessable, audit_draft
@@ -156,6 +157,22 @@ def _coordinate(
     ledger.update(run_id=run_id)
 
     started = time.monotonic()
+    seq = [0]
+
+    def emit(kind: str, detail: dict | None) -> None:
+        """Show the event live, and keep it (slimmed to what the UI reads) for replay."""
+        on_event(kind, detail)
+        kept = detail
+        if kind == "action":
+            kept = {k: detail.get(k) for k in ("id", "tool", "arguments", "outcome", "summary")}
+            result = detail.get("result")
+            if isinstance(result, dict) and result.get("draftId"):
+                kept["draftId"] = result["draftId"]
+        try:
+            records.append_run_event(run_id, seq[0], time.monotonic() - started, kind, kept)
+        except Exception:  # a replay record must never stop the run itself
+            pass
+        seq[0] += 1
 
     def checkpoint() -> None:
         progress.elapsedSeconds = round(time.monotonic() - started, 3)
@@ -169,7 +186,7 @@ def _coordinate(
         records.update_run(
             run_id, asdict(progress), "configuration_blocked", "model_not_configured"
         )
-        on_event("done", {"stopReason": "model_not_configured"})
+        emit("done", {"stopReason": "model_not_configured"})
         return run_id
 
     budget = SharedBudget(progress, time.monotonic() + WORKFLOW_LIMITS["seconds"], checkpoint)
@@ -203,12 +220,14 @@ def _coordinate(
     progress.coordinatorInput = {"instructions": COORDINATOR_POLICY, "history": history.copy()}
     checkpoint()
     turns = inputs.transcript.turns
+    auditor = AuditorSession()  # one-round re-judge state, for this run only
+    review_refusals = 0
     stop_reason = "shared_budget_exhausted"
     try:
         while True:
             if budget.expired():
                 raise BudgetExceeded()
-            on_event("thinking", None)
+            emit("thinking", None)
             response = budget.call(driver, history)
             budget.tool()
             if len(response.calls) != 1:
@@ -239,7 +258,7 @@ def _coordinate(
                 raw = json.loads(call.arguments)
                 draft = records.latest_draft(session_id)
                 if call.name == "inspect_transcript_context":
-                    args = Inspect.model_validate(raw)
+                    args = _arguments(Inspect, raw)
                     action["arguments"] = args.model_dump_json()
                     if args.studentId is not None and not any(
                         s.id == args.studentId for s in inputs.roster
@@ -264,7 +283,7 @@ def _coordinate(
                         "limits": "At most 20 context turns; inspect more stable IDs if needed",
                     }
                 elif call.name == "retrieve_evidence":
-                    args = Retrieve.model_validate(raw)
+                    args = _arguments(Retrieve, raw)
                     action["arguments"] = args.model_dump_json()
                     if args.reuseRunId:
                         bundle = dict(records.evidence_for(session_id)).get(args.reuseRunId)
@@ -293,7 +312,7 @@ def _coordinate(
                             nonlocal before, searches_seen
                             searches = searches_of(p)
                             for search in searches[searches_seen:]:
-                                on_event("retrieval", search)
+                                emit("retrieval", search)
                             searches_seen = len(searches)
                             if p.toolCalls > before:
                                 budget.tool(p.toolCalls - before)
@@ -301,7 +320,7 @@ def _coordinate(
                                 tool_name = getattr(p, "lastTool", None) or (
                                     p.actions[-1]["tool"] if p.actions else "working"
                                 )
-                                on_event("substep", {"tool": tool_name, "step": p.toolCalls})
+                                emit("substep", {"tool": tool_name, "step": p.toolCalls})
 
                         if use_research:  # ② Research (research/bridge.py), same contract
                             from classpartai.research import bridge
@@ -319,7 +338,7 @@ def _coordinate(
                             "bundle": outcome.progress.bundle.model_dump(),
                         }
                 elif call.name == "propose_rubric_assessment":
-                    args = Revise.model_validate(raw)
+                    args = _arguments(Revise, raw)
                     action["arguments"] = args.model_dump_json()
                     # A revision tells the Judge what the audit objected to, so it re-scores only
                     # those students instead of everyone.
@@ -347,12 +366,20 @@ def _coordinate(
                         "auditIssues": [i.model_dump() for i in nxt.content.audit.issues],
                     }
                 elif call.name == "audit_assessment":
-                    args = Revise.model_validate(raw)
+                    args = _arguments(Revise, raw)
                     action["arguments"] = args.model_dump_json()
                     if draft is None:
                         raise Unprocessable("Create a provisional draft before audit")
-                    audit = model_audit(
-                        inputs, draft.content, records.evidence_for(session_id), budget, factory
+                    # Le Yong's Auditor agent; falls back to the single-call model_audit.
+                    audit = agent_audit(
+                        inputs,
+                        draft.content,
+                        records.evidence_for(session_id),
+                        budget,
+                        factory,
+                        session_id=session_id,
+                        draft_id=draft.id,
+                        session=auditor,
                     )
                     nxt = records.append_draft(
                         session_id, _proposal(draft), "model", args.note, draft.version, audit
@@ -360,7 +387,7 @@ def _coordinate(
                     progress.latestDraftId = nxt.id
                     output = {"draftId": nxt.id, "audit": nxt.content.audit.model_dump()}
                 elif call.name == "draft_student_feedback":
-                    args = Student.model_validate(raw)
+                    args = _arguments(Student, raw)
                     action["arguments"] = args.model_dump_json()
                     if draft is None:
                         raise Unprocessable("Create findings before feedback")
@@ -397,7 +424,7 @@ def _coordinate(
                             "auditIssues": [i.model_dump() for i in nxt.content.audit.issues],
                         }
                 elif call.name == "request_professor_review":
-                    args = Review.model_validate(raw)
+                    args = _arguments(Review, raw)
                     action["arguments"] = args.model_dump_json()
                     if draft is None:
                         raise Unprocessable("No provisional draft exists")
@@ -406,24 +433,40 @@ def _coordinate(
                     blocking = [
                         i for i in audit_draft(draft.content, inputs) if i.severity == "blocking"
                     ]
+                    problem = None
                     if blocking:
-                        raise Unprocessable(
-                            "Complete every roster student's outputs first. Blocking: "
-                            + "; ".join(i.detail for i in blocking[:5])
+                        problem = "Complete every roster student's outputs first. Blocking: " + (
+                            "; ".join(i.detail for i in blocking[:5])
                         )
-                    if not draft.content.audit.modelReviewed:
-                        raise Unprocessable(
+                    elif not draft.content.audit.modelReviewed:
+                        problem = (
                             f"Draft version {draft.version} changed after its last audit: call "
                             "audit_assessment on it, then request review"
                         )
-                    action["outcome"] = "ok"
-                    action["summary"] = (
-                        "Complete provisional outputs escalated to professor; no approval or "
-                        "delivery performed"
-                    )
-                    stop_reason = "ready_for_professor_review"
-                    finished = True
-                    output = None
+                    if problem and review_refusals + 1 < MAX_REVIEW_REFUSALS:
+                        review_refusals += 1
+                        raise Unprocessable(problem)
+                    if problem:
+                        # Retrying the same refused request only spends the budget: hand the
+                        # draft to the professor with its open issues instead. Approval still
+                        # refuses a draft with blocking issues, so nothing incomplete is sent.
+                        action["outcome"] = "ok"
+                        action["summary"] = (
+                            f"Escalated to the professor after {MAX_REVIEW_REFUSALS} refused "
+                            f"review requests, with open issues. {problem}"
+                        )[:600]
+                        stop_reason = "escalated_with_open_issues"
+                        finished = True
+                        output = None
+                    else:
+                        action["outcome"] = "ok"
+                        action["summary"] = (
+                            "Complete provisional outputs escalated to professor; no approval or "
+                            "delivery performed"
+                        )
+                        stop_reason = "ready_for_professor_review"
+                        finished = True
+                        output = None
                 else:
                     raise Unprocessable("Unsupported coordinator action")
                 if not finished:
@@ -458,7 +501,7 @@ def _coordinate(
                 else {"arguments": action["arguments"], "summary": action["summary"]},
             )
             checkpoint()
-            on_event("action", action)
+            emit("action", action)
             if finished:
                 break
             history.append(
@@ -480,8 +523,24 @@ def _coordinate(
         "failed" if stop_reason == "provider_failure" else "needs_review",
         stop_reason,
     )
-    on_event("done", {"stopReason": stop_reason})
+    emit("done", {"stopReason": stop_reason})
     return run_id
+
+
+MAX_REVIEW_REFUSALS = 3  # the third refused request_professor_review escalates instead
+
+
+def _arguments(model: type[Strict], raw) -> Strict:
+    """A tool call's arguments, or a refusal that says which field is wrong, so the model can
+    correct the call rather than repeat it."""
+    try:
+        return model.model_validate(raw)
+    except ValidationError as error:
+        problems = "; ".join(
+            f"{'.'.join(str(part) for part in e['loc']) or 'arguments'}: {e['msg']}"
+            for e in error.errors()[:3]
+        )
+        raise Unprocessable(f"Invalid arguments ({problems})") from None
 
 
 def _proposal(draft: Draft) -> Proposal:
