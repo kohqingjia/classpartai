@@ -266,22 +266,23 @@ SYSTEM_LANES = [
         "step": "③",
         "title": "Coordinator",
         "kind": "agent",
-        "lead": "Plans the next tool call from what the last one returned, within a budget. "
-        "Its tools:",
+        "lead": "Agent 1 of 3. Plans the next tool call from what the last one returned, "
+        "within a budget. Its tools:",
         "lead_tools": _tools("Coordinator"),
         "badge": "Topic 7",
         "nodes": [
             [
                 "Research",
-                "via retrieve_evidence · BM25 + vectors fused with RRF → grade → quote",
+                "Agent 2 of 3, via retrieve_evidence · BM25 + vectors fused with RRF → grade "
+                "→ quote",
                 "Topic 8",
                 "agent",
                 _tools("Research"),
             ],
             [
                 "Auditor",
-                "via audit_assessment · checks support, citations, injection, fairness; "
-                "never changes a score",
+                "Agent 3 of 3, via audit_assessment · checks support, citations, injection, "
+                "fairness; never changes a score",
                 "Topic 6",
                 "agent",
                 _tools("Auditor"),
@@ -402,7 +403,8 @@ d.lanes.forEach(l=>{
  const box=el('div',l.lead?'tools':'');
  l.nodes.forEach(([name,what,topic,kind,tools])=>{
   const n=el('div','node');const nh=el('div','nhead');nh.appendChild(el('div','name',name));
-  if(!l.kind||l.kind!==kind)
+  // Agents are always labelled, even inside the Coordinator's agent lane.
+  if(!l.kind||l.kind!==kind||kind==='agent')
    nh.appendChild(el('span','kind '+(kind==='agent'?'agent':''),KIND[kind]));
   n.appendChild(nh);n.appendChild(el('div','what',what));
   if(tools.length)n.appendChild(toolList(tools));
