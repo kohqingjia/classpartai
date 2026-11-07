@@ -24,9 +24,9 @@ TOOL_STAGE = {
 }
 
 _BASE_CSS = """
-/* Matches the app's dark, Notion-like theme (.streamlit/config.toml). */
-:root { --ink:#e9edf5; --muted:#9ba6b8; --line:#293140; --card:#151c28; --bg:#10151e;
-        --blue:#2383e2; --green:#4dab6f; --amber:#d9a443; --red:#e5605a;
+/* Matches the app's graphite theme (.streamlit/config.toml); amber is the one accent. */
+:root { --ink:#ededed; --muted:#a1a1a6; --line:#2a2a2d; --card:#1d1d1f; --bg:#19191b;
+        --accent:#e8b03c; --green:#4cc38a; --amber:#e8b03c; --red:#e5484d;
         --ease-out:cubic-bezier(0.23,1,0.32,1); }
 * { box-sizing:border-box; }
 body { margin:0; font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
@@ -39,11 +39,12 @@ _FLOW_CSS = """
 .flow { display:grid; grid-template-columns:repeat(7,minmax(0,1fr)); gap:8px; }
 .node { display:block; text-decoration:none; color:var(--ink); min-width:0;
   background:var(--card); border:1px solid var(--line); border-radius:10px; padding:16px 10px; }
-a.node:hover, a.node:focus-visible { outline:2px solid #a5b4fc; outline-offset:2px; }
-.num { color:#a5b4fc; font:12px ui-monospace,monospace; }
+a.node:hover, a.node:focus-visible { outline:2px solid var(--accent); outline-offset:2px; }
+.num { color:var(--muted); font:12px ui-monospace,monospace; }
 .name { font-weight:600; font-size:12px; margin-top:18px; }
 .what,.note { font-size:10px; color:var(--muted); margin-top:7px; }
-.active { border-color:#a5b4fc; } .done .num { color:#6ee7b7; }
+.active { border-color:var(--accent); box-shadow:inset 0 -3px 0 var(--accent); }
+.active .num { color:var(--accent); } .done .num { color:var(--green); }
 @media(max-width:700px) { .flow { grid-template-columns:repeat(4,minmax(0,1fr)); }
   .node { padding:8px; } .name { margin-top:6px; } .what { display:none; } }
 """
@@ -52,8 +53,8 @@ _BOARD_CSS = """
 .card { background:var(--card); border:1px solid var(--line); border-radius:10px; padding:16px; }
 .who { font-weight:600; font-size:14px; }
 .state { font-size:12px; margin-top:8px; color:var(--muted); }
-.commend .state { color:#6ee7b7; } .encourage .state { color:#fcd68a; }
-.flagged .state { color:#fda4af; }
+.commend .state { color:var(--green); } .encourage .state { color:var(--amber); }
+.flagged .state { color:var(--red); }
 """
 
 
@@ -297,23 +298,22 @@ _SYSTEM_CSS = """
 .lane { position:relative; background:var(--card); border:1px solid var(--line);
         border-radius:12px; padding:12px; display:flex; flex-direction:column; gap:8px; }
 .lane:not(:last-child)::after { content:"→"; position:absolute; right:-13px; top:50%;
-        transform:translateY(-50%); color:#a5b4fc; font-size:14px; }
+        transform:translateY(-50%); color:var(--muted); font-size:14px; }
 .head { display:flex; gap:8px; align-items:baseline; }
-.step { color:#a5b4fc; font:12px ui-monospace,monospace; white-space:nowrap; }
-.title { font-weight:650; font-size:14px; }
+.step { color:var(--muted); font:12px ui-monospace,monospace; white-space:nowrap; }
+.title { font-weight:600; font-size:14px; }
 .lead { font-size:11px; color:var(--muted); }
-.coord { border-color:#4f5fd1; }
+.coord { border-color:#3d3d42; }
 .tools { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:8px; }
 .node { background:var(--bg); border:1px solid var(--line); border-radius:9px; padding:9px; }
 .name { font-weight:600; font-size:12px; }
 .what { font-size:11px; color:var(--muted); margin-top:4px; line-height:1.35; }
-.badge { display:inline-block; margin-top:6px; font-size:10px; color:#c7d2fe;
-         border:1px solid #3b4470; border-radius:999px; padding:1px 7px;
-         align-self:flex-start; }
+.badge { display:inline-block; margin-top:6px; font:10px ui-monospace,monospace;
+         color:var(--muted); align-self:flex-start; }
 .rails { display:flex; flex-wrap:wrap; gap:6px; margin-top:12px; }
-.rail { font-size:11px; color:#fcd68a; border:1px solid #5a4a24; background:#1f1a10;
-        border-radius:999px; padding:3px 10px; }
-.railhead { font-size:11px; color:var(--muted); margin-top:14px; letter-spacing:.06em; }
+.rail { font-size:11px; color:var(--ink); border:1px solid var(--line); background:var(--card);
+        border-radius:6px; padding:4px 8px; }
+.railhead { font-size:12px; color:var(--muted); margin-top:16px; }
 @media(max-width:900px) { .lanes { grid-template-columns:1fr; }
   .lane:not(:last-child)::after { content:"↓"; right:auto; left:50%; top:auto; bottom:-15px;
   transform:translateX(-50%); } }
@@ -344,7 +344,7 @@ d.lanes.forEach(l=>{
  });
  lane.appendChild(box);lanes.appendChild(lane);
 });
-root.appendChild(el('div','railhead','GUARDRAILS · TOPIC 9'));
+root.appendChild(el('div','railhead','Guardrails · Topic 9'));
 const rails=el('div','rails');root.appendChild(rails);
 d.rails.forEach(r=>rails.appendChild(el('span','rail',r)));
 """,
