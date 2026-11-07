@@ -161,13 +161,10 @@ def _consolidate_analysis(
     against later discussion findings.
     """
     payload = {
-    "chunk_analyses": chunk_analyses,
-    "existing_research": existing_research,
-    "transcript": turns,
-    "transcript_turn_ids": [
-        turn.get("turn_id")
-        for turn in turns
-        if isinstance(turn, dict)],
+        "chunk_analyses": chunk_analyses,
+        "existing_research": existing_research,
+        "transcript": turns,
+        "transcript_turn_ids": [turn.get("turn_id") for turn in turns if isinstance(turn, dict)],
     }
 
     prompt = f"""
@@ -334,7 +331,7 @@ Return valid JSON only.
 
     verification = _call_llm(generate_json, prompt)
 
-    analysis["unresolved_questions"] = verified_questions
+    verified_questions = verification.get("unresolved_questions", [])
 
     if not isinstance(verified_questions, list):
         raise ValueError("unresolved_questions must be a list")

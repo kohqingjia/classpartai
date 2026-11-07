@@ -4,7 +4,6 @@ from types import SimpleNamespace
 
 import streamlit as st
 from dotenv import load_dotenv
-# from groq import Groq
 from openai import OpenAI
 
 from classpartai.summary.agent import analyse_session
