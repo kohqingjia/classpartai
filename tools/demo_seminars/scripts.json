@@ -1,12 +1,12 @@
 {
   "voices": {
     "prof": {
-      "kind": "say",
-      "voice": "Daniel",
-      "rate": 175,
-      "name": "Prof Lim (demo)",
-      "display": "Prof Lim (demo)",
-      "personId": "demo-prof-lim"
+      "kind": "clone",
+      "display": "Prof Wynter",
+      "sample": "prof.wav",
+      "clip_start": 3.5,
+      "clip_seconds": 4.9,
+      "ref_text": "Like, first of all, when we pre-trained an LLM, does the end result look like a reasoning model"
     },
     "guest": {
       "kind": "say",

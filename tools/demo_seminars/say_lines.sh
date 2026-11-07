@@ -1,5 +1,5 @@
 #!/bin/sh
-# The professor's and guest's lines (and the professor's voice sample) with macOS `say`.
+# The lines of every voice with kind "say" (the guest; a synthetic professor too) with macOS say.
 #   sh say_lines.sh <out dir>
 set -e
 OUT=${1:?out dir}; HERE=$(dirname "$0"); mkdir -p "$OUT"
@@ -16,7 +16,8 @@ def say(who, text, name):
     subprocess.run(["say", "-v", v["voice"], "-r", str(v["rate"]), "-o", f"{out}/{name}.aiff", text], check=True)
     subprocess.run(["ffmpeg", "-v", "error", "-y", "-i", f"{out}/{name}.aiff", "-ar", "16000", "-ac", "1", f"{out}/{name}.wav"], check=True)
     subprocess.run(["rm", f"{out}/{name}.aiff"], check=True)
-say("prof", READING, "enrol-prof")
+if voices["prof"]["kind"] == "say":  # a synthetic professor also needs a voice sample
+    say("prof", READING, "enrol-prof")
 for s in script["sessions"]:
     for i, (who, text) in enumerate(s["lines"]):
         if voices[who]["kind"] == "say":
