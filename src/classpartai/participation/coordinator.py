@@ -29,13 +29,13 @@ from classpartai.models import (
     configured_driver,
     tool,
 )
+from classpartai.participation.auditor_bridge import AuditorSession, agent_audit
 from classpartai.participation.records import Draft, Records
 from classpartai.participation.roles import (
     ROLE_POLICY,
     DriverFactory,
     feedback_for,
     judge,
-    model_audit,
 )
 from classpartai.participation.schema import Proposal
 from classpartai.participation.validation import Unprocessable, audit_draft
@@ -205,6 +205,7 @@ def coordinate(
     progress.coordinatorInput = {"instructions": COORDINATOR_POLICY, "history": history.copy()}
     checkpoint()
     turns = inputs.transcript.turns
+    auditor = AuditorSession()  # one-round re-judge state, for this run only
     stop_reason = "shared_budget_exhausted"
     try:
         while True:
@@ -340,8 +341,16 @@ def coordinate(
                     action["arguments"] = args.model_dump_json()
                     if draft is None:
                         raise Unprocessable("Create a provisional draft before audit")
-                    audit = model_audit(
-                        inputs, draft.content, records.evidence_for(session_id), budget, factory
+                    # Le Yong's Auditor agent; falls back to the single-call model_audit.
+                    audit = agent_audit(
+                        inputs,
+                        draft.content,
+                        records.evidence_for(session_id),
+                        budget,
+                        factory,
+                        session_id=session_id,
+                        draft_id=draft.id,
+                        session=auditor,
                     )
                     nxt = records.append_draft(
                         session_id, _proposal(draft), "model", args.note, draft.version, audit

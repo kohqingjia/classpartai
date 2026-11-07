@@ -1,6 +1,16 @@
+import pytest
 from conftest import SILENT, ScriptedDriver, factory_for, feedback, full_proposal
 
+from classpartai import config
 from classpartai.participation.coordinator import coordinate
+
+
+@pytest.fixture(autouse=True)
+def single_call_auditor(monkeypatch):
+    # These tests script the single-call audit role; the Auditor agent route (the default) is
+    # covered in test_auditor_bridge.py.
+    monkeypatch.setattr(config, "AUDITOR", "model")
+
 
 AUDIT = {
     "issues": [

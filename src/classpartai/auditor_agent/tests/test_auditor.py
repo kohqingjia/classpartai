@@ -8,7 +8,7 @@ import sys
 import time
 import unittest
 from copy import deepcopy
-from dataclasses import replace
+from dataclasses import asdict, replace
 from http.server import BaseHTTPRequestHandler, HTTPServer
 from pathlib import Path
 from threading import Thread
@@ -407,6 +407,97 @@ class AuditorTests(unittest.TestCase):
         )
         self.assertEqual(result.verdict, "professor_review_required")
         self.assertEqual(result.updated_state.rejudge_count, 1)
+
+    def _reused_pending_id_case(self, final_call):
+        """Second audit where the model reuses a pending issue ID with reworded objection."""
+        request = fictional_request(flawed=True)
+        first = audit_proposal(
+            request, model=FictionalModelDouble(), evidence_reader=fictional_reader()
+        )
+        self.assertEqual(first.verdict, "rejudge_requested")
+        original = first.issues[0]
+        reworded = {
+            "issue_id": original.issue_id,
+            "kind": original.kind,
+            "severity": original.severity,
+            "finding_ids": list(original.finding_ids),
+            "evidence_ids": list(original.evidence_ids),
+            "objection": "Reworded objection text that differs from the original.",
+        }
+        revised = FakeJudge.revise(request, first.to_dict(), corrected=False)
+        calls = [
+            ToolCall("read", "get_session_scores", {"offset": 0, "limit": 10}),
+            final_call("reuse", [reworded]),
+            final_call("fresh", [{**reworded, "issue_id": "still-unresolved"}]),
+        ]
+        result = audit_proposal(
+            revised, model=ScriptedDouble(calls), evidence_reader=fictional_reader()
+        )
+        return original, result
+
+    def _assert_reuse_escalates_and_keeps_original(self, original, result):
+        self.assertEqual(result.verdict, "professor_review_required")
+        self.assertIsNone(result.rejudge_request)
+        kept = [i for i in result.issues if i.issue_id == original.issue_id]
+        self.assertEqual(kept, [original])
+        self.assertIn("still-unresolved", {i.issue_id for i in result.issues})
+        refused = [e for e in result.trace if e.get("outcome") == "invalid"]
+        self.assertEqual(len(refused), 1)
+        self.assertTrue(result.updated_state.terminal)
+
+    def test_reused_pending_issue_id_in_second_rejudge_request_escalates(self):
+        def call(call_id, issues):
+            return ToolCall(call_id, "request_rejudge", {"issues": issues})
+
+        original, result = self._reused_pending_id_case(call)
+        self._assert_reuse_escalates_and_keeps_original(original, result)
+        self.assertEqual(result.stop_reason, "one_rejudge_limit")
+
+    def test_reused_pending_issue_id_in_escalating_completion_escalates(self):
+        def call(call_id, issues):
+            return ToolCall(
+                call_id,
+                "complete_audit",
+                {
+                    "verdict": "professor_review_required",
+                    "issues": issues,
+                    "resolved_issue_ids": [],
+                },
+            )
+
+        original, result = self._reused_pending_id_case(call)
+        self._assert_reuse_escalates_and_keeps_original(original, result)
+        self.assertEqual(result.stop_reason, "unresolved_audit_issues")
+
+    def test_exactly_restated_pending_issue_is_not_a_collision(self):
+        request = fictional_request(flawed=True)
+        first = audit_proposal(
+            request, model=FictionalModelDouble(), evidence_reader=fictional_reader()
+        )
+        revised = FakeJudge.revise(request, first.to_dict(), corrected=False)
+        same = asdict(first.issues[0])
+        calls = [
+            ToolCall("read", "get_session_scores", {"offset": 0, "limit": 10}),
+            ToolCall("again", "request_rejudge", {"issues": [same]}),
+        ]
+        result = audit_proposal(
+            revised, model=ScriptedDouble(calls), evidence_reader=fictional_reader()
+        )
+        self.assertEqual(result.verdict, "professor_review_required")
+        self.assertEqual(result.stop_reason, "one_rejudge_limit")
+        self.assertFalse(any(e.get("outcome") == "invalid" for e in result.trace))
+
+    def test_terminal_merge_keeps_original_objection_without_raising(self):
+        from classpartai.auditor_agent.contracts import Issue
+        from classpartai.auditor_agent.tools import keep_prior_objections
+
+        original = Issue("issue-1", "citation", "material", ["finding-a"], [], "Original")
+        reworded = replace(original, objection="Reworded")
+        merged = keep_prior_objections([reworded], [original])
+        self.assertIn(original, merged)
+        self.assertNotIn(reworded, merged)
+        self.assertTrue(any(i.kind == "execution" for i in merged))
+        self.assertEqual(keep_prior_objections([original], [original]), [original])
 
     def test_missing_model_is_explicitly_blocked(self):
         result = audit_proposal(fictional_request(), model=None, evidence_reader=fictional_reader())

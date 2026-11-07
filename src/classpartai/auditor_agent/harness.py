@@ -534,7 +534,7 @@ def run_audit(
     ContractError rejects invalid input before model execution. No files or application records
     are written. The result carries the in-memory trace. Persist state atomically in the caller.
     """
-    from .tools import AuditTools, merge_issues
+    from .tools import AuditTools, keep_prior_objections, merge_issues, refuse_reused_ids
 
     req = AuditRequest.parse(request)
     budget = Budget(limits or Limits())
@@ -575,6 +575,7 @@ def run_audit(
     verdict = "professor_review_required"
     stop = "configuration_blocked"
     used_call_ids: set[str] = set()
+    prior_objections = req.state.pending_rejudge.objections if req.state.pending_rejudge else []
     if model is None:
         terminal_issues = [
             execution_issue(
@@ -621,6 +622,7 @@ def run_audit(
                     if call.name == "request_rejudge":
                         if req.state.rejudge_count == 1:
                             parsed = parse_issues(args["issues"], req)
+                            refuse_reused_ids(parsed, prior_objections)
                             terminal_issues = merge_issues(parsed, tools.issues)
                             if not terminal_issues:
                                 terminal_issues = [
@@ -638,6 +640,7 @@ def run_audit(
                         break
                     if call.name == "complete_audit":
                         parsed = parse_issues(args["issues"], req)
+                        refuse_reused_ids(parsed, prior_objections)
                         terminal_issues = merge_issues(parsed, tools.issues)
                         if args["verdict"] not in ("audit_passed", "professor_review_required"):
                             raise ContractError("Unknown proposed verdict")
@@ -729,6 +732,7 @@ def run_audit(
                             "Verify cited evidence before objecting": "verify_first",
                             "Issue references unknown findings or evidence": "unknown_refs",
                             "Cannot resolve unknown prior objections": "unknown_prior_issue",
+                            "Issue ID reused for a different objection": "issue_id_reused",
                         }
                         reason = reasons.get(str(error), "invalid_reference_state_or_result")
                         output = {
@@ -791,7 +795,8 @@ def run_audit(
             )
     if req.state.rejudge_count == 1 and verdict != "audit_passed":
         # Preserve the original targeted objections when the return is inconclusive/failed.
-        terminal_issues = merge_issues(terminal_issues, req.state.pending_rejudge.objections)
+        # Never overwrite an original objection, and never raise outside the guarded loop.
+        terminal_issues = keep_prior_objections(terminal_issues, prior_objections)
     new_state = AuditState(
         1,
         req.audit_case_id,

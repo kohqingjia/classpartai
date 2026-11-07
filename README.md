@@ -24,7 +24,8 @@ The assessment workflow was designed and first built by Le Yong in TypeScript (`
                     │                                 reasoned? guess or misconception?
                     ├─ propose_rubric_assessment ─► ③ JUDGE: one finding per student × criterion,
                     │                                 or "insufficient evidence" (never counted as zero)
-                    ├─ audit_assessment ──────────► ④ AUDITOR: deterministic checks + model review
+                    ├─ audit_assessment ──────────► ④ AUDITOR: deterministic checks + Auditor agent
+                    │                                 (raise issues, one re-judge, or escalate)
                     ├─ draft_student_feedback ────► ⑤ FEEDBACK: strengths, next step, limitations
                     └─ request_professor_review     only when every student is covered and audited
                          │
@@ -93,6 +94,8 @@ src/classpartai/
     schema.py           findings, feedback, audits, drafts
     validation.py       the rules every draft must pass; totals; deterministic audit
     roles.py            judge, auditor and feedback roles
+    auditor_bridge.py   runs Le Yong's Auditor agent (auditor_agent/) as the audit step;
+                        AUDITOR=model, or an agent error, uses the single-call auditor role
     coordinator.py      the coordinator agent
     records.py          SQLite: sessions, evidence runs, versioned drafts, recipients, approvals
     delivery.py         approval-gated sending through AgentMail
