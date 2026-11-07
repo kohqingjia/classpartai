@@ -29,13 +29,14 @@ from dotenv import load_dotenv
 from groq import Groq
 from openai import OpenAI
 
-from classpartai import config, demo_seminars, usage
+from classpartai import config, course_map, demo_seminars, usage
 from classpartai import snippets as code_snippets
 from classpartai.agent_ui import TABS, overview, render_agent
 from classpartai.agents import listener
 from classpartai.assessment import AssessmentInputs, parse_inputs
 from classpartai.classlist import ClassList
 from classpartai.config import DATA_DIR, ENROLLMENT_DIR, REPO_ROOT
+from classpartai.evaluation_ui import evaluation_view
 from classpartai.evidence import INSTRUCTIONS as EVIDENCE_INSTRUCTIONS
 from classpartai.evidence import TOOL_DEFINITIONS as EVIDENCE_TOOLS
 from classpartai.evidence import CourseIndex, Investigation, investigate
@@ -58,6 +59,7 @@ from classpartai.participation.validation import (
     observed_count,
     totals,
 )
+from classpartai.quotes import own_turns, quote_html
 from classpartai.research.bridge import session_chunks
 from classpartai.research.materials import split_into_chunks
 from classpartai.retrieval import examined_of, searches_of
@@ -69,7 +71,17 @@ from classpartai.voices import GOOD_SECONDS, Voices
 load_dotenv()  # the Session Summary's API key
 
 DATA = REPO_ROOT / "data"
-VIEWS = {"home", "new", "session", "summary", "library", "voices", "how", "monitoring"}
+VIEWS = {
+    "home",
+    "new",
+    "session",
+    "summary",
+    "library",
+    "voices",
+    "how",
+    "monitoring",
+    "evaluation",
+}
 RECORDINGS = DATA_DIR / "recordings"  # class recordings, kept for playback (server volume only)
 DEMO_AUDIO = DATA / "demo_audio"
 DEMO_SEMINARS = DATA_DIR / "demo-seminars"  # edge-case demos: server only (cloned voices)
@@ -175,6 +187,34 @@ def load_listener():
     # The pipeline writes per-speaker clips to a shared folder, so run one recording at a time.
     process_audio, note = listener.load_pipeline()
     return process_audio, note, threading.Lock()
+
+
+@st.dialog("Delete this session?")
+def confirm_delete(session_id: str, title: str) -> None:
+    contents = records.session_contents(session_id)
+    if contents.pop("emails"):
+        st.error("Feedback from this session was emailed to students, so it stays on record.")
+        return
+    live = live_runs().get(session_id)
+    if live and live["ended"] is None:
+        st.warning("An assessment is running on this session. Wait for it to finish.")
+        return
+    st.markdown(f"**{escape(title)}** and everything made from it is deleted for good:")
+    lines = [f"- {n} {what}" for what, n in contents.items() if n]
+    if recording_of(session_id):
+        lines.append("- the class recording")
+    st.markdown("\n".join(["- the transcript, roster and rubric", *lines]))
+    st.caption("This can't be undone.")
+    cancel, delete = st.columns(2)
+    if cancel.button("Cancel", width="stretch"):
+        st.rerun()
+    if delete.button("Delete permanently", type="primary", width="stretch"):
+        records.delete_session(session_id)
+        (RECORDINGS / f"{session_id}.wav").unlink(missing_ok=True)
+        live_runs().pop(session_id, None)
+        st.session_state.pop("session_id", None)
+        st.query_params.clear()
+        st.rerun()
 
 
 @st.cache_resource
@@ -822,6 +862,7 @@ with st.sidebar:
     st.caption("Present")
     nav("How it works", "how", icon=":material/account_tree:")
     nav("Monitoring", "monitoring", icon=":material/monitoring:")
+    nav("Evaluation", "evaluation", icon=":material/balance:")
     if os.getenv("EMAIL_TEST_MODE", "true").lower() != "false":
         recipient = os.getenv("EMAIL_TEST_RECIPIENT", "(not set)")
         st.caption(f"Test mode: every email goes to {recipient}")
@@ -1565,7 +1606,7 @@ elif view == "how":
         "it.</p>",
         unsafe_allow_html=True,
     )
-    st.iframe(system_html(), height=980)
+    st.iframe(system_html(), height=860)
 
     st.subheader("The five steps")
     st.markdown(
@@ -1793,19 +1834,8 @@ elif view == "how":
         "unknown is never retried automatically, so no student gets it twice."
     )
 
-    st.subheader("Mapped to IS469")
-    st.markdown(
-        "| Part | Technique | Topic |\n"
-        "|---|---|---|\n"
-        "| Listener | Whisper (encoder-decoder transformer); voice embeddings + cosine "
-        "similarity | 2 · Transformers, 1/8 · Embeddings |\n"
-        "| Coordinator, Feedback writer | Tool calling, agent harness, budgets | 7 · Agents |\n"
-        "| Evidence / Research | BM25 + vector search, RRF, grading (CRAG-style) | "
-        "8 · Agentic RAG |\n"
-        "| Judge, Auditor | Rubric LLM-as-judge, deterministic checks first | 6 · Evaluation |\n"
-        "| Approval, Delivery | Human in the loop, untrusted data, no autonomous actions | "
-        "9 · Ethics |"
-    )
+    course_map.render()
+
     st.subheader("Under the hood: the code behind each topic")
     st.caption(
         "Read live from the source files, so this is exactly the code that runs. Open one to "
@@ -1832,6 +1862,9 @@ elif view == "how":
 
 elif view == "monitoring":
     monitoring_view(records, go)
+
+elif view == "evaluation":
+    evaluation_view()
 
 elif view == "summary":
     inputs = records.inputs(session_id)
@@ -1902,7 +1935,12 @@ elif view == "session":
     )
     step = requested_step or default_step(session_id)
     step_bar("session", step, done, {1, 2, 3, 4, 5})
-    st.title(inputs.sessionTitle)
+    title_col, delete_col = st.columns([6, 1], vertical_alignment="bottom")
+    title_col.title(inputs.sessionTitle)
+    if delete_col.button(
+        "Delete", icon=":material/delete:", key=f"delete-{session_id}", width="stretch"
+    ):
+        confirm_delete(session_id, inputs.sessionTitle)
     st.markdown(
         f'<p class="muted">{escape(when(meta["created_at"]))} · {escape(inputs.courseTitle)} · '
         f"{len(inputs.roster)} students · {escape(inputs.rubric.title)}</p>",
@@ -2141,7 +2179,13 @@ elif view == "session":
                                 (x for x in shown.content.feedback if x.studentId == s.id), None
                             )
                             if fb:
-                                st.markdown(f"{fb.strengths}\n\n**Next step:** {fb.nextStep}")
+                                said = own_turns(inputs, s.id)  # as the email shows it
+                                st.markdown(
+                                    quote_html(fb.strengths, said)
+                                    + "<br><br><b>Next step:</b> "
+                                    + quote_html(fb.nextStep, said),
+                                    unsafe_allow_html=True,
+                                )
                                 if fb.limitations:
                                     st.caption("Limitations: " + "; ".join(fb.limitations))
                             else:
@@ -2158,7 +2202,10 @@ elif view == "session":
                                     else "insufficient evidence, no score"
                                 )
                                 st.markdown(f"**{criteria[f.criterionId]}: {verdict}**")
-                                st.write(f.justification)
+                                st.markdown(
+                                    quote_html(f.justification, {t: turns[t].text for t in turns}),
+                                    unsafe_allow_html=True,
+                                )
                                 if f.limitations:
                                     st.caption("Limitations: " + "; ".join(f.limitations))
                                 for tid in f.turnIds:

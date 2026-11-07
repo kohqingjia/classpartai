@@ -102,35 +102,48 @@ investigations_needed:
 suggested_followups:
   list of strings
 
+
 INSTRUCTIONS:
 
-1. Identify major discussion themes rather than every comment.
+1. Identify only the major themes discussed in this chunk.
+   Merge closely related concepts into broader topics.
+   Use fewer topics when the discussion is short.
 
-2. Group similar contributions under the same topic.
+2. Preserve technical terms exactly as written in the
+   transcript. Do not reinterpret LoRA as "Laura",
+   QLoRA as "QL" or other invented abbreviations.
 
-3. Identify agreement when multiple speakers express
-   compatible viewpoints, even using different wording.
+3. Identify agreements only when at least two different
+   speakers express compatible positions on the same issue.
+   Related explanations alone do not establish agreement.
 
-4. Identify disagreement when speakers express conflicting
-   viewpoints about the same issue.
+4. Identify disagreements only when speakers express
+   contrasting positions on the same issue.
+   Distinguish professor corrections from student debates.
 
-5. Only identify agreements and disagreements supported
-   by actual transcript contributions.
+5. Only report questions that were explicitly asked.
+   Check whether subsequent turns in this chunk answer them.
 
-6. For each finding, include relevant turn_ids.
+6. If a question appears unanswered in this chunk,
+   treat it as a provisional candidate. It may be answered
+   later in the seminar.
 
-7. Identify questions that appear unanswered within
-   this transcript section.
+7. Do not turn interesting factual claims into questions.
+   Put newly proposed questions under suggested_followups.
 
-8. Do not assume a question is unresolved for the entire
-   seminar. It may be answered in a later section.
+8. Identify important factual claims that may require
+   verification, especially disputed or absolute claims.
+   Do not claim they have already been researched.
 
-9. Identify factual claims that may require verification,
-   but do not claim they have already been verified.
+9. Every agreement must cite turns from at least two
+   different speakers. Every disagreement must cite
+   the contrasting positions.
 
-10. Do not invent discussions, speakers, or claims.
+10. Return empty lists where there is insufficient
+    transcript evidence. Do not invent findings.
 
 Return valid JSON only.
+
 """
     return _call_llm(generate_json, prompt)
 
@@ -150,6 +163,7 @@ def _consolidate_analysis(
     payload = {
         "chunk_analyses": chunk_analyses,
         "existing_research": existing_research,
+        "transcript": turns,
         "transcript_turn_ids": [turn.get("turn_id") for turn in turns if isinstance(turn, dict)],
     }
 
@@ -182,53 +196,69 @@ investigations_needed:
 suggested_followups:
   list of strings
 
+
 MAIN DISCUSSION TOPICS:
-- Select 3 to 6 major themes when the content supports them.
-- Merge repeated or closely related topics.
-- Prioritise substantial, recurring, and relevant discussions.
-- Provide a concise explanation for each theme.
+- Select up to 5 major themes, fewer for short seminars.
+- Merge related or overlapping topics.
+- Prioritise concepts substantially discussed.
+- Preserve the original technical terminology.
+- Do not add uncertainty absent from the transcript.
+
 
 AGREEMENTS:
-- Identify compatible viewpoints from different speakers.
-- Do not mistake one person's opinion for class consensus.
-- Include supporting transcript turn IDs.
-- Do not invent agreements.
+- Identify agreement only when at least two distinct speakers
+independently express the same or substantively compatible
+position on a specific issue.
+- For every agreement, identify at least two distinct speakers
+and their supporting transcript turn IDs.
+- Verify that each cited turn actually supports the agreement.
+- Do not treat complementary explanations of different aspects
+of a topic as agreement.
+- Do not include statements made by only one speaker.
+- Do not treat a professor's correction as class consensus
+unless another participant supports the same position.
+- Do not infer agreement merely because nobody objected.
+- If an agreement cannot be supported by at least two
+different speakers, exclude it.
+- Return [] if no agreement meets these conditions.
+
 
 DISAGREEMENTS:
-- Identify contrasting positions on the same issue.
-- Recognise implicit disagreement.
-- Include supporting transcript turn IDs.
-- Do not invent disagreements.
+- Require genuinely contrasting positions.
+- Identify who expressed each position accurately.
+- Distinguish student debates from professor corrections.
+- Do not invent conflicts between compatible statements.
 
 UNRESOLVED QUESTIONS:
-- Review questions identified in earlier sections.
-- Examine findings from later sections for possible answers.
-- Remove questions that were adequately answered.
-- Keep partially answered questions only if an important
-  aspect remains unresolved.
-- Do not invent questions that were never raised.
-- Include the relevant turn IDs.
+- Only retain questions explicitly raised in the transcript.
+- Check whether later turns answered each question.
+- Exclude questions that were adequately answered.
+- Exclude questions created by the AI during summarisation.
+- Retain partially answered questions only if an important
+  part of the original question remains unresolved.
+- Return [] if no genuine unresolved questions remain.
 
 CLAIMS REQUIRING INVESTIGATION:
-- Identify at most 2 important factual claims.
-- Prioritise claims with uncertain or missing evidence.
-- Reuse existing research findings where available.
-- Do not describe a claim as verified unless supported
-  by actual research evidence.
-- Do not label claims as misconceptions yet.
+- Select at most 2 important factual claims.
+- Prioritise disputed, absolute or consequential claims.
+- Use existing research findings when provided.
+- Do not invent terminology uncertainty.
+- Do not present unverified claims as proven false.
 
 SUGGESTED FOLLOW-UPS:
-- Recommend practical actions for the professor.
-- Base recommendations on discussion outcomes,
-  unresolved questions, and evidence gaps.
-- Avoid generic recommendations.
+- Recommend specific teaching or research actions.
+- Focus on meaningful gaps or disputed claims.
+- Do not repeat questions already answered in class.
 
 IMPORTANT:
-- Only reference turn IDs supplied in the input.
-- Be concise and evidence-grounded.
-- Do not invent speakers, events, or findings.
+- Ground findings in actual transcript turns.
+- Only use supplied turn IDs.
+- Prefer accuracy over producing more findings.
+- Empty lists are acceptable.
+- Do not invent speakers, claims or questions.
 
 Return valid JSON only.
+
 """
     return _call_llm(generate_json, prompt)
 
@@ -258,17 +288,37 @@ QUESTIONS:
 FULL TRANSCRIPT:
 {json.dumps(turns, ensure_ascii=False, default=str)}
 
-For each question:
+For each candidate question, perform these checks:
 
-1. Identify where it was raised.
-2. Examine later contributions for possible answers.
-3. Determine whether it was adequately answered,
-   partially answered, or left unanswered.
-4. Exclude adequately answered questions.
-5. Keep only genuinely unresolved or partially
-   resolved questions.
-6. Preserve supporting transcript turn IDs.
-7. Do not invent answers or questions.
+CHECK 1: ORIGINAL QUESTION
+- Find the exact transcript turn where the question
+  was explicitly raised.
+- If no such turn exists, remove the question.
+- Do not treat an interesting topic or factual claim
+  as an explicitly raised question.
+
+CHECK 2: SUBSEQUENT ANSWERS
+- Examine all later contributions in chronological order.
+- Determine whether the original question was answered.
+- Consider answers from students, guests and professors.
+
+CHECK 3: RESOLUTION
+- Fully answered: remove.
+- Partially answered with no substantial gap: remove.
+- Partially answered with an important remaining gap: keep.
+- Not answered: keep.
+
+CHECK 4: EVIDENCE
+- Preserve the turn ID where the question was raised.
+- Only include supporting turn IDs that exist in
+  the transcript.
+- Do not invent missing questions or answers.
+
+CHECK 5: FINAL REVIEW
+- Do not include new questions suggested by the AI.
+- Do not include clarification questions about terminology
+  already explicitly defined in the transcript.
+- If no genuine unresolved questions remain, return [].
 
 Return a JSON object with exactly this field:
 
@@ -276,6 +326,7 @@ unresolved_questions:
   list of objects with question, turn_ids
 
 Return valid JSON only.
+
 """
 
     verification = _call_llm(generate_json, prompt)

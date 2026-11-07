@@ -1,0 +1,73 @@
+{
+  "id": "01-everyone",
+  "title": "Demo 1 · Agentic RAG: everyone takes part",
+  "case": "Baseline: all four students speak, with a mix of strong, partly right and thin answers.",
+  "lines": [
+    {
+      "speaker": "Prof Wynter",
+      "text": "Good afternoon everyone. Today we continue with retrieval augmented generation, and specifically what makes retrieval agentic. Last week you built a pipeline that embeds the question, fetches the top few chunks, and answers. Let me start simple. Why do we split documents into chunks at all, instead of embedding the whole slide deck?",
+      "start": 0.8,
+      "end": 16.75
+    },
+    {
+      "speaker": "Koh Qing Jia",
+      "text": "Because one embedding for a whole deck averages everything together, so it can't match a specific question. Smaller chunks keep each idea separate, and they also fit in the context window.",
+      "start": 17.63,
+      "end": 32.08
+    },
+    {
+      "speaker": "Prof Wynter",
+      "text": "Good. And why would we overlap the chunks?",
+      "start": 32.98,
+      "end": 34.98
+    },
+    {
+      "speaker": "Tasmin",
+      "text": "So a sentence that gets cut at the boundary still appears whole in the next chunk.",
+      "start": 35.86,
+      "end": 40.22
+    },
+    {
+      "speaker": "Prof Wynter",
+      "text": "Exactly. Now, in our lab we combined keyword search with vector search. What does each one catch that the other misses?",
+      "start": 41.37,
+      "end": 47.05
+    },
+    {
+      "speaker": "Tina",
+      "text": "Keyword search catches exact terms like a function name, and vectors catch meaning even if the words are different.",
+      "start": 48.2,
+      "end": 54.25
+    },
+    {
+      "speaker": "Prof Wynter",
+      "text": "Right, and we merged the two ranked lists with reciprocal rank fusion. So here is the real question for today. In a fixed pipeline we always retrieve once. What does an agent do differently?",
+      "start": 55.02,
+      "end": 64.08
+    },
+    {
+      "speaker": "Le Yong",
+      "text": "The agent can decide to search again. If the passages it got back are not relevant, it rewrites the query and retrieves again, and it can stop when the evidence is good enough.",
+      "start": 64.96,
+      "end": 77.17
+    },
+    {
+      "speaker": "Prof Wynter",
+      "text": "That is the corrective loop, yes. Any cost to doing that?",
+      "start": 78.02,
+      "end": 80.73
+    },
+    {
+      "speaker": "Koh Qing Jia",
+      "text": "It's slower and it uses more tokens, so you need a limit on how many times it can retry.",
+      "start": 81.8,
+      "end": 88.55
+    },
+    {
+      "speaker": "Prof Wynter",
+      "text": "Good. Remember that trade off for the project. We will pick this up next week with evaluation.",
+      "start": 89.41,
+      "end": 93.89
+    }
+  ]
+}

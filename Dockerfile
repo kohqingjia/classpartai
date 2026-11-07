@@ -26,6 +26,7 @@ RUN PYTHONPATH=/app/src python -c "import classpartai.research.bridge, \
 classpartai.participation.coordinator, classpartai.summary.agent, classpartai.summary.ui, \
 pypdf, pptx, rank_bm25, tavily, groq, dotenv"
 COPY data ./data
+COPY eval/results ./eval/results
 COPY audio-service ./audio-service
 
 # Models, voice samples, per-speaker clips and app data (class list, emails, audit log) are

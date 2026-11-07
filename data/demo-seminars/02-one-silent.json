@@ -1,0 +1,61 @@
+{
+  "id": "02-one-silent",
+  "title": "Demo 2 · Agents: one student never speaks",
+  "case": "Le Yong is on the class list but says nothing. He must get 'no observed participation', never a score of zero.",
+  "lines": [
+    {
+      "speaker": "Prof Wynter",
+      "text": "Today is about agents and tool calling. An agent is a loop: the model looks at the conversation, chooses a tool, we run the tool, and we feed the result back in. Let's look at the harness from the lab. What is the observation, the obs variable, after we call run tool?",
+      "start": 0.8,
+      "end": 13.59
+    },
+    {
+      "speaker": "Tasmin",
+      "text": "It's the output of the tool, so the result, or the error message if the call failed.",
+      "start": 14.42,
+      "end": 18.89
+    },
+    {
+      "speaker": "Prof Wynter",
+      "text": "Yes, and why do we return the error to the model instead of crashing?",
+      "start": 19.84,
+      "end": 23.12
+    },
+    {
+      "speaker": "Koh Qing Jia",
+      "text": "So the model can see what went wrong and try again with different arguments.",
+      "start": 24.21,
+      "end": 30.04
+    },
+    {
+      "speaker": "Prof Wynter",
+      "text": "Good. Now, when would you split one agent into several agents with different tools?",
+      "start": 31.18,
+      "end": 35.13
+    },
+    {
+      "speaker": "Tina",
+      "text": "Maybe when the tasks are different, like one agent searches and another one writes, so each prompt stays small.",
+      "start": 36.27,
+      "end": 42.11
+    },
+    {
+      "speaker": "Prof Wynter",
+      "text": "That's one reason. Smaller tool lists also mean fewer wrong tool choices. How would you measure whether an agent is using tools well?",
+      "start": 43.1,
+      "end": 49.44
+    },
+    {
+      "speaker": "Tasmin",
+      "text": "Check if it called the right tool with the right arguments, and how many steps it needed to finish.",
+      "start": 50.73,
+      "end": 56.01
+    },
+    {
+      "speaker": "Prof Wynter",
+      "text": "Tool accuracy and efficiency, good. Alright, for next week read the section on budgets and stopping conditions. Thank you.",
+      "start": 57.29,
+      "end": 63.1
+    }
+  ]
+}

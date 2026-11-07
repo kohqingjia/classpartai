@@ -58,6 +58,14 @@ def status_of(name: str) -> str:
     return {"UNKNOWN": "unknown", "AMBIGUOUS": "ambiguous"}.get(name, "identified")
 
 
+def remove_speaker_clips(folder: Path | None = None) -> None:
+    """The pipeline saves each speaker's speech as speaker_clips/speaker_NN.wav for the voice
+    match. Once a recording is processed they are copies of a person's voice nobody needs, and
+    deleting the session would otherwise leave them on disk."""
+    for clip in (folder or AUDIO_SERVICE_DIR / "speaker_clips").glob("speaker_*.wav"):
+        clip.unlink(missing_ok=True)
+
+
 def load_pipeline() -> tuple[Callable[[str], dict], str | None]:
     """(process_audio, note): ``note`` explains when the fallback is in use."""
     # The pipeline loads its models at import time and needs HF_TOKEN, so import lazily.
@@ -66,9 +74,12 @@ def load_pipeline() -> tuple[Callable[[str], dict], str | None]:
         from pipeline import process_audio
 
         def process(audio_path: str) -> dict:
-            result = process_audio(audio_path)
-            with span_scorer(audio_path, voice_scorer()) as score_span:
-                return decide_speakers(result, score_span)
+            try:
+                result = process_audio(audio_path)
+                with span_scorer(audio_path, voice_scorer()) as score_span:
+                    return decide_speakers(result, score_span)
+            finally:
+                remove_speaker_clips()
 
         return process, None
     except Exception as error:  # e.g. huggingface_hub GatedRepoError (403)

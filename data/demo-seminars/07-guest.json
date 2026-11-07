@@ -1,0 +1,61 @@
+{
+  "id": "07-guest",
+  "title": "Demo 7 · Fine-tuning: a guest who isn't on the class list",
+  "case": "A visitor speaks and is not enrolled: their lines must stay unknown and never be scored or credited to a student. Includes a claim the course slides don't cover.",
+  "lines": [
+    {
+      "speaker": "Prof Wynter",
+      "text": "Today we have a visitor from industry sitting in. We're discussing parameter efficient fine tuning. Instead of updating all the weights, what does LoRA do?",
+      "start": 0.8,
+      "end": 8.19
+    },
+    {
+      "speaker": "Guest",
+      "text": "Hi everyone. In my team we use LoRA all the time. You freeze the base model and train two small low rank matrices that are added to the weight updates, so you only train a tiny fraction of the parameters.",
+      "start": 9.22,
+      "end": 20.68
+    },
+    {
+      "speaker": "Prof Wynter",
+      "text": "Thank you. Students, why is that useful in practice?",
+      "start": 21.41,
+      "end": 23.87
+    },
+    {
+      "speaker": "Tasmin",
+      "text": "It needs much less memory, and you can store one small adapter per task instead of a full copy of the model.",
+      "start": 24.75,
+      "end": 30.51
+    },
+    {
+      "speaker": "Prof Wynter",
+      "text": "Good. What's the rank in LoRA, intuitively?",
+      "start": 31.82,
+      "end": 33.86
+    },
+    {
+      "speaker": "Koh Qing Jia",
+      "text": "It's how many directions the update is allowed to change. A small rank like eight is often enough, and a larger rank gives more capacity but more parameters.",
+      "start": 34.57,
+      "end": 46.62
+    },
+    {
+      "speaker": "Guest",
+      "text": "And quantising the base model to four bits on top of that is what QLoRA does.",
+      "start": 47.4,
+      "end": 51.62
+    },
+    {
+      "speaker": "Tina",
+      "text": "I read that fine tuning with LoRA always beats retrieval augmented generation for factual questions.",
+      "start": 52.67,
+      "end": 57.93
+    },
+    {
+      "speaker": "Prof Wynter",
+      "text": "I don't think the evidence supports always. For facts that change, retrieval is usually the better tool. Let's stop there.",
+      "start": 58.94,
+      "end": 64.76
+    }
+  ]
+}

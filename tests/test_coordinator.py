@@ -187,12 +187,12 @@ def test_a_blocked_run_still_records_its_end(records, session_id):
 
 
 def test_invalid_arguments_say_which_field_is_wrong(records, session_id):
-    coordinator = ScriptedDriver([("propose_rubric_assessment", {"note": "x" * 1001})])
+    coordinator = ScriptedDriver([("propose_rubric_assessment", {"note": "x"})])  # too short
     coordinate(records, session_id, factory_for({"inspect_transcript_context": coordinator}))
     action = records.runs(session_id)[0]["progress"]["actions"][0]
     assert action["outcome"] == "invalid"
     assert "Invalid arguments (note:" in action["summary"]
-    assert "1000" in action["summary"]
+    assert "at least 3" in action["summary"]
 
 
 def test_repeated_refused_review_requests_escalate_with_open_issues(records, session_id):
@@ -219,3 +219,75 @@ def test_repeated_refused_review_requests_escalate_with_open_issues(records, ses
     assert "Blocking:" in run["progress"]["actions"][-1]["summary"]
     assert events[-1] == ("done", {"stopReason": "escalated_with_open_issues"})
     assert records.active_approval(session_id) is None
+
+
+def test_a_rerun_scores_again_instead_of_reusing_the_last_runs_draft(records, session_id):
+    """Run 7dd54fa5: on a session that already had scores, the Coordinator wrote feedback on
+    the old draft and never called the Judge."""
+    from classpartai.participation.schema import Proposal
+
+    records.append_draft(session_id, Proposal.model_validate(full_proposal()), "model", "old")
+    judge_driver = ScriptedDriver(judge_steps())
+    coordinator = ScriptedDriver(
+        [
+            ("draft_student_feedback", {"studentId": "alex-tan"}),  # refused: not scored yet
+            ("audit_assessment", {"note": "Audit the old draft"}),  # refused too
+            ("propose_rubric_assessment", {"note": "Score this run"}),
+        ]
+    )
+    roles = factory_for(
+        {"inspect_transcript_context": coordinator, "score_contribution": judge_driver}
+    )
+    coordinate(records, session_id, roles)
+
+    actions = records.runs(session_id)[0]["progress"]["actions"]
+    assert [(a["tool"], a["outcome"]) for a in actions] == [
+        ("draft_student_feedback", "invalid"),
+        ("audit_assessment", "invalid"),
+        ("propose_rubric_assessment", "ok"),
+    ]
+    assert "propose_rubric_assessment first" in actions[0]["result"]["error"]
+    assert judge_driver.histories  # the Judge ran
+    # A fresh score, not a revision of the old draft: the Judge saw no revision request
+    assert "revision" not in judge_driver.histories[0][0]["content"]
+    assert records.latest_draft(session_id).content.feedback == []
+
+
+def test_an_overlong_note_is_shortened_not_refused():
+    """Demo 1, run 9bf7cfac: refusing long notes made the model resend them until the budget
+    ran out."""
+    from classpartai.participation.coordinator import Review, Revise
+
+    note = Revise.model_validate({"note": "x " * 900}).note
+    assert len(note) == 1000 and note.endswith("…")
+    assert len(Review.model_validate({"summary": "y" * 4000}).summary) == 1500
+    assert Revise.model_validate({"note": "Short note"}).note == "Short note"
+
+
+def test_the_coordinator_is_told_a_summary_not_the_whole_draft(records, session_id):
+    """Demo 1, run c9964898: whole audits after every feedback draft filled the 100 KB history
+    in 7 steps. Feedback results now say who still needs feedback, not every issue."""
+    coordinator = ScriptedDriver(
+        [
+            ("propose_rubric_assessment", {"note": "First pass"}),
+            ("draft_student_feedback", {"studentId": "alex-tan"}),
+        ]
+    )
+    roles = factory_for(
+        {
+            "inspect_transcript_context": coordinator,
+            "score_contribution": ScriptedDriver(judge_steps()),
+            "finish_student_feedback": ScriptedDriver(
+                [("finish_student_feedback", fb("alex-tan"))]
+            ),
+        }
+    )
+    coordinate(records, session_id, roles)
+    proposed, drafted = records.runs(session_id)[0]["progress"]["actions"][:2]
+    assert "justification" not in proposed["result"]["findings"][0]
+    assert drafted["result"]["studentsWithoutFeedback"] == [
+        "priya-nair",
+        "jordan-wong",
+        "marcus-lee",
+    ]
+    assert isinstance(drafted["result"]["openIssues"], int)

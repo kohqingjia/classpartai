@@ -14,8 +14,9 @@ import json
 import time
 from collections.abc import Callable
 from dataclasses import asdict
+from typing import Annotated
 
-from pydantic import BaseModel, ConfigDict, Field, ValidationError
+from pydantic import BaseModel, BeforeValidator, ConfigDict, Field, ValidationError
 
 from classpartai import config
 from classpartai import usage as ledger
@@ -59,8 +60,56 @@ class Retrieve(Strict):
     reuseRunId: str | None
 
 
+# What the Coordinator is told after a tool: enough to choose the next step. The full findings,
+# feedback and audit are in the saved draft. Sending them whole re-sent every audit issue after
+# every feedback draft, and Demo 1 (run c9964898) hit the 100 KB history limit after 7 steps.
+DETAIL_CHARS = 200
+
+
+def _clip(text: str | None, limit: int = DETAIL_CHARS) -> str | None:
+    return text if text is None or len(text) <= limit else text[: limit - 1].rstrip() + "…"
+
+
+def _open_issues(issues) -> list[dict]:
+    return [
+        {
+            "id": i.id,
+            "studentId": i.studentId,
+            "criterionId": i.criterionId,
+            "kind": i.kind,
+            "severity": i.severity,
+            "detail": _clip(i.detail),
+        }
+        for i in issues
+        if i.disposition == "open"
+    ]
+
+
+def _scores(findings) -> list[dict]:
+    return [
+        {
+            "studentId": f.studentId,
+            "criterionId": f.criterionId,
+            "status": f.status,
+            "score": f.score,
+            "confidence": f.confidence,
+            "turnIds": f.turnIds,
+        }
+        for f in findings
+    ]
+
+
+def _shorten(limit: int) -> BeforeValidator:
+    """Cut free-text notes to their limit instead of refusing them. They are labels for the
+    record; a refusal only made the model resend the same long text until the budget ran out
+    (Demo 1, run 9bf7cfac: five refusals, 393k tokens)."""
+    return BeforeValidator(
+        lambda v: v[: limit - 1].rstrip() + "…" if isinstance(v, str) and len(v) > limit else v
+    )
+
+
 class Revise(Strict):
-    note: str = Field(min_length=3, max_length=1000)
+    note: Annotated[str, _shorten(1000)] = Field(min_length=3, max_length=1000)
 
 
 class Student(Strict):
@@ -68,7 +117,7 @@ class Student(Strict):
 
 
 class Review(Strict):
-    summary: str = Field(min_length=5, max_length=1500)
+    summary: Annotated[str, _shorten(1500)] = Field(min_length=5, max_length=1500)
 
 
 COORDINATOR_TOOLS = [
@@ -221,6 +270,13 @@ def _coordinate(
     checkpoint()
     turns = inputs.transcript.turns
     review_refusals = 0
+    # Each run scores the students itself. An earlier run's draft is history, not this run's
+    # findings: reusing it skipped the Judge on a re-run (run 7dd54fa5).
+    judged = False
+    NOT_JUDGED = (
+        "No scores in this run yet: call propose_rubric_assessment first (an earlier run's "
+        "draft is not reused)"
+    )
     stop_reason = "shared_budget_exhausted"
     try:
         while True:
@@ -343,10 +399,10 @@ def _coordinate(
                     # those students instead of everyone.
                     revision = (
                         Revision(args.note, draft.content.findings, draft.content.audit.issues)
-                        if draft
+                        if draft and judged
                         else None
                     )
-                    judged = judge(
+                    scored = judge(
                         inputs,
                         records.evidence_for(session_id),
                         budget,
@@ -354,21 +410,24 @@ def _coordinate(
                         session_id,
                         revision,
                     )
-                    judged.feedback = draft.content.feedback if draft else []
+                    scored.feedback = draft.content.feedback if draft and judged else []
                     nxt = records.append_draft(
-                        session_id, judged, "model", args.note, draft.version if draft else 0
+                        session_id, scored, "model", args.note, draft.version if draft else 0
                     )
+                    judged = True
                     progress.latestDraftId = nxt.id
                     output = {
                         "draftId": nxt.id,
-                        "findings": [f.model_dump() for f in nxt.content.findings],
-                        "auditIssues": [i.model_dump() for i in nxt.content.audit.issues],
+                        "findings": _scores(nxt.content.findings),
+                        "openIssues": _open_issues(nxt.content.audit.issues),
                     }
                 elif call.name == "audit_assessment":
                     args = _arguments(Revise, raw)
                     action["arguments"] = args.model_dump_json()
                     if draft is None:
                         raise Unprocessable("Create a provisional draft before audit")
+                    if not judged:
+                        raise Unprocessable(NOT_JUDGED)
                     # Persisted Auditor state; failures remain visible for professor review.
                     audit = persisted_agent_audit(
                         inputs,
@@ -384,12 +443,22 @@ def _coordinate(
                         session_id, _proposal(draft), "model", args.note, draft.version, audit
                     )
                     progress.latestDraftId = nxt.id
-                    output = {"draftId": nxt.id, "audit": nxt.content.audit.model_dump()}
+                    audit_now = nxt.content.audit
+                    output = {
+                        "draftId": nxt.id,
+                        "audit": {
+                            "modelReviewed": audit_now.modelReviewed,
+                            "notes": _clip(audit_now.notes, 600),
+                            "openIssues": _open_issues(audit_now.issues),
+                        },
+                    }
                 elif call.name == "draft_student_feedback":
                     args = _arguments(Student, raw)
                     action["arguments"] = args.model_dump_json()
                     if draft is None:
                         raise Unprocessable("Create findings before feedback")
+                    if not judged:
+                        raise Unprocessable(NOT_JUDGED)
                     result = feedback_for(
                         args.studentId,
                         inputs,
@@ -420,13 +489,22 @@ def _coordinate(
                         output = {
                             "draftId": nxt.id,
                             "feedbackStudentId": args.studentId,
-                            "auditIssues": [i.model_dump() for i in nxt.content.audit.issues],
+                            "studentsWithoutFeedback": [
+                                st.id
+                                for st in inputs.roster
+                                if st.id not in {f.studentId for f in nxt.content.feedback}
+                            ],
+                            "openIssues": len(
+                                [i for i in nxt.content.audit.issues if i.disposition == "open"]
+                            ),
                         }
                 elif call.name == "request_professor_review":
                     args = _arguments(Review, raw)
                     action["arguments"] = args.model_dump_json()
                     if draft is None:
                         raise Unprocessable("No provisional draft exists")
+                    if not judged:
+                        raise Unprocessable(NOT_JUDGED)
                     # Say exactly what is missing: a vague refusal had the model retry this
                     # call over and over instead of fixing the draft.
                     blocking = [
