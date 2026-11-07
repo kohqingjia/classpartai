@@ -111,8 +111,8 @@ def test_unresolved_questions_are_rechecked_against_the_whole_transcript():
     kept = [{"question": "Does RAG need fine-tuning?", "turn_ids": ["t1"]}]
     analysis = {"unresolved_questions": [*kept, {"question": "Answered later", "turn_ids": []}]}
     out = _verify_unresolved_questions(
-        analysis,
         [{"turn_id": "t1", "text": "?"}],
+        analysis,
         lambda system, prompt: {"unresolved_questions": kept},
     )
     assert out["unresolved_questions"] == kept
