@@ -12,6 +12,8 @@ def transcribe_audio(audio_path: str):
         audio_path,
         beam_size=5,
         language="en",
+        # Word timings let the ClassPart adapter split a segment where the speaker changes.
+        word_timestamps=True,
     )
 
     transcript_segments = []
@@ -22,6 +24,10 @@ def transcribe_audio(audio_path: str):
                 "start": segment.start,
                 "end": segment.end,
                 "text": segment.text.strip(),
+                "words": [
+                    {"start": word.start, "end": word.end, "word": word.word}
+                    for word in segment.words or []
+                ],
             }
         )
 

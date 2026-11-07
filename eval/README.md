@@ -27,3 +27,18 @@ Scripts that score the system, and the results they produce (`eval/results/`). E
   - [`results/guardrails-20261107-000458.md`](results/guardrails-20261107-000458.md): the same
     cases on the code before #46 (single-call model audit): 8/10, US$0.95. 05 (name swap) and 06
     (uncertain speaker) failed there, so they fail in one of two runs: model variance, not fixed.
+- `listener/`: ① Listener accuracy on the 7 scripted demo seminars (their recordings and timed
+  scripts are on the server only). `collect.py` runs the real models once in the app container
+  (Tina's `process_audio`, plus each Whisper segment's and each script line's voice scores
+  against every enrolled voice, Whisper size/beam variants, and word timings) and caches it in
+  `listener/cache/`; `compare.py` then scores configurations offline from that cache (no
+  models): WER against the script, and per script line whether the right person, the wrong
+  person or nobody was credited. Scoring rules: `src/classpartai/listener_eval.py`; tests:
+  `tests/test_listener_eval.py`.
+  - [`results/listener-20261107.md`](results/listener-20261107.md): Tina's rule left 8/26
+    student lines unattributed; naming each diarised speaker by score/margin fixed that but
+    credited one Tasmin line to Tina (pyannote merged the two); aligning words to speaker turns
+    plus a per-line voice veto (now the app's Listener, `decide_speakers`) credits no line to
+    the wrong student, gets 25/26 student and 36/36 professor lines right, and cuts students'
+    speech given to the professor from 7.6 s to 0.1 s. WER 3.3% (Whisper base, beam 5); small
+    2.4% at 2.5x the transcription time.
