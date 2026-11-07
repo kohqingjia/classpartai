@@ -32,7 +32,7 @@ class ClassList:
     def all(self) -> dict[str, Student]:
         if not self.path.exists():
             return {}
-        raw = json.loads(self.path.read_text())
+        raw = json.loads(self.path.read_text(encoding="utf-8"))
         return {pid: Student(person_id=pid, **entry) for pid, entry in raw.items()}
 
     def get(self, person_id: str | None) -> Student | None:

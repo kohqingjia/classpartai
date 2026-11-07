@@ -558,7 +558,7 @@ def source(snippet: Snippet, root: Path = REPO_ROOT) -> tuple[str, int] | None:
     path = root / snippet.path
     if not path.exists():
         return None
-    text = path.read_text()
+    text = path.read_text(encoding="utf-8")
     lines, tree = text.splitlines(), ast.parse(text)
     parts, first = [], None
     for name in snippet.names:

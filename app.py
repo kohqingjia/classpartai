@@ -851,7 +851,7 @@ def open_session(new_inputs: AssessmentInputs, recipients: dict[str, str] | None
 
 
 def demo_people() -> list[dict]:
-    return json.loads((DEMO_AUDIO / "manifest.json").read_text())["people"]
+    return json.loads((DEMO_AUDIO / "manifest.json").read_text(encoding="utf-8"))["people"]
 
 
 def enrol_seminar_voices() -> None:
@@ -1234,7 +1234,7 @@ elif view == "new":
                 help="A 48-second mock seminar read by synthetic voices, with their voice samples",
             ):
                 wav = RECORDINGS / f"pending-{uuid.uuid4().hex}.wav"
-                sample = parse_inputs((DATA / "sample_assessment.json").read_text())
+                sample = parse_inputs((DATA / "sample_assessment.json").read_text(encoding="utf-8"))
                 try:
                     with st.spinner("Enrolling the demo voices…"):
                         enrol_demo_voices()
@@ -1261,8 +1261,10 @@ elif view == "new":
                 width="stretch",
                 help="The same seminar as a ready-made transcript: starts at step 3",
             ):
-                demo = parse_inputs((DATA / "sample_assessment.json").read_text())
-                sample_people = json.loads((DATA / "sample_classlist.json").read_text())
+                demo = parse_inputs((DATA / "sample_assessment.json").read_text(encoding="utf-8"))
+                sample_people = json.loads(
+                    (DATA / "sample_classlist.json").read_text(encoding="utf-8")
+                )
                 open_session(
                     AssessmentInputs.model_validate(
                         {**demo.model_dump(), "documents": with_library(demo.documents)}
@@ -1278,7 +1280,9 @@ elif view == "new":
             ):
                 # The slides come from the course library: they are the instructor's, not ours to
                 # commit.
-                seminar = json.loads((DATA / "is469" / "week7_seminar.json").read_text())
+                seminar = json.loads(
+                    (DATA / "is469" / "week7_seminar.json").read_text(encoding="utf-8")
+                )
                 documents = with_library([])
                 if documents:
                     seminar["documents"] = documents
@@ -1286,7 +1290,9 @@ elif view == "new":
                     st.rerun()
                 st.warning("Upload the IS469 slides in Course library first.")
             if col_fixture.button("Le Yong's fixture", width="stretch"):
-                open_session(parse_inputs((DATA / "fixture-fictional.json").read_text()))
+                open_session(
+                    parse_inputs((DATA / "fixture-fictional.json").read_text(encoding="utf-8"))
+                )
                 st.rerun()
             with st.expander("Import a session file (JSON)"):
                 upload = st.file_uploader("Session JSON", type=["json"])
@@ -1358,12 +1364,12 @@ elif view == "new":
             col_go, col_drop, _ = st.columns([1, 1, 2])
             if col_go.button("Create session →", type="primary", disabled=not confirmed):
                 demo = pending.get("demo")
-                sample = parse_inputs((DATA / "sample_assessment.json").read_text())
+                sample = parse_inputs((DATA / "sample_assessment.json").read_text(encoding="utf-8"))
                 documents = (
                     with_library(sample.documents)
                     if demo
                     else course_library().documents()
-                    or json.loads(config.COURSE_DOCUMENTS.read_text())
+                    or json.loads(config.COURSE_DOCUMENTS.read_text(encoding="utf-8"))
                 )
                 new_inputs = AssessmentInputs(
                     formatVersion=1,
@@ -1374,12 +1380,14 @@ elif view == "new":
                     transcript=transcript,
                     rubric=sample.rubric.model_dump()
                     if demo
-                    else json.loads((DATA / "default_rubric.json").read_text()),
+                    else json.loads((DATA / "default_rubric.json").read_text(encoding="utf-8")),
                     documents=documents,
                 )
                 recipients = None
                 if demo:
-                    sample_people = json.loads((DATA / "sample_classlist.json").read_text())
+                    sample_people = json.loads(
+                        (DATA / "sample_classlist.json").read_text(encoding="utf-8")
+                    )
                     recipients = {pid: e["email"] for pid, e in sample_people.items()}
                 new_id = open_session(new_inputs, recipients)
                 RECORDINGS.mkdir(parents=True, exist_ok=True)

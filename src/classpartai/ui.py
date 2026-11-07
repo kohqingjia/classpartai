@@ -138,7 +138,7 @@ JSON.parse(document.getElementById('data').textContent).forEach(([name,state,lab
 # --- The vault: course documents as a constellation, and what the evidence agent retrieved ----
 
 # The page (HTML, CSS and canvas JavaScript) lives in assets/vault.html; Python fills in the data.
-_VAULT_PAGE = (Path(__file__).parent / "assets" / "vault.html").read_text()
+_VAULT_PAGE = (Path(__file__).parent / "assets" / "vault.html").read_text(encoding="utf-8")
 
 
 def _value(obj, key):

@@ -65,7 +65,7 @@ class VectorStore:
             raise FileNotFoundError(
                 f"No index in {src}. Build it with `uv run python -m classpartai.research ingest`."
             )
-        meta = json.loads((src / "meta.json").read_text())
+        meta = json.loads((src / "meta.json").read_text(encoding="utf-8"))
         if meta["embedder"] != embedder.name:
             raise ValueError(
                 f"The index was built with {meta['embedder']} but the embedder is {embedder.name}. "
