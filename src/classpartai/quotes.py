@@ -32,8 +32,11 @@ def own_turns(inputs: AssessmentInputs, student_id: str) -> dict[str, str]:
     for t in inputs.transcript.turns:
         if t.speaker.kind != "student" or t.speaker.studentId != student_id:
             continue
-        text = t.text.lower()
-        if any(o.displayName.lower() in text or o.id.lower() in text for o in others):
+        # Compared the way the quote is shown: whitespace collapsed, so a name split across a
+        # line break ("Priya\nNair") is still caught.
+        text = " ".join(t.text.split()).lower()
+        names = [" ".join(n.split()).lower() for o in others for n in (o.displayName, o.id)]
+        if any(n in text for n in names):
             minutes, seconds = divmod(t.startMs // 1000, 60)
             out[t.id] = Plain(f"your comment at {minutes}:{seconds:02d}")
         else:

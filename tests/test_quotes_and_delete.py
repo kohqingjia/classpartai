@@ -79,7 +79,7 @@ def test_an_own_turn_that_names_a_classmate_is_shown_by_its_time(inputs):
     from classpartai.quotes import own_turns
 
     turn = next(t for t in inputs.transcript.turns if t.id == "turn-002")
-    turn.text = "Building on what Priya Nair said, retrieval happens at question time."
+    turn.text = "Building on what Priya\n  Nair said, retrieval happens at question time."
     shown = quote_plain("In turn-002 you did well.", own_turns(inputs, "alex-tan"))
     minutes, seconds = divmod(turn.startMs // 1000, 60)
     assert "Priya" not in shown and f"your comment at {minutes}:{seconds:02d}" in shown
