@@ -226,15 +226,18 @@ def compose_draft(
             for i in (previous.audit.issues if previous else [])
             if i.id.startswith("model:") and i.disposition == "open"
         }
-        # Only open model issues can be resolved. An ID that isn't one (a re-raised issue, a
-        # missing "model:" prefix, one already closed) is ignored rather than refusing the whole
-        # audit, which had the Coordinator retry it until the deadline (Demo 2, run fdb3c4d4).
-        # Anything not resolved stays open for the professor.
-        wanted = [
-            r if r.startswith("model:") else "model:" + r for r in model_audit.resolvedIssueIds
-        ]
+        # Only open model issues can be resolved, by their exact ID. Any other ID (a re-raised
+        # issue, one already closed, one without its "model:" prefix) is ignored rather than
+        # refusing the whole audit, which had the Coordinator retry it until the deadline
+        # (Demo 2, run fdb3c4d4). IDs are not rewritten: the feedback reviewer may not close an
+        # Auditor-owned "model:agent-" issue, and that check matches exact IDs. Anything not
+        # resolved stays open for the professor.
         model_audit = model_audit.model_copy(
-            update={"resolvedIssueIds": [r for r in dict.fromkeys(wanted) if r in open_model]}
+            update={
+                "resolvedIssueIds": [
+                    r for r in dict.fromkeys(model_audit.resolvedIssueIds) if r in open_model
+                ]
+            }
         )
         roster = {s.id for s in inputs.roster}
         criteria = {c.id for c in inputs.rubric.criteria}

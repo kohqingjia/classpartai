@@ -33,8 +33,13 @@ def test_resolving_an_issue_that_isnt_open_is_ignored_not_refused(inputs):
         proposal, inputs, "second", first, audit(resolved=["thin", "model:never-raised"])
     )
     thin = next(i for i in second.audit.issues if i.id == "model:thin")
-    assert thin.disposition == "revised"  # the missing "model:" prefix is forgiven
+    # Neither ID is an open issue as written, so nothing is resolved and nothing is refused.
+    # (No prefix rewriting: Pullfrog #67, it would let the feedback reviewer close an
+    # Auditor-owned issue.)
+    assert thin.disposition == "open"
     assert "model:never-raised" not in {i.id for i in second.audit.issues}
+    third = compose_draft(proposal, inputs, "third", second, audit(resolved=["model:thin"]))
+    assert next(i for i in third.audit.issues if i.id == "model:thin").disposition == "revised"
 
 
 def test_the_fallback_audit_leaves_out_the_course_documents(inputs, monkeypatch):
