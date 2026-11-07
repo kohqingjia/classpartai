@@ -4,7 +4,8 @@ from types import SimpleNamespace
 
 import streamlit as st
 from dotenv import load_dotenv
-from groq import Groq
+# from groq import Groq
+from openai import OpenAI
 
 from classpartai.summary.agent import analyse_session
 from classpartai.summary.ui import render_session_summary
@@ -46,10 +47,12 @@ def build_transcript(raw_text):
 
 
 def generate_json(system_prompt, user_prompt):
-    client = Groq(api_key=os.environ["GROQ_API_KEY"])
+    client = OpenAI(api_key=os.environ["OPENAI_API_KEY"])
+    # client = Groq(api_key=os.environ["GROQ_API_KEY"])
 
     response = client.chat.completions.create(
-        model="openai/gpt-oss-20b",
+        model="gpt-4.1-mini",
+        # model="openai/gpt-oss-20b",
         messages=[
             {
                 "role": "system",
@@ -86,8 +89,10 @@ if st.button("Generate Session Summary"):
 
     if not transcript.turns:
         st.error("Enter at least one contribution using 'Speaker: contribution'.")
-    elif not os.getenv("GROQ_API_KEY"):
-        st.error("GROQ_API_KEY is missing from your .env file.")
+    elif not os.getenv("OPENAI_API_KEY"):
+        st.error("OPENAI_API_KEY is missing from your .env file.")
+    # elif not os.getenv("GROQ_API_KEY"):
+    #     st.error("GROQ_API_KEY is missing from your .env file.")
     else:
         try:
             with st.spinner("Analysing seminar..."):
