@@ -29,7 +29,7 @@ from dotenv import load_dotenv
 from groq import Groq
 from openai import OpenAI
 
-from classpartai import config, demo_seminars, usage
+from classpartai import config, course_map, demo_seminars, usage
 from classpartai import snippets as code_snippets
 from classpartai.agent_ui import TABS, overview, render_agent
 from classpartai.agents import listener
@@ -1834,19 +1834,8 @@ elif view == "how":
         "unknown is never retried automatically, so no student gets it twice."
     )
 
-    st.subheader("Mapped to IS469")
-    st.markdown(
-        "| Part | Technique | Topic |\n"
-        "|---|---|---|\n"
-        "| Listener | Whisper (encoder-decoder transformer); voice embeddings + cosine "
-        "similarity | 2 · Transformers, 1/8 · Embeddings |\n"
-        "| Coordinator, Feedback writer | Tool calling, agent harness, budgets | 7 · Agents |\n"
-        "| Evidence / Research | BM25 + vector search, RRF, grading (CRAG-style) | "
-        "8 · Agentic RAG |\n"
-        "| Judge, Auditor | Rubric LLM-as-judge, deterministic checks first | 6 · Evaluation |\n"
-        "| Approval, Delivery | Human in the loop, untrusted data, no autonomous actions | "
-        "9 · Ethics |"
-    )
+    course_map.render()
+
     st.subheader("Under the hood: the code behind each topic")
     st.caption(
         "Read live from the source files, so this is exactly the code that runs. Open one to "
