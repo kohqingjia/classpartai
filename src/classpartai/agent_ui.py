@@ -308,7 +308,9 @@ def coordinator_view(records, session_id, inputs):
         ]
         + (
             [f"Run stopped: {run['stop_reason']}"]
-            if run and run["stop_reason"] not in (None, "ready_for_professor_review")
+            if run
+            and run["stop_reason"]
+            not in (None, "ready_for_professor_review", "escalated_with_open_issues")
             else []
         ),
         "One shared budget covers all roles and research. Tools are schema checked. "
@@ -651,12 +653,17 @@ def run_label(run):
         return "Assessment in progress. You can explore each agent as it works."
     if run["stop_reason"] == "ready_for_professor_review":
         return "The assessment is ready for your review."
+    if run["stop_reason"] == "escalated_with_open_issues":
+        return (
+            "Ready for your review, with open issues the agents couldn't resolve. Approval stays "
+            "locked while any issue is blocking."
+        )
     return "Run " + run["status"].replace("_", " ") + ". See inspection details for the reason."
 
 
 def result_card(title, text, note=None):
     with st.container(border=True):
-        st.caption(title.upper())
+        st.caption(title)
         st.write(text)
         if note:
             st.caption(note)

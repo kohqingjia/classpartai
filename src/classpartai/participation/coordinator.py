@@ -206,6 +206,7 @@ def coordinate(
     checkpoint()
     turns = inputs.transcript.turns
     auditor = AuditorSession()  # one-round re-judge state, for this run only
+    review_refusals = 0
     stop_reason = "shared_budget_exhausted"
     try:
         while True:
@@ -241,7 +242,7 @@ def coordinate(
                 raw = json.loads(call.arguments)
                 draft = records.latest_draft(session_id)
                 if call.name == "inspect_transcript_context":
-                    args = Inspect.model_validate(raw)
+                    args = _arguments(Inspect, raw)
                     action["arguments"] = args.model_dump_json()
                     if args.studentId is not None and not any(
                         s.id == args.studentId for s in inputs.roster
@@ -266,7 +267,7 @@ def coordinate(
                         "limits": "At most 20 context turns; inspect more stable IDs if needed",
                     }
                 elif call.name == "retrieve_evidence":
-                    args = Retrieve.model_validate(raw)
+                    args = _arguments(Retrieve, raw)
                     action["arguments"] = args.model_dump_json()
                     if args.reuseRunId:
                         bundle = dict(records.evidence_for(session_id)).get(args.reuseRunId)
@@ -321,7 +322,7 @@ def coordinate(
                             "bundle": outcome.progress.bundle.model_dump(),
                         }
                 elif call.name == "propose_rubric_assessment":
-                    args = Revise.model_validate(raw)
+                    args = _arguments(Revise, raw)
                     action["arguments"] = args.model_dump_json()
                     judged = judge(
                         inputs, records.evidence_for(session_id), budget, factory, session_id
@@ -337,7 +338,7 @@ def coordinate(
                         "auditIssues": [i.model_dump() for i in nxt.content.audit.issues],
                     }
                 elif call.name == "audit_assessment":
-                    args = Revise.model_validate(raw)
+                    args = _arguments(Revise, raw)
                     action["arguments"] = args.model_dump_json()
                     if draft is None:
                         raise Unprocessable("Create a provisional draft before audit")
@@ -358,7 +359,7 @@ def coordinate(
                     progress.latestDraftId = nxt.id
                     output = {"draftId": nxt.id, "audit": nxt.content.audit.model_dump()}
                 elif call.name == "draft_student_feedback":
-                    args = Student.model_validate(raw)
+                    args = _arguments(Student, raw)
                     action["arguments"] = args.model_dump_json()
                     if draft is None:
                         raise Unprocessable("Create findings before feedback")
@@ -395,7 +396,7 @@ def coordinate(
                             "auditIssues": [i.model_dump() for i in nxt.content.audit.issues],
                         }
                 elif call.name == "request_professor_review":
-                    args = Review.model_validate(raw)
+                    args = _arguments(Review, raw)
                     action["arguments"] = args.model_dump_json()
                     if draft is None:
                         raise Unprocessable("No provisional draft exists")
@@ -404,24 +405,40 @@ def coordinate(
                     blocking = [
                         i for i in audit_draft(draft.content, inputs) if i.severity == "blocking"
                     ]
+                    problem = None
                     if blocking:
-                        raise Unprocessable(
-                            "Complete every roster student's outputs first. Blocking: "
-                            + "; ".join(i.detail for i in blocking[:5])
+                        problem = "Complete every roster student's outputs first. Blocking: " + (
+                            "; ".join(i.detail for i in blocking[:5])
                         )
-                    if not draft.content.audit.modelReviewed:
-                        raise Unprocessable(
+                    elif not draft.content.audit.modelReviewed:
+                        problem = (
                             f"Draft version {draft.version} changed after its last audit: call "
                             "audit_assessment on it, then request review"
                         )
-                    action["outcome"] = "ok"
-                    action["summary"] = (
-                        "Complete provisional outputs escalated to professor; no approval or "
-                        "delivery performed"
-                    )
-                    stop_reason = "ready_for_professor_review"
-                    finished = True
-                    output = None
+                    if problem and review_refusals + 1 < MAX_REVIEW_REFUSALS:
+                        review_refusals += 1
+                        raise Unprocessable(problem)
+                    if problem:
+                        # Retrying the same refused request only spends the budget: hand the
+                        # draft to the professor with its open issues instead. Approval still
+                        # refuses a draft with blocking issues, so nothing incomplete is sent.
+                        action["outcome"] = "ok"
+                        action["summary"] = (
+                            f"Escalated to the professor after {MAX_REVIEW_REFUSALS} refused "
+                            f"review requests, with open issues. {problem}"
+                        )[:600]
+                        stop_reason = "escalated_with_open_issues"
+                        finished = True
+                        output = None
+                    else:
+                        action["outcome"] = "ok"
+                        action["summary"] = (
+                            "Complete provisional outputs escalated to professor; no approval or "
+                            "delivery performed"
+                        )
+                        stop_reason = "ready_for_professor_review"
+                        finished = True
+                        output = None
                 else:
                     raise Unprocessable("Unsupported coordinator action")
                 if not finished:
@@ -470,6 +487,22 @@ def coordinate(
     )
     emit("done", {"stopReason": stop_reason})
     return run_id
+
+
+MAX_REVIEW_REFUSALS = 3  # the third refused request_professor_review escalates instead
+
+
+def _arguments(model: type[Strict], raw) -> Strict:
+    """A tool call's arguments, or a refusal that says which field is wrong, so the model can
+    correct the call rather than repeat it."""
+    try:
+        return model.model_validate(raw)
+    except ValidationError as error:
+        problems = "; ".join(
+            f"{'.'.join(str(part) for part in e['loc']) or 'arguments'}: {e['msg']}"
+            for e in error.errors()[:3]
+        )
+        raise Unprocessable(f"Invalid arguments ({problems})") from None
 
 
 def _proposal(draft: Draft) -> Proposal:
