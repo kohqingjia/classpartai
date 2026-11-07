@@ -31,93 +31,12 @@ os.environ["RESEARCH_BRIDGE_WEB"] = "false"
 os.environ["EMAIL_TEST_MODE"] = "true"
 
 from classpartai import config  # noqa: E402
-from classpartai.participation.adversarial import CASES, run_case  # noqa: E402
-
-# US$ per million tokens (OpenAI list prices for the models this project uses).
-PRICES = {
-    "gpt-5-mini": {"input": 0.25, "cached": 0.025, "output": 2.00},
-    "text-embedding-3-small": {"input": 0.02, "cached": 0.02, "output": 0.0},
-}
-
-
-class Meter:
-    """Counts the tokens and cost of every OpenAI call, by wrapping the SDK's create methods.
-    Instrumentation only: requests and responses pass through unchanged. Once ``max_usd`` is
-    spent, further calls raise, which stops the run in progress as a provider failure."""
-
-    def __init__(self, max_usd: float):
-        self.max_usd = max_usd
-        self.calls: list[dict] = []
-
-    @property
-    def usd(self) -> float:
-        return sum(c["usd"] for c in self.calls)
-
-    def install(self) -> None:
-        from openai.resources.chat.completions import Completions
-        from openai.resources.embeddings import Embeddings
-
-        meter = self
-
-        def wrap(original, kind):
-            def create(self, *args, **kwargs):
-                if meter.usd >= meter.max_usd:
-                    raise RuntimeError(f"Evaluation cost cap of US${meter.max_usd} reached")
-                started = time.perf_counter()
-                response = original(self, *args, **kwargs)
-                meter.record(kind, kwargs.get("model", ""), response, time.perf_counter() - started)
-                return response
-
-            return create
-
-        Completions.create = wrap(Completions.create, "chat")
-        Embeddings.create = wrap(Embeddings.create, "embedding")
-
-    def record(self, kind: str, model: str, response, seconds: float) -> None:
-        usage = getattr(response, "usage", None)
-        prompt = getattr(usage, "prompt_tokens", 0) or 0
-        output = getattr(usage, "completion_tokens", 0) or 0
-        details = getattr(usage, "prompt_tokens_details", None)
-        cached = getattr(details, "cached_tokens", 0) or 0
-        reasoning = getattr(
-            getattr(usage, "completion_tokens_details", None), "reasoning_tokens", 0
-        )
-        price = next((p for name, p in PRICES.items() if model.startswith(name)), None)
-        usd = (
-            (
-                (prompt - cached) * price["input"]
-                + cached * price["cached"]
-                + output * price["output"]
-            )
-            / 1e6
-            if price
-            else 0.0
-        )
-        self.calls.append(
-            {
-                "kind": kind,
-                "model": model,
-                "prompt": prompt,
-                "cached": cached,
-                "output": output,
-                "reasoning": reasoning or 0,
-                "usd": usd,
-                "priced": price is not None,
-                "seconds": round(seconds, 2),
-            }
-        )
-
-    def since(self, start: int) -> dict:
-        calls = self.calls[start:]
-        return {
-            "openaiCalls": len(calls),
-            "promptTokens": sum(c["prompt"] for c in calls),
-            "cachedTokens": sum(c["cached"] for c in calls),
-            "outputTokens": sum(c["output"] for c in calls),
-            "reasoningTokens": sum(c["reasoning"] for c in calls),
-            "usd": round(sum(c["usd"] for c in calls), 4),
-            "unpricedCalls": sum(1 for c in calls if not c["priced"]),
-        }
+from classpartai.participation.adversarial import (  # noqa: E402
+    CASES,
+    Meter,
+    classify,
+    run_case,
+)
 
 
 def cell(text: str) -> str:
@@ -135,6 +54,11 @@ def main() -> None:
 
     config.set_seed()
     meter = Meter(args.max_usd)
+    for model in (config.OPENAI_MODEL, config.OPENAI_EMBEDDING_MODEL):
+        try:
+            meter.check(model)  # fail now, not mid-run, on a model without a price
+        except RuntimeError as error:
+            sys.exit(str(error))
     meter.install()
     cases = [c for c in CASES if not args.only or c.id in set(args.only)]
     rows, details = [], []
@@ -153,9 +77,7 @@ def main() -> None:
             runs, verdict, error = [], None, f"{type(exc).__name__}: {exc}"[:300]
         seconds = time.perf_counter() - started
         usage = meter.since(start)
-        # A provider failure (or a harness error) says nothing about the guardrail.
-        failed = error or any(r.run.get("stop_reason") == "provider_failure" for r in runs)
-        caught = "yes" if verdict and verdict.caught else "inconclusive" if failed else "no"
+        caught = classify(verdict, runs, error)
         observed = verdict.observed if verdict else f"harness error: {error}"
         print(f"  caught: {caught}: {observed}", flush=True)
         print(f"  {usage['usd']:.4f} USD, {seconds:.0f}s (total {meter.usd:.4f} USD)", flush=True)

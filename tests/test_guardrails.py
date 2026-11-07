@@ -13,9 +13,12 @@ from classpartai.participation.adversarial import (
     CASES,
     CASES_DIR,
     CaseRun,
+    Meter,
+    Verdict,
     check_approve_send,
     check_long,
     check_silent,
+    classify,
     coordinator_tool_names,
     load_case,
     probe_human_gate,
@@ -295,3 +298,70 @@ def test_injection_flags_are_read_from_the_search_results_research_saw():
     run = CaseRun("x", inputs, "s", {}, None, [], [], [], 0.0)
     run.evidence_runs = [{"id": "e1", "progress": {"research": [pack]}}]
     assert run.injection_flags() == ["Seminar notes (reading), p. 6"]
+
+
+# --- Unexecuted outcomes, failures and unpriced models never count as caught -------------------
+
+
+def fake_run(file: str, stop: str, gate: dict | None = None, model_calls: int = 5) -> CaseRun:
+    run = {"status": "needs_review", "stop_reason": stop, "progress": {"modelCalls": model_calls}}
+    return CaseRun("x", load_case(file), "s", run, None, [], [], [], 1.0, gate or {})
+
+
+def test_gate_not_reached_is_inconclusive_not_caught():
+    gate = {
+        "sent_by_workflow": False,
+        "approve_without_recipients": "refused",
+        "refusal": "Complete every roster student's findings and feedback before approval",
+        "approve_with_recipients": "refused: incomplete",
+    }
+    runs = [fake_run("09-approve-and-send.json", "ready_for_professor_review", gate)]
+    verdict = check_approve_send(runs)
+    assert not verdict.caught and verdict.inconclusive
+    assert classify(verdict, runs) == "inconclusive"
+
+
+def test_silent_case_requires_the_feedback(tmp_path):
+    file = "07-silent-student.json"
+    records = Records(tmp_path / "r.db")
+    session = records.create_session(load_case(file))
+    proposal = proposal_for(file, {"quinn-ash": (3, ["turn-002"]), "rhea-kim": (2, ["turn-003"])})
+    proposal.feedback = proposal.feedback[:2]  # no feedback for Sol
+    run = fake_run(file, "ready_for_professor_review")
+    run.draft = records.append_draft(session, proposal, "model", "v1")
+    assert not check_silent([run]).caught
+
+
+def test_long_case_needs_a_budget_stop_after_real_work():
+    file = "10-long-transcript.json"
+    assert not check_long([fake_run(file, "model_not_configured", model_calls=0)]).caught
+    assert not check_long([fake_run(file, "ready_for_professor_review")]).caught
+    assert check_long([fake_run(file, "shared_budget_or_interruption")]).caught
+
+
+def test_provider_failure_wins_over_a_passing_check():
+    runs = [fake_run("07-silent-student.json", "provider_failure")]
+    assert classify(Verdict(True, "looked fine"), runs) == "inconclusive"
+    assert classify(Verdict(True, "ok"), [fake_run("07-silent-student.json", "x")]) == "yes"
+    assert classify(None, [], "harness error") == "inconclusive"
+
+
+def test_meter_refuses_unpriced_models_and_spent_caps_before_sending():
+    sent = []
+
+    def original(client, *args, **kwargs):
+        sent.append(kwargs["model"])
+        usage = type("U", (), {"prompt_tokens": 1_000_000, "completion_tokens": 100_000})()
+        return type("R", (), {"usage": usage})()
+
+    meter = Meter(max_usd=0.5)
+    create = meter.wrap(original, "chat")
+    with pytest.raises(RuntimeError, match="No price"):
+        create(None, model="some-unpriced-model")
+    assert sent == []
+    create(None, model="gpt-5-mini")  # 1M in + 100k out = $0.25 + $0.20
+    assert meter.usd == pytest.approx(0.45)
+    create(None, model="gpt-5-mini")  # still under the cap when sent
+    with pytest.raises(RuntimeError, match="cost cap"):
+        create(None, model="gpt-5-mini")
+    assert sent == ["gpt-5-mini", "gpt-5-mini"]
