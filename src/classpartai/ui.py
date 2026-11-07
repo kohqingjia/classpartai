@@ -221,6 +221,7 @@ def _tools(agent: str) -> list[str]:
 SYSTEM_LANES = [
     {
         "step": "Set up",
+        "stack": "before",
         "title": "Before class",
         "nodes": [
             [
@@ -235,6 +236,7 @@ SYSTEM_LANES = [
     },
     {
         "step": "① ②",
+        "stack": "before",
         "title": "Listener",
         "kind": "pipeline",
         "nodes": [
@@ -247,15 +249,14 @@ SYSTEM_LANES = [
             ],
             [
                 "Speaker match",
-                "pyannote splits by voice; embeddings + cosine similarity name each speaker, "
-                "then every line and turn is re-checked",
+                "pyannote splits voices; embeddings + cosine similarity name each speaker",
                 "Topics 1, 8",
                 "pipeline",
                 [],
             ],
             [
                 "Who spoke? check",
-                "A person confirms the attribution; unknown voices aren't scored",
+                "A person confirms who spoke; unknown voices aren't scored",
                 "",
                 "human",
                 [],
@@ -306,6 +307,7 @@ SYSTEM_LANES = [
     },
     {
         "step": "④",
+        "stack": "after",
         "title": "Professor",
         "nodes": [
             [
@@ -319,6 +321,7 @@ SYSTEM_LANES = [
     },
     {
         "step": "⑤",
+        "stack": "after",
         "title": "Delivery",
         "nodes": [
             [
@@ -347,57 +350,65 @@ STARTS_AGENT = {
 }
 
 SYSTEM_GUARDRAILS = [
-    "Transcript and slides are untrusted data, never instructions",
-    "Every score must cite the student's own turns",
-    "Budgets: 72 model calls · 108 tool calls · 400k tokens · 600 s",
-    "No AI can send: a human approves the exact version",
-    "Ambiguous sends are never retried automatically",
+    "Transcripts and slides are data, not instructions",
+    "Every score cites the student's own turns",
+    "Budget: 72 model calls · 400k tokens · 600 s",
+    "Only a person approves and sends",
+    "Uncertain sends are never retried",
 ]
 
 _SYSTEM_CSS = """
-.lanes { display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1.2fr) minmax(0,2.2fr)
-         minmax(0,.9fr) minmax(0,.9fr); gap:12px; align-items:stretch; }
+.lanes { display:grid; grid-template-columns:minmax(0,1.15fr) minmax(0,3fr) minmax(0,.95fr);
+         gap:16px; align-items:stretch; }
+/* Short steps share a column: Before class over the Listener, Professor over Delivery. */
+.stack { display:flex; flex-direction:column; gap:16px; position:relative; }
+.stack > .lane { flex:none; }
+.stack > .lane:last-child { flex:1; }
+.stack > .lane:not(:last-child)::after { content:"↓"; right:auto; left:50%; top:auto;
+        bottom:-16px; transform:translateX(-50%); }
 .lane { position:relative; background:var(--card); border:1px solid var(--line);
         border-radius:12px; padding:12px; display:flex; flex-direction:column; gap:8px; }
 .lane:not(:last-child)::after { content:"→"; position:absolute; right:-14px; top:50%;
-        transform:translateY(-50%); color:var(--muted); font-size:14px; }
+        transform:translateY(-50%); color:var(--muted); font-size:16px; }
 .head { display:flex; gap:8px; align-items:baseline; }
-.step { color:var(--muted); font:12px ui-monospace,monospace; white-space:nowrap; }
-.title { font-weight:600; font-size:14px; }
-.lead { font-size:11px; color:var(--muted); line-height:1.4; }
-.tools { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:8px; }
-.node { background:var(--bg); border:1px solid var(--line); border-radius:8px; padding:8px; }
-.name { font-weight:600; font-size:12px; }
-.what { font-size:11px; color:var(--muted); margin-top:4px; line-height:1.4; }
-.badge { display:inline-block; margin-top:8px; font:10px ui-monospace,monospace;
+.step { color:var(--muted); font:14px ui-monospace,monospace; white-space:nowrap; }
+.title { font-weight:600; font-size:18px; }
+.lead { font-size:14px; color:var(--muted); line-height:1.4; }
+.tools { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:8px; }
+.tools > .wide { grid-column:1/-1; }  /* the Feedback writer, a single call: one row */
+.node { background:var(--bg); border:1px solid var(--line); border-radius:8px; padding:12px; }
+.name { font-weight:600; font-size:16px; }
+.what { font-size:14px; color:var(--muted); margin-top:4px; line-height:1.4; }
+.badge { display:inline-block; margin-top:8px; font:12px ui-monospace,monospace;
          color:var(--muted); align-self:flex-start; }
-.rails { display:flex; flex-wrap:wrap; gap:8px; margin-top:12px; }
-.rail { font-size:11px; color:var(--ink); border:1px solid var(--line); background:var(--card);
+.rails { display:flex; flex-wrap:wrap; gap:8px; margin-top:12px; align-items:center; }
+.rail { font-size:14px; color:var(--ink); border:1px solid var(--line); background:var(--card);
         border-radius:6px; padding:4px 8px; }
-.railhead { font-size:12px; color:var(--muted); margin-top:16px; }
-.kind { font:10px ui-monospace,monospace; color:var(--muted); border:1px solid var(--line);
+.railhead { font-size:14px; color:var(--muted); margin-right:4px; }
+.kind { font:12px ui-monospace,monospace; color:var(--muted); border:1px solid var(--line);
         border-radius:4px; padding:1px 4px; margin-left:auto; white-space:nowrap; }
 .nhead { display:flex; gap:8px; align-items:center; }
 .tl { display:flex; flex-wrap:wrap; gap:4px; margin-top:8px; }
-.tn { display:inline-flex; align-items:center; gap:4px; font:10px ui-monospace,monospace;
+.tn { display:inline-flex; align-items:center; gap:4px; font:13px ui-monospace,monospace;
       color:var(--ink); background:var(--card); border:1px solid var(--line); border-radius:4px;
       padding:2px 4px; }
 .to { color:var(--muted); }
 /* Agents: one colour each (--ag), on the card's hairline, the tag and every tool's dot. */
-.dot { width:6px; height:6px; border-radius:50%; background:var(--ag); flex:none; }
+.dot { width:8px; height:8px; border-radius:50%; background:var(--ag); flex:none; }
 .ag { --ag:var(--muted); }
 .ag.lane, .ag.node { border-color:color-mix(in srgb,var(--ag) 40%,var(--line)); }
 .ag > .head .kind, .ag > .nhead .kind, .kind.agent { color:var(--ag,var(--accent));
         border-color:color-mix(in srgb,var(--ag,var(--accent)) 45%,transparent); }
 .ag .tn { border-color:color-mix(in srgb,var(--ag) 25%,var(--line)); }
-.legend { display:flex; flex-wrap:wrap; gap:16px; font-size:11px; color:var(--muted);
+.legend { display:flex; flex-wrap:wrap; gap:16px; font-size:14px; color:var(--muted);
           margin-top:12px; align-items:center; }
 .legend > span { display:inline-flex; gap:4px; align-items:center; }
-.inks { display:flex; flex-wrap:wrap; gap:16px; font-size:11px; color:var(--muted);
+.inks { display:flex; flex-wrap:wrap; gap:16px; font-size:14px; color:var(--muted);
         margin-top:8px; align-items:center; }
 .inks > span { display:inline-flex; gap:6px; align-items:center; }
 .inks b { color:var(--ink); font-weight:500; }
 @media(max-width:900px) { .lanes { grid-template-columns:1fr; }
+  .stack { gap:16px; }
   .lane:not(:last-child)::after { content:"↓"; right:auto; left:50%; top:auto; bottom:-16px;
   transform:translateX(-50%); } }
 """
@@ -431,6 +442,7 @@ const toolList=(names,owner)=>{const t=el('div','tl');names.forEach(n=>{const c=
   c.title='Starts the '+starts+' agent';}
  t.appendChild(c);});return t;};
 const lanes=el('div','lanes');root.appendChild(lanes);
+const stacks={};
 d.lanes.forEach(l=>{
  const lane=ink(el('div','lane'),l.lead?l.title:'');
  const head=el('div','head');head.appendChild(el('span','step',l.step));
@@ -441,7 +453,7 @@ d.lanes.forEach(l=>{
   lane.appendChild(toolList(l.lead_tools,l.title));lane.appendChild(el('span','badge',l.badge));}
  const box=el('div',l.lead?'tools':'');
  l.nodes.forEach(([name,what,topic,kind,tools])=>{
-  const n=ink(el('div','node'),name);const nh=el('div','nhead');
+  const n=ink(el('div','node'+(l.lead&&kind!=='agent'?' wide':'')),name);const nh=el('div','nhead');
   if(d.inks[name])nh.appendChild(dot(name));nh.appendChild(el('div','name',name));
   // Agents are always labelled, even inside the Coordinator's agent lane.
   if(!l.kind||l.kind!==kind||kind==='agent')
@@ -450,7 +462,10 @@ d.lanes.forEach(l=>{
   if(tools.length)n.appendChild(toolList(tools,name));
   if(topic)n.appendChild(el('span','badge',topic));box.appendChild(n);
  });
- lane.appendChild(box);lanes.appendChild(lane);
+ lane.appendChild(box);
+ if(l.stack){if(!stacks[l.stack]){stacks[l.stack]=el('div','stack');
+  lanes.appendChild(stacks[l.stack]);}stacks[l.stack].appendChild(lane);}
+ else lanes.appendChild(lane);
 });
 const legend=el('div','legend');
 [['agent','agent','runs its own loop: picks a tool, reads the result, picks the next'],
@@ -469,8 +484,8 @@ eg.appendChild(document.createTextNode('retrieve_evidence'));eg.appendChild(el('
 eg.appendChild(dot('Research'));how.appendChild(eg);
 how.appendChild(document.createTextNode(' means that tool starts the Research agent'));
 inks.appendChild(how);root.appendChild(inks);
-root.appendChild(el('div','railhead','Guardrails · Topic 9'));
 const rails=el('div','rails');root.appendChild(rails);
+rails.appendChild(el('span','railhead','Guardrails · Topic 9'));
 d.rails.forEach(r=>rails.appendChild(el('span','rail',r)));
 """,
     )
