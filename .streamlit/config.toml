@@ -1,13 +1,19 @@
-# Calm, high-contrast workspace. All fonts are local system fonts.
+# The marking desk: graphite surfaces, one highlighter-amber accent for the primary action,
+# selection and the one thing that matters on a screen. All fonts are local system fonts.
 [theme]
 base = "dark"
-primaryColor = "#a5b4fc"
-backgroundColor = "#0d1119"
-secondaryBackgroundColor = "#151c28"
-textColor = "#e9edf5"
-borderColor = "#293140"
-baseRadius = "0.65rem"
+primaryColor = "#e8b03c"
+backgroundColor = "#141415"
+secondaryBackgroundColor = "#1d1d1f"
+textColor = "#ededed"
+linkColor = "#f0c25e"
+borderColor = "#2a2a2d"
+baseRadius = "0.625rem"
 showSidebarBorder = true
+
+[theme.sidebar]
+backgroundColor = "#0f0f10"
+secondaryBackgroundColor = "#19191b"
 
 [client]
 toolbarMode = "minimal"

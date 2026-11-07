@@ -49,7 +49,7 @@ def navigate(at, step, agent=None):
 
 
 def demo(at):
-    click(at, "🎙️ New class session")
+    click(at, "New class session")
     click(at, "Skip to the demo transcript")
     return at.session_state["session_id"]
 
@@ -58,9 +58,9 @@ def test_every_outer_page_and_session_step(app):
     at, _ = app
     assert at.title[0].value == "ClassPart AI"
     for label, title in [
-        ("📚 Course library", "Course library"),
-        ("👥 Class & voices", "Class & voices"),
-        ("🎙️ New class session", None),
+        ("Course library", "Course library"),
+        ("Class & voices", "Class & voices"),
+        ("New class session", None),
     ]:
         click(at, label)
         if title:
@@ -70,9 +70,9 @@ def test_every_outer_page_and_session_step(app):
     demo(at)
     for step in STEP_NUMBERS:
         navigate(at, step)
-    click(at, "🏠 Home")
+    click(at, "Home")
     assert at.title[0].value == "ClassPart AI"
-    click(at, "🧭 How it works")
+    click(at, "How it works")
     assert at.title[0].value == "How ClassPart AI works"
 
 
@@ -99,7 +99,7 @@ def test_history_entries_always_name_their_step(app):
     """Browser Back restores an old address; it must show the step it showed before, even after
     the session has moved on (a pending transcript, a new draft)."""
     at, _ = app
-    click(at, "🎙️ New class session")
+    click(at, "New class session")
     assert at.query_params["step"] == "Record"
     sid = demo(at)
     assert dict(at.query_params) == {
@@ -107,7 +107,7 @@ def test_history_entries_always_name_their_step(app):
         "session": sid,
         "step": "AI assessment",
     }
-    click(at, "🏠 Home")
+    click(at, "Home")
     next(b for b in at.button if b.key == f"assessment-{sid}").click().run()
     assert at.query_params["step"] == "AI assessment"
 
@@ -330,7 +330,7 @@ def test_stepping_a_replay_reaches_the_stored_draft_without_writing(app, monkeyp
     click(at, "⏮ Restart")
     assert any("event 0 of" in c.value for c in at.caption)
     click(at, "⏩ Skip to end")
-    click(at, "✕ Close replay")
+    click(at, "Close replay")
     assert any(b.label == "▶ Replay this run" for b in at.button)
     assert snapshot(records) == before
 
@@ -387,14 +387,14 @@ def test_a_finished_replay_shows_its_own_draft_not_a_later_edit(app):
     assert any(f"Version {replayed.version} · AI proposal" in h for h in headings)
     assert not any("Edited by the professor" in h for h in headings)
     assert any(f"current version is {replayed.version + 1}" in c.value for c in at.caption)
-    click(at, "✕ Close replay")
+    click(at, "Close replay")
     headings = [m.value for m in at.markdown]
     assert any(f"Version {replayed.version + 1} · professor edit" in h for h in headings)
 
 
 def test_week7_seminar_uses_the_course_library(app, tmp_path):
     at, records = app
-    click(at, "🎙️ New class session")
+    click(at, "New class session")
     click(at, "IS469 Week 7 seminar")
     assert any("Upload the IS469 slides" in w.value for w in at.warning)
     assert not records.sessions()
@@ -428,8 +428,8 @@ def test_demo_seminars_are_listed_only_with_their_recording(app, tmp_path):
     (demos / "02-one-silent.json").write_text(json.dumps({**SCRIPT, "title": "Demo 2"}))
     (demos / "03-nobody.json").write_text(json.dumps({**SCRIPT, "id": "03", "title": "Demo 3"}))
     (demos / "02-one-silent.wav").write_bytes(b"")
-    click(at, "🎙️ New class session")
-    assert any(e.label.startswith("🎭 Demo seminars: 1 edge") for e in at.expander)
+    click(at, "New class session")
+    assert any(e.label.startswith("Demo seminars: 1 edge") for e in at.expander)
     assert [b.key for b in at.button if b.key and b.key.startswith("demo-seminar-")] == [
         "demo-seminar-02-one-silent"
     ]
@@ -443,3 +443,28 @@ def test_a_demo_session_shows_its_script_under_the_recording(app):
     assert any("What was said" in m.value for m in at.markdown)
     assert any("**Tasmin**: The tool's output." in m.value for m in at.markdown)
     assert any(c.value == SCRIPT["case"] for c in at.caption)
+
+
+def test_a_library_file_opens_to_its_passages_and_chunks(app, tmp_path):
+    at, _ = app
+    sample = json.loads((config.REPO_ROOT / "data" / "sample_assessment.json").read_text())
+    document = sample["documents"][0]
+    document["passages"][0]["text"] = " ".join(f"w{n}" for n in range(200))
+    library = tmp_path / "library"
+    library.mkdir()
+    (library / "documents.json").write_text(
+        json.dumps(
+            [
+                {
+                    "file": "Topic8.pptx",
+                    "uploadedAt": "2026-11-01T00:00:00+00:00",
+                    "document": document,
+                }
+            ]
+        )
+    )
+    click(at, "Course library")
+    assert any(e.label.startswith("See its passages") for e in at.expander)
+    assert any("windows of 120 words that overlap by 30" in c.value for c in at.caption)
+    assert at.dataframe[0].value["Chunks"].iloc[0] == 2  # 200 words: 0-119, 90-199
+    assert any(c.value == "#1 · 110 words" for c in at.caption)

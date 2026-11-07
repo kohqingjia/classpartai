@@ -11,6 +11,7 @@ assessment, approve, send). Voices must be enrolled before a recording can be pr
 Listener can only name speakers it has a sample for, and unnamed speakers are never scored.
 """
 
+import inspect
 import json
 import os
 import shutil
@@ -56,6 +57,8 @@ from classpartai.participation.validation import (
     observed_count,
     totals,
 )
+from classpartai.research.bridge import session_chunks
+from classpartai.research.materials import split_into_chunks
 from classpartai.retrieval import examined_of, searches_of
 from classpartai.summary.agent import analyse_session
 from classpartai.summary.ui import render_session_summary
@@ -84,10 +87,35 @@ SGT = timezone(timedelta(hours=8))
 PAGE_CSS = """<style>
 [data-testid="stSidebar"] button[data-testid^="stBaseButton"] > div { justify-content:flex-start; }
 [data-testid="stSidebar"] button p { white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-h1 { font-size:2.6rem !important; font-weight:700 !important; letter-spacing:-.02em; }
-.muted { color:#9b9b9b; font-size:.95rem; }
+/* Quiet sidebar: navigation rows 4 apart, section labels closer to their own items. */
+[data-testid="stSidebar"] [data-testid="stVerticalBlock"] { gap:4px; }
+[data-testid="stSidebar"] [data-testid="stCaptionContainer"] { margin:12px 0 0; }
+[data-testid="stSidebar"] hr { margin:12px 0; }
+/* Session groups are rows, not boxes. */
+[data-testid="stSidebar"] [data-testid="stExpander"] details { border:none; background:none; }
+[data-testid="stSidebar"] [data-testid="stExpander"] summary { padding:6px 8px; min-height:32px; }
+[data-testid="stSidebar"] [data-testid="stExpander"] summary p {
+  white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+[data-testid="stSidebar"] [data-testid="stMarkdownContainer"] h3 { font-weight:600; }
+/* Hierarchy from size and colour, not weight. */
+h1 { font-size:2.25rem !important; font-weight:600 !important; letter-spacing:-.01em; }
+h2, h3 { font-weight:600 !important; }
+h4 { font-weight:500 !important; }
+.muted { color:#a1a1a6; font-size:.95rem; }
+/* Primary action: off-white with dark text; the amber accent is kept for selection. */
+button[data-testid="stBaseButton-primary"] {
+  background:#ededed; border-color:#ededed; color:#141415; }
+button[data-testid="stBaseButton-primary"]:hover {
+  background:#ffffff; border-color:#ffffff; color:#141415; }
+button[data-testid="stBaseButton-primary"] p { color:#141415; }
+/* The current step is marked like a highlighted line in a transcript. */
+.st-key-stepbar button[data-testid="stBaseButton-primary"] {
+  background:#232325; border-color:#e8b03c; color:#ededed;
+  box-shadow:inset 0 -3px 0 #e8b03c; }
+.st-key-stepbar button[data-testid="stBaseButton-primary"] p { color:#ededed; }
 /* Pressable things answer the press. */
-button { transition:transform 160ms cubic-bezier(0.23,1,0.32,1); }
+button { transition:transform 160ms cubic-bezier(0.23,1,0.32,1),
+  background-color 160ms cubic-bezier(0.23,1,0.32,1); }
 button:active:not(:disabled) { transform:scale(0.97); }
 [data-testid="stCaptionContainer"] { font-variant-numeric:tabular-nums; }
 @media (prefers-reduced-motion:reduce) { button:active:not(:disabled) { transform:none; } }
@@ -196,7 +224,8 @@ def fold_events(events, inputs: AssessmentInputs) -> dict:
             view["banner"] = f"Finished: {detail['stopReason'].replace('_', ' ')}"
         else:
             stage, ok = TOOL_STAGE.get(detail["tool"]), detail["outcome"] == "ok"
-            view["lines"].append(f"{'✅' if ok else '⛔'} `{detail['tool']}`: {detail['summary']}")
+            mark = ":green[:material/check:]" if ok else ":red[:material/block:]"
+            view["lines"].append(f"{mark} `{detail['tool']}`: {detail['summary']}")
             if stage:
                 counts[stage] = counts.get(stage, 0) + 1
                 refused[stage] = refused.get(stage, 0) + (not ok)
@@ -234,7 +263,7 @@ def run_panel(session_id: str, inputs: AssessmentInputs) -> None:
         show_flow(st.empty(), view["active"], view["done"], view["notes"], view["banner"])
         show_board(st.empty(), cards, view["newest"])
         if alive and (view["searches"] or view["active"] == "research"):
-            st.caption("🌌 Live retrieval from the course documents")
+            st.caption("Live retrieval from the course documents")
             show_vault(
                 inputs.documents,
                 {"searches": view["searches"]},
@@ -388,7 +417,11 @@ def replay_section(session_id: str, inputs: AssessmentInputs) -> tuple[bool, Dra
         "⏩ Skip to end", on_click=replay_control, args=(session_id, "end"), width="stretch"
     )
     cols[4].button(
-        "✕ Close replay", on_click=replay_control, args=(session_id, "close"), width="stretch"
+        "Close replay",
+        icon=":material/close:",
+        on_click=replay_control,
+        args=(session_id, "close"),
+        width="stretch",
     )
 
     def view() -> None:
@@ -410,7 +443,7 @@ def replay_section(session_id: str, inputs: AssessmentInputs) -> tuple[bool, Dra
         show_flow(st.empty(), fold["active"], fold["done"], fold["notes"], fold["banner"])
         show_board(st.empty(), student_cards(inputs, draft), fold["newest"])
         if not finished and (fold["searches"] or fold["active"] == "research"):
-            st.caption("🌌 Retrieval from the course documents, as it happened")
+            st.caption("Retrieval from the course documents, as it happened")
             show_vault(
                 inputs.documents,
                 {"searches": fold["searches"]},
@@ -571,7 +604,7 @@ def when(iso: str) -> str:
 
 def default_title() -> str:
     now = datetime.now(SGT)
-    return f"Seminar @{now:%A} {clock(now)}"
+    return f"Seminar, {now:%a} {now.day} {now:%b} {clock(now)}"
 
 
 def go(view: str, session: str | None = None, step: int | None = None) -> None:
@@ -657,11 +690,11 @@ def show_transcript(turns, names: dict[str, str], player_key: str | None = None)
         sp = t.speaker
         stamp = f"{t.startMs // 60000}:{t.startMs // 1000 % 60:02d}"
         if sp.kind == "student":
-            who, avatar = names.get(sp.studentId, sp.studentId), "🧑‍🎓"
+            who, avatar = names.get(sp.studentId, sp.studentId), ":material/person:"
         elif sp.kind == "professor":
-            who, avatar = sp.label, "🎓"
+            who, avatar = sp.label, ":material/school:"
         else:
-            who, avatar = f"{sp.label} · speaker uncertain", "❔"
+            who, avatar = f"{sp.label} · speaker uncertain", ":material/help:"
         with st.chat_message(who, avatar=avatar):
             if player_key:
                 col_who, col_play = st.columns([12, 1])
@@ -706,7 +739,7 @@ def citation_text(bundles, ref) -> str:
 
 records, classlist = services()
 
-st.set_page_config(page_title="ClassPart AI", page_icon="🎓", layout="wide")
+st.set_page_config(page_title="ClassPart AI", page_icon=":material/school:", layout="wide")
 st.html(PAGE_CSS)
 
 # --- Sidebar ----------------------------------------------------------------------------------
@@ -727,13 +760,20 @@ if st.session_state.view not in VIEWS or (
 requested_step = STEP_PARAMS.get(st.query_params.get("step", ""))
 
 
-def nav(label: str, view_name: str, session: str | None = None, key: str | None = None) -> None:
+def nav(
+    label: str,
+    view_name: str,
+    session: str | None = None,
+    key: str | None = None,
+    icon: str | None = None,
+) -> None:
     selected = st.session_state.view == view_name and (
         session is None or session == st.session_state.session_id
     )
     st.button(
         label,
         key=key,
+        icon=icon,
         width="stretch",
         type="secondary" if selected else "tertiary",
         on_click=go,
@@ -742,42 +782,45 @@ def nav(label: str, view_name: str, session: str | None = None, key: str | None 
 
 
 with st.sidebar:
-    st.markdown("### 🎓 ClassPart AI")
-    nav("🏠 Home", "home")
-    nav("🎙️ New class session", "new")
+    st.markdown("### ClassPart AI")
+    nav("Home", "home", icon=":material/home:")
+    nav("New class session", "new", icon=":material/mic:")
     st.caption("Class sessions")
     for s in sessions:
         with st.expander(
-            f"📝 {s['title']}",
+            s["title"],
+            icon=":material/description:",
             expanded=(
                 s["id"] == st.session_state.session_id
                 and st.session_state.view in {"session", "summary"}
             ),
         ):
             nav(
-                "📋 Assessment workflow",
+                "Assessment",
                 "session",
                 s["id"],
                 key=f"assessment-{s['id']}",
+                icon=":material/fact_check:",
             )
 
             nav(
-                "📝 Session Summary",
+                "Summary",
                 "summary",
                 s["id"],
                 key=f"summary-{s['id']}",
+                icon=":material/notes:",
             )
     if not sessions:
         st.caption("No sessions yet.")
     st.divider()
     st.caption("Set up")
-    nav("📚 Course library", "library")
-    nav("👥 Class & voices", "voices")
+    nav("Course library", "library", icon=":material/library_books:")
+    nav("Class & voices", "voices", icon=":material/group:")
     st.caption("Present")
-    nav("🧭 How it works", "how")
+    nav("How it works", "how", icon=":material/account_tree:")
     if os.getenv("EMAIL_TEST_MODE", "true").lower() != "false":
         recipient = os.getenv("EMAIL_TEST_RECIPIENT", "(not set)")
-        st.caption(f"✉️ Test mode: every email goes to {recipient}")
+        st.caption(f"Test mode: every email goes to {recipient}")
     if not os.getenv("OPENAI_API_KEY"):
         st.warning("No OPENAI_API_KEY: agent runs will be blocked.")
 
@@ -812,6 +855,53 @@ def enrol_seminar_voices() -> None:
     for person in demo_seminars.voices(DEMO_SEMINARS):
         if not voices().get(person["personId"]):
             voices().enrol(person["personId"], person["name"], Path(person["path"]), demo=True)
+
+
+# The chunk size Research really uses, read from its signature so this page can't drift.
+_CHUNKING = inspect.signature(session_chunks).parameters
+CHUNK_WINDOW, CHUNK_OVERLAP = _CHUNKING["window"].default, _CHUNKING["overlap"].default
+PASSAGE_UNIT = {".pptx": "Slide", ".pdf": "Page", ".ipynb": "Cells", ".docx": "Section"}
+
+
+def show_passages(entry: dict) -> None:
+    """One library file as Research sees it: a passage per slide, page or group of cells, cut
+    into the overlapping word windows that get embedded at the first search."""
+    doc, unit = entry["document"], PASSAGE_UNIT.get(Path(entry["file"]).suffix.lower(), "Part")
+    window, overlap = CHUNK_WINDOW, CHUNK_OVERLAP
+    rows = [
+        {
+            unit: p.get("page") or n,
+            "Words": len(p["text"].split()),
+            "Chunks": len(split_into_chunks(p["text"], window, overlap)),
+            "Starts with": " ".join(p["text"].split()[:14]) + "…",
+        }
+        for n, p in enumerate(doc["passages"], start=1)
+    ]
+    st.caption(
+        f"Uploading makes one passage per {unit.lower()}. Nothing is embedded yet: at a "
+        f"session's first search each passage is cut into windows of {window} words that "
+        f"overlap by {overlap}, and each window is embedded and indexed for BM25. A citation "
+        f"names the passage and window, e.g. `{doc['id']}:{doc['passages'][0]['id']}#0`."
+    )
+    st.dataframe(rows, hide_index=True, width="stretch", height=min(36 * len(rows) + 38, 280))
+    labels = [f"{unit} {r[unit]} · {r['Words']} words" for r in rows]
+    pick = st.selectbox("Open a passage", labels, key=f"passage-{entry['file']}")
+    passage = doc["passages"][labels.index(pick)]
+    col_text, col_chunks = st.columns(2)
+    col_text.markdown("**The passage**")
+    col_text.text(passage["text"])
+    col_chunks.markdown(f"**Its chunks** ({window} words, {overlap} overlap)")
+    pieces = split_into_chunks(passage["text"], window, overlap)
+    for n, piece in enumerate(pieces):
+        words = piece.split()
+        shared = " ".join(words[:overlap]) if n else ""
+        rest = " ".join(words[overlap:]) if n else piece
+        col_chunks.caption(f"#{n} · {len(words)} words")
+        col_chunks.markdown(
+            (f":orange-background[{shared}] " if shared else "") + rest.replace("$", "\\$")
+        )
+    if len(pieces) > 1:
+        col_chunks.caption("Highlighted: the words a chunk shares with the one before it")
 
 
 def show_script(script: dict, player_key: str | None) -> None:
@@ -900,8 +990,8 @@ if view == "home":
         rows = [
             (
                 bool(entries),
-                "📚 Course library",
-                f"{len(entries)} file(s) · "
+                "Course library",
+                f"{len(entries)} {'file' if len(entries) == 1 else 'files'} · "
                 f"{sum(len(e['document']['passages']) for e in entries)} passages"
                 if entries
                 else "Upload the slides the evidence agent should search",
@@ -909,20 +999,22 @@ if view == "home":
             ),
             (
                 ready_to_record,
-                "👥 Class & voices",
-                f"{len(students)} student(s) · voices: {len(voiced_students)}/{len(students)} "
-                f"students, {len(voiced_profs)} professor(s)",
+                "Class & voices",
+                f"{len(students)} students · voice samples for {len(voiced_students)} of "
+                f"{len(students)} and {len(voiced_profs)} "
+                f"{'professor' if len(voiced_profs) == 1 else 'professors'}",
                 "voices",
             ),
         ]
         for ok, name, detail, target in rows:
             col_state, col_name, col_go = st.columns([6, 1, 1])
-            col_state.markdown(f"{'✅' if ok else '⚠️'} **{name}** · :gray[{detail}]")
+            mark = ":green[:material/check_circle:]" if ok else ":orange[:material/error:]"
+            col_state.markdown(f"{mark} **{name}** · :gray[{detail}]")
             col_go.button("Open", key=f"home-{target}", on_click=go, args=(target,))
         mail = os.getenv("EMAIL_TEST_RECIPIENT", "")
         test_mode = os.getenv("EMAIL_TEST_MODE", "true").lower() != "false"
         st.markdown(
-            "✅ **✉️ Email** · :gray["
+            ":green[:material/check_circle:] **Email** · :gray["
             + (f"test mode: every email goes to {mail}" if test_mode else "sends to students")
             + "]"
         )
@@ -933,15 +1025,27 @@ if view == "home":
             )
     col_new, col_demo, _ = st.columns([1, 1, 2])
     col_new.button(
-        "🎙️ New class session", type="primary", width="stretch", on_click=go, args=("new",)
+        "New class session",
+        icon=":material/mic:",
+        type="primary",
+        width="stretch",
+        on_click=go,
+        args=("new",),
     )
-    col_demo.button("▶ Try the demo recording", width="stretch", on_click=go, args=("new",))
+    col_demo.button(
+        "Try the demo recording",
+        icon=":material/play_arrow:",
+        width="stretch",
+        on_click=go,
+        args=("new",),
+    )
     if sessions:
         st.markdown("#### Recent sessions")
         for s in sessions[:6]:
-            col_title, col_when = st.columns([4, 1])
+            col_title, col_when = st.columns([4, 1], vertical_alignment="center")
             col_title.button(
-                f"📝 {s['title']}",
+                s["title"],
+                icon=":material/description:",
                 key=f"home-open-{s['id']}",
                 type="tertiary",
                 on_click=go,
@@ -969,8 +1073,8 @@ elif view == "new":
             )
         with st.container(border=True):
             st.markdown("**① Record the seminar**")
-            names = [f"🎓 {p.name}" for p in voiced_profs] + [
-                f"✅ {p.name}" for p in voiced_students
+            names = [f"{p.name} (professor)" for p in voiced_profs] + [
+                p.name for p in voiced_students
             ]
             missing = [p.name for p in classlist.students() if p.person_id not in registry]
             st.caption(
@@ -986,7 +1090,9 @@ elif view == "new":
                     "Enrol the professor's and at least one student's voice first: the Listener "
                     "can only name people it has a sample for, and unnamed speakers aren't scored."
                 )
-                st.button("👥 Go to Class & voices", on_click=go, args=("voices",))
+                st.button(
+                    "Go to Class & voices", icon=":material/group:", on_click=go, args=("voices",)
+                )
             col_rec, col_up = st.columns(2)
             recorded = col_rec.audio_input(
                 "Record in the browser", key="mic", disabled=not ready_to_record
@@ -1074,7 +1180,7 @@ elif view == "new":
                     seminar["documents"] = documents
                     open_session(AssessmentInputs.model_validate(seminar))
                     st.rerun()
-                st.warning("Upload the IS469 slides in 📚 Course library first.")
+                st.warning("Upload the IS469 slides in Course library first.")
             if col_fixture.button("Le Yong's fixture", width="stretch"):
                 open_session(parse_inputs((DATA / "fixture-fictional.json").read_text()))
                 st.rerun()
@@ -1088,7 +1194,10 @@ elif view == "new":
                         st.error(str(exc))
             demos = demo_seminars.available(DEMO_SEMINARS)
             if demos:
-                with st.expander(f"🎭 Demo seminars: {len(demos)} edge cases, with their scripts"):
+                with st.expander(
+                    f"Demo seminars: {len(demos)} edge cases, with their scripts",
+                    icon=":material/theater_comedy:",
+                ):
                     st.caption(
                         "Mock classes in our cloned voices, with a synthetic professor. Each runs "
                         "through the real Listener; the script is kept so you can check it."
@@ -1222,13 +1331,18 @@ elif view == "library":
         show_vault([e["document"] for e in entries], agent="Course library", height=460)
         for entry in entries:
             doc = entry["document"]
-            col_name, col_count, col_when, col_remove = st.columns([4, 2, 2, 1])
-            col_name.markdown(f"📄 **{doc['title']}**  \n:gray[{entry['file']}]")
-            col_count.write(f"{len(doc['passages'])} passages")
-            col_when.caption(when(entry["uploadedAt"]))
-            if col_remove.button("Remove", key=f"lib-rm-{entry['file']}"):
-                library.remove(entry["file"])
-                st.rerun()
+            with st.container(border=True):
+                col_name, col_count, col_when, col_remove = st.columns(
+                    [4, 2, 2, 1], vertical_alignment="center"
+                )
+                col_name.markdown(f"**{doc['title']}**  \n:gray[{entry['file']}]")
+                col_count.write(f"{len(doc['passages'])} passages")
+                col_when.caption(when(entry["uploadedAt"]))
+                if col_remove.button("Remove", key=f"lib-rm-{entry['file']}"):
+                    library.remove(entry["file"])
+                    st.rerun()
+                with st.expander("See its passages and how they're chunked"):
+                    show_passages(entry)
         st.caption(
             "Sessions keep the documents they were created with, so removing a file here "
             "doesn't change past evidence or scores."
@@ -1250,7 +1364,7 @@ elif view == "voices":
         """Record (reading the paragraph) or upload a voice sample; returns the clip or None."""
         st.markdown(f"> {READING}")
         col_rec, col_up = st.columns(2)
-        recorded = col_rec.audio_input("🎙 Read the paragraph above", key=f"{key}-rec")
+        recorded = col_rec.audio_input("Read the paragraph above", key=f"{key}-rec")
         uploaded = col_up.file_uploader(
             "…or upload a clip of them speaking alone", type=AUDIO_TYPES, key=f"{key}-up"
         )
@@ -1294,14 +1408,16 @@ elif view == "voices":
         entry = registry.get(person.person_id)
         with st.container(border=True):
             col_who, col_voice, col_remove = st.columns([3, 4, 1])
-            badge = "🎓 professor" if person.role == "professor" else "🧑‍🎓 student"
+            badge = "Professor" if person.role == "professor" else "Student"
             col_who.markdown(f"**{person.name}** · {badge}  \n:gray[{person.email}]")
             if entry:
                 seconds = voices().seconds(person.person_id) or 0
-                col_voice.caption(f"✅ Voice sample · {seconds:.0f} s")
+                col_voice.caption(f"Voice sample · {seconds:.0f} s")
                 col_voice.audio(str(voices().clip_path(person.person_id)))
             else:
-                col_voice.markdown(":orange[⚠️ No voice sample: won't be recognised]")
+                col_voice.markdown(
+                    ":orange[:material/warning: No voice sample: won't be recognised]"
+                )
             if col_remove.button("Remove", key=f"rm-{person.person_id}"):
                 classlist.remove(person.person_id)
                 voices().remove(person.person_id)
@@ -1442,7 +1558,9 @@ elif view == "how":
                 st.caption(f"`{snippet.path}:{line}` · {snippet.say}")
                 st.code(code, language="python")
 
-    st.button("🎙️ Try it: start a class session", type="primary", on_click=go, args=("new",))
+    st.button(
+        "Start a class session", icon=":material/mic:", type="primary", on_click=go, args=("new",)
+    )
 
 
 # --- Session Summary ----------------------------------------------------------
@@ -1453,9 +1571,7 @@ elif view == "summary":
 
     st.title(f"Session Summary · {inputs.sessionTitle}")
 
-    st.caption(
-        f"📅 {when(meta['created_at'])} · {inputs.courseTitle} · {len(inputs.roster)} students"
-    )
+    st.caption(f"{when(meta['created_at'])} · {inputs.courseTitle} · {len(inputs.roster)} students")
 
     st.button(
         "← Back to Assessment workflow",
@@ -1481,7 +1597,7 @@ elif view == "summary":
 
     else:
         if st.button(
-            "✨ Generate Session Summary",
+            "Generate summary",
             type="primary",
             key=f"generate_summary_{session_id}",
         ):
@@ -1520,7 +1636,7 @@ elif view == "session":
     step_bar("session", step, done, {1, 2, 3, 4, 5})
     st.title(inputs.sessionTitle)
     st.markdown(
-        f'<p class="muted">📅 {escape(when(meta["created_at"]))} · {escape(inputs.courseTitle)} · '
+        f'<p class="muted">{escape(when(meta["created_at"]))} · {escape(inputs.courseTitle)} · '
         f"{len(inputs.roster)} students · {escape(inputs.rubric.title)}</p>",
         unsafe_allow_html=True,
     )
@@ -1586,7 +1702,7 @@ elif view == "session":
                                 f"seek-{session_id}",
                             )
                     if name == "Evidence / Research":
-                        with st.expander("🔎 Ask the course notes"):
+                        with st.expander("Ask the course notes", icon=":material/search:"):
                             st.write(
                                 "Ask the evidence agent to check something said in class "
                                 "against the course documents. It chooses its own searches "
@@ -1634,7 +1750,11 @@ elif view == "session":
                                         for a in progress.actions[shown[0] :]:
                                             if a["outcome"] == "started":
                                                 break
-                                            icon = "✅" if a["outcome"] == "ok" else "⛔"
+                                            icon = (
+                                                ":green[:material/check:]"
+                                                if a["outcome"] == "ok"
+                                                else ":red[:material/block:]"
+                                            )
                                             log.write(f"{icon} `{a['tool']}`: {a['summary']}")
                                             shown[0] += 1
 
@@ -1691,11 +1811,11 @@ elif view == "session":
                 overview(records, session_id, inputs, live)
                 col_run, col_blank, _ = st.columns([1, 1, 2])
                 if col_run.button(
-                    "⏳ Working…"
+                    "Working…"
                     if running
-                    else "✨ Generate assessment"
+                    else "Generate assessment"
                     if latest is None
-                    else "✨ Regenerate assessment",
+                    else "Regenerate assessment",
                     type="primary",
                     width="stretch",
                     disabled=running,
@@ -1812,7 +1932,7 @@ elif view == "session":
                 if review:
                     with st.expander(f"{len(review)} issue(s) to review", expanded=not blocking):
                         for i in review:
-                            st.markdown(f"⚠️ {issue_text(i)}")
+                            st.markdown(f":orange[:material/warning:] {issue_text(i)}")
                 if not open_issues:
                     st.success("No open issues.")
             with st.expander("Edit the draft (saves a new version)"):
@@ -1924,7 +2044,10 @@ elif view == "session":
             if test_mode.test_mode:
                 st.caption(f"Test mode: all of them go to {test_mode.test_recipient}.")
             for s in inputs.roster:
-                with st.expander(f"✉️ {s.displayName} → {current.get(s.id, '(no recipient)')}"):
+                with st.expander(
+                    f"{s.displayName} → {current.get(s.id, '(no recipient)')}",
+                    icon=":material/mail:",
+                ):
                     try:
                         st.text(feedback_email(records, session_id, s.id, latest))
                     except StopIteration:
