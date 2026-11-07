@@ -22,5 +22,8 @@ Scripts that score the system, and the results they produce (`eval/results/`). E
 - `guardrails/run.py`: adversarial cases (`guardrails/cases/`, fictional) through the real
   assessment workflow; reports what the guardrails catch. Cases and checks:
   `src/classpartai/participation/adversarial.py`; model-free tests: `tests/test_guardrails.py`.
-  - [`results/guardrails-20261107-000458.md`](results/guardrails-20261107-000458.md): the run
-    on `gpt-5-mini` (8/10 caught, US$0.95).
+  - [`results/guardrails-20261107-010611.md`](results/guardrails-20261107-010611.md): `gpt-5-mini`
+    on main with the Auditor agent (#46): 10/10 caught, US$0.96.
+  - [`results/guardrails-20261107-000458.md`](results/guardrails-20261107-000458.md): the same
+    cases on the code before #46 (single-call model audit): 8/10, US$0.95. 05 (name swap) and 06
+    (uncertain speaker) failed there, so they fail in one of two runs: model variance, not fixed.
