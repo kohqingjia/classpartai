@@ -1,0 +1,73 @@
+{
+  "id": "06-dominant",
+  "title": "Demo 6 · Transformers: one student dominates",
+  "case": "Qing Jia speaks at length; the others give one or two short answers. Length alone must not earn marks; short but correct answers still count.",
+  "lines": [
+    {
+      "speaker": "Prof Wynter",
+      "text": "Today we look inside the transformer. What problem does self attention solve compared with a recurrent network?",
+      "start": 0.8,
+      "end": 6.09
+    },
+    {
+      "speaker": "Koh Qing Jia",
+      "text": "A recurrent network processes tokens one at a time, so information from early tokens has to survive many steps and it's hard to parallelise. Self attention lets every token look at every other token directly in one step, so long range dependencies are easier and you can train on the whole sequence in parallel on a GPU, which is why transformers scaled so well.",
+      "start": 7.28,
+      "end": 34.62
+    },
+    {
+      "speaker": "Prof Wynter",
+      "text": "Good. What are the query, key and value?",
+      "start": 35.36,
+      "end": 37.26
+    },
+    {
+      "speaker": "Koh Qing Jia",
+      "text": "Each token is projected into a query, a key and a value. You take the dot product of a query with all the keys, scale it, apply a softmax to get attention weights, and then take the weighted sum of the values. And with multiple heads you do this several times in parallel so different heads can focus on different relationships, like syntax in one head and coreference in another.",
+      "start": 38.31,
+      "end": 67.04
+    },
+    {
+      "speaker": "Prof Wynter",
+      "text": "Why do we divide by the square root of the key dimension?",
+      "start": 68.13,
+      "end": 70.84
+    },
+    {
+      "speaker": "Tina",
+      "text": "So the softmax doesn't saturate.",
+      "start": 71.86,
+      "end": 73.54
+    },
+    {
+      "speaker": "Prof Wynter",
+      "text": "Yes. And since attention has no notion of order, what do we add?",
+      "start": 74.61,
+      "end": 77.65
+    },
+    {
+      "speaker": "Tasmin",
+      "text": "We add positional encodings.",
+      "start": 78.68,
+      "end": 80.16
+    },
+    {
+      "speaker": "Prof Wynter",
+      "text": "Correct. Le Yong, encoder or decoder, which one uses masking?",
+      "start": 80.9,
+      "end": 83.8
+    },
+    {
+      "speaker": "Le Yong",
+      "text": "The decoder, so a token can't attend to future tokens.",
+      "start": 84.51,
+      "end": 88.25
+    },
+    {
+      "speaker": "Prof Wynter",
+      "text": "Good. That's the core of the architecture.",
+      "start": 89.18,
+      "end": 91.18
+    }
+  ]
+}
