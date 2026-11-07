@@ -14,8 +14,9 @@ import json
 import time
 from collections.abc import Callable
 from dataclasses import asdict
+from typing import Annotated
 
-from pydantic import BaseModel, ConfigDict, Field, ValidationError
+from pydantic import BaseModel, BeforeValidator, ConfigDict, Field, ValidationError
 
 from classpartai import config
 from classpartai import usage as ledger
@@ -59,8 +60,17 @@ class Retrieve(Strict):
     reuseRunId: str | None
 
 
+def _shorten(limit: int) -> BeforeValidator:
+    """Cut free-text notes to their limit instead of refusing them. They are labels for the
+    record; a refusal only made the model resend the same long text until the budget ran out
+    (Demo 1, run 9bf7cfac: five refusals, 393k tokens)."""
+    return BeforeValidator(
+        lambda v: v[: limit - 1].rstrip() + "…" if isinstance(v, str) and len(v) > limit else v
+    )
+
+
 class Revise(Strict):
-    note: str = Field(min_length=3, max_length=1000)
+    note: Annotated[str, _shorten(1000)] = Field(min_length=3, max_length=1000)
 
 
 class Student(Strict):
@@ -68,7 +78,7 @@ class Student(Strict):
 
 
 class Review(Strict):
-    summary: str = Field(min_length=5, max_length=1500)
+    summary: Annotated[str, _shorten(1500)] = Field(min_length=5, max_length=1500)
 
 
 COORDINATOR_TOOLS = [

@@ -187,12 +187,12 @@ def test_a_blocked_run_still_records_its_end(records, session_id):
 
 
 def test_invalid_arguments_say_which_field_is_wrong(records, session_id):
-    coordinator = ScriptedDriver([("propose_rubric_assessment", {"note": "x" * 1001})])
+    coordinator = ScriptedDriver([("propose_rubric_assessment", {"note": "x"})])  # too short
     coordinate(records, session_id, factory_for({"inspect_transcript_context": coordinator}))
     action = records.runs(session_id)[0]["progress"]["actions"][0]
     assert action["outcome"] == "invalid"
     assert "Invalid arguments (note:" in action["summary"]
-    assert "1000" in action["summary"]
+    assert "at least 3" in action["summary"]
 
 
 def test_repeated_refused_review_requests_escalate_with_open_issues(records, session_id):
@@ -251,3 +251,14 @@ def test_a_rerun_scores_again_instead_of_reusing_the_last_runs_draft(records, se
     # A fresh score, not a revision of the old draft: the Judge saw no revision request
     assert "revision" not in judge_driver.histories[0][0]["content"]
     assert records.latest_draft(session_id).content.feedback == []
+
+
+def test_an_overlong_note_is_shortened_not_refused():
+    """Demo 1, run 9bf7cfac: refusing long notes made the model resend them until the budget
+    ran out."""
+    from classpartai.participation.coordinator import Review, Revise
+
+    note = Revise.model_validate({"note": "x " * 900}).note
+    assert len(note) == 1000 and note.endswith("…")
+    assert len(Review.model_validate({"summary": "y" * 4000}).summary) == 1500
+    assert Revise.model_validate({"note": "Short note"}).note == "Short note"
