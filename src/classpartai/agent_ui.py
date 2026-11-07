@@ -225,7 +225,11 @@ def listener_view(records, session_id, inputs):
         if diagnostics.get("note"):
             st.warning(diagnostics["note"])
         with st.expander("Whisper segments", expanded=True):
-            st.dataframe(diagnostics.get("whisper_segments", []), hide_index=True, width="stretch")
+            whisper = [
+                {k: v for k, v in seg.items() if k != "words"}  # word timings: raw response
+                for seg in diagnostics.get("whisper_segments", [])
+            ]
+            st.dataframe(whisper, hide_index=True, width="stretch")
         rows = match_rows(diagnostics)
         if rows:
             st.dataframe(rows, hide_index=True, width="stretch")
@@ -233,7 +237,16 @@ def listener_view(records, session_id, inputs):
     else:
         empty("Listener diagnostics were not recorded for this imported or older session.")
     matching = (diagnostics or {}).get("matching")
-    if matching:
+    if matching and matching.get("per") == "speaker":
+        st.caption(
+            f"Each diarised speaker is named when its best voice has cosine ≥ "
+            f"{matching['minScore']:g} and a lead of ≥ {matching['minMargin']:g} over the "
+            "runner-up, otherwise unknown or ambiguous. Each line of 1 s or more is also scored "
+            'on its own voice and becomes ambiguous ("vetoed") if that clearly names someone '
+            "else. SpeechBrain's own verifier decision is kept under voice_matches → verifier "
+            "in the raw response."
+        )
+    elif matching:
         st.caption(
             f"Per-sentence matching: the best voice needs cosine ≥ {matching['minScore']:g} and a "
             f"lead of ≥ {matching['minMargin']:g} over the runner-up, otherwise the line stays "
