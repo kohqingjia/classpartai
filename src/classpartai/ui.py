@@ -362,6 +362,8 @@ _SYSTEM_CSS = """
          gap:16px; align-items:stretch; }
 /* Short steps share a column: Before class over the Listener, Professor over Delivery. */
 .stack { display:flex; flex-direction:column; gap:16px; position:relative; }
+.lanes > .stack:not(:last-child)::after { content:"→"; position:absolute; right:-14px;
+        top:50%; transform:translateY(-50%); color:var(--muted); font-size:16px; }
 .stack > .lane { flex:none; }
 .stack > .lane:last-child { flex:1; }
 .stack > .lane:not(:last-child)::after { content:"↓"; right:auto; left:50%; top:auto;
@@ -374,7 +376,12 @@ _SYSTEM_CSS = """
 .step { color:var(--muted); font:14px ui-monospace,monospace; white-space:nowrap; }
 .title { font-weight:600; font-size:18px; }
 .lead { font-size:14px; color:var(--muted); line-height:1.4; }
+/* Three agent columns on a wide screen; two on a laptop with the sidebar open, where the
+   Auditor (seven tools) takes a full row so its tools wrap across it; one on a phone. */
 .tools { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:8px; }
+@media(max-width:1250px) { .tools { grid-template-columns:repeat(2,minmax(0,1fr)); }
+  .tools > .many { grid-column:1/-1; } }
+@media(max-width:600px) { .tools { grid-template-columns:1fr; } }
 .tools > .wide { grid-column:1/-1; }  /* the Feedback writer, a single call: one row */
 .node { background:var(--bg); border:1px solid var(--line); border-radius:8px; padding:12px; }
 .name { font-weight:600; font-size:16px; }
@@ -389,7 +396,8 @@ _SYSTEM_CSS = """
         border-radius:4px; padding:1px 4px; margin-left:auto; white-space:nowrap; }
 .nhead { display:flex; gap:8px; align-items:center; }
 .tl { display:flex; flex-wrap:wrap; gap:4px; margin-top:8px; }
-.tn { display:inline-flex; align-items:center; gap:4px; font:13px ui-monospace,monospace;
+.tn { display:inline-flex; align-items:center; gap:4px; font:12px ui-monospace,monospace;
+      max-width:100%; overflow-wrap:anywhere;
       color:var(--ink); background:var(--card); border:1px solid var(--line); border-radius:4px;
       padding:2px 4px; }
 .to { color:var(--muted); }
@@ -408,7 +416,8 @@ _SYSTEM_CSS = """
 .inks > span { display:inline-flex; gap:6px; align-items:center; }
 .inks b { color:var(--ink); font-weight:500; }
 @media(max-width:900px) { .lanes { grid-template-columns:1fr; }
-  .stack { gap:16px; }
+  .lanes > .stack:not(:last-child)::after { content:"↓"; right:auto; left:50%; top:auto;
+  bottom:-16px; transform:translateX(-50%); }
   .lane:not(:last-child)::after { content:"↓"; right:auto; left:50%; top:auto; bottom:-16px;
   transform:translateX(-50%); } }
 """
@@ -453,7 +462,8 @@ d.lanes.forEach(l=>{
   lane.appendChild(toolList(l.lead_tools,l.title));lane.appendChild(el('span','badge',l.badge));}
  const box=el('div',l.lead?'tools':'');
  l.nodes.forEach(([name,what,topic,kind,tools])=>{
-  const n=ink(el('div','node'+(l.lead&&kind!=='agent'?' wide':'')),name);const nh=el('div','nhead');
+  const n=ink(el('div','node'+(l.lead&&kind!=='agent'?' wide':'')+
+   (tools.length>5?' many':'')),name);const nh=el('div','nhead');
   if(d.inks[name])nh.appendChild(dot(name));nh.appendChild(el('div','name',name));
   // Agents are always labelled, even inside the Coordinator's agent lane.
   if(!l.kind||l.kind!==kind||kind==='agent')
