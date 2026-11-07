@@ -1536,7 +1536,7 @@ elif view == "how":
         "it.</p>",
         unsafe_allow_html=True,
     )
-    st.iframe(system_html(), height=490)
+    st.iframe(system_html(), height=860)
 
     st.subheader("The five steps")
     st.markdown(
@@ -1571,6 +1571,57 @@ elif view == "how":
         "- **Bounded.** Every run has a budget (72 model calls, 108 tool calls, 400k tokens, "
         "600 s) and stops cleanly when it runs out."
     )
+
+    st.subheader("The agents and their tools")
+    st.markdown(
+        "Three parts are **agents**: a model in a loop that picks a tool, reads what it "
+        "returned and picks the next, until it decides it's done. The Coordinator runs the "
+        "other two by calling a tool (*agents as tools*). The rest are single model calls, "
+        "fixed pipelines or plain code, on purpose: sending email, for one, is never left to "
+        "a model."
+    )
+    kinds = {
+        "agent": "Agent (its own loop)",
+        "model call": "One model call",
+        "pipeline": "Fixed pipeline",
+        "code": "Plain code",
+    }
+    st.markdown(
+        "| Part | What it is | Started by | Tools | Who built it |\n|---|---|---|---|---|\n"
+        + "\n".join(
+            f"| **{a.name}** | {kinds[a.kind]} | {a.called_by} | "
+            f"{len(a.tools) or '—'} | {a.owner} |"
+            for a in code_snippets.AGENTS
+        )
+    )
+    for agent in code_snippets.AGENTS:
+        st.markdown(f"#### {agent.name}")
+        st.caption(f"{kinds[agent.kind]} · started by {agent.called_by} · {agent.owner}")
+        st.write(agent.summary)
+        for snippet in agent.code:
+            with st.expander(snippet.title):
+                found = code_snippets.source(snippet)
+                if found is None:
+                    st.caption(f"{snippet.path} isn't available on this server.")
+                    continue
+                code, line = found
+                st.caption(f"`{snippet.path}:{line}` · {snippet.say}")
+                st.code(code, language="python")
+        for t in agent.tools:
+            with st.expander(f"`{t.name}`"):
+                st.markdown(
+                    f"{t.does}\n\n"
+                    f"- **Takes:** {t.takes}\n"
+                    f"- **Returns:** {t.returns}"
+                    + (f"\n- **Guardrail:** {t.guard}" if t.guard else "")
+                )
+                found = code_snippets.source(t.snippet)
+                if found is None:
+                    st.caption(f"{t.path} isn't available on this server.")
+                    continue
+                code, line = found
+                st.caption(f"The code that runs it · `{t.path}:{line}`")
+                st.code(code, language="python")
 
     st.subheader("How retrieval works")
     st.markdown(
