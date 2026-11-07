@@ -172,3 +172,40 @@ def test_a_blocked_run_still_records_its_end(records, session_id):
     test_no_model_configured_blocks_the_run(records, session_id)
     run_id = records.runs(session_id)[0]["id"]
     assert [e["kind"] for e in records.run_events(run_id)] == ["done"]
+
+
+def test_invalid_arguments_say_which_field_is_wrong(records, session_id):
+    coordinator = ScriptedDriver([("propose_rubric_assessment", {"note": "x" * 1001})])
+    coordinate(records, session_id, factory_for({"inspect_transcript_context": coordinator}))
+    action = records.runs(session_id)[0]["progress"]["actions"][0]
+    assert action["outcome"] == "invalid"
+    assert "Invalid arguments (note:" in action["summary"]
+    assert "1000" in action["summary"]
+
+
+def test_repeated_refused_review_requests_escalate_with_open_issues(records, session_id):
+    """Without feedback drafts the review request is refused (blocking). The third request
+    hands the draft to the professor instead of spending the rest of the budget."""
+    coordinator = ScriptedDriver(
+        [
+            ("propose_rubric_assessment", {"note": "First pass"}),
+            *[("request_professor_review", {"summary": "Please review"})] * 3,
+        ]
+    )
+    roles = factory_for(
+        {
+            "inspect_transcript_context": coordinator,
+            "finish_rubric_judgement": ScriptedDriver(
+                [("finish_rubric_judgement", {"findings": full_proposal()["findings"]})]
+            ),
+        }
+    )
+    events = []
+    coordinate(records, session_id, roles, lambda kind, d: events.append((kind, d)))
+    run = records.runs(session_id)[0]
+    outcomes = [a["outcome"] for a in run["progress"]["actions"]]
+    assert outcomes == ["ok", "invalid", "invalid", "ok"]
+    assert run["stop_reason"] == "escalated_with_open_issues"
+    assert "Blocking:" in run["progress"]["actions"][-1]["summary"]
+    assert events[-1] == ("done", {"stopReason": "escalated_with_open_issues"})
+    assert records.active_approval(session_id) is None
