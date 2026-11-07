@@ -60,6 +60,45 @@ class Retrieve(Strict):
     reuseRunId: str | None
 
 
+# What the Coordinator is told after a tool: enough to choose the next step. The full findings,
+# feedback and audit are in the saved draft. Sending them whole re-sent every audit issue after
+# every feedback draft, and Demo 1 (run c9964898) hit the 100 KB history limit after 7 steps.
+DETAIL_CHARS = 200
+
+
+def _clip(text: str | None, limit: int = DETAIL_CHARS) -> str | None:
+    return text if text is None or len(text) <= limit else text[: limit - 1].rstrip() + "…"
+
+
+def _open_issues(issues) -> list[dict]:
+    return [
+        {
+            "id": i.id,
+            "studentId": i.studentId,
+            "criterionId": i.criterionId,
+            "kind": i.kind,
+            "severity": i.severity,
+            "detail": _clip(i.detail),
+        }
+        for i in issues
+        if i.disposition == "open"
+    ]
+
+
+def _scores(findings) -> list[dict]:
+    return [
+        {
+            "studentId": f.studentId,
+            "criterionId": f.criterionId,
+            "status": f.status,
+            "score": f.score,
+            "confidence": f.confidence,
+            "turnIds": f.turnIds,
+        }
+        for f in findings
+    ]
+
+
 def _shorten(limit: int) -> BeforeValidator:
     """Cut free-text notes to their limit instead of refusing them. They are labels for the
     record; a refusal only made the model resend the same long text until the budget ran out
@@ -380,8 +419,8 @@ def _coordinate(
                     progress.latestDraftId = nxt.id
                     output = {
                         "draftId": nxt.id,
-                        "findings": [f.model_dump() for f in nxt.content.findings],
-                        "auditIssues": [i.model_dump() for i in nxt.content.audit.issues],
+                        "findings": _scores(nxt.content.findings),
+                        "openIssues": _open_issues(nxt.content.audit.issues),
                     }
                 elif call.name == "audit_assessment":
                     args = _arguments(Revise, raw)
@@ -405,7 +444,15 @@ def _coordinate(
                         session_id, _proposal(draft), "model", args.note, draft.version, audit
                     )
                     progress.latestDraftId = nxt.id
-                    output = {"draftId": nxt.id, "audit": nxt.content.audit.model_dump()}
+                    audit_now = nxt.content.audit
+                    output = {
+                        "draftId": nxt.id,
+                        "audit": {
+                            "modelReviewed": audit_now.modelReviewed,
+                            "notes": _clip(audit_now.notes, 600),
+                            "openIssues": _open_issues(audit_now.issues),
+                        },
+                    }
                 elif call.name == "draft_student_feedback":
                     args = _arguments(Student, raw)
                     action["arguments"] = args.model_dump_json()
@@ -443,7 +490,14 @@ def _coordinate(
                         output = {
                             "draftId": nxt.id,
                             "feedbackStudentId": args.studentId,
-                            "auditIssues": [i.model_dump() for i in nxt.content.audit.issues],
+                            "studentsWithoutFeedback": [
+                                st.id
+                                for st in inputs.roster
+                                if st.id not in {f.studentId for f in nxt.content.feedback}
+                            ],
+                            "openIssues": len(
+                                [i for i in nxt.content.audit.issues if i.disposition == "open"]
+                            ),
                         }
                 elif call.name == "request_professor_review":
                     args = _arguments(Review, raw)

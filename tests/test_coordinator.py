@@ -262,3 +262,32 @@ def test_an_overlong_note_is_shortened_not_refused():
     assert len(note) == 1000 and note.endswith("…")
     assert len(Review.model_validate({"summary": "y" * 4000}).summary) == 1500
     assert Revise.model_validate({"note": "Short note"}).note == "Short note"
+
+
+def test_the_coordinator_is_told_a_summary_not_the_whole_draft(records, session_id):
+    """Demo 1, run c9964898: whole audits after every feedback draft filled the 100 KB history
+    in 7 steps. Feedback results now say who still needs feedback, not every issue."""
+    coordinator = ScriptedDriver(
+        [
+            ("propose_rubric_assessment", {"note": "First pass"}),
+            ("draft_student_feedback", {"studentId": "alex-tan"}),
+        ]
+    )
+    roles = factory_for(
+        {
+            "inspect_transcript_context": coordinator,
+            "score_contribution": ScriptedDriver(judge_steps()),
+            "finish_student_feedback": ScriptedDriver(
+                [("finish_student_feedback", fb("alex-tan"))]
+            ),
+        }
+    )
+    coordinate(records, session_id, roles)
+    proposed, drafted = records.runs(session_id)[0]["progress"]["actions"][:2]
+    assert "justification" not in proposed["result"]["findings"][0]
+    assert drafted["result"]["studentsWithoutFeedback"] == [
+        "priya-nair",
+        "jordan-wong",
+        "marcus-lee",
+    ]
+    assert isinstance(drafted["result"]["openIssues"], int)
