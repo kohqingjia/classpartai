@@ -3,14 +3,46 @@
 The Judge and the Feedback writer cite turns by ID (``turn-002``), because validation checks
 those IDs. People can't read IDs, so on screen and in the email each ID becomes a short quote
 of that turn. The stored draft keeps the IDs.
+
+The professor's views quote any turn. A student's feedback quotes only that student's own
+turns (``own_turns``): another student's turn ID stays an ID, so nobody is shown what a
+classmate said.
 """
 
 import html
 import re
 from collections.abc import Iterable
 
+from classpartai.assessment import AssessmentInputs
+
 EXCERPT_CHARS = 110
 QUOTE_COLOUR = "#7fb4ec"  # the student's own words, on every page that shows them
+
+
+class Plain(str):
+    """A replacement shown as it is, not as a quote."""
+
+
+def own_turns(inputs: AssessmentInputs, student_id: str) -> dict[str, str]:
+    """What a student may see quoted in their own feedback: only their own turns. A turn that
+    names another roster student is shown by its time instead, so no one else's identity leaks
+    (the same rule validate_proposal applies to the feedback text)."""
+    others = [o for o in inputs.roster if o.id != student_id]
+    out: dict[str, str] = {}
+    for t in inputs.transcript.turns:
+        if t.speaker.kind != "student" or t.speaker.studentId != student_id:
+            continue
+        text = t.text.lower()
+        if any(o.displayName.lower() in text or o.id.lower() in text for o in others):
+            minutes, seconds = divmod(t.startMs // 1000, 60)
+            out[t.id] = Plain(f"your comment at {minutes}:{seconds:02d}")
+        else:
+            out[t.id] = t.text
+    return out
+
+
+def _shown(said: str) -> str:
+    return said if isinstance(said, Plain) else f"“{excerpt(said)}”"
 
 
 def excerpt(text: str, limit: int = EXCERPT_CHARS) -> str:
@@ -32,7 +64,7 @@ def quote_plain(text: str, turns: dict[str, str]) -> str:
     pattern = _pattern(turns)
     if pattern is None:
         return text
-    return pattern.sub(lambda m: f"“{excerpt(turns[m.group(1)])}”", text)
+    return pattern.sub(lambda m: _shown(turns[m.group(1)]), text)
 
 
 def quote_html(text: str, turns: dict[str, str]) -> str:
@@ -46,7 +78,7 @@ def quote_html(text: str, turns: dict[str, str]) -> str:
         tid = m.group(1)
         out.append(
             f'<span style="color:{QUOTE_COLOUR}" title="{html.escape(tid)}">'
-            f"“{html.escape(excerpt(turns[tid]))}”</span>"
+            f"{html.escape(_shown(turns[tid]))}</span>"
         )
         last = m.end()
     out.append(html.escape(text[last:]))

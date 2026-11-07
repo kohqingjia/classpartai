@@ -171,12 +171,15 @@ class Records:
     def delete_session(self, session_id: str) -> None:
         """Delete a session and everything made from it. Refused once any feedback has been
         emailed: what was sent to students stays on record."""
-        self.inputs(session_id)
-        if self.session_contents(session_id)["emails"]:
-            raise Unprocessable("Feedback from this session was emailed; it can't be deleted")
         drafts = "SELECT id FROM drafts WHERE session_id = ?"
         runs = "SELECT id FROM participation_runs WHERE session_id = ?"
         with self.tx():
+            # Checked inside the transaction: delivery claims its sends under the same lock, so
+            # a send from another tab can't land between this check and the delete.
+            self.inputs(session_id)
+            sent = f"SELECT COUNT(*) FROM deliveries WHERE draft_id IN ({drafts})"
+            if self.db.execute(sent, (session_id,)).fetchone()[0]:
+                raise Unprocessable("Feedback from this session was emailed; it can't be deleted")
             for sql in (
                 f"DELETE FROM approvals WHERE draft_id IN ({drafts})",
                 f"DELETE FROM run_events WHERE run_id IN ({runs})",

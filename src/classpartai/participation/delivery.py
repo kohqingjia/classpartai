@@ -15,7 +15,7 @@ from typing import Protocol
 
 from classpartai.participation.records import Records, new_id, now
 from classpartai.participation.validation import Unprocessable, totals
-from classpartai.quotes import quote_plain
+from classpartai.quotes import own_turns, quote_plain
 
 
 class Transport(Protocol):
@@ -88,8 +88,8 @@ def feedback_email(records: Records, session_id: str, student_id: str, draft) ->
         else ""
     )
     student = next(s for s in inputs.roster if s.id == student_id)
-    # Students can't read turn IDs: each one becomes a quote of what they said.
-    said = {t.id: t.text for t in inputs.transcript.turns}
+    # Students can't read turn IDs: each of their own becomes a quote of what they said.
+    said = own_turns(inputs, student_id)
     return (
         f"Hi {student.displayName},\n\n"
         f"{quote_plain(feedback.strengths, said)}\n\n"

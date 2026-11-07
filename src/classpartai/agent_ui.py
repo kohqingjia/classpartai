@@ -12,7 +12,7 @@ from classpartai.monitoring_ui import usage_panel
 from classpartai.participation.coordinator import COORDINATOR_TOOLS
 from classpartai.participation.delivery import DeliverySettings, feedback_email
 from classpartai.participation.judge import FLAG_PREFIX, JUDGE_TOOLS
-from classpartai.quotes import quote_html
+from classpartai.quotes import own_turns, quote_html
 from classpartai.retrieval import examined_of, searches_of
 from classpartai.ui import STAGES, flow_html, vault_html
 from classpartai.voices import enrolments, match_rows
@@ -996,8 +996,9 @@ def presentation_agent(name, records, session_id, inputs, live=None):
         )
         feedback = next((f for f in latest.content.feedback if f.studentId == student.id), None)
         if feedback:
-            result_card("Strength", feedback.strengths, turns=said(inputs))
-            result_card("Next step", feedback.nextStep, turns=said(inputs))
+            mine = own_turns(inputs, student.id)  # exactly what the student's email will quote
+            result_card("Strength", feedback.strengths, turns=mine)
+            result_card("Next step", feedback.nextStep, turns=mine)
         else:
             result_card("Feedback pending", "No feedback has been drafted for this student.")
         st.caption("Private to this student · never names other students")

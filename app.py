@@ -59,7 +59,7 @@ from classpartai.participation.validation import (
     observed_count,
     totals,
 )
-from classpartai.quotes import quote_html
+from classpartai.quotes import own_turns, quote_html
 from classpartai.research.bridge import session_chunks
 from classpartai.research.materials import split_into_chunks
 from classpartai.retrieval import examined_of, searches_of
@@ -2190,7 +2190,7 @@ elif view == "session":
                                 (x for x in shown.content.feedback if x.studentId == s.id), None
                             )
                             if fb:
-                                said = {t: turns[t].text for t in turns}
+                                said = own_turns(inputs, s.id)  # as the email shows it
                                 st.markdown(
                                     quote_html(fb.strengths, said)
                                     + "<br><br><b>Next step:</b> "
