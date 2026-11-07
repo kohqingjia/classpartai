@@ -250,9 +250,12 @@ class AuditorTests(unittest.TestCase):
     def test_stats_missingness_and_correlations_do_not_claim_bias(self):
         stats = tools_for().score_stats()
         self.assertEqual(stats["bias_conclusion"], "not_established")
-        self.assertEqual(stats["by_criterion"][0]["confidence_missing"], 1)
-        self.assertEqual(stats["by_criterion"][0]["transcription_confidence"]["n"], 0)
+        self.assertNotIn("transcription_confidence", stats["by_criterion"][0])
+        self.assertNotIn("confidence_missing", stats["by_criterion"][0])
         self.assertIsNone(stats["by_criterion"][0]["duration"]["pearson_r"])
+        legacy = fictional_request()
+        legacy["contributions"][0]["transcription_confidence"] = 0.91
+        self.assertEqual(tools_for(legacy).score_stats(), stats)
         self.assertEqual(correlation([(1, 1), (2, 2), (3, 3)])["pearson_r"], 1.0)
         self.assertIsNone(correlation([(1, 1)] * 3)["pearson_r"])
 

@@ -76,30 +76,37 @@ def run(inputs, draft, factory, b=None, session=None, evidence=()):
 def test_request_maps_workflow_data_and_marks_what_it_cannot_express(benign):
     mapping = build_request(benign, "d", draft_of(benign), [], "session-1", AuditorSession())
     request = mapping.request
-    # One contribution per speaking student, own turns only, no invented ASR confidence.
+    # Student records preserve reviewed turns; no unused transcription confidence is supplied.
     assert [c["student_id"] for c in request["contributions"]] == [
         "alex-tan",
         "priya-nair",
         "jordan-wong",
+        "marcus-lee",
     ]
     alex = request["contributions"][0]
     assert alex["turn_ids"] == ["turn-002", "turn-005"]
-    assert alex["transcription_confidence"] is None
+    assert "transcription_confidence" not in alex
     assert alex["attribution"] == "identified"
     # Marcus has no turns, so his findings are listed as not audited rather than given turns.
     assert {f["finding_id"] for f in request["proposal"]["findings"]} == {
         f"{s}:{c}"
-        for s in ("alex-tan", "priya-nair", "jordan-wong")
+        for s in ("alex-tan", "priya-nair", "jordan-wong", "marcus-lee")
         for c in ("reasoning", "engagement")
     }
-    assert mapping.excluded == [
-        "marcus-lee:reasoning (no attributable turns)",
-        "marcus-lee:engagement (no attributable turns)",
-    ]
+    assert mapping.excluded == []
+    silent = request["contributions"][-1]
+    assert silent["assessment_scope"] == "no_observed_contribution"
+    assert silent["turn_ids"] == silent["reviewed_turns"] == []
+    assert silent["speaking_duration_ms"] == 0
+    assert all(
+        not f["transcript_turn_ids"]
+        for f in request["proposal"]["findings"]
+        if f["contribution_id"] == silent["contribution_id"]
+    )
     assert request["rubric"]["criteria"][0]["maximum"] == 3
 
 
-def test_many_turns_are_grouped_into_twelve_segments(benign):
+def test_many_turns_preserve_original_references_without_truncation(benign):
     copy = benign.model_copy(deep=True)
     template = copy.transcript.turns[1]
     copy.transcript.turns += [
@@ -107,9 +114,220 @@ def test_many_turns_are_grouped_into_twelve_segments(benign):
     ]
     mapping = build_request(copy, "d", draft_of(copy), [], "session-1", AuditorSession())
     alex = mapping.request["contributions"][0]
-    assert len(alex["turn_ids"]) == 11  # 22 turns, two per segment
+    assert len(alex["turn_ids"]) == 22
+    assert [t["turn_id"] for t in alex["reviewed_turns"]] == alex["turn_ids"]
     assert "[turn-x19] Point 19." in alex["text"]
-    assert any("grouped into" in note for note in mapping.limitations)
+    assert not mapping.limitations
+
+
+def test_duration_excludes_silence_and_overlapping_turns(benign):
+    copy = benign.model_copy(deep=True)
+    own = [
+        t
+        for t in copy.transcript.turns
+        if t.speaker.kind == "student" and t.speaker.studentId == "alex-tan"
+    ]
+    own[0].startMs, own[0].endMs = 1000, 5000
+    own[1].startMs, own[1].endMs = 100000, 106000
+    copy.transcript.turns.append(own[1].model_copy(update={"id": "overlap", "startMs": 104000}))
+    mapping = build_request(copy, "d", draft_of(copy), [], "session-1", AuditorSession())
+    alex = mapping.request["contributions"][0]
+    assert alex["speaking_duration_ms"] == 10000
+    assert alex["end_ms"] - alex["start_ms"] == 105000
+
+
+def test_comparison_returns_original_answers_without_inventing_answer_scores(benign):
+    agent = ScriptedDriver(
+        [READ, ("compare_similar", {"finding_id": "alex-tan:reasoning", "k": 3}), finish()]
+    )
+    run(benign, draft_of(benign), factory_for({"get_session_scores": agent}))
+    import json
+
+    messages = agent.histories[-1]
+    results = [
+        json.loads(m["content"])["untrusted_tool_result"]
+        for m in messages
+        if m.get("role") == "tool"
+    ]
+    comparison = next(r for r in results if "matches" in r)
+    assert len(comparison["matches"]) == 2  # silent roster member is not a comparable answer
+    original_ids = {t.id for t in benign.transcript.turns}
+    for match in comparison["matches"]:
+        assert match["score_scope"] == "student_aggregate"
+        assert match["turn_comparisons"]
+        for pair in match["turn_comparisons"]:
+            assert {pair["turn_id"], pair["peer_turn_id"]} <= original_ids
+            assert "score" not in pair
+
+
+def test_audit_state_survives_reopen_and_rejudge_is_not_reset(benign, tmp_path):
+    from classpartai.participation.auditor_bridge import persisted_agent_audit
+    from classpartai.participation.records import Records
+
+    path = tmp_path / "audit.sqlite"
+    records = Records(path)
+    sid = records.create_session(benign)
+    first = persisted_agent_audit(
+        benign,
+        draft_of(benign),
+        [],
+        budget(),
+        factory_for(
+            {
+                "get_session_scores": ScriptedDriver(
+                    [READ, ("request_rejudge", {"issues": [objection()]})]
+                )
+            }
+        ),
+        records=records,
+        session_id=sid,
+        draft_id="draft-1",
+    )
+    assert "Re-judge requested" in first.notes
+    records.db.close()
+    reopened = Records(path)
+    prior = draft_of(benign, draft_of(benign), first)
+    revision = persisted_agent_audit(
+        benign,
+        prior,
+        [],
+        budget(),
+        factory_for(
+            {"get_session_scores": ScriptedDriver([READ, finish(resolved=["alex-overstated"])])}
+        ),
+        records=reopened,
+        session_id=sid,
+        draft_id="draft-2",
+    )
+    assert revision.resolvedIssueIds == ["model:" + first.issues[0].id]
+    after_revision = ScriptedDriver([READ, finish()])
+
+    def factory(instructions, tools):
+        assert "request_rejudge" not in {t.name for t in tools}
+        return factory_for({"get_session_scores": after_revision})(instructions, tools)
+
+    third_budget = budget()
+    third = persisted_agent_audit(
+        benign,
+        prior,
+        [],
+        third_budget,
+        factory,
+        records=reopened,
+        session_id=sid,
+        draft_id="draft-3",
+    )
+    assert third.completed
+    assert "audit_passed" in third.notes
+    calls = [
+        event
+        for event in third_budget.progress.roleCalls[0]["history"]
+        if event["kind"] == "model_call"
+    ]
+    assert calls
+    assert all("request_rejudge" not in call["allowed_tools"] for call in calls)
+    _, saved = reopened.claim_auditor(sid)
+    assert saved["rejudge_used"]
+
+
+def test_atomic_audit_reservation_blocks_concurrent_and_interrupted_calls(benign, tmp_path):
+    from classpartai.participation.records import Records
+    from classpartai.participation.validation import Unprocessable
+
+    path = tmp_path / "audit.sqlite"
+    first = Records(path)
+    sid = first.create_session(benign)
+    second = Records(path)
+    reservation, _ = first.claim_auditor(sid)
+    with pytest.raises(Unprocessable, match="active or interrupted"):
+        second.claim_auditor(sid)
+    with pytest.raises(Unprocessable, match="Stale"):
+        second.finish_auditor(sid, reservation + 1, {})
+    first.db.close()  # interruption does not release the reservation
+    with pytest.raises(Unprocessable, match="active or interrupted"):
+        second.claim_auditor(sid)
+    second.finish_auditor(sid, reservation, {"rejudge_used": True})
+    _, state = second.claim_auditor(sid)
+    assert state["rejudge_used"]
+
+
+def test_changed_pending_findings_escalate_without_fresh_case(benign):
+    session = AuditorSession()
+    first = run(
+        benign,
+        draft_of(benign),
+        factory_for(
+            {
+                "get_session_scores": ScriptedDriver(
+                    [READ, ("request_rejudge", {"issues": [objection()]})]
+                )
+            }
+        ),
+        session=session,
+    )
+    draft = draft_of(benign, draft_of(benign), first)
+    draft.findings = draft.findings[1:]
+    pending = session.pending
+    result = run(benign, draft, lambda *_: pytest.fail("No new model round"), session=session)
+    assert not result.completed
+    assert "finding set changed" in result.notes
+    assert session.pending == pending
+
+
+def test_failed_auditor_cannot_mark_draft_model_reviewed(benign):
+    def broken(*_):
+        raise RuntimeError("fictional provider failure")
+
+    original = draft_of(benign)
+    result = run(benign, original, broken)
+    assert not result.completed
+    updated = draft_of(benign, original, result)
+    assert not updated.audit.modelReviewed
+    assert any(i.id == "model:auditor-incomplete" for i in updated.audit.issues)
+
+
+def test_no_observation_score_requires_explicit_rubric_rule(benign):
+    from classpartai.auditor_agent.contracts import AuditRequest, ContractError
+
+    request = build_request(benign, "d", draft_of(benign), [], "s", AuditorSession()).request
+    silent = next(
+        f
+        for f in request["proposal"]["findings"]
+        if f["contribution_id"] == "contribution-marcus-lee"
+    )
+    silent["score"] = 1
+    with pytest.raises(ContractError, match="explicit rubric score"):
+        AuditRequest.parse(request)
+    criterion = next(
+        c for c in request["rubric"]["criteria"] if c["criterion_id"] == silent["criterion_id"]
+    )
+    criterion["no_contribution_score"] = 1
+    AuditRequest.parse(request)
+
+
+def test_fairness_statistics_use_reviewed_duration_without_confidence(benign):
+    import json
+
+    from classpartai.auditor_agent.contracts import AuditRequest, ContractError
+
+    agent = ScriptedDriver([READ, ("score_stats", {}), finish()])
+    run(benign, draft_of(benign), factory_for({"get_session_scores": agent}))
+    stats = next(
+        json.loads(m["content"])["untrusted_tool_result"]
+        for m in agent.histories[-1]
+        if m.get("role") == "tool"
+        and "by_criterion" in json.loads(m["content"])["untrusted_tool_result"]
+    )
+    assert stats["bias_conclusion"] == "not_established"
+    assert all("transcription_confidence" not in m.get("content", "") for m in agent.histories[0])
+    for criterion in stats["by_criterion"]:
+        assert criterion["legacy_single_interval_count"] == 0
+        assert "confidence_missing" not in criterion
+        assert "transcription_confidence" not in criterion
+    request = build_request(benign, "d", draft_of(benign), [], "s", AuditorSession()).request
+    request["contributions"][0]["speaking_duration_ms"] += 1
+    with pytest.raises(ContractError, match="match reviewed intervals"):
+        AuditRequest.parse(request)
 
 
 def test_audit_raises_issues_never_changes_scores_and_counts_the_shared_budget(inputs):
@@ -126,7 +344,7 @@ def test_audit_raises_issues_never_changes_scores_and_counts_the_shared_budget(i
     }
     assert all(i.detail.startswith("Auditor agent (injection, review)") for i in audit.issues)
     assert "professor_review_required" in audit.notes
-    assert "marcus-lee:reasoning (no attributable turns)" in audit.notes
+    assert "Not audited by the agent" not in audit.notes
     assert draft.findings == Proposal.model_validate(full_proposal()).findings
     assert (b.progress.modelCalls, b.progress.toolCalls, b.progress.tokens) == (3, 3, 30)
     trace = b.progress.roleCalls[-2]  # then the feedback review
@@ -247,7 +465,7 @@ def test_citations_are_verified_against_the_sessions_own_passages(benign):
     assert b.progress.modelCalls == 5  # nested citation review and feedback review count
 
 
-def test_agent_error_falls_back_to_single_call_audit_and_says_so(inputs):
+def test_agent_error_requires_review_without_substitute_audit(inputs):
     def broken(instructions, tools):
         if any(t.name == "get_session_scores" for t in tools):
             raise RuntimeError("provider down")
@@ -255,11 +473,11 @@ def test_agent_error_falls_back_to_single_call_audit_and_says_so(inputs):
 
     b = budget()
     audit = run(inputs, draft_of(inputs), broken, b)
-    assert audit.notes.startswith("Auditor agent unavailable")
-    assert "fell back to the single-call model audit" in audit.notes
-    assert [i.id for i in audit.issues] == ["injection"]
+    assert audit.notes.startswith("Auditor agent did not complete")
+    assert "No substitute audit was performed" in audit.notes
+    assert [i.id for i in audit.issues] == ["auditor-incomplete"]
     roles = [(c["role"], c["outcome"]) for c in b.progress.roleCalls]
-    assert roles == [("auditor_agent", "fell_back"), ("finish_assessment_audit", "ok")]
+    assert roles == [("auditor_agent", "needs_review")]
 
 
 def test_shared_budget_exhaustion_stops_the_workflow_without_fallback(inputs):

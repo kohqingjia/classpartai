@@ -19,6 +19,9 @@ from classpartai.voices import match_rows
 @pytest.fixture
 def app(tmp_path, monkeypatch):
     st.cache_resource.clear()
+    # Imported workflow scripts use the explicit single-call audit role, not agent fallback.
+    # The tool-calling bridge is exercised independently in test_auditor_bridge.py.
+    monkeypatch.setattr(config, "AUDITOR", "model")
     monkeypatch.setattr(config, "DATA_DIR", tmp_path)
     monkeypatch.setattr(agent_ui, "DATA_DIR", tmp_path)
     monkeypatch.delenv("OPENAI_API_KEY", raising=False)

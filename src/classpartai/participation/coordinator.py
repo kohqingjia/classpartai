@@ -31,7 +31,7 @@ from classpartai.models import (
     configured_driver,
     tool,
 )
-from classpartai.participation.auditor_bridge import AuditorSession, agent_audit
+from classpartai.participation.auditor_bridge import persisted_agent_audit
 from classpartai.participation.judge import Revision, judge
 from classpartai.participation.records import Draft, Records
 from classpartai.participation.roles import (
@@ -269,7 +269,6 @@ def _coordinate(
     progress.coordinatorInput = {"instructions": COORDINATOR_POLICY, "history": history.copy()}
     checkpoint()
     turns = inputs.transcript.turns
-    auditor = AuditorSession()  # one-round re-judge state, for this run only
     review_refusals = 0
     # Each run scores the students itself. An earlier run's draft is history, not this run's
     # findings: reusing it skipped the Judge on a re-run (run 7dd54fa5).
@@ -429,8 +428,8 @@ def _coordinate(
                         raise Unprocessable("Create a provisional draft before audit")
                     if not judged:
                         raise Unprocessable(NOT_JUDGED)
-                    # Le Yong's Auditor agent; falls back to the single-call model_audit.
-                    audit = agent_audit(
+                    # Persisted Auditor state; failures remain visible for professor review.
+                    audit = persisted_agent_audit(
                         inputs,
                         draft.content,
                         records.evidence_for(session_id),
@@ -438,7 +437,7 @@ def _coordinate(
                         factory,
                         session_id=session_id,
                         draft_id=draft.id,
-                        session=auditor,
+                        records=records,
                     )
                     nxt = records.append_draft(
                         session_id, _proposal(draft), "model", args.note, draft.version, audit

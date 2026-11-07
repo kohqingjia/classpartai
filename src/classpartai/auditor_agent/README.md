@@ -20,7 +20,7 @@ auditor_agent/
   examples/
     demo.py            Fictional demonstration
     evaluation.py      Controlled comparison experiments
-    data/              All seven fictional JSON inputs/results
+    data/              Fictional JSON inputs/results
   tests/
     test_auditor.py     Automated checks
 ```
@@ -37,7 +37,51 @@ A second marker for provisional, per-contribution rubric findings. It investigat
 rationales and evidence, then returns `audit_passed`, `rejudge_requested`, or
 `professor_review_required`. It never calculates a replacement grade, approves grades, sends
 email, invokes the Judge, or writes application records. Audit pass is not professor approval.
-The workflow's `audit_assessment` step now runs it through `participation/auditor_bridge.py` (see that module's docstring for the data mapping); `AUDITOR=model` or an agent error falls back to the single-call `roles.model_audit`.
+The workflow's `audit_assessment` step runs it through `participation/auditor_bridge.py`.
+`AUDITOR=model` explicitly selects the single-call `roles.model_audit`; agent errors no longer
+trigger an automatic fallback. See the integration behaviour below.
+
+## Integrated workflow behaviour
+
+The coordinator calls `persisted_agent_audit`, which reserves and saves the trusted Auditor
+state in the application's SQLite `auditor_state` table. `CREATE TABLE IF NOT EXISTS` adds the
+table on opening Records; existing session/draft tables and data are preserved. There is no new
+dependency or external service. Restart the app normally with `uv run streamlit run app.py`.
+
+- **Speaking time:** the union of each student's reviewed speaking intervals, excluding gaps
+  and counting overlaps once. `score_stats` excludes no-observation records from duration
+  correlations and reports sample size and exclusions. Old standalone single-interval fixtures still
+  work and are labelled with a legacy interval count.
+- **Answer comparisons:** original turn IDs and full reviewed turn text are retained, with no
+  fabricated segments or silent input truncation. `compare_similar` returns up to three lexical
+  answer pairs per candidate, with excerpt flags and a 10,000-pair limit/completeness indicator.
+  Scores remain student aggregates because that is what the Judge produces; these are not
+  invented per-answer grades. Lexical similarity is not semantic equivalence or equal quality.
+- **Silent students:** included with `assessment_scope=no_observed_contribution`, empty turn
+  lists and zero observed speaking time. Unknown qualitative scores stay unassessed. A numeric
+  score requires an explicit `no_contribution_score` on the exact rubric criterion. No turn or
+  understanding claim is invented. Unsupported mapping coverage is raised as a visible issue.
+- **Bounded inputs:** the 150 KB request limit and finding/roster limits remain. Oversized input
+  requires professor review instead of silently dropping text or falling back to a weaker audit.
+- **Rejudge:** one allowance per assessment session, persisted across coordinator runs. Pending
+  objections and issue-ID mappings survive reopening the database. Changed finding sets or
+  broken lineage require review and never start a fresh allowance. After the round is used,
+  subsequent audits remain possible but `request_rejudge` is removed from the model's menu and
+  refused if fabricated. Only a valid linked revision can resolve the original objections.
+- **Concurrency/interruption:** a SQLite write transaction reserves the session audit before
+  execution; a versioned reservation guards state writes. Concurrent calls cannot claim it.
+  A hard process crash leaves an interrupted reservation and requires professor review; there
+  is no automatic timeout reset, durable resume, or UI for administratively releasing it.
+  Normal handled failures release the reservation while retaining the trusted case state.
+- **Failure visibility:** provider/mapping/reader failures return an explicit incomplete issue
+  and `modelReviewed=false`; they do not invoke the single-call reviewer automatically. The
+  coordinator may escalate; approval still requires the professor's explicit acknowledgement
+  and reason for open issues. `AUDITOR=model` remains an explicit implementation choice.
+
+The Auditor still cannot change scores, invoke the Judge, approve or send email. The coordinator
+receives targeted objections and chooses whether to revise, investigate or escalate. Existing
+records created before this table have no retroactively reconstructed rejudge history. The
+standalone CLI remains stateless: its caller must persist and enforce its case state separately.
 
 ## Groq setup (no OpenAI key required)
 
@@ -214,7 +258,7 @@ booleans as scores, duplicate IDs, invalid ranges/references and bad lineage are
 | `AuditRequest.schema_version`, `audit_case_id` | Orchestrator: v1 and stable case ID reused for a revision. |
 | `trusted_scope.course_id`, `session_id` | Authenticated caller/backend, not model arguments or imported text. |
 | `rubric` | Professor-authorised exact ID/version, criterion IDs, descriptors and ranges. |
-| `contributions` | Reviewed text, contribution/turn IDs, start/end milliseconds and attribution. Confidence is optional/null. |
+| `contributions` | Reviewed text, contribution/turn IDs, start/end milliseconds and attribution. Transcription confidence is not used. |
 | `student_id`, `attribution` | Reviewed identity: identified requires an ID; uncertain/unknown require null. No silent reassignment. |
 | `JudgeProposal` | Judge: versioned reference, previous proposal and rejudge-request links, exact rubric version and findings. |
 | `Finding` | Stable finding/contribution/criterion IDs, nullable provisional score, rationale, transcript references and citations. These are per contribution, not student aggregates. |
@@ -243,7 +287,7 @@ order. Inspecting required findings and citations before passing is a safety inv
 | `compare_similar(finding_id, k)` | Same rubric criterion; up to five lexical token-Jaccard comparisons, not embeddings. Similar wording does not justify equal scores. |
 | `verify_citation(finding_id, evidence_id)` | Validate scoped source/version/page IDs and exact quote, then use a nested model call for supports/partly_supports/contradicts/fails_to_verify. Semantic support is model interpretation, not certainty. |
 | `detect_injection(target, target_id)` | Inspect original scoped text; distinguish suspected grader instructions and narrowly framed benign quoted examples. Heuristic, not an immunity guarantee. Original text remains unchanged. |
-| `score_stats()` | Descriptive duration/confidence correlations, sample sizes, exclusions and missingness. No loudness inference or claim of proven bias. |
+| `score_stats()` | Descriptive speaking-duration correlations, sample sizes and exclusions. No loudness inference or claim of proven bias. |
 | `request_rejudge(issues)` | Validate targeted findings/evidence and create a handoff once; never call the Judge. |
 | `complete_audit(...)` | Propose pass/escalation; backend refuses unearned passes and unknown issue resolutions. |
 
@@ -581,3 +625,13 @@ Offline validation of this fixture with `EvaluationDouble` produced
 it verifies handoff mechanics, not live model judgement. No live provider call was
 made when adding the fixture. Keep the same fixture, model and budget when comparing
 runs; repeated standalone invocations do not durably enforce case state.
+
+
+### Speaking-duration fairness scope
+
+The integrated transcript provides no transcription-confidence metric. `score_stats` therefore
+analyses scores versus speaking duration only. Confidence correlation and confidence-missingness
+outputs have been removed, and no confidence field is sent to the model or new example requests.
+The legacy `transcription_confidence` input remains optional and validated solely for compatibility
+with existing callers and case fingerprints; it is ignored by the tools. This does not change
+reviewed speaker attribution or the Judge's separate confidence in its proposed score.

@@ -294,7 +294,7 @@ def compose_draft(
         **proposal.model_dump(),
         revisionNote=note,
         audit={
-            "modelReviewed": model_audit is not None,
+            "modelReviewed": model_audit is not None and model_audit.completed,
             "notes": model_audit.notes if model_audit else "Professor review required",
             "issues": [i.model_dump() for i in issues],
         },

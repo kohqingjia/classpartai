@@ -100,7 +100,8 @@ src/classpartai/
     judge.py            the Judge agent: tools (evidence, contributions, score) and revisions
     roles.py            auditor (single call) and feedback roles
     auditor_bridge.py   runs Le Yong's Auditor agent (auditor_agent/) as the audit step;
-                        AUDITOR=model, or an agent error, uses the single-call auditor role
+                        AUDITOR=model explicitly selects the single-call role; agent errors
+                        stay incomplete and require professor review (no automatic fallback)
     coordinator.py      the coordinator agent
     records.py          SQLite: sessions, evidence runs, versioned drafts, recipients, approvals
     delivery.py         approval-gated sending through AgentMail

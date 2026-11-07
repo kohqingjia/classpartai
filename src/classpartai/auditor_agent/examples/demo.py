@@ -42,7 +42,6 @@ def fictional_request(case_id: str = "fictional-case-1", *, flawed: bool = False
                 ),
                 "start_ms": 0,
                 "end_ms": 8000,
-                "transcription_confidence": None,
             }
         ],
         "proposal": {

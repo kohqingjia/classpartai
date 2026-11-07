@@ -98,16 +98,23 @@ class Criterion:
     description: str
     minimum: float
     maximum: float
+    no_contribution_score: float | None = None
 
     @classmethod
     def parse(cls, data: Any) -> Criterion:
-        d = obj(data, {"criterion_id", "description", "minimum", "maximum"})
+        d = obj(
+            data, {"criterion_id", "description", "minimum", "maximum"}, {"no_contribution_score"}
+        )
         low = number(d["minimum"], -1000, 1000)
+        high = number(d["maximum"], low, 1000)
         return cls(
             identifier(d["criterion_id"]),
             text(d["description"]),
             low,
-            number(d["maximum"], low, 1000),
+            high,
+            None
+            if d.get("no_contribution_score") is None
+            else number(d["no_contribution_score"], low, high),
         )
 
 
@@ -134,7 +141,11 @@ class Contribution:
     text: str
     start_ms: int
     end_ms: int
-    transcription_confidence: float | None
+    # Legacy input only: retained for old callers and case fingerprints, never analysed.
+    transcription_confidence: float | None = None
+    speaking_duration_ms: int | None = None
+    reviewed_turns: list[dict] | None = None
+    assessment_scope: str = "contribution"
 
     @classmethod
     def parse(cls, data: Any) -> Contribution:
@@ -148,6 +159,11 @@ class Contribution:
                 "text",
                 "start_ms",
                 "end_ms",
+            },
+            {
+                "speaking_duration_ms",
+                "reviewed_turns",
+                "assessment_scope",
                 "transcription_confidence",
             },
         )
@@ -157,17 +173,44 @@ class Contribution:
         if (d["attribution"] == "identified") != (student is not None):
             raise ContractError("Uncertain attribution must not silently credit a student")
         start = integer(d["start_ms"], 0, 86400000)
+        scope = d.get("assessment_scope", "contribution")
+        if scope not in ("contribution", "student_aggregate", "no_observed_contribution"):
+            raise ContractError("Unknown assessment scope")
+        turn_ids = ids(d["turn_ids"], 5000, 0 if scope == "no_observed_contribution" else 1)
+        if scope == "no_observed_contribution" and turn_ids:
+            raise ContractError("No-observation records cannot invent transcript references")
+        turns = d.get("reviewed_turns")
+        if turns is not None:
+            for turn in array(turns, 5000):
+                obj(turn, {"turn_id", "text", "start_ms", "end_ms"})
+                identifier(turn["turn_id"])
+                text(turn["text"], 20000)
+                integer(turn["end_ms"], integer(turn["start_ms"], 0, 86400000), 86400000)
+            if [t["turn_id"] for t in turns] != turn_ids:
+                raise ContractError("Reviewed turns must preserve the original turn IDs")
+        duration = d.get("speaking_duration_ms")
+        if duration is not None:
+            integer(duration, 0, 86400000)
+            if turns is not None and duration != reviewed_duration_ms(turns):
+                raise ContractError("Speaking duration must match reviewed intervals")
+        if scope != "contribution" and (turns is None or duration is None):
+            raise ContractError(
+                "Aggregate and no-observation records need explicit duration metadata"
+            )
         return cls(
             identifier(d["contribution_id"]),
-            ids(d["turn_ids"], 12, 1),
+            turn_ids,
             student,
             d["attribution"],
-            text(d["text"], 6000),
+            text(d["text"], 100000),
             start,
             integer(d["end_ms"], start, 86400000),
             None
-            if d["transcription_confidence"] is None
+            if d.get("transcription_confidence") is None
             else number(d["transcription_confidence"], 0, 1),
+            duration,
+            turns,
+            scope,
         )
 
 
@@ -225,7 +268,7 @@ class Finding:
             identifier(d["criterion_id"]),
             None if d["score"] is None else number(d["score"], -1000, 1000),
             text(d["rationale"]),
-            ids(d["transcript_turn_ids"], 12, 1),
+            ids(d["transcript_turn_ids"], 30, 0),
             refs,
         )
 
@@ -467,6 +510,16 @@ class AuditRequest:
             )
             if c is None or criterion is None or not set(f.transcript_turn_ids) <= set(c.turn_ids):
                 raise ContractError("Unknown contribution, criterion or transcript reference")
+            if c.assessment_scope == "no_observed_contribution" and f.score is not None:
+                if (
+                    criterion.no_contribution_score is None
+                    or f.score != criterion.no_contribution_score
+                ):
+                    raise ContractError(
+                        "No observed contribution permits only an explicit rubric score"
+                    )
+            if not f.transcript_turn_ids and c.assessment_scope != "no_observed_contribution":
+                raise ContractError("Observed findings require transcript references")
             if f.score is not None and not criterion.minimum <= f.score <= criterion.maximum:
                 raise ContractError("Score outside pinned rubric range")
             pairs.append((f.contribution_id, f.criterion_id))
@@ -518,11 +571,23 @@ class AuditRequest:
 def input_fingerprint(request: AuditRequest) -> str:
     import hashlib
 
-    return hashlib.sha256(
-        json.dumps(
-            [asdict(request.rubric), [asdict(c) for c in request.contributions]], sort_keys=True
-        ).encode()
-    ).hexdigest()
+    contributions = []
+    for contribution in request.contributions:
+        data = asdict(contribution)
+        # Preserve fingerprints for v1 callers that do not supply aggregate metadata.
+        if (
+            contribution.assessment_scope == "contribution"
+            and contribution.speaking_duration_ms is None
+            and contribution.reviewed_turns is None
+        ):
+            for field in ("assessment_scope", "speaking_duration_ms", "reviewed_turns"):
+                data.pop(field)
+        contributions.append(data)
+    rubric = asdict(request.rubric)
+    for criterion in rubric["criteria"]:
+        if criterion["no_contribution_score"] is None:
+            criterion.pop("no_contribution_score")
+    return hashlib.sha256(json.dumps([rubric, contributions], sort_keys=True).encode()).hexdigest()
 
 
 def unique(values: list) -> None:
@@ -606,3 +671,12 @@ class AuditResult:
         ):
             raise ContractError("Result rejudge state differs")
         return result
+
+
+def reviewed_duration_ms(turns: list[dict]) -> int:
+    """Union of a speaker's reviewed intervals: exclude gaps and count overlaps once."""
+    duration, right = 0, 0
+    for start, end in sorted((t["start_ms"], t["end_ms"]) for t in turns):
+        duration += max(0, end - max(start, right))
+        right = max(right, end)
+    return duration

@@ -132,7 +132,13 @@ class AuditTools:
                     "review",
                 )
         for f in request.proposal.findings:
-            if f.score is None:
+            if (
+                f.score is None
+                and next(
+                    c for c in request.contributions if c.contribution_id == f.contribution_id
+                ).assessment_scope
+                != "no_observed_contribution"
+            ):
                 self.add_issue(
                     "missing_evidence",
                     [f.finding_id],
@@ -198,11 +204,24 @@ class AuditTools:
         for other in self.request.proposal.findings:
             if other.finding_id == f.finding_id or other.criterion_id != f.criterion_id:
                 continue
+            source = contributions[f.contribution_id]
+            peer = contributions[other.contribution_id]
+            if not source.turn_ids or not peer.turn_ids:
+                continue
             candidate = words(contributions[other.contribution_id].text)
             similarity = len(base & candidate) / len(base | candidate) if base | candidate else 0.0
+            turn_matches = self._turn_matches(source, peer)
+            if turn_matches:
+                similarity = turn_matches[0]["lexical_jaccard"]
             matches.append(
                 {
                     "finding_id": other.finding_id,
+                    "score_scope": peer.assessment_scope,
+                    "turn_comparisons": turn_matches,
+                    "turn_pair_limit": 10000,
+                    "turn_comparison_complete": (
+                        len(source.reviewed_turns or []) * len(peer.reviewed_turns or []) <= 10000
+                    ),
                     "lexical_jaccard": round(similarity, 4),
                     "score": other.score,
                     "rationale": other.rationale,
@@ -216,10 +235,42 @@ class AuditTools:
             "method": "lexical_token_jaccard_not_embeddings",
             "matches": sorted(matches, key=lambda m: (-m["lexical_jaccard"], m["finding_id"]))[:k],
             "limitation": (
-                "Wording overlap and score differences are investigation "
-                "signals, not proof that equal scores are warranted"
+                "Wording overlap is not proof of equal quality. Displayed scores keep their scope, "
+                "not grades for each matched answer. Check context and rubric before objecting."
             ),
         }
+
+    @staticmethod
+    def _turn_matches(source, peer) -> list[dict]:
+        """Bounded lexical comparisons of original answers; aggregate scores stay aggregate."""
+        matches = []
+        inspected = 0
+        for left in source.reviewed_turns or []:
+            a = set(re.findall(r"\w+", left["text"].casefold()))
+            for right in peer.reviewed_turns or []:
+                if inspected >= 10000:
+                    return sorted(
+                        matches,
+                        key=lambda m: (-m["lexical_jaccard"], m["turn_id"], m["peer_turn_id"]),
+                    )[:3]
+                inspected += 1
+                b = set(re.findall(r"\w+", right["text"].casefold()))
+                similarity = len(a & b) / len(a | b) if a | b else 0.0
+                matches.append(
+                    {
+                        "turn_id": left["turn_id"],
+                        "peer_turn_id": right["turn_id"],
+                        "lexical_jaccard": round(similarity, 4),
+                        "text": left["text"][:800],
+                        "peer_text": right["text"][:800],
+                        "excerpted": len(left["text"]) > 800 or len(right["text"]) > 800,
+                    }
+                )
+            # Keep memory bounded even for long sessions.
+            matches = sorted(
+                matches, key=lambda m: (-m["lexical_jaccard"], m["turn_id"], m["peer_turn_id"])
+            )[:3]
+        return matches
 
     def detect_injection(self, *, target: str, target_id: str) -> dict:
         identifier(target_id)
@@ -378,17 +429,15 @@ class AuditTools:
                 (
                     f.score,
                     (
-                        contributions[f.contribution_id].end_ms
+                        contributions[f.contribution_id].speaking_duration_ms
+                        if contributions[f.contribution_id].speaking_duration_ms is not None
+                        else contributions[f.contribution_id].end_ms
                         - contributions[f.contribution_id].start_ms
                     )
                     / 1000,
                 )
                 for f in eligible
-            ]
-            confidence = [
-                (f.score, contributions[f.contribution_id].transcription_confidence)
-                for f in eligible
-                if contributions[f.contribution_id].transcription_confidence is not None
+                if contributions[f.contribution_id].turn_ids
             ]
             stats.append(
                 {
@@ -397,8 +446,15 @@ class AuditTools:
                     "n_scored_identified": len(eligible),
                     "excluded_unscored_or_uncertain": len(rows) - len(eligible),
                     "duration": correlation(duration),
-                    "transcription_confidence": correlation(confidence),
-                    "confidence_missing": len(eligible) - len(confidence),
+                    "duration_method": "union_of_reviewed_speaking_intervals_when_supplied",
+                    "legacy_single_interval_count": sum(
+                        contributions[f.contribution_id].speaking_duration_ms is None
+                        for f in eligible
+                        if contributions[f.contribution_id].turn_ids
+                    ),
+                    "no_observed_contribution_count": sum(
+                        not contributions[f.contribution_id].turn_ids for f in rows
+                    ),
                 }
             )
         return {

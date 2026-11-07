@@ -1,37 +1,13 @@
-"""Links Le Yong's Auditor agent (auditor_agent/) to the assessment workflow's audit step.
+"""Map workflow drafts into the tool-calling Auditor and its results into review issues.
 
-``agent_audit(...)`` is a drop-in for ``roles.model_audit``: same inputs, same ``ModelAudit``
-result, so records, ``compose_draft``, the coordinator and the UI work unchanged.
+Student-level scores retain their scope. Original turns and actual speaking duration are
+preserved; silence is represented without invented turns. Evidence comes only from the
+session snapshot. Model calls use the coordinator driver and shared budget. Failures produce
+an incomplete audit requiring professor review, never an automatic substitute model pass.
 
-- **Inputs.** The draft, transcript, rubric and the session's validated evidence bundles are
-  mapped into the Auditor's v1 ``AuditRequest``. One contribution per student holds that
-  student's own reviewed turns; a finding cites the student's turns it names. Fields the workflow
-  does not have are filled honestly: ``transcription_confidence`` is null, ``course_id`` is
-  derived from the course title, and findings the contract cannot express (a student with no
-  turns, or a finding that cites none of the student's turns) are left out and listed in the
-  notes rather than given invented turns.
-- **Model and budget.** The Auditor's model is the app's driver from the coordinator's factory
-  (OpenAI via ``OPENAI_MODEL``). Every Auditor model call, nested citation reviews included,
-  goes through ``SharedBudget.call`` and every returned tool call through ``SharedBudget.tool``,
-  so they count against ``WORKFLOW_LIMITS``. The Auditor's own limits are capped by what is left,
-  and a call left running by an Auditor timeout is waited for (and counted) before the
-  coordinator continues.
-- **Output.** Auditor issues become ``ModelAuditIssue``s (one per affected finding) with the
-  Auditor's own kind and severity kept in the text. A re-judge request is reported as issues
-  plus a note for the coordinator; the Auditor never changes a score. Deterministic
-  validation (``validation.py``) still runs on every draft and stays authoritative. Only a
-  linked re-judge round resolves earlier Auditor issues (the harness requires each pending
-  objection to be explicitly resolved); a fresh case's pass leaves them open for the professor.
-  Issues over ModelAudit's 100-issue cap are replaced by one visible overflow issue.
-- **Feedback.** The Auditor's contract has no feedback, so ``roles.feedback_audit`` (one
-  structured call) reviews the feedback drafts and its issues are merged in.
-- **Fallback.** If the Auditor errors (a mapping/contract failure, a provider or reader failure,
-  or no model), the workflow falls back to the single-call ``model_audit`` and the notes and the
-  role trace say so. ``AUDITOR=model`` uses ``model_audit`` directly.
-
-One re-judge round is tracked per coordinator run in memory (``AuditorSession``): after a
-``rejudge_requested`` result, the next audit is submitted as the revision if the finding set is
-unchanged, otherwise as a fresh case. Nothing is persisted across runs.
+The coordinator uses persisted_agent_audit to reserve and persist the session's one-rejudge
+state in SQLite across runs. A crash leaves a fail-closed reservation; there is no automatic
+resume or reset. Direct agent_audit callers must supply and preserve their own trusted state.
 """
 
 from __future__ import annotations
@@ -48,7 +24,13 @@ from classpartai import usage as ledger
 from classpartai.assessment import AssessmentInputs
 from classpartai.auditor_agent import audit_proposal
 from classpartai.auditor_agent.agent import PROMPT, SCORE_PROMPT, native_arguments
-from classpartai.auditor_agent.contracts import AuditRequest, AuditResult, ContractError, Scope
+from classpartai.auditor_agent.contracts import (
+    AuditRequest,
+    AuditResult,
+    ContractError,
+    Scope,
+    reviewed_duration_ms,
+)
 from classpartai.auditor_agent.harness import (
     TOOLS,
     BudgetExhausted,
@@ -65,6 +47,7 @@ from classpartai.models import (
     SharedBudget,
     ToolDefinition,
 )
+from classpartai.participation.records import Records
 from classpartai.participation.roles import (
     ROLE_POLICY,
     DriverFactory,
@@ -72,10 +55,9 @@ from classpartai.participation.roles import (
     model_audit,
 )
 from classpartai.participation.schema import DraftContent, ModelAudit, ModelAuditIssue
-from classpartai.participation.validation import EvidenceMap
+from classpartai.participation.validation import EvidenceMap, Unprocessable
 
 ROLE_NAME = "auditor_agent"
-MAX_TURNS = 12  # Contribution.turn_ids / Finding.transcript_turn_ids limit in contracts.py
 MAX_EVIDENCE = 6  # Finding.evidence limit
 # Auditor stop reasons that mean "the agent failed", not "the agent decided".
 FAILED = {"provider_or_reader_failure", "configuration_blocked"}
@@ -98,6 +80,7 @@ class AuditorSession:
 
     cases: int = 0
     pending: dict | None = None  # {"case", "state", "finding_ids"} after rejudge_requested
+    rejudge_used: bool = False
     app_ids: dict[str, str] = field(default_factory=dict)  # Auditor issue/finding -> app id
 
 
@@ -149,51 +132,46 @@ def build_request(
                 )[:2000],
                 "minimum": c.minScore,
                 "maximum": c.maxScore,
+                "no_contribution_score": c.noContributionScore,
             }
             for c in inputs.rubric.criteria
         ],
     }
     limitations: list[str] = []
 
-    # One contribution per student: their own reviewed turns, grouped into at most 12 segments.
+    # Scores are student aggregates; preserve every original turn for contextual comparison.
     contributions, segment_of = [], {}
-    for s in inputs.roster:
+    for student in inputs.roster:
         own = [
             t
             for t in inputs.transcript.turns
-            if t.speaker.kind == "student" and t.speaker.studentId == s.id
+            if t.speaker.kind == "student" and t.speaker.studentId == student.id
         ]
-        if not own:
-            continue
-        size = -(-len(own) // MAX_TURNS)  # ceil: turns per segment
-        groups = [own[i : i + size] for i in range(0, len(own), size)]
-        if size > 1:
-            limitations.append(f"{s.id}: {len(own)} turns grouped into {len(groups)} segments")
-        turn_ids = []
-        for n, group in enumerate(groups, 1):
-            seg = group[0].id if size == 1 else f"{s.id}-segment-{n}"
-            turn_ids.append(seg)
-            for t in group:
-                segment_of[t.id] = seg
-        body = "\n".join(f"[{t.id}] {t.text}" for t in own)
-        if len(body) > 6000:
-            body = body[:5980] + "\n[truncated]"
-            limitations.append(f"{s.id}: contribution text truncated to 6000 characters")
+        reviewed = [
+            {"turn_id": t.id, "text": t.text, "start_ms": t.startMs, "end_ms": t.endMs} for t in own
+        ]
+        duration = reviewed_duration_ms(reviewed)
+        for turn in own:
+            segment_of[turn.id] = turn.id
         contributions.append(
             {
-                "contribution_id": f"contribution-{s.id}",
-                "turn_ids": turn_ids,
-                "student_id": s.id,
-                # Only the student's own reviewed turns are included, so attribution is
-                # identified; uncertain turns stay with audit_draft's attribution check.
+                "contribution_id": f"contribution-{student.id}",
+                "turn_ids": [t.id for t in own],
+                "student_id": student.id,
                 "attribution": "identified",
-                "text": body,
-                "start_ms": own[0].startMs,
-                "end_ms": max(t.endMs for t in own),
-                "transcription_confidence": None,  # the workflow has no ASR confidence
+                "assessment_scope": "student_aggregate" if own else "no_observed_contribution",
+                "text": "\n".join(f"[{t.id}] {t.text}" for t in own)
+                or (
+                    "No observed attributable contribution. "
+                    "This is not evidence of poor understanding."
+                ),
+                "start_ms": min((t.startMs for t in own), default=0),
+                "end_ms": max((t.endMs for t in own), default=0),
+                "speaking_duration_ms": duration,
+                "reviewed_turns": reviewed,
             }
         )
-    has_contribution = {c["student_id"] for c in contributions}
+    has_contribution = {c["student_id"] for c in contributions if c["turn_ids"]}
 
     bundles = dict(evidence)
     passages = {(d.id, p.id): p for d in inputs.documents for p in d.passages}
@@ -207,11 +185,8 @@ def build_request(
         draft.findings, key=lambda f: (f.studentId, criteria_order.get(f.criterionId, 0))
     ):
         key = f"{f.studentId}:{f.criterionId}"
-        if f.studentId not in has_contribution:
-            excluded.append(f"{key} (no attributable turns)")
-            continue
         cited = list(dict.fromkeys(segment_of[t] for t in f.turnIds if t in segment_of))
-        if not cited:
+        if not cited and f.studentId in has_contribution:
             excluded.append(f"{key} (cites none of the student's turns)")
             continue
         finding_id = key if len(key) <= 100 else f"finding-{_digest(key)}"
@@ -269,7 +244,7 @@ def build_request(
                 "criterion_id": f.criterionId,
                 "score": f.score if f.status == "scored" else None,
                 "rationale": rationale[:2000],
-                "transcript_turn_ids": cited[:MAX_TURNS],
+                "transcript_turn_ids": cited,
                 "evidence": ev,
             }
         )
@@ -287,9 +262,7 @@ def build_request(
         lineage = (previous, state["pending_rejudge"]["request_id"])
     else:
         if pending is not None:
-            limitations.append(
-                "Earlier re-judge request not linked: the finding set changed; audited afresh"
-            )
+            raise ContractError("Pending rejudge finding set changed; professor review required")
         case_id = f"audit-{_digest(session_id, draft_id, session.cases)}"
         state = {
             "schema_version": 1,
@@ -324,16 +297,8 @@ def build_request(
         },
         "state": state,
     }
-    try:  # fail here, before any model call, if the mapping is invalid
-        AuditRequest.parse(request)
-    except ContractError:
-        if not revision:
-            raise
-        # The revision broke the one-round lineage (e.g. changed reviewed inputs): start afresh.
-        session.pending = None
-        fresh = build_request(inputs, draft_id, draft, evidence, session_id, session)
-        fresh.limitations.append("Earlier re-judge request not linked: lineage check failed")
-        return fresh
+    # Never reset lineage or create another allowance on malformed revisions.
+    AuditRequest.parse(request)
     return Mapping(request, readable, finding_map, labels, excluded, limitations, revision)
 
 
@@ -353,7 +318,8 @@ class ScopedReader:
 class WorkflowModel:
     """The Auditor's ``Model`` protocol on top of the app's driver and shared budget."""
 
-    def __init__(self, budget: SharedBudget, factory: DriverFactory):
+    def __init__(self, budget: SharedBudget, factory: DriverFactory, *, allow_rejudge: bool = True):
+        self.allow_rejudge = allow_rejudge
         self.budget = budget
         self.factory = factory
         self.drivers: dict[tuple, object] = {}
@@ -383,7 +349,14 @@ class WorkflowModel:
 
     def _choose(self, messages: list[dict], tools: list[dict]) -> ToolCall:
         system, history = messages[0], messages[1:]
+        if not self.allow_rejudge:
+            tools = [t for t in tools if t["function"]["name"] != "request_rejudge"]
         instructions = f"{ROLE_POLICY}\n{system['content']}"
+        if not self.allow_rejudge:
+            instructions += (
+                "\nThe session rejudge allowance is used. "
+                "Escalate remaining issues to the professor."
+            )
         key = (instructions, tuple(t["function"]["name"] for t in tools))
         if key not in self.drivers:
             driver = self.factory(
@@ -415,6 +388,8 @@ class WorkflowModel:
         if len(response.calls) != 1:
             raise ToolResponseError("single_function_call_required")
         call = response.calls[0]
+        if call.name == "request_rejudge" and not self.allow_rejudge:
+            raise ToolResponseError("rejudge_limit_reached")
         return ToolCall(call.call_id, call.name, native_arguments(call.arguments))
 
 
@@ -462,6 +437,19 @@ def to_model_audit(
                     kind=KINDS[issue.kind],
                 )
             )
+    if mapping.excluded or mapping.limitations:
+        issues.append(
+            ModelAuditIssue(
+                id="auditor-input-coverage",
+                studentId=None,
+                criterionId=None,
+                kind="uncertainty",
+                detail=(
+                    "Incomplete Auditor coverage: "
+                    + "; ".join(mapping.excluded + mapping.limitations)
+                )[:1000],
+            )
+        )
     resolved: list[str] = []
     open_agent = [
         i for i in draft.audit.issues if i.id.startswith("model:agent-") and i.disposition == "open"
@@ -503,6 +491,7 @@ def to_model_audit(
         )
     notes.append("Deterministic checks remain authoritative; an audit pass is not approval.")
     return ModelAudit(
+        completed=not (mapping.excluded or mapping.limitations),
         issues=capped(issues, 100),
         resolvedIssueIds=resolved,
         resolutionReason=(
@@ -527,7 +516,7 @@ def agent_audit(
     draft_id: str,
     session: AuditorSession,
 ) -> ModelAudit:
-    """Audit with Le Yong's Auditor agent; fall back to ``model_audit`` if the agent errors."""
+    """Run the Auditor; failures stay incomplete for explicit professor review."""
     if config.AUDITOR == "model":
         return model_audit(inputs, draft, evidence, budget, factory)
     trace = {
@@ -542,7 +531,7 @@ def agent_audit(
     }
     budget.progress.roleCalls.append(trace)
     budget.checkpoint()
-    model = WorkflowModel(budget, factory)
+    model = WorkflowModel(budget, factory, allow_rejudge=not session.rejudge_used)
     reason = None
     try:
         mapping = build_request(inputs, draft_id, draft, evidence, session_id, session)
@@ -553,6 +542,7 @@ def agent_audit(
             model=model,
             evidence_reader=ScopedReader(mapping.request["trusted_scope"], mapping.evidence),
             limits=_limits(budget),
+            allow_rejudge=not session.rejudge_used,
         )
         _settle(model, budget)
         trace.update(
@@ -567,6 +557,10 @@ def agent_audit(
             if errors:  # allowlisted category only, never provider error text
                 reason += f" ({errors[-1].get('error_category')})"
         else:
+            if result.rejudge_request:
+                if session.rejudge_used:
+                    raise ContractError("Session rejudge allowance exhausted")
+                session.rejudge_used = True
             audit = to_model_audit(result, mapping, draft, session)
             session.pending = (
                 {
@@ -593,11 +587,9 @@ def agent_audit(
         # Outside the fallback boundary: a failed feedback review is a refused audit action,
         # exactly as a failed model_audit was, rather than a reason to discard the agent's audit.
         return _with_feedback_review(audit, inputs, draft, evidence, budget, factory)
-    trace.update(outcome="fell_back", reason=reason[:300])
+    trace.update(outcome="needs_review", reason=reason[:300])
     budget.checkpoint()
-    fallback = model_audit(inputs, draft, evidence, budget, factory)
-    note = f"Auditor agent unavailable ({reason}); fell back to the single-call model audit. "
-    return fallback.model_copy(update={"notes": (note + fallback.notes)[:1500]})
+    return _review_required(f"Auditor agent did not complete: {reason}")
 
 
 def capped(issues: list[ModelAuditIssue], limit: int) -> list[ModelAuditIssue]:
@@ -655,5 +647,42 @@ def _with_feedback_review(
         issues=issues,
         resolvedIssueIds=resolved,
         resolutionReason=(reason or audit.resolutionReason)[:1000],
+        completed=audit.completed and review.completed,
         notes=(audit.notes[:900] + " Feedback review: " + review.notes)[:1500],
     )
+
+
+def _review_required(reason: str) -> ModelAudit:
+    return ModelAudit(
+        completed=False,
+        issues=[
+            ModelAuditIssue(
+                id="auditor-incomplete",
+                studentId=None,
+                criterionId=None,
+                detail=reason[:1000],
+                kind="uncertainty",
+            )
+        ],
+        resolvedIssueIds=[],
+        resolutionReason="No Auditor objections were resolved",
+        notes=reason[:1500] + ". No substitute audit was performed; professor review is required.",
+    )
+
+
+def persisted_agent_audit(*args, records: Records, session_id: str, **kwargs) -> ModelAudit:
+    """Persist case lineage and serialize audits across coordinator runs and connections.
+
+    A process crash leaves the reservation in place: it never silently grants another round.
+    """
+    try:
+        reservation, state = records.claim_auditor(session_id)
+    except Unprocessable:
+        return _review_required(
+            "Auditor reservation active or interrupted; professor review required"
+        )
+    session = AuditorSession(**state)
+    try:
+        return agent_audit(*args, session_id=session_id, session=session, **kwargs)
+    finally:
+        records.finish_auditor(session_id, reservation, asdict(session))

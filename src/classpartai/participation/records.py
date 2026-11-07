@@ -35,6 +35,9 @@ from classpartai.participation.validation import (
 )
 
 SCHEMA = """
+CREATE TABLE IF NOT EXISTS auditor_state (
+    session_id TEXT PRIMARY KEY, version INTEGER NOT NULL, state TEXT NOT NULL,
+    in_flight INTEGER NOT NULL DEFAULT 0);
 CREATE TABLE IF NOT EXISTS sessions (
     id TEXT PRIMARY KEY, title TEXT NOT NULL, course_title TEXT NOT NULL,
     inputs TEXT NOT NULL, created_at TEXT NOT NULL);
@@ -128,6 +131,36 @@ class Records:
     def _one(self, sql, args=()):
         row = self.db.execute(sql, args).fetchone()
         return dict(row) if row else None
+
+    def claim_auditor(self, session_id: str) -> tuple[int, dict]:
+        """Atomically reserve the session audit; interrupted reservations fail closed."""
+        self.inputs(session_id)
+        with self.tx():
+            self.db.execute(
+                "INSERT OR IGNORE INTO auditor_state VALUES (?, 0, '{}', 0)", (session_id,)
+            )
+            row = self._one("SELECT * FROM auditor_state WHERE session_id = ?", (session_id,))
+            if row["in_flight"]:
+                raise Unprocessable(
+                    "An Auditor call is active or interrupted; professor review required"
+                )
+            version = row["version"] + 1
+            self.db.execute(
+                "UPDATE auditor_state SET version = ?, in_flight = 1 WHERE session_id = ?",
+                (version, session_id),
+            )
+            return version, json.loads(row["state"])
+
+    def finish_auditor(self, session_id: str, version: int, state: dict) -> None:
+        """Only the holder of this reservation may persist state and release the audit."""
+        with self.tx():
+            cursor = self.db.execute(
+                "UPDATE auditor_state SET state = ?, in_flight = 0 "
+                "WHERE session_id = ? AND version = ? AND in_flight = 1",
+                (json.dumps(state), session_id, version),
+            )
+            if cursor.rowcount != 1:
+                raise Unprocessable("Stale Auditor state reservation")
 
     # --- Sessions ---------------------------------------------------------------------------
 
