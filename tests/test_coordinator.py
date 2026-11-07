@@ -219,3 +219,35 @@ def test_repeated_refused_review_requests_escalate_with_open_issues(records, ses
     assert "Blocking:" in run["progress"]["actions"][-1]["summary"]
     assert events[-1] == ("done", {"stopReason": "escalated_with_open_issues"})
     assert records.active_approval(session_id) is None
+
+
+def test_a_rerun_scores_again_instead_of_reusing_the_last_runs_draft(records, session_id):
+    """Run 7dd54fa5: on a session that already had scores, the Coordinator wrote feedback on
+    the old draft and never called the Judge."""
+    from classpartai.participation.schema import Proposal
+
+    records.append_draft(session_id, Proposal.model_validate(full_proposal()), "model", "old")
+    judge_driver = ScriptedDriver(judge_steps())
+    coordinator = ScriptedDriver(
+        [
+            ("draft_student_feedback", {"studentId": "alex-tan"}),  # refused: not scored yet
+            ("audit_assessment", {"note": "Audit the old draft"}),  # refused too
+            ("propose_rubric_assessment", {"note": "Score this run"}),
+        ]
+    )
+    roles = factory_for(
+        {"inspect_transcript_context": coordinator, "score_contribution": judge_driver}
+    )
+    coordinate(records, session_id, roles)
+
+    actions = records.runs(session_id)[0]["progress"]["actions"]
+    assert [(a["tool"], a["outcome"]) for a in actions] == [
+        ("draft_student_feedback", "invalid"),
+        ("audit_assessment", "invalid"),
+        ("propose_rubric_assessment", "ok"),
+    ]
+    assert "propose_rubric_assessment first" in actions[0]["result"]["error"]
+    assert judge_driver.histories  # the Judge ran
+    # A fresh score, not a revision of the old draft: the Judge saw no revision request
+    assert "revision" not in judge_driver.histories[0][0]["content"]
+    assert records.latest_draft(session_id).content.feedback == []
