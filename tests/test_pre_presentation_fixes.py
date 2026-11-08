@@ -76,3 +76,19 @@ def test_a_turn_without_a_listener_flag_is_still_screened(inputs):
     turn.injection = None
     case, _ = _case(inputs)
     assert student in case.injected
+
+
+def test_saved_reviews_are_in_the_results_download(tmp_path):
+    """Pullfrog #76: reviews moved to the data volume dropped out of Download data."""
+    from classpartai import exports
+
+    saved = tmp_path / "data" / "qualitative-reviews" / "system-1-ana.json"
+    saved.parent.mkdir(parents=True)
+    saved.write_text("{}")
+    (tmp_path / "repo" / "eval" / "results").mkdir(parents=True)
+    group = next(
+        g
+        for g in exports.groups(tmp_path / "data", tmp_path / "e", tmp_path / "repo")
+        if g.key == "results"
+    )
+    assert (saved, "eval-results/qualitative-reviews/system-1-ana.json") in group.files()

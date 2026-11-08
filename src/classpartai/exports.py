@@ -98,8 +98,24 @@ def groups(data_dir: Path, enrollment_dir: Path, repo_root: Path) -> list[Group]
         Group(
             "results",
             "Evaluation results",
-            "Every file in eval/results.",
-            lambda: _tree(repo_root / "eval" / "results", "eval-results"),
+            "Every file in eval/results, and the qualitative reviews saved on this server.",
+            # Reviews saved here go in eval/results' own folder, where a checkout reads them
+            lambda: [
+                (path, arc)
+                for arc, path in sorted(
+                    {
+                        **dict(
+                            (a, p) for p, a in _tree(repo_root / "eval" / "results", "eval-results")
+                        ),
+                        **dict(
+                            (a, p)
+                            for p, a in _tree(
+                                data_dir / "qualitative-reviews", "eval-results/qualitative-reviews"
+                            )
+                        ),
+                    }.items()
+                )
+            ],
         ),
         Group(
             "database",
