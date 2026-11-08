@@ -183,9 +183,12 @@ def configured_driver(instructions: str, tools: list[ToolDefinition]) -> Driver 
 # reasoning models count hidden reasoning tokens and add latency, so all four are raised here.
 # One Research investigation (research/bridge.py) alone takes about 25 model calls and 2 minutes.
 WORKFLOW_LIMITS = {
-    "modelCalls": 72,
+    # 96 since 2026-11-08: Research checks two answers per call at about ten model calls each,
+    # so a four-student seminar where everyone makes a course claim used 43 calls on Research
+    # alone, and 72 left too little for the audit after feedback (Demo 1, run de6e4abc).
+    "modelCalls": 96,
     "toolCalls": 108,
-    "tokens": 400000,
+    "tokens": 500000,
     "seconds": 900,
     "historyBytes": 100000,
 }

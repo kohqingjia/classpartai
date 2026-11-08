@@ -177,8 +177,9 @@ COORDINATOR_POLICY = (
     "an audit covers the draft as it stands, so drafting feedback after an audit means auditing "
     "again, and one audit after all feedback is the cheapest route to review; a student's claim "
     "about course content (a definition, a mechanism, a comparison) can only be judged correct "
-    "or wrong with Research's evidence, so retrieve evidence for it before scoring. Ask Research "
-    "once for all such turns rather than one turn at a time: each call costs many model calls."
+    "or wrong with Research's evidence, so retrieve evidence for it before scoring. Each Research "
+    "call checks at most two answers (about ten model calls each): ask only for answers that "
+    "make such claims, and never again for an answer already checked."
 )
 PROMPT_VERSION = "participation-coordinator-v2"
 
