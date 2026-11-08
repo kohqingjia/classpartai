@@ -69,3 +69,22 @@ def test_the_evaluation_page_renders(monkeypatch):
     assert not at.exception
     assert any("Teaching assistant" in getattr(h, "value", "") for h in at.get("html"))
     assert any("Research" in s.value for s in at.subheader)
+
+
+def test_pooled_runs_charge_research_only_to_the_answers_it_read():
+    """A pooled estimate: Research's cost per answer comes from the seminars that called it."""
+    from classpartai import costing
+
+    run = {
+        "usd": 1.0,
+        "contributions": 20,
+        "researchContributions": 5,
+        "students": 10,
+        "seconds": 100,
+        "byAgent": {"research": {"usd": 0.5}},
+    }
+    listener = {"pipeline_seconds": 10, "audio_seconds": 10}
+    a = costing.Assumptions(contributions=20, students=40, sgd_per_usd=1.0)
+    got = costing.estimate({"run": run, "listener": listener}, a)
+    # 0.5 / 5 answers x 20 + 0.5 / 10 students x 40
+    assert round(got["model_per_lesson"], 6) == round(0.1 * 20 + 0.05 * 40, 6)
