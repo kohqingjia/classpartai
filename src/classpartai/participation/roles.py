@@ -62,6 +62,35 @@ def evidence_json(evidence: EvidenceMap) -> list[dict]:
     return [{"id": run_id, "bundle": bundle.model_dump()} for run_id, bundle in evidence]
 
 
+def newest_per_turns(evidence: EvidenceMap) -> EvidenceMap:
+    """One evidence run per set of turns, the newest (Records lists them newest first): a re-run
+    researches the same turns again, and the older copies only repeat it."""
+    seen: set[frozenset[str]] = set()
+    kept = []
+    for run_id, bundle in evidence:
+        key = frozenset(bundle.turnIds)
+        if key not in seen:
+            seen.add(key)
+            kept.append((run_id, bundle))
+    return kept
+
+
+def relevant_evidence(evidence: EvidenceMap, findings, turn_ids=()) -> EvidenceMap:
+    """The evidence runs a role needs: those the findings cite, and those about these turns.
+
+    A session keeps every evidence run it has ever had, across re-runs, so passing all of them
+    grew each feedback call to 170 KB and the feedback review past the 100 KB history limit
+    (Demo 1, run d1a03768). Citations are still validated against the full set."""
+    cited = {c.evidenceRunId for f in findings for c in f.citations}
+    turns = set(turn_ids)
+    newest = {run_id for run_id, _ in newest_per_turns(evidence)}
+    return [
+        (run_id, bundle)
+        for run_id, bundle in evidence
+        if run_id in cited or (run_id in newest and turns and turns & set(bundle.turnIds))
+    ]
+
+
 def role_result[T: BaseModel](
     name: str,
     schema: type[T],
@@ -169,7 +198,9 @@ def model_audit(
             # Without the course documents (158 KB on Demo 3): they alone broke the 100 KB
             # history limit. The evidence below carries what was cited from them.
             "inputs": inputs.model_dump(exclude={"documents"}),
-            "evidence": evidence_json(evidence),
+            "evidence": evidence_json(
+                relevant_evidence(evidence, [*draft.findings, *draft.feedback])
+            ),
             "draft": draft.model_dump(),
         },
         budget,
@@ -232,14 +263,16 @@ def feedback_for(
     data = {
         "rubric": inputs.rubric.model_dump(),
         "goals": [g.model_dump() for g in inputs.learningGoals or []],
-        "evidence": evidence_json(evidence),
     }
     earlier = lessons.for_agent("feedback")
     if earlier:
         data["earlierChecks"] = earlier  # what the checks found wrong in earlier emails
+    findings = [f for f in proposal.findings if f.studentId == student_id]
     data |= {
+        # Only this student's evidence (relevant_evidence), so it comes after the shared part
+        "evidence": evidence_json(relevant_evidence(evidence, findings, [t.id for t in own])),
         "student": student.model_dump(),
-        "findings": [f.model_dump() for f in proposal.findings if f.studentId == student_id],
+        "findings": [f.model_dump() for f in findings],
         "turns": [t.model_dump() for t in own],
     }
 
