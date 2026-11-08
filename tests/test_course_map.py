@@ -1,12 +1,6 @@
-"""How it works: the course-terms map, the brief and the reflection render."""
+"""How it works: the agentic controls section."""
 
 from classpartai import course_map
-
-
-def test_every_part_of_the_system_is_mapped_to_a_course_topic():
-    parts = {row[0] for row in course_map.TOPIC_ROWS}
-    assert {"Listener", "Coordinator", "Research", "Judge", "Auditor"} <= parts
-    assert all("(S" in row[2] for row in course_map.TOPIC_ROWS)  # every term cites a slide
 
 
 def test_all_six_controls_for_agents_are_covered():
@@ -30,4 +24,4 @@ def test_the_sections_render():
 
     at = AppTest.from_function(page).run()
     assert not at.exception
-    assert len(at.subheader) == 4
+    assert len(at.subheader) == 1

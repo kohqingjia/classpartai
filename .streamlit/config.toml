@@ -5,11 +5,21 @@ base = "dark"
 primaryColor = "#e8b03c"
 backgroundColor = "#141415"
 secondaryBackgroundColor = "#1d1d1f"
-textColor = "#ededed"
+textColor = "#f5f5f7"
 linkColor = "#f0c25e"
-borderColor = "#2a2a2d"
+borderColor = "#3d3d42"
 baseRadius = "0.625rem"
 showSidebarBorder = true
+# Coloured and grey text (:gray[...], :orange[...], badges) bright enough for a dark background.
+grayTextColor = "#d4d4d8"
+orangeTextColor = "#ffc15e"
+redTextColor = "#ff8f94"
+greenTextColor = "#82e3b0"
+blueTextColor = "#93c8ff"
+yellowTextColor = "#f7dc72"
+violetTextColor = "#c9aeff"
+dataframeBorderColor = "#4a4a50"
+dataframeHeaderTextColor = "#ffffff"
 
 [theme.sidebar]
 backgroundColor = "#0f0f10"

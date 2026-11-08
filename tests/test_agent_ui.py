@@ -93,8 +93,8 @@ def test_step_bar_names_the_agents_and_goes_back(app):
     assert any("Who spoke?" in m.value for m in at.markdown)
     click(at, "← Back to Record")
     assert at.query_params["step"] == "Record"
-    click(at, "Next: ② Who spoke? →")
-    click(at, "Next: ③ AI assessment →")
+    click(at, "Next: 2 · Who spoke? →")
+    click(at, "Next: 3 · AI assessment →")
     assert at.query_params["step"] == "AI assessment"
 
 

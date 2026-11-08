@@ -114,6 +114,20 @@ SGT = timezone(timedelta(hours=8))
 PAGE_CSS = """<style>
 [data-testid="stSidebar"] button[data-testid^="stBaseButton"] > div { justify-content:flex-start; }
 [data-testid="stSidebar"] button p { white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+/* Larger text everywhere, and the page starts near the top. */
+html { font-size:112.5%; }
+[data-testid="stHeader"] { height:2.25rem !important; min-height:2.25rem !important; }
+[data-testid="stMainBlockContainer"] { padding-top:1rem !important; }
+/* The logo and the collapse arrows share one row; the menu starts right under it. */
+[data-testid="stSidebarHeader"] { padding:.9rem 1rem 0; margin-bottom:0; height:auto; }
+[data-testid="stSidebarUserContent"] { padding-top:.5rem; }
+[data-testid="stSidebar"] button p { color:#f2f2f4; }
+[data-testid="stSidebar"] [data-testid="stCaptionContainer"] p { color:#d8d8dc; }
+/* Table text and table borders readable on the dark background. */
+[data-testid="stMarkdownContainer"] table { border-color:#4a4a50; }
+[data-testid="stMarkdownContainer"] th, [data-testid="stMarkdownContainer"] td {
+  border-color:#4a4a50; }
+[data-testid="stMarkdownContainer"] th { color:#ffffff; }
 /* Quiet sidebar: navigation rows 4 apart, section labels closer to their own items. */
 [data-testid="stSidebar"] [data-testid="stVerticalBlock"] { gap:4px; }
 [data-testid="stSidebar"] [data-testid="stCaptionContainer"] { margin:12px 0 0; }
@@ -128,7 +142,7 @@ PAGE_CSS = """<style>
 h1 { font-size:2.25rem !important; font-weight:600 !important; letter-spacing:-.01em; }
 h2, h3 { font-weight:600 !important; }
 h4 { font-weight:500 !important; }
-.muted { color:#a1a1a6; font-size:.95rem; }
+.muted { color:#d4d4d8; font-size:1.05rem; }
 /* Primary action: off-white with dark text; the amber accent is kept for selection. */
 button[data-testid="stBaseButton-primary"] {
   background:#ededed; border-color:#ededed; color:#141415; }
@@ -149,7 +163,8 @@ button[data-testid="stBaseButton-primary"] p { color:#141415; }
   background:#232325; border-radius:6px; color:#ededed; font-size:1rem; }
 .next-hint b { color:#f0c25e; }
 /* Captions were too faint on the dark background. */
-[data-testid="stCaptionContainer"], [data-testid="stCaptionContainer"] p { color:#b9b9be; }
+[data-testid="stCaptionContainer"], [data-testid="stCaptionContainer"] p {
+  color:#d8d8dc; font-size:.95rem; }
 /* Warnings, errors and successes: stronger bars, so a status is seen before it is read. */
 [data-testid="stAlert"] { border-left-width:5px; border-left-style:solid; }
 /* Pressable things answer the press. */
@@ -731,7 +746,7 @@ def go(view: str, session: str | None = None, step: int | None = None) -> None:
 
 
 def default_step(session: str) -> int:
-    """The first step still to do: ③ until there's a draft, ④ until approved, then ⑤."""
+    """The first step still to do: 3 · until there's a draft, 4 · until approved, then 5."""
     latest = records.latest_draft(session)
     if latest is None:
         return 3
@@ -846,6 +861,7 @@ records, classlist = services()
 
 st.set_page_config(page_title="ClassPart AI", page_icon=":material/school:", layout="wide")
 st.html(PAGE_CSS)
+st.logo(str(DATA / "logo.svg"), size="large")
 
 # --- Sidebar ----------------------------------------------------------------------------------
 
@@ -887,7 +903,6 @@ def nav(
 
 
 with st.sidebar:
-    st.markdown("### ClassPart AI")
     nav("Home", "home", icon=":material/home:")
     nav("New class session", "new", icon=":material/mic:")
     st.caption("Class sessions")
@@ -1280,11 +1295,11 @@ elif view == "new":
     if new_step == 1 or pending is None:  # step 2 only exists once a recording was processed
         if pending:
             st.info(
-                "An unsaved transcript is waiting in ② Who spoke?. Transcribing a new recording "
+                "An unsaved transcript is waiting in 2 · Who spoke?. Transcribing a new recording "
                 "replaces it."
             )
         with st.container(border=True):
-            st.markdown("**① Record the seminar**")
+            st.markdown("**1 · Record the seminar**")
             names = [f"{p.name} (professor)" for p in voiced_profs] + [
                 p.name for p in voiced_students
             ]
@@ -1460,7 +1475,7 @@ elif view == "new":
         roster = pending["roster"]
         names = {r["id"]: r["displayName"] for r in roster}
         with st.container(border=True):
-            st.markdown("**② Who spoke?** Check the AI's attribution before anything is scored.")
+            st.markdown("**2 · Who spoke?** Check the AI's attribution before anything is scored.")
             if pending.get("note"):
                 st.info(pending["note"])
             turns = transcript.turns
@@ -1675,53 +1690,31 @@ elif view == "how":
         "it.</p>",
         unsafe_allow_html=True,
     )
-    st.iframe(system_html(), height=860)
+    st.iframe(system_html(), height="content")
 
     st.subheader("The five steps")
     st.markdown(
         "| Step | Who does the work | What comes out |\n"
         "|---|---|---|\n"
-        "| ① Record | **Listener**: Whisper turns speech into timed text | A transcript |\n"
-        "| ② Who spoke? | **Listener**: each line's voice is matched to an enrolled sample; "
+        "| 1 · Record | **Listener**: Whisper turns speech into timed text | A transcript |\n"
+        "| 2 · Who spoke? | **Listener**: each line's voice is matched to an enrolled sample; "
         "a person checks it | Lines attributed to students, the professor or *unknown* |\n"
-        "| ③ AI assessment | **Coordinator** calls Research, Judge, Auditor and Feedback writer "
+        "| 3 · AI assessment | **Coordinator** calls Research, Judge, Auditor and Feedback writer "
         "as tools | Scores with citations, audit issues, draft feedback |\n"
-        "| ④ Approve | **The professor** reviews issues and approves one exact version | "
+        "| 4 · Approve | **The professor** reviews issues and approves one exact version | "
         "An approval tied to a fingerprint of that version |\n"
-        "| ⑤ Send | **Delivery** (plain code) emails the approved feedback | One email per "
+        "| 5 · Send | **Delivery** (plain code) emails the approved feedback | One email per "
         "student, with its delivery state |"
     )
     st.caption(
-        "Every run's events are stored with their timing, so ③ can replay a past run (▶ Replay "
+        "Every run's events are stored with their timing, so 3 · can replay a past run (▶ Replay "
         "this run) for a presentation: same visuals, no AI calls, nothing written."
-    )
-
-    st.subheader("Why it's agentic")
-    st.markdown(
-        "- **The Coordinator plans.** No fixed script: it reads each tool's result and picks the "
-        "next call (inspect the transcript, retrieve evidence, propose scores, audit, draft "
-        "feedback, request review). A refused call comes back with the reason, and it adapts.\n"
-        "- **Research is agentic RAG.** It writes its own queries, searches with BM25 and "
-        "vectors fused by Reciprocal Rank Fusion, grades what it finds, searches again if the "
-        "evidence is weak, and only cites exact excerpts from the course notes.\n"
-        "- **The Judge is an agent too.** It starts with the rubric, each student's own turns and "
-        "a summary of Research's evidence, scores many students per call with a confidence, and "
-        "fetches more turns or a full evidence bundle only when it needs them. It flags what the "
-        "professor should check, and a revision after the audit re-scores only the students the "
-        "Auditor raised.\n"
-        "- **Verify first, judge last.** Every score the Judge saves must pass deterministic "
-        "validation (right students, cited turns that exist); a student who breaks a rule is "
-        "refused with the reason. Then the Auditor checks support, attribution and uncertainty "
-        "before anything reaches the professor.\n"
-        "- **Bounded.** Every run has a budget (96 model calls, 108 tool calls, 500k tokens, "
-        "900 s) and stops cleanly when it runs out.\n"
-        "- **Watched.** Every model call's tokens, time and estimated cost, and every step of "
-        "every run, are recorded (Saurabh's usage ledger). The **Monitoring** page shows them."
     )
 
     st.subheader("The agents and their tools")
     st.markdown(
-        "Four parts are **agents**: a model in a loop that picks a tool, reads what it "
+        "Listed in the order a class session passes through them. Four parts are **agents**: a "
+        "model in a loop that picks a tool, reads what it "
         "returned and picks the next, until it's done. The Coordinator runs the other three "
         "by calling a tool (*agents as tools*). In the diagram each agent has its own colour, "
         "and so do its tools. The rest are single model calls, "
@@ -1779,8 +1772,9 @@ elif view == "how":
         "page or group of notebook cells. Plain text only, nothing is embedded yet. |\n"
         "| **New session** | Every library file (up to 100) is copied into the session, so its "
         "scores always refer to the exact notes it had. Later uploads don't change it. |\n"
-        "| **First search** (③) | Passages are cut into 120-word chunks with 30-word overlap "
-        "(Topic 8 lab), embedded with `text-embedding-3-small` and indexed for BM25. The index "
+        "| **First search** (3) | Passages are cut into 120-word chunks with 30-word overlap "
+        "(as in the course lab), embedded with `text-embedding-3-small` and indexed for BM25. "
+        "The index "
         "is cached by content, so sessions with the same library reuse it. |\n"
         "| **Every search** | The agent looks up the session's week in the course schedule, "
         "searches that week's files (plus undated ones), fuses BM25 and vector rankings with "
@@ -1827,7 +1821,7 @@ elif view == "how":
         "| 6 · Check each turn | Consecutive lines of one speaker are scored again as one turn, "
         "so a turn Whisper cut into short lines is still checked. A line is credited only if "
         "neither check names someone else | — |\n"
-        "| 7 · A person confirms | ② Who spoke? shows every line with its speaker and a ▶ to "
+        "| 7 · A person confirms | 2 · Who spoke? shows every line with its speaker and a ▶ to "
         "hear it; the professor confirms before the session is created. Unknown and ambiguous "
         "lines are never scored | The professor can't reassign a line here yet, only confirm "
         "or discard |"
@@ -1846,7 +1840,7 @@ elif view == "how":
             "0.07. The turn clearly isn't Tina, so it becomes *ambiguous*.\n\n"
             '**Why ambiguous and not "professor"?** The check only proves the voice doesn\'t '
             "match the label. Crediting the wrong student can change a grade; an ambiguous line "
-            "is never scored, and the professor sees it in ② Who spoke?."
+            "is never scored, and the professor sees it in 2 · Who spoke?."
         )
     with st.expander("How well it works (measured on the 7 demo seminars)"):
         st.markdown(
@@ -1905,7 +1899,7 @@ elif view == "how":
 
     course_map.render()
 
-    st.subheader("Under the hood: the code behind each topic")
+    st.subheader("Under the hood: the code behind each part")
     st.caption(
         "Read live from the source files, so this is exactly the code that runs. Open one to "
         "see the parameters."
@@ -2080,7 +2074,7 @@ elif view == "session":
 
     if step == 1:
         with st.container(border=True):
-            st.markdown("**① Record** · the class recording this session was made from")
+            st.markdown("**1 · Record** · the class recording this session was made from")
             audio = recording_of(session_id)
             if audio:
                 recording_player(audio, f"seek-{session_id}")
@@ -2093,14 +2087,14 @@ elif view == "session":
             if script:
                 show_script(script, f"seek-{session_id}" if audio else None)
         st.button(
-            "Next: ② Who spoke? →", on_click=go, args=("session", session_id, 2), key="next-2"
+            "Next: 2 · Who spoke? →", on_click=go, args=("session", session_id, 2), key="next-2"
         )
 
     elif step == 2:
         with st.container(border=True):
             st.markdown(
-                "**② Who spoke?** · the Listener's attribution, as reviewed when the session "
-                "was created. Voice-match scores are in ③ AI assessment → Listener."
+                "**2 · Who spoke?** · the Listener's attribution, as reviewed when the session "
+                "was created. Voice-match scores are in 3 · AI assessment → Listener."
             )
             who_spoke(
                 inputs.transcript.turns,
@@ -2109,7 +2103,7 @@ elif view == "session":
                 f"who-{session_id}",
             )
         st.button(
-            "Next: ③ AI assessment →", on_click=go, args=("session", session_id, 3), key="next-3"
+            "Next: 3 · AI assessment →", on_click=go, args=("session", session_id, 3), key="next-3"
         )
 
     elif step == 3:
@@ -2204,7 +2198,7 @@ elif view == "session":
                                     )
                                     if (
                                         use_research
-                                    ):  # ② Research (research/bridge.py), same contract
+                                    ):  # 2 · Research (research/bridge.py), same contract
                                         from classpartai.research import bridge
 
                                         with usage.tracking(session_id=session_id):
@@ -2293,7 +2287,7 @@ elif view == "session":
                     if latest is not None and shown.id != latest.id:
                         st.caption(
                             f"From the replayed run. The current version is {latest.version}: "
-                            "close the replay to see it. ④ Approve always uses the current one."
+                            "close the replay to see it. 4 · Approve always uses the current one."
                         )
                     if running:
                         st.caption("A new run is working; this is the previous version.")
@@ -2347,14 +2341,14 @@ elif view == "session":
                                 for c in f.citations:
                                     st.markdown(citation_text(bundles, c))
                     st.button(
-                        "Next: ④ Approve →",
+                        "Next: 4 · Approve →",
                         on_click=go,
                         args=("session", session_id, 4),
                     )
 
     elif step == 4:
         if latest is None:
-            st.info("Run the agents in ③ AI assessment first (or write the draft yourself).")
+            st.info("Run the agents in 3 · AI assessment first (or write the draft yourself).")
         else:
             # The saved audit already repeats the deterministic checks: one entry per issue ID.
             open_issues = list(
@@ -2435,7 +2429,7 @@ elif view == "session":
                 note = approval["acknowledgement"] or "no issues"
                 st.success(f"Version {latest.version} approved by {approval['approver']}: {note}")
                 st.button(
-                    "Next: ⑤ Send →",
+                    "Next: 5 · Send →",
                     type="primary",
                     on_click=go,
                     args=("session", session_id, 5),
@@ -2508,7 +2502,7 @@ elif view == "session":
                     except Unprocessable as exc:
                         st.error(str(exc))
         if latest is None or approval is None:
-            st.info("Approve a version in ④ Approve first; only the approved version is sent.")
+            st.info("Approve a version in 4 · Approve first; only the approved version is sent.")
         else:
             st.markdown(f"#### Emails for version {latest.version}")
             if test_mode.test_mode:

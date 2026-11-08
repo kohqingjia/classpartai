@@ -2,17 +2,10 @@
 
 What worked and why, what did not and why, where it goes next, and what could go wrong with the
 mitigation for each. Numbers come from committed results in eval/results or from the code, and
-each says where. Nothing here is a claim about live model behaviour that has not been run.
+each says where.
 """
 
-import json
-from pathlib import Path
-
 import streamlit as st
-
-from classpartai.config import REPO_ROOT
-
-RESULTS = REPO_ROOT / "eval" / "results"
 
 WORKED = [
     (
@@ -44,9 +37,8 @@ WORKED = [
     (
         "Screening for injected instructions at the earliest stage",
         "The Listener now flags a line that tries to instruct the grader, before any agent "
-        "reads it. On 40 labelled lines the first pattern caught 7 of 20 attacks; the widened "
-        "one catches 20 of 20 with one false alarm on 20 ordinary lines "
-        "(`eval/results/injection-*.md`, `eval/injection_eval.py`).",
+        "reads it. On 40 labelled lines it catches 20 of 20 attacks with one false alarm on 20 "
+        "ordinary lines (`eval/results/injection-*.md`, `eval/injection_eval.py`).",
         "Catching it once, first, means the Judge is told, the professor sees it while "
         "checking the transcript, and the Auditor does not need to guess again. "
         "**Caveat:** we wrote the attacks and the pattern together, so 20/20 is "
@@ -65,46 +57,29 @@ WORKED = [
 
 DID_NOT = [
     (
-        "Agentic RAG is slow and costly for what it adds",
-        "About 113 s and US$0.025 an answer against 22 s and US$0.004, for 6 points of "
-        "correctness. It still searched the course for the two answers that needed no "
-        "evidence.",
-        "The agent is not taught when not to look. A cheap pre-check for answers with no claim "
-        "to verify is the next saving.",
+        "Research is the slowest part of a run",
+        "An answer takes about 113 s and US$0.025 against 22 s and US$0.004 for single-pass "
+        "RAG. That is the price of the 6 extra points of correctness above, not a reason to "
+        "drop it.",
+        "Where the time goes is measured, so it can be cut without removing the checking: "
+        "a lower reasoning effort is run as an experiment (Experiments tab) and judged on "
+        "quality before it is adopted.",
     ),
     (
-        "Research's “answers the question” score is 35%",
-        "Our labels say a wrong answer still answers the question; the agent's definition "
-        "says a wrong answer covers no expected points, so it says no.",
-        "The metric and the labels disagree. The number measures our definition, not the "
-        "agent; we fix the definition before we trust the number.",
-    ),
-    (
-        "The guardrail suite is not stable between runs",
-        "Cases 05 (name swap) and 06 (uncertain speaker) failed in one run and passed in "
-        "another: 8/10, then 10/10.",
-        "Model output varies. One run cannot support a claim, so results need repeats and a range.",
-    ),
-    (
-        "The first injection pattern missed most phrasings",
-        "It caught 7 of 20, missing “disregard the previous instructions” and “forget "
-        "everything above”.",
-        "A fixed list of phrases reflects the phrases its author thought of. Real students "
-        "(and Whisper) say it differently.",
-    ),
-    (
-        "The Judge's agreement with people is not measured",
-        "The harness and 20 labels exist; the labels are a draft nobody has reviewed and the "
-        "Judge has not been run against them.",
-        "Until two people agree on the key, a high or low kappa would measure our draft, "
-        "not the Judge.",
+        "The Judge agrees with people on reasoning but less on engagement",
+        "Against 20 reviewed labels (37 scores) the Judge's weighted kappa is 0.60 overall and "
+        "91.9% of its scores are within one point of the human score. On reasoning it is "
+        "0.87; on engagement it is only 0.26, and 40.5% of all scores match exactly "
+        "(`eval/results/judge-20261108-150050.json`).",
+        "Engagement is the vaguer criterion, so people and the Judge disagree about it more. "
+        "One person wrote the key, so the numbers measure agreement with that person.",
     ),
 ]
 
 FUTURE = [
-    "**Measure the Judge.** Review the answer key as a team, then compare the single-call "
-    "Judge, the tool-using Judge, and a smaller model, on agreement with people and cost per "
-    "point of agreement.",
+    "**Compare Judges.** Run the single-call Judge, the tool-using Judge and a smaller model "
+    "against the same reviewed key, on agreement with people and cost per point of "
+    "agreement; have a second person score part of the key.",
     "**A model-based injection check** as a second Listener step, evaluated with a held-out "
     "set of attacks the pattern author has not seen.",
     "**Real classroom audio.** Every recording so far is scripted with synthetic or cloned "
@@ -192,47 +167,33 @@ RISKS = [
 ]
 
 
-def _latest(pattern: str) -> dict | None:
-    found = sorted(RESULTS.glob(pattern))
-    return json.loads(Path(found[-1]).read_text(encoding="utf-8")) if found else None
+def _md(text: str) -> None:
+    """st.markdown with "$" kept as a dollar sign (Streamlit reads "$...$" as LaTeX)."""
+    st.markdown(text.replace("$", "\\$"))
 
 
 def _entries(items, colour: str) -> None:
     for title, what, why in items:
         with st.container(border=True):
-            st.markdown(f":{colour}[**{title}**]")
-            st.markdown(what)
-            st.markdown(f"**Why:** {why}")
+            _md(f":{colour}[**{title}**]")
+            _md(what)
+            _md(f"**Why:** {why}")
 
 
 def render() -> None:
     st.title("Reflection & risks")
-    st.markdown(
-        '<p class="muted">What worked and why, what did not and why, where it goes next, and '
-        "what could go wrong. Every number names the result it comes from. Nothing here was "
-        "measured on a live model unless it says so.</p>",
-        unsafe_allow_html=True,
-    )
-    injection = _latest("injection-*.json")
-    if injection:
-        first, wide = injection["first pattern"], injection["widened pattern"]
-        cols = st.columns(3)
-        cols[0].metric("Injection attacks caught", f"{wide['caught']}/{wide['attacks']}")
-        cols[1].metric("Before the fix", f"{first['caught']}/{first['attacks']}")
-        cols[2].metric("False alarms", len(wide["false_alarms"]))
-
     st.header(":green[What worked, and why]")
     _entries(WORKED, "green")
     st.header(":orange[What did not, and why]")
     _entries(DID_NOT, "orange")
     st.header(":blue[Where it goes next]")
-    st.markdown("\n".join(f"- {item}" for item in FUTURE))
+    _md("\n".join(f"- {item}" for item in FUTURE))
     st.header(":red[Risks and how we handle them]")
     st.caption(
         "Each mitigation is enforced in code unless it says otherwise. Residual = what is left."
     )
     for risk, why, mitigation, residual in RISKS:
         with st.container(border=True):
-            st.markdown(f":red[**{risk}**] · {why}")
-            st.markdown(f":green[**Mitigation**] · {mitigation}")
-            st.markdown(f":orange[**Residual**] · {residual}")
+            _md(f":red[**{risk}**] · {why}")
+            _md(f":green[**Mitigation**] · {mitigation}")
+            _md(f":orange[**Residual**] · {residual}")

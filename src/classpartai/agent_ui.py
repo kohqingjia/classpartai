@@ -20,13 +20,13 @@ from classpartai.voices import enrolments, match_rows
 AGENTS = [name for _, _, name, _ in STAGES]
 TABS = ["Overview", *AGENTS]
 TOPICS = {
-    "Listener": "Topic 2 · Transformers",
-    "Coordinator": "Topic 7 · Agents",
-    "Evidence / Research": "Topic 8 · Agentic RAG",
-    "Judge": "Topic 6 · LLM-as-judge",
-    "Auditor": "Topic 6 · Evaluation",
-    "Feedback writer": "Topic 7 · Agents",
-    "Delivery": "Topic 9 · Ethics",
+    "Listener": "Transformers",
+    "Coordinator": "Agents",
+    "Evidence / Research": "Agentic RAG",
+    "Judge": "LLM-as-judge",
+    "Auditor": "Evaluation",
+    "Feedback writer": "Agents",
+    "Delivery": "Ethics",
 }
 DESCRIPTIONS = {
     "Listener": "From a class recording to a transcript you can trust and review.",
@@ -180,7 +180,7 @@ def role_trajectory(calls):
 
 
 def guardrails(messages, policy):
-    section(5, "Guardrails that fired", "Topic 9 · Ethics & prompt injection")
+    section(5, "Guardrails that fired", "Ethics and prompt injection")
     if messages:
         for message in dict.fromkeys(messages):
             st.warning(message)
@@ -231,8 +231,8 @@ def listener_view(records, session_id, inputs):
     section(
         1,
         "Inputs",
-        "Preprocessing · Whisper encoder-decoder transformer (Topic 2) → "
-        "speaker embeddings + cosine similarity (Topics 1/8)",
+        "Preprocessing · Whisper encoder-decoder transformer → "
+        "speaker embeddings + cosine similarity",
     )
     recording = DATA_DIR / "recordings" / f"{session_id}.wav"
     if recording.is_file():
@@ -516,7 +516,7 @@ def role_view(records, session_id, inputs, name):
         )
         st.caption(
             "An agent: it picks its next tool from each result. The harness validates every "
-            "score and refuses a rule-breaking call with the reason. Topic 7 · Agents."
+            "score and refuses a rule-breaking call with the reason."
         )
     elif name == "Auditor":
         from classpartai.participation.auditor import AUDITOR_TOOLS
@@ -527,13 +527,11 @@ def role_view(records, session_id, inputs, name):
             "include a nested model review) and can only raise issues, request one re-judge or "
             "escalate to the professor. Feedback drafts get a separate structured review "
             "(finish_feedback_audit). If the agent errors, the workflow falls back to the "
-            f"single structured call {ROLE_NAMES[name]}. Topic 7 · Agents."
+            f"single structured call {ROLE_NAMES[name]}."
         )
     else:
         st.code(ROLE_NAMES[name], language=None)
-        st.caption(
-            "One structured role call, with one correction attempt if invalid. Topic 7 · Agents."
-        )
+        st.caption("One structured role call, with one correction attempt if invalid.")
     section(3, "Trajectory / timeline")
     if name == "Judge" and any(c["role"] == ROLE_NAMES[name] for _, c in calls):
         judge_trajectory(calls)

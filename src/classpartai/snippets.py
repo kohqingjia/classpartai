@@ -54,7 +54,7 @@ class Agent:
 
 TOPICS: list[tuple[str, list[Snippet]]] = [
     (
-        "Topic 2 · Transformers: Whisper (Listener)",
+        "Speech recognition: Whisper (Listener)",
         [
             Snippet(
                 "Speech to text: Whisper, decoded with beam search",
@@ -66,7 +66,7 @@ TOPICS: list[tuple[str, list[Snippet]]] = [
         ],
     ),
     (
-        "Topics 1 & 8 · Embeddings and cosine similarity: who spoke? (Listener)",
+        "Embeddings and cosine similarity: who spoke? (Listener)",
         [
             Snippet(
                 "Compare a voice with an enrolled sample",
@@ -100,13 +100,38 @@ TOPICS: list[tuple[str, list[Snippet]]] = [
         ],
     ),
     (
-        "Topic 8 · Agentic RAG: Evidence / Research",
+        "Agents: the Coordinator, its tools and budget",
+        [
+            Snippet(
+                "The tools the Coordinator may call",
+                "src/classpartai/participation/coordinator.py",
+                ("COORDINATOR_TOOLS",),
+                "Each tool has a JSON schema from a Pydantic model; the model picks the next "
+                "call. There is no approve or send tool.",
+            ),
+            Snippet(
+                "Its instructions: plan from results, not a fixed script",
+                "src/classpartai/participation/coordinator.py",
+                ("COORDINATOR_POLICY",),
+                '"Choose your next action based on tool results, not a fixed sequence."',
+            ),
+            Snippet(
+                "The budget every run must fit in",
+                "src/classpartai/models.py",
+                ("WORKFLOW_LIMITS",),
+                "96 model calls, 108 tool calls, 500k tokens, 900 s. A run that hits a limit "
+                "stops cleanly and leaves its draft for review.",
+            ),
+        ],
+    ),
+    (
+        "Agentic RAG: evidence and Research",
         [
             Snippet(
                 "Chunking: overlapping word windows",
                 "src/classpartai/research/materials.py",
                 ("split_into_chunks",),
-                "As in the Topic 8 lab: a window of words, stepping by window − overlap, so a "
+                "As in the course lab: a window of words, stepping by window − overlap, so a "
                 "sentence cut at one boundary is whole in the next chunk.",
             ),
             Snippet(
@@ -140,32 +165,7 @@ TOPICS: list[tuple[str, list[Snippet]]] = [
         ],
     ),
     (
-        "Topic 7 · Agents: Coordinator, tools and budget",
-        [
-            Snippet(
-                "The tools the Coordinator may call",
-                "src/classpartai/participation/coordinator.py",
-                ("COORDINATOR_TOOLS",),
-                "Each tool has a JSON schema from a Pydantic model; the model picks the next "
-                "call. There is no approve or send tool.",
-            ),
-            Snippet(
-                "Its instructions: plan from results, not a fixed script",
-                "src/classpartai/participation/coordinator.py",
-                ("COORDINATOR_POLICY",),
-                '"Choose your next action based on tool results, not a fixed sequence."',
-            ),
-            Snippet(
-                "The budget every run must fit in",
-                "src/classpartai/models.py",
-                ("WORKFLOW_LIMITS",),
-                "96 model calls, 108 tool calls, 500k tokens, 900 s. A run that hits a limit "
-                "stops cleanly and leaves its draft for review.",
-            ),
-        ],
-    ),
-    (
-        "Topic 6 · Evaluation: LLM-as-judge, verify first",
+        "Evaluation: LLM-as-judge, verify first",
         [
             Snippet(
                 "The Judge: an agent with tools, then deterministic validation",
@@ -185,7 +185,7 @@ TOPICS: list[tuple[str, list[Snippet]]] = [
         ],
     ),
     (
-        "Topic 9 · Ethics and security: guardrails",
+        "Ethics and security: guardrails",
         [
             Snippet(
                 "Every agent's ground rules",
@@ -218,6 +218,37 @@ JUDGE = "src/classpartai/participation/judge.py"
 
 AGENTS: list[Agent] = [
     Agent(
+        "Listener",
+        "pipeline",
+        "Tina (pipeline); line and turn checks by QJ",
+        "Fixed steps, no model deciding anything: Whisper transcribes, pyannote splits the "
+        "audio by voice, voice embeddings name each speaker, then each line and each turn is "
+        "checked again and screened for words aimed at the grader. A person confirms in "
+        "2 · Who spoke?.",
+        "1 · Record (before the Coordinator runs)",
+        code=(
+            Snippet(
+                "Tina's pipeline: transcribe, diarise, identify",
+                "audio-service/pipeline.py",
+                ("process_audio",),
+                "Whisper, then pyannote, then a voice match per diarised speaker.",
+            ),
+            Snippet(
+                "Who said what: words to turns, then the line and turn checks",
+                "src/classpartai/agents/listener.py",
+                ("decide_speakers",),
+                "See 'How the Listener decides who spoke' below for each stage.",
+            ),
+            Snippet(
+                "Injection screen: flag words aimed at the grader",
+                "src/classpartai/agents/listener.py",
+                ("screen_injection",),
+                "Runs over every student or uncertain turn. The flag rides on the turn to the "
+                "professor's review, the Judge and the Auditor; the words are never changed.",
+            ),
+        ),
+    ),
+    Agent(
         "Coordinator",
         "agent",
         "Le Yong (design, TypeScript); ported to Python and integrated by QJ",
@@ -225,7 +256,7 @@ AGENTS: list[Agent] = [
         "the next tool. There is no fixed order and no approve or send tool. Every model and "
         "tool call, its sub-agents' included, counts against one budget (96 model calls, 108 "
         "tool calls, 500k tokens, 900 s).",
-        "the ③ Run button",
+        "the 3 · Run button",
         (
             Tool(
                 "inspect_transcript_context",
@@ -282,7 +313,7 @@ AGENTS: list[Agent] = [
             ),
             Tool(
                 "request_professor_review",
-                "Ends the run and hands the draft to the professor in ④ Approve.",
+                "Ends the run and hands the draft to the professor in 4 · Approve.",
                 "a summary for the professor",
                 "the run's end",
                 "Refused until every student has findings and feedback and the latest version "
@@ -357,6 +388,67 @@ AGENTS: list[Agent] = [
         ),
     ),
     Agent(
+        "Judge",
+        "agent",
+        "Saurabh",
+        "An agent: gets the rubric, each student's own turns and the evidence summary at once, "
+        "scores every student on each criterion (or says 'insufficient evidence', not zero), and "
+        "flags what the professor should check.",
+        "the Coordinator's propose_rubric_assessment",
+        (
+            Tool(
+                "get_evidence",
+                "Fetches the full bundle of one Research run, when the Judge wants to cite a "
+                "passage. The opening message already summarises every run.",
+                "a Research run ID",
+                "the answer assessment, citations with passage IDs, conflicts and gaps",
+                "An unknown run ID is refused.",
+                JUDGE,
+                ("judge.get_evidence",),
+            ),
+            Tool(
+                "get_contributions",
+                "Fetches the named students' own turns, each with the turn before it (usually "
+                "the question), for students whose turns didn't fit in the opening message.",
+                "1-50 student IDs",
+                "each student's own turns (at most 20) and uncertain turns that might be theirs",
+                "Unknown students are refused. Uncertain turns can never establish a score.",
+                JUDGE,
+                ("judge.contribution", "judge.get_contributions"),
+            ),
+            Tool(
+                "score_contribution",
+                "Saves findings for one or many students: for each criterion a score or "
+                "'insufficient evidence', the turns it rests on, a justification, a confidence "
+                "and an optional flag for the professor. The run ends once every student has "
+                "a finding for every criterion.",
+                "students, each with one entry per criterion",
+                "who was saved, who was refused and why, and who is still to score",
+                "Each student goes through validate_proposal: one who breaks a rule is refused "
+                "with the reason and the others are still saved. Low confidence and flags "
+                "become notes the professor sees.",
+                JUDGE,
+                ("judge.save", "judge.score_contribution"),
+            ),
+        ),
+        code=(
+            Snippet(
+                "Its prompt",
+                JUDGE,
+                ("JUDGE_INSTRUCTIONS",),
+                "Usually scores at once from the opening message, which already holds the "
+                "rubric, each student's turns and a summary of Research's evidence.",
+            ),
+            Snippet(
+                "A revision re-scores only what the audit objected to",
+                JUDGE,
+                ("revision_targets",),
+                "Students the Auditor raised support, attribution, contradiction or uncertainty "
+                "issues about are re-scored; everyone else's findings are kept.",
+            ),
+        ),
+    ),
+    Agent(
         "Auditor",
         "agent",
         "Le Yong (design); merged into the app's own types and loop by Saurabh",
@@ -424,67 +516,6 @@ AGENTS: list[Agent] = [
         ),
     ),
     Agent(
-        "Judge",
-        "agent",
-        "Saurabh",
-        "An agent: gets the rubric, each student's own turns and the evidence summary at once, "
-        "scores every student on each criterion (or says 'insufficient evidence', not zero), and "
-        "flags what the professor should check.",
-        "the Coordinator's propose_rubric_assessment",
-        (
-            Tool(
-                "get_evidence",
-                "Fetches the full bundle of one Research run, when the Judge wants to cite a "
-                "passage. The opening message already summarises every run.",
-                "a Research run ID",
-                "the answer assessment, citations with passage IDs, conflicts and gaps",
-                "An unknown run ID is refused.",
-                JUDGE,
-                ("judge.get_evidence",),
-            ),
-            Tool(
-                "get_contributions",
-                "Fetches the named students' own turns, each with the turn before it (usually "
-                "the question), for students whose turns didn't fit in the opening message.",
-                "1-50 student IDs",
-                "each student's own turns (at most 20) and uncertain turns that might be theirs",
-                "Unknown students are refused. Uncertain turns can never establish a score.",
-                JUDGE,
-                ("judge.contribution", "judge.get_contributions"),
-            ),
-            Tool(
-                "score_contribution",
-                "Saves findings for one or many students: for each criterion a score or "
-                "'insufficient evidence', the turns it rests on, a justification, a confidence "
-                "and an optional flag for the professor. The run ends once every student has "
-                "a finding for every criterion.",
-                "students, each with one entry per criterion",
-                "who was saved, who was refused and why, and who is still to score",
-                "Each student goes through validate_proposal: one who breaks a rule is refused "
-                "with the reason and the others are still saved. Low confidence and flags "
-                "become notes the professor sees.",
-                JUDGE,
-                ("judge.save", "judge.score_contribution"),
-            ),
-        ),
-        code=(
-            Snippet(
-                "Its prompt",
-                JUDGE,
-                ("JUDGE_INSTRUCTIONS",),
-                "Usually scores at once from the opening message, which already holds the "
-                "rubric, each student's turns and a summary of Research's evidence.",
-            ),
-            Snippet(
-                "A revision re-scores only what the audit objected to",
-                JUDGE,
-                ("revision_targets",),
-                "Students the Auditor raised support, attribution, contradiction or uncertainty "
-                "issues about are re-scored; everyone else's findings are kept.",
-            ),
-        ),
-    ),
-    Agent(
         "Feedback writer",
         "model call",
         "from Le Yong's workflow",
@@ -523,43 +554,12 @@ AGENTS: list[Agent] = [
         ),
     ),
     Agent(
-        "Listener",
-        "pipeline",
-        "Tina (pipeline); line and turn checks by QJ",
-        "Fixed steps, no model deciding anything: Whisper transcribes, pyannote splits the "
-        "audio by voice, voice embeddings name each speaker, then each line and each turn is "
-        "checked again and screened for words aimed at the grader. A person confirms in "
-        "② Who spoke?.",
-        "① Record (before the Coordinator runs)",
-        code=(
-            Snippet(
-                "Tina's pipeline: transcribe, diarise, identify",
-                "audio-service/pipeline.py",
-                ("process_audio",),
-                "Whisper, then pyannote, then a voice match per diarised speaker.",
-            ),
-            Snippet(
-                "Who said what: words to turns, then the line and turn checks",
-                "src/classpartai/agents/listener.py",
-                ("decide_speakers",),
-                "See 'How the Listener decides who spoke' below for each stage.",
-            ),
-            Snippet(
-                "Injection screen: flag words aimed at the grader",
-                "src/classpartai/agents/listener.py",
-                ("screen_injection",),
-                "Runs over every student or uncertain turn. The flag rides on the turn to the "
-                "professor's review, the Judge and the Auditor; the words are never changed.",
-            ),
-        ),
-    ),
-    Agent(
         "Delivery",
         "code",
         "QJ",
         "Plain code, not a model: emails each student their approved feedback through "
         "AgentMail. Test mode sends everything to one inbox.",
-        "the professor's Send button in ⑤",
+        "the professor's Send button in 5",
         code=(
             Snippet(
                 "The email: a fixed template, no model",

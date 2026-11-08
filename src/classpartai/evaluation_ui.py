@@ -10,6 +10,7 @@ import streamlit as st
 
 from classpartai import costing
 from classpartai.config import REPO_ROOT
+from classpartai.experiments_ui import judge_markdown
 from classpartai.qualitative_ui import qualitative_section
 
 RESULTS = REPO_ROOT / "eval" / "results"
@@ -26,12 +27,12 @@ _BAR_CSS = """
 .cmp-seg { height:100%; }
 .cmp-num { text-align:right; font-variant-numeric:tabular-nums;
   font-family:ui-monospace,monospace; }
-.cmp-key { display:flex; gap:16px; font-size:12px; color:#a1a1a6; margin-top:4px; }
+.cmp-key { display:flex; gap:16px; font-size:12px; color:#d4d4d8; margin-top:4px; }
 .cmp-key span { display:inline-flex; gap:6px; align-items:center; }
 .cmp-dot { width:8px; height:8px; border-radius:2px; display:inline-block; }
 </style>
 """
-TA, SERVER, MODEL = "#6b6b70", "#a1a1a6", "#e8b03c"  # the software's model cost is the accent
+TA, SERVER, MODEL = "#8c8c93", "#c4c4ca", "#e8b03c"  # the software's model cost is the accent
 
 
 def md(text: str) -> None:
@@ -137,12 +138,9 @@ def cost_section(records=None) -> None:
     if m["source"] == "ledger" and m["run"].get("status") == "pooled":
         run = m["run"]
         st.success(
-            f"Measured from the app's own ledger: the newest finished run of each of "
-            f"{len(run['sessions'])} seminars, added together ({run['contributions']} "
-            f"contributions, {run['students']} students, US\\${run['usd']:.2f}), so it follows "
-            f"the code as it is now. Research's cost per answer comes from the "
-            f"{run['researchContributions']} answers in the runs that called it; the others "
-            "reused earlier evidence.",
+            f"Measured on real runs: the newest finished assessment of each of "
+            f"{len(run['sessions'])} demo seminars ({run['students']} students in all) cost "
+            f"US\\${run['usd']:.2f} together. The figures below are built from those runs.",
             icon=":material/check_circle:",
         )
     elif m["source"] == "ledger":
@@ -419,18 +417,12 @@ def auditor_section() -> None:
 
 def judge_section() -> None:
     st.subheader("Judge: agreement with human scores (Saurabh's Judge agent)")
-    found = sorted(RESULTS.glob("judge-*.md"))
-    if found:
-        md(found[-1].read_text(encoding="utf-8"))
+    table_md = judge_markdown()
+    if table_md:
+        md(table_md)
         return
-    md(
-        "The eval is built (`eval/judge_eval.py`): Spearman and quadratic-weighted kappa "
-        "against 20 hand-scored contributions, plus how the Judge got there (scoring calls, "
-        "rules passed first try, flagged the injection, cost). No results are committed yet, "
-        "and the human scores in `data/is469/judge_labels.jsonl` are drafts until the team "
-        "marks them reviewed."
-    )
-    st.code("uv run python eval/judge_eval.py", language="bash")
+    md("Not run yet: `eval/judge_eval.py` scores the Judge against 20 hand-scored answers.")
+    st.code("python eval/judge_eval.py", language="bash")
 
 
 def evaluation_view(records=None) -> None:

@@ -91,7 +91,7 @@ def research() -> Experiment | None:
         f"On {cfg.get('corpus', 'the course library')} the agent gives more correct verdicts and "
         f"cleaner context, and costs {many['usd'] / one['usd']:.1f}x as much and takes "
         f"{many['seconds'] / one['seconds']:.1f}x as long per answer. A grade follows from it, "
-        "so the extra cost is worth it here (Topic 8: agentic RAG has to earn its cost).",
+        "so the extra cost is worth it here (agentic RAG has to earn its extra cost).",
         "eval/results/research-is469-library.json",
     )
 
@@ -134,6 +134,37 @@ def research_effort() -> Experiment | None:
         "turning on (`RESEARCH_REASONING_EFFORT=low`); if verdicts get worse, it is not.",
         " and ".join(f"eval/results/{n}" for n in EFFORT_RUNS),
     )
+
+
+def judge_markdown() -> str | None:
+    """The newest Judge-against-people result (eval/judge_eval.py), as a readable table."""
+    found = sorted(RESULTS.glob("judge-*.json"))
+    d = _json(found[-1]) if found else None
+    if not d:
+        return None
+    agree, cfg = d["summary"]["agreement"], d.get("config", {})
+
+    def cell(value) -> str:
+        return "n/a" if value is None else f"{value:.2f}"
+
+    rows = {"All criteria": agree["overall"], **agree["per_criterion"]}
+    lines = [
+        "| Criterion | Scores compared | Rank agreement | Kappa | Exact match | Within 1 point "
+        "| Average error |",
+        "|---|---|---|---|---|---|---|",
+    ]
+    for name, s in rows.items():
+        lines.append(
+            f"| {name.capitalize()} | {s['n']} | {cell(s['spearman'])} | {cell(s['kappa'])} | "
+            f"{s['exact']:.0%} | {s['within_one']:.0%} | {cell(s['mae'])} |"
+        )
+    lines += [
+        "",
+        f"Model `{cfg.get('model', '?')}`, given the evidence a perfect Research agent would "
+        "report. Kappa is weighted by how far apart two scores are (1 is perfect agreement). "
+        "The answer key was written by one person, so this is agreement with that person.",
+    ]
+    return "\n".join(lines)
 
 
 def listener() -> Experiment | None:
@@ -297,14 +328,13 @@ def render() -> None:
                 icon=":material/hourglass_empty:",
             )
             st.code(EFFORT_COMMANDS, language="bash")
-    judge = sorted(RESULTS.glob("judge-*.md"))
     with st.container(border=True):
         st.markdown("#### Judge: agreement with human scores")
-        if judge:
-            st.markdown(judge[-1].read_text(encoding="utf-8"))
+        table_md = judge_markdown()
+        if table_md:
+            st.markdown(table_md)
         else:
             st.info(
-                "Not run yet. It needs the OpenAI key, and the answer key in "
-                "data/is469/judge_labels.jsonl is a draft until the team reviews it.",
+                "Not run yet. Run `python eval/judge_eval.py` (needs the OpenAI key).",
                 icon=":material/hourglass_empty:",
             )

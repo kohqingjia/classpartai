@@ -51,3 +51,6 @@ var/
 
 # Blank review sheets from eval/system_eval.py; the Evaluation page is where they are filled in
 eval/results/qualitative-*.md
+
+# Screenshots taken while checking the UI (the ones to keep are in docs/screenshots)
+/*.png

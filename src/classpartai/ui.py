@@ -28,7 +28,7 @@ TOOL_STAGE = {
 
 _BASE_CSS = """
 /* Matches the app's graphite theme (.streamlit/config.toml); amber is the one accent. */
-:root { --ink:#ededed; --muted:#a1a1a6; --line:#2a2a2d; --card:#1d1d1f; --bg:#19191b;
+:root { --ink:#ededed; --muted:#d4d4d8; --line:#45454b; --card:#1d1d1f; --bg:#19191b;
         --accent:#e8b03c; --green:#4cc38a; --amber:#e8b03c; --red:#e5484d;
         --ease-out:cubic-bezier(0.23,1,0.32,1); }
 * { box-sizing:border-box; }
@@ -38,16 +38,16 @@ body { margin:0; font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,
 """
 
 _FLOW_CSS = """
-.banner { font-size:12px; margin:0 0 16px; color:var(--muted); }
+.banner { font-size:14px; margin:0 0 16px; color:var(--muted); }
 .flow { display:grid; grid-template-columns:repeat(7,minmax(0,1fr)); gap:8px; }
 .node { display:block; text-decoration:none; color:var(--ink); min-width:0; --c:var(--muted);
   background:color-mix(in srgb, var(--c) 7%, var(--card)); border:1px solid var(--line);
   border-top:3px solid var(--c); border-radius:10px; padding:14px 10px 16px; }
 .node.agent .name { color:var(--c); }
 a.node:hover, a.node:focus-visible { outline:2px solid var(--accent); outline-offset:2px; }
-.num { color:var(--muted); font:12px ui-monospace,monospace; }
-.name { font-weight:600; font-size:12px; margin-top:18px; }
-.what,.note { font-size:10px; color:var(--muted); margin-top:7px; }
+.num { color:var(--ink); font:600 15px ui-monospace,monospace; }
+.name { font-weight:600; font-size:14px; margin-top:18px; }
+.what,.note { font-size:12px; color:var(--muted); margin-top:7px; }
 .active { border-color:var(--c); background:color-mix(in srgb, var(--c) 16%, var(--card));
   box-shadow:inset 0 -3px 0 var(--c); }
 .active .num { color:var(--c); } .done .num { color:var(--green); }
@@ -57,8 +57,8 @@ a.node:hover, a.node:focus-visible { outline:2px solid var(--accent); outline-of
 _BOARD_CSS = """
 .board { display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:10px; }
 .card { background:var(--card); border:1px solid var(--line); border-radius:10px; padding:16px; }
-.who { font-weight:600; font-size:14px; }
-.state { font-size:12px; margin-top:8px; color:var(--muted); }
+.who { font-weight:600; font-size:16px; }
+.state { font-size:14px; margin-top:8px; color:var(--muted); }
 .commend .state { color:var(--green); } .encourage .state { color:var(--amber); }
 .flagged .state { color:var(--red); }
 """
@@ -243,7 +243,7 @@ SYSTEM_LANES = [
         ],
     },
     {
-        "step": "① ②",
+        "step": "1 · 2",
         "stack": "before",
         "title": "Listener",
         "kind": "pipeline",
@@ -251,7 +251,7 @@ SYSTEM_LANES = [
             [
                 "Whisper",
                 "Recording → timed text (encoder-decoder transformer)",
-                "Topic 2",
+                "Transformers",
                 "pipeline",
                 [],
             ],
@@ -259,7 +259,7 @@ SYSTEM_LANES = [
                 "Speaker match",
                 "pyannote splits voices; embeddings + cosine similarity name each speaker; "
                 "each line screened for words aimed at the grader",
-                "Topics 1, 8",
+                "Embeddings",
                 "pipeline",
                 [],
             ],
@@ -273,19 +273,19 @@ SYSTEM_LANES = [
         ],
     },
     {
-        "step": "③",
+        "step": "3",
         "title": "Coordinator",
         "kind": "agent",
         "lead": "Agent 1 of 4. Plans the next tool call from what the last one returned, "
         "within a budget. Its tools:",
         "lead_tools": _tools("Coordinator"),
-        "badge": "Topic 7",
+        "badge": "Agents",
         "nodes": [
             [
                 "Research",
                 "Agent 2 of 4, via retrieve_evidence · BM25 + vectors fused with RRF → grade "
                 "→ quote",
-                "Topic 8",
+                "Agentic RAG",
                 "agent",
                 _tools("Research"),
             ],
@@ -293,7 +293,7 @@ SYSTEM_LANES = [
                 "Judge",
                 "Agent 3 of 4, via propose_rubric_assessment · scores many students per call, "
                 "with a confidence; flags what the professor should check",
-                "Topic 6",
+                "LLM-as-judge",
                 "agent",
                 _tools("Judge"),
             ],
@@ -301,7 +301,7 @@ SYSTEM_LANES = [
                 "Auditor",
                 "Agent 4 of 4, via audit_assessment · checks support, citations, injection, "
                 "fairness; never changes a score",
-                "Topic 6",
+                "LLM-as-judge",
                 "agent",
                 _tools("Auditor"),
             ],
@@ -309,35 +309,35 @@ SYSTEM_LANES = [
                 "Feedback writer",
                 "via draft_student_feedback · what went well and one next step, citing turns; "
                 "rule checks send a bad email back once, and the lesson carries to the next",
-                "Topic 7",
+                "Agents",
                 "model call",
                 [],
             ],
         ],
     },
     {
-        "step": "④",
+        "step": "4",
         "stack": "after",
         "title": "Professor",
         "nodes": [
             [
                 "Approve",
                 "Signs off the exact version (SHA-256 of content + recipients)",
-                "Topic 9",
+                "Guardrails",
                 "human",
                 [],
             ],
         ],
     },
     {
-        "step": "⑤",
+        "step": "5",
         "stack": "after",
         "title": "Delivery",
         "nodes": [
             [
                 "AgentMail",
                 "Code, not a model, sends the approved emails; test mode redirects",
-                "Topic 9",
+                "Guardrails",
                 "code",
                 [],
             ],
@@ -360,7 +360,7 @@ STARTS_AGENT = {
 }
 # The run's step cards and agent log use the same inks. Steps that are not agents (the Listener
 # pipeline, the single-call Feedback writer, Delivery) stay grey.
-NOT_AGENT_INK = "#a1a1a6"
+NOT_AGENT_INK = "#cfcfd4"
 STAGE_INKS = {
     "coordinator": AGENT_INKS["Coordinator"],
     "research": AGENT_INKS["Research"],
@@ -544,7 +544,7 @@ eg.appendChild(dot('Research'));how.appendChild(eg);
 how.appendChild(document.createTextNode(' means that tool starts the Research agent'));
 inks.appendChild(how);root.appendChild(inks);
 const rails=el('div','rails');root.appendChild(rails);
-rails.appendChild(el('span','railhead','Guardrails · Topic 9'));
+rails.appendChild(el('span','railhead','Guardrails'));
 d.rails.forEach(r=>rails.appendChild(el('span','rail',r)));
 """,
     )

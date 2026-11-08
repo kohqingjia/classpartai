@@ -10,6 +10,7 @@ from __future__ import annotations
 from collections.abc import Callable
 from datetime import UTC, datetime, timedelta, timezone
 
+import altair as alt
 import streamlit as st
 
 from classpartai import config, experiments_ui, usage
@@ -50,6 +51,62 @@ def step_label(event: dict) -> str:
     if event["kind"] == "embedding":
         return f"embed · {event['name']}"
     return event["name"]
+
+
+TOKEN_KINDS = ["Input, new", "Input, cached", "Output"]
+TOKEN_COLOURS = ["#6aa8e8", "#5cc2a6", "#e8b03c"]  # the app's blue, green and amber inks
+
+
+def token_chart(groups: list[dict], by_total: bool = True) -> None:
+    """Tokens per group as stacked bars: new input, cached input (the cheap part), output
+    (which includes hidden reasoning). Every group is labelled, and the chart grows with them."""
+    if not groups:
+        return
+    rows = []
+    for g in groups:
+        cached = g["cached_tokens"]
+        for kind, value in zip(
+            TOKEN_KINDS,
+            (max(g["input_tokens"] - cached, 0), cached, g["output_tokens"]),
+            strict=True,
+        ):
+            rows.append({"Group": g["group"], "Kind": kind, "Tokens": value})
+    order = sorted(
+        (g["group"] for g in groups),
+        key=(lambda name: -sum(r["Tokens"] for r in rows if r["Group"] == name))
+        if by_total
+        else (lambda name: name),
+    )
+    text, grid = "#f2f2f4", "#45454b"
+    chart = (
+        alt.Chart(alt.Data(values=rows))
+        .mark_bar(height=26)
+        .encode(
+            y=alt.Y(
+                "Group:N",
+                sort=order,
+                title=None,
+                axis=alt.Axis(labelLimit=260, labelOverlap=False, labelFontSize=14),
+            ),
+            x=alt.X("Tokens:Q", title="Tokens", axis=alt.Axis(format="~s", labelFontSize=13)),
+            color=alt.Color(
+                "Kind:N",
+                sort=TOKEN_KINDS,
+                scale=alt.Scale(domain=TOKEN_KINDS, range=TOKEN_COLOURS),
+                legend=alt.Legend(orient="top", title=None, labelFontSize=14, symbolSize=180),
+            ),
+            order=alt.Order("Kind:N", sort="ascending"),
+            tooltip=["Group:N", "Kind:N", alt.Tooltip("Tokens:Q", format=",")],
+        )
+        .properties(height=44 * len(groups) + 40)
+        .configure(background="transparent")
+        .configure_axis(
+            labelColor=text, titleColor=text, gridColor=grid, domainColor=grid, tickColor=grid
+        )
+        .configure_legend(labelColor=text, titleColor=text)
+        .configure_view(stroke=None)
+    )
+    st.altair_chart(chart, theme=None, width="stretch")
 
 
 # --- A single run's trace ---------------------------------------------------------------------
@@ -340,16 +397,10 @@ def usage_section(rows: list[dict]) -> None:
         cols[4].caption(f"slowest 5%: {seconds(t['p95_ms'])} · {t['errors']} errors")
 
         by_agent = usage.summarise(rows, "agent")
-        left, right = st.columns([3, 2])
-        with left:
-            st.caption("BY AGENT")
-            st.dataframe(table_rows(by_agent, "Agent"), hide_index=True, width="stretch")
-        with right:
-            st.caption("TOKENS BY AGENT")
-            st.bar_chart(
-                {g["group"]: g["input_tokens"] + g["output_tokens"] for g in by_agent},
-                horizontal=True,
-            )
+        st.caption("BY AGENT")
+        st.dataframe(table_rows(by_agent, "Agent"), hide_index=True, width="stretch")
+        st.caption("TOKENS BY AGENT (OUTPUT INCLUDES HIDDEN REASONING)")
+        token_chart(by_agent)
         st.caption("BY MODEL")
         st.dataframe(
             table_rows(usage.summarise(rows, "model"), "Model"), hide_index=True, width="stretch"
@@ -357,7 +408,7 @@ def usage_section(rows: list[dict]) -> None:
         by_day = usage.summarise(rows, "day")
         if len(by_day) > 1:
             st.caption("TOKENS PER DAY")
-            st.bar_chart({g["group"]: g["input_tokens"] + g["output_tokens"] for g in by_day})
+            token_chart(by_day, by_total=False)
         st.caption(
             f"Costs are estimates from {config.MODEL_PRICES.name} (USD per million tokens, edit it "
             "to match your plan), not an invoice: the OpenAI usage page is the source of truth. "
