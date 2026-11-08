@@ -37,39 +37,3 @@ def get_participation_summary(transcript):
             counts[turn.speaker.studentId] += 1
 
     return dict(counts)
-
-
-def get_existing_research(research_results, turn_id):
-    """Retrieve existing evidence for a transcript turn."""
-    return research_results.get(turn_id)
-
-
-def investigate_contribution(
-    research_agent,
-    contribution,
-    date,
-    focus=None,
-):
-    """
-    Ask the existing Research Agent to investigate
-    a particular student contribution.
-    """
-    pack = research_agent.run(
-        text=contribution["text"],
-        date=date,
-        question=contribution.get("question"),
-        contribution_id=contribution.get("turn_id"),
-        speaker=contribution.get("speaker_id"),
-        focus=focus,
-    )
-
-    return {
-        "contribution_id": pack.contribution_id,
-        "claims": pack.claims,
-        "correctness": pack.correctness,
-        "mistake": pack.mistake,
-        "summary": pack.summary,
-        "needs_review": pack.needs_review,
-        "stop_reason": pack.stop_reason,
-        "usage": pack.usage,
-    }

@@ -24,7 +24,6 @@ a failure is not a transcription error.
 from __future__ import annotations
 
 import json
-from collections.abc import Callable
 from dataclasses import asdict, dataclass
 from pathlib import Path
 
@@ -538,6 +537,3 @@ def markdown(results: list[dict], meta: dict) -> str:
             lines.append(f"\n{len(failed)} to read in the outputs.")
     lines += ["", "## Read the outputs for", ""] + [f"- {q}" for q in QUESTIONS]
     return "\n".join(lines) + "\n"
-
-
-Runner = Callable[[Seminar], CaseRun]

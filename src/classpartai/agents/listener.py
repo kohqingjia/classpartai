@@ -33,7 +33,6 @@ from classpartai.assessment import AssessmentInputs, Transcript
 from classpartai.config import AUDIO_SERVICE_DIR
 from classpartai.injection import NONE, injection_signal
 
-IS_PLACEHOLDER = False
 MIN_SEGMENT_SECONDS = 1.0  # shorter clips are too little voice to identify anyone
 # Naming a voice, per diarised speaker and per sentence. Tina's rule ("more than one enrolled
 # voice passes the verifier's 0.25 -> ambiguous") left clear speakers ambiguous (0.80 vs 0.26),

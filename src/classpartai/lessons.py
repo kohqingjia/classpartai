@@ -15,14 +15,6 @@ is counted, not duplicated. Lessons never carry what students said, only the rul
 from __future__ import annotations
 
 import re
-from dataclasses import dataclass
-
-
-@dataclass(frozen=True)
-class Lesson:
-    agent: str
-    rule: str
-    advice: str
 
 
 def slug(text: str) -> str:

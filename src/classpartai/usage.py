@@ -75,10 +75,6 @@ def cache_key() -> str | None:
     return f"classpartai-{session}" if session else None
 
 
-def current_span() -> str | None:
-    return _span_id.get()
-
-
 def preview(value, limit: int = 1200) -> str | None:
     """A readable, cut-down copy of a call's input or output for the trace."""
     if value is None:
