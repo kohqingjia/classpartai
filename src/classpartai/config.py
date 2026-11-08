@@ -57,10 +57,14 @@ RESEARCH_MAX_GRADES = int(os.getenv("RESEARCH_MAX_GRADES", "8"))
 # session, Research uses lighter budgets, since every call counts against the workflow's shared
 # budget.
 EVIDENCE_AGENT = os.getenv("EVIDENCE_AGENT", "research").strip().lower()
-# Which auditor answers the coordinator's audit_assessment: "agent" (Le Yong's Auditor agent in
-# auditor_agent/, through participation/auditor_bridge.py, the default; errors require professor
-# review without automatic fallback) or "model" (explicit single-call audit in roles.py).
+# Which auditor answers the coordinator's audit_assessment: "agent" (the Auditor agent in
+# participation/auditor.py, the default; errors require professor review without automatic
+# fallback) or "model" (explicit single-call audit in roles.py).
 AUDITOR = os.getenv("AUDITOR", "agent").strip().lower()
+# Score every feedback email with a second model against a small rubric (faithful, constructive,
+# specific) and send a weak one back for a correction. One extra model call per email, so off by
+# default; eval/system_eval.py turns it on.
+FEEDBACK_JUDGE = os.getenv("FEEDBACK_JUDGE", "false").strip().lower() in ("1", "true")
 RESEARCH_BRIDGE_MAX_STEPS = int(os.getenv("RESEARCH_BRIDGE_MAX_STEPS", "8"))
 RESEARCH_BRIDGE_MAX_COURSE_SEARCHES = int(os.getenv("RESEARCH_BRIDGE_MAX_COURSE_SEARCHES", "4"))
 RESEARCH_BRIDGE_MAX_GRADES = int(os.getenv("RESEARCH_BRIDGE_MAX_GRADES", "5"))

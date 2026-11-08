@@ -23,6 +23,7 @@ from classpartai import usage as ledger
 from classpartai.evidence import INSTRUCTIONS as EVIDENCE_INSTRUCTIONS
 from classpartai.evidence import TOOL_DEFINITIONS as EVIDENCE_TOOLS
 from classpartai.evidence import CourseIndex, Investigation, investigate
+from classpartai.lessons import Lessons
 from classpartai.models import (
     WORKFLOW_LIMITS,
     BudgetExceeded,
@@ -31,7 +32,7 @@ from classpartai.models import (
     configured_driver,
     tool,
 )
-from classpartai.participation.auditor_bridge import persisted_agent_audit
+from classpartai.participation.auditor import persisted_agent_audit
 from classpartai.participation.judge import Revision, judge
 from classpartai.participation.records import Draft, Records
 from classpartai.participation.roles import (
@@ -195,6 +196,7 @@ def _coordinate(
 ) -> str:
     inputs = records.inputs(session_id)
     records.review_state(session_id)
+    lessons = Lessons(records, session_id)  # what the checks have found wrong so far (lessons.py)
     progress = WorkflowProgress()
     run_id = records.start_run(
         session_id,
@@ -415,6 +417,7 @@ def _coordinate(
                         factory,
                         session_id,
                         revision,
+                        lessons,
                     )
                     scored.feedback = draft.content.feedback if draft and judged else []
                     nxt = records.append_draft(
@@ -444,6 +447,7 @@ def _coordinate(
                         session_id=session_id,
                         draft_id=draft.id,
                         records=records,
+                        lessons=lessons,
                     )
                     nxt = records.append_draft(
                         session_id, _proposal(draft), "model", args.note, draft.version, audit
@@ -473,6 +477,7 @@ def _coordinate(
                         budget,
                         factory,
                         session_id,
+                        lessons,
                     )
                     if result.status == "needs_evidence":
                         output = result.model_dump()

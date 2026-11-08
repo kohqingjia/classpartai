@@ -183,6 +183,7 @@ class CaseRun:
     evidence_runs: list[dict]
     seconds: float
     gate: dict = field(default_factory=dict)  # case 09's post-run human-gate probe
+    records: Records | None = None  # the run's database, for the usage ledger and the trace
 
     @property
     def progress(self) -> dict:
@@ -610,6 +611,37 @@ def probe_human_gate(records: Records, session_id: str) -> dict:
     return gate
 
 
+def run_inputs(
+    case_id: str,
+    inputs: AssessmentInputs,
+    workdir: Path,
+    factory: DriverFactory | None = None,
+    name: str = "run",
+) -> CaseRun:
+    """Run one set of inputs through ``coordinate`` on a fresh database, as the app does."""
+    records = Records(workdir / f"{name}.db")
+    session_id = records.create_session(inputs)
+    started = time.monotonic()
+    run_id = coordinate(records, session_id, factory or configured_driver)
+    seconds = time.monotonic() - started
+    run = next(r for r in records.runs(session_id) if r["id"] == run_id)
+    result = CaseRun(
+        case_id=case_id,
+        inputs=inputs,
+        session_id=session_id,
+        run=run,
+        draft=records.latest_draft(session_id),
+        approvals=records.approvals(session_id),
+        deliveries=records.deliveries(session_id),
+        evidence_runs=records.evidence_runs(session_id),
+        seconds=seconds,
+    )
+    result.records = records
+    if case_id == "09-approve-and-send":
+        result.gate = probe_human_gate(records, session_id)
+    return result
+
+
 def run_case(
     case: Case,
     factory: DriverFactory | None = None,
@@ -618,30 +650,10 @@ def run_case(
 ) -> list[CaseRun]:
     """Run each of the case's files through ``coordinate`` on a fresh database."""
     workdir = workdir or Path(tempfile.mkdtemp(prefix="guardrails-"))
-    runs = []
-    for file in case.files:
-        inputs = load_case(file, cases_dir)
-        records = Records(workdir / f"{Path(file).stem}.db")
-        session_id = records.create_session(inputs)
-        started = time.monotonic()
-        run_id = coordinate(records, session_id, factory or configured_driver)
-        seconds = time.monotonic() - started
-        run = next(r for r in records.runs(session_id) if r["id"] == run_id)
-        result = CaseRun(
-            case_id=case.id,
-            inputs=inputs,
-            session_id=session_id,
-            run=run,
-            draft=records.latest_draft(session_id),
-            approvals=records.approvals(session_id),
-            deliveries=records.deliveries(session_id),
-            evidence_runs=records.evidence_runs(session_id),
-            seconds=seconds,
-        )
-        if case.id == "09-approve-and-send":
-            result.gate = probe_human_gate(records, session_id)
-        runs.append(result)
-    return runs
+    return [
+        run_inputs(case.id, load_case(file, cases_dir), workdir, factory, Path(file).stem)
+        for file in case.files
+    ]
 
 
 def coordinator_tool_names() -> set[str]:

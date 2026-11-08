@@ -79,7 +79,10 @@ into a zero.
 The Auditor reads the Judge's scores and tries to find what is wrong with them: are the cited
 quotes really in the course notes, do two similar answers get very different scores, do scores
 follow how long someone talked? It can ask the Judge to redo specific findings once. It can raise
-issues but never changes a score itself.
+issues but never changes a score itself. It is one module (`participation/auditor.py`) that works
+on the same findings, evidence and transcript as every other agent, with the same shared budget
+and usage ledger. It takes the Listener's injection flag as given instead of reading the transcript
+again.
 
 ### Feedback writer: the email text
 One call per student. It writes what went well and one concrete next step, using only that
@@ -89,6 +92,24 @@ message, not a guess about their understanding.
 ### Delivery: plain code
 Sends only an approved version, to the roster's own addresses, once per student. Test mode (on by
 default) sends everything to a single inbox.
+
+## How the agents hand work to each other
+
+One flow, one set of data. Nothing is translated between "worlds":
+
+| From | To | What is handed over |
+|---|---|---|
+| Listener | Judge, Auditor | the transcript, with each line's speaker and its injection flag |
+| Research | Judge, Feedback, Auditor | evidence: exact course passages, each with an ID the others cite |
+| Judge | Auditor, Feedback | findings: a score, a justification, a confidence and flags for each criterion |
+| Auditor | Coordinator, Judge | issues; or a request to re-score named findings (once) |
+| Judge | Coordinator | the revised findings after a re-score |
+| Feedback writer | Coordinator | one email draft per student |
+| Coordinator | professor | the draft, its open issues and why the run stopped |
+
+The Coordinator decides the order; the shared budget limits all of them together; the usage ledger
+records every call under the agent that made it. `eval/system_eval.py` runs a whole session and
+checks these hand-offs (see below).
 
 ## What stops things going wrong (all enforced in code)
 
@@ -120,23 +141,15 @@ against OpenAI's page; the OpenAI usage page is what you are actually billed.
 
 ## How evaluation fits in
 
-Evaluation answers "is it any good, and did my change help?". **Nothing triggers it
-automatically**, not a deploy, not a run in the app, not CI (model calls cost money). You run a
-script by hand, it writes a result file to `eval/results/`, and the Evaluation, Monitoring and
-Reflection pages read those files.
+Evaluation answers "is it any good, and did my change help?". **Nothing triggers it automatically**
+(model calls cost money): you run a script by hand, it writes a result file to `eval/results/`, and
+the Evaluation, Monitoring and Reflection pages read those files. The scripts, and which kind of
+evaluation each one is, are in [eval/README.md](../eval/README.md).
 
-| Script | Measures | Needs |
-|---|---|---|
-| `eval/research_eval.py` | single-pass vs agentic RAG on 20 labelled answers | OpenAI key |
-| `eval/judge_eval.py` | Judge scores vs a human answer key; how it got there | OpenAI key (key is still a draft) |
-| `eval/guardrails/run.py` | ten attack cases through the whole workflow | OpenAI key (~US$1) |
-| `eval/listener/compare.py` | who-spoke accuracy and word errors, from a cached run | nothing |
-| `eval/injection_eval.py` | injection screen: attacks caught vs false alarms | nothing |
-| `eval/cost_measure.py <run id>` | what one real run cost, by agent | the server's database |
-
-To see the effect of a change (for example to a prompt): change it, re-run the relevant script,
-and compare the new result file with the old one. A tool that stamps each result with the prompt
-version and compares two results side by side is not built yet.
+**Checks also teach the agents.** When a check finds a mistake (an email that names a classmate or
+writes a turn ID, a score the rules refused, an Auditor tool call that was refused), it leaves a
+*lesson* kept with the session. The next call to that agent opens with those lessons, so the second
+student's email does not repeat the first's mistake.
 
 ## Why it is built this way (the course link)
 

@@ -65,6 +65,7 @@ The first run downloads the speech models (several minutes).
 uv run python eval/injection_eval.py       # no key, no cost: attacks caught vs false alarms
 uv run python eval/listener/compare.py     # no key: scores the Listener offline from its cache
 uv run python eval/guardrails/run.py       # key: 10 attack cases through the real workflow (~US$1)
+uv run python eval/system_eval.py          # key: 7 demo seminars, transcript to emails, every agent
 uv run python eval/research_eval.py        # key: single-pass vs agentic RAG (20 items)
 uv run python eval/judge_eval.py           # key: Judge agreement with the 20 hand-scored answers
 ```

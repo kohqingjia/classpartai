@@ -519,11 +519,11 @@ def role_view(records, session_id, inputs, name):
             "score and refuses a rule-breaking call with the reason. Topic 7 · Agents."
         )
     elif name == "Auditor":
-        from classpartai.auditor_agent.harness import TOOLS
+        from classpartai.participation.auditor import AUDITOR_TOOLS
 
-        st.code(", ".join(t["function"]["name"] for t in TOOLS), language=None)
+        st.code(", ".join(t.name for t in AUDITOR_TOOLS), language=None)
         st.caption(
-            "Le Yong's Auditor agent chooses one read-only tool at a time (citation checks "
+            "The Auditor agent chooses one read-only tool at a time (citation checks "
             "include a nested model review) and can only raise issues, request one re-judge or "
             "escalate to the professor. Feedback drafts get a separate structured review "
             "(finish_feedback_audit). If the agent errors, the workflow falls back to the "

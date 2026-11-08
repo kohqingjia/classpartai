@@ -12,7 +12,7 @@ from classpartai import costing
 from classpartai.config import REPO_ROOT
 
 RESULTS = REPO_ROOT / "eval" / "results"
-AUDITOR_OFFLINE = REPO_ROOT / "src/classpartai/auditor_agent/examples/data/evaluation_offline.json"
+AUDITOR_OFFLINE = RESULTS / "auditor-tool-descriptions-offline.json"
 
 _BAR_CSS = """
 <style>
@@ -310,11 +310,45 @@ def guardrails_section() -> None:
     caption(f"Full observations: eval/results/{Path(files[-1]).with_suffix('.md').name}")
 
 
+def system_section() -> None:
+    files = sorted(RESULTS.glob("system-*.json"))
+    st.subheader("Whole system: seven class sessions, transcript to emails")
+    if not files:
+        md(
+            "Not run yet. `eval/system_eval.py` runs each scripted demo seminar through the "
+            "Coordinator and every agent it calls, then checks that the session finished, that "
+            "its edge case was handled (a silent student, spoken injection, a guest...), that "
+            "the agents handed work to each other, and what each cost."
+        )
+        st.code("uv run python eval/system_eval.py", language="bash")
+        return
+    d = json.loads(files[-1].read_text(encoding="utf-8"))
+    sessions = d["sessions"]
+    passed, total = sum(x["passed"] for x in sessions), sum(x["total"] for x in sessions)
+    md(
+        f"**{passed}/{total} automatic checks passed** over {len(sessions)} sessions · model "
+        f"{d['model']} · S${d['totalUsd'] * costing.Assumptions().sgd_per_usd:.2f} for the run"
+    )
+    md(
+        "| Session | Checks | What it tests | Not passed |\n|---|---|---|---|\n"
+        + "\n".join(
+            f"| {x['id']} | {x['passed']}/{x['total']} | {x['case'].replace('|', '/')} | "
+            + ("; ".join(c["name"] for c in x["checks"] if not c["passed"]) or "none")
+            + " |"
+            for x in sessions
+        )
+    )
+    caption(
+        "Automatic signals, not a grade: what a person concludes from reading the same outputs "
+        f"is the qualitative half. Full detail: eval/results/{files[-1].with_suffix('.md').name}"
+    )
+
+
 def auditor_section() -> None:
     if not AUDITOR_OFFLINE.exists():
         return
     d = json.loads(AUDITOR_OFFLINE.read_text(encoding="utf-8"))
-    st.subheader("Auditor: do better tool descriptions help? (Le Yong's Auditor agent)")
+    st.subheader("Auditor: do better tool descriptions help? (before the Auditor was merged)")
     agg: dict = defaultdict(lambda: [0, 0, 0, 0])
     for r in d["runs"]:
         a = agg[r["variant"]]
@@ -338,7 +372,8 @@ def auditor_section() -> None:
     caption(
         "One change at a time, on five fictional cases. Run against a scripted test double, "
         "not a live model, so it shows the harness behaves as designed, not model accuracy. "
-        "Source: src/classpartai/auditor_agent/examples/evaluation.py"
+        "A result kept from the Auditor's original stand-alone harness (eval/results/"
+        "auditor-tool-descriptions-offline.json); the merged Auditor has no such variants."
     )
 
 
@@ -367,6 +402,7 @@ def evaluation_view(records=None) -> None:
         unsafe_allow_html=True,
     )
     cost_section(records)
+    system_section()
     research_section()
     judge_section()
     auditor_section()

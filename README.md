@@ -67,15 +67,11 @@ for the data sources, course-topic mapping and diagnostics recorded by new runs.
 
 ## Evaluation
 
-| Part | What we measure |
-|---|---|
-| ① Listener | word error rate; speaker-attribution accuracy; injection screen: attacks caught and false alarms (`eval/injection_eval.py`) |
-| ② Research agent | single-pass vs agentic RAG on 20 labelled IS469 Q&A pairs (`eval/research_eval.py`): routing, correctness, answers-the-question, context precision, cost. Results: [eval/results/research-is469-library.md](eval/results/research-is469-library.md) |
-| ③ Judge | output: agreement with human scores on 20 hand-scored contributions (Spearman, quadratic-weighted Cohen's kappa; `eval/judge_eval.py`). Trajectory: finished, rules passed first try, scoring calls needed, flagged the injection, calls and cost |
-| ④ Auditor | judge alone vs judge + auditor: issues caught, injected instructions flagged |
-| Coordinator / harness | tool-call validity, refusals recovered from, budget use; unsafe actions blocked |
-
-Plus latency, tokens and cost per session, and qualitative review of the drafts.
+Every agent is evaluated the way that suits it, and every kind of evaluation in the brief is
+somewhere: accuracy/F1, rubric-based LLM-as-judge, latency and cost, task success and tool-call
+correctness, custom checks, and a qualitative review. A check that finds a mistake leaves a lesson
+the agent reads on its next call in the session. The map, the scripts and what each needs are in
+[eval/README.md](eval/README.md); what is still open is in [AUDIT.md](AUDIT.md).
 
 ## Scope for the project
 
@@ -99,9 +95,10 @@ src/classpartai/
     validation.py       the rules every draft must pass; totals; deterministic audit
     judge.py            the Judge agent: tools (evidence, contributions, score) and revisions
     roles.py            auditor (single call) and feedback roles
-    auditor_bridge.py   runs Le Yong's Auditor agent (auditor_agent/) as the audit step;
-                        AUDITOR=model explicitly selects the single-call role; agent errors
-                        stay incomplete and require professor review (no automatic fallback)
+    auditor.py          the Auditor agent (Le Yong's design) on the app's own types: tools to
+                        inspect findings, compare answers, verify citations and check fairness;
+                        AUDITOR=model selects the single-call role instead; agent errors stay
+                        incomplete and require professor review (no automatic fallback)
     coordinator.py      the coordinator agent
     records.py          SQLite: sessions, evidence runs, versioned drafts, recipients, approvals
     delivery.py         approval-gated sending through AgentMail

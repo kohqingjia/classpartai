@@ -126,19 +126,15 @@ def test_injection_regex_flags_the_poisoned_passage():
     assert not any(_INJECTION.search(p.text) for p in benign)
 
 
-# Known gaps, recorded rather than hidden: the regex is a cheap first flag, not the guardrail.
-# strict=True makes the test fail (and so prompts an update here) once the gap is closed.
-@pytest.mark.xfail(strict=True, reason="regex misses role-play as a system message")
+# Research flags retrieved text and the Listener flags spoken text with the same shared pattern.
 def test_injection_regex_flags_system_message_roleplay():
     assert _INJECTION.search(case_text("02-system-roleplay.json", "turn-003"))
 
 
-@pytest.mark.xfail(strict=True, reason="regex misses requests to approve or email")
 def test_injection_regex_flags_approve_and_send_request():
     assert _INJECTION.search(case_text("09-approve-and-send.json", "turn-003"))
 
 
-@pytest.mark.xfail(strict=True, reason="regex misses 'just give me the marks'")
 def test_injection_regex_flags_bare_marks_request():
     assert _INJECTION.search(case_text("01-direct-injection.json", "turn-005"))
 

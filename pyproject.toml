@@ -42,4 +42,4 @@ target-version = "py312"
 select = ["E", "F", "I", "B", "UP"]
 
 [tool.pytest.ini_options]
-testpaths = ["tests", "src/classpartai/auditor_agent/tests"]
+testpaths = ["tests"]

@@ -54,13 +54,13 @@ def test_every_part_shows_tools_or_code():
 
 
 def test_the_catalogue_lists_exactly_the_tools_each_agent_has():
-    from classpartai.auditor_agent.harness import TOOLS
+    from classpartai.participation.auditor import AUDITOR_TOOLS
     from classpartai.participation.coordinator import COORDINATOR_TOOLS
     from classpartai.participation.judge import JUDGE_TOOLS
     from classpartai.research.tools import ResearchTools
 
     assert tools_of("Coordinator") == {t.name for t in COORDINATOR_TOOLS}
-    assert tools_of("Auditor") == {t["function"]["name"] for t in TOOLS}
+    assert tools_of("Auditor") == {t.name for t in AUDITOR_TOOLS}
     assert tools_of("Judge") == {t.name for t in JUDGE_TOOLS}
     research = ResearchTools.__new__(ResearchTools)
     research.web = object()  # as if a web search key were set, so search_web is offered

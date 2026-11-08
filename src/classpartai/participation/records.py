@@ -23,6 +23,7 @@ from pathlib import Path
 
 from pydantic import BaseModel
 
+from classpartai import usage
 from classpartai.agents.listener import screen_transcript
 from classpartai.assessment import AssessmentInputs
 from classpartai.evidence import AgentOutcome, EvidenceBundle
@@ -36,6 +37,9 @@ from classpartai.participation.validation import (
 )
 
 SCHEMA = """
+CREATE TABLE IF NOT EXISTS lessons (
+    session_id TEXT NOT NULL, agent TEXT NOT NULL, rule TEXT NOT NULL, advice TEXT NOT NULL,
+    times INTEGER NOT NULL, updated_at TEXT NOT NULL, PRIMARY KEY (session_id, agent, rule));
 CREATE TABLE IF NOT EXISTS auditor_state (
     session_id TEXT PRIMARY KEY, version INTEGER NOT NULL, state TEXT NOT NULL,
     in_flight INTEGER NOT NULL DEFAULT 0);
@@ -132,6 +136,26 @@ class Records:
     def _one(self, sql, args=()):
         row = self.db.execute(sql, args).fetchone()
         return dict(row) if row else None
+
+    def note_lesson(self, session_id: str, agent: str, rule: str, advice: str) -> None:
+        """Remember that a check found this problem in an agent's work (see lessons.py)."""
+        with self.tx():
+            self.db.execute(
+                "INSERT INTO lessons VALUES (?, ?, ?, ?, 1, ?)"
+                " ON CONFLICT (session_id, agent, rule) DO UPDATE SET times = times + 1,"
+                " advice = excluded.advice, updated_at = excluded.updated_at",
+                (session_id, agent, rule, advice[:500], usage.now_iso()),
+            )
+
+    def lessons(self, session_id: str, agent: str | None = None) -> list[dict]:
+        where, args = "session_id = ?", [session_id]
+        if agent:
+            where += " AND agent = ?"
+            args.append(agent)
+        return self._all(
+            f"SELECT agent, rule, advice, times FROM lessons WHERE {where} ORDER BY times DESC",
+            tuple(args),
+        )
 
     def claim_auditor(self, session_id: str) -> tuple[int, dict]:
         """Atomically reserve the session audit; interrupted reservations fail closed."""
