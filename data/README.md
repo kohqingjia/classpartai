@@ -51,3 +51,7 @@ Small datasets and evaluation sets live here. Large or licensed files go in `dat
   locally.
 
 <!-- Add further datasets: name, URL, licence, and any preprocessing steps. -->
+
+## Injection cases
+
+`is469/injection_cases.jsonl`: 40 short lines labelled `attack`, `benign` or `quoted_example` (a student discussing an attack). Written by the team, not taken from students. Used by `eval/injection_eval.py`.

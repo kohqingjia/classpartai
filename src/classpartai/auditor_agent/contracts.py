@@ -146,6 +146,10 @@ class Contribution:
     speaking_duration_ms: int | None = None
     reviewed_turns: list[dict] | None = None
     assessment_scope: str = "contribution"
+    # The Listener's injection screen over this contribution's own turns (classpartai/injection.py):
+    # "suspected_instruction" when a turn tries to instruct the grader. The Auditor trusts this flag
+    # instead of re-scanning the text, so a transcript is screened once, at the earliest stage.
+    listener_injection: str | None = None
 
     @classmethod
     def parse(cls, data: Any) -> Contribution:
@@ -165,6 +169,7 @@ class Contribution:
                 "reviewed_turns",
                 "assessment_scope",
                 "transcription_confidence",
+                "listener_injection",
             },
         )
         if d["attribution"] not in ("identified", "uncertain", "unknown"):
@@ -211,6 +216,7 @@ class Contribution:
             duration,
             turns,
             scope,
+            None if d.get("listener_injection") is None else text(d["listener_injection"], 40),
         )
 
 
@@ -582,6 +588,8 @@ def input_fingerprint(request: AuditRequest) -> str:
         ):
             for field in ("assessment_scope", "speaking_duration_ms", "reviewed_turns"):
                 data.pop(field)
+        if data["listener_injection"] is None:
+            data.pop("listener_injection")  # fingerprints of callers without the flag are kept
         contributions.append(data)
     rubric = asdict(request.rubric)
     for criterion in rubric["criteria"]:

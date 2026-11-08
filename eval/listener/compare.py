@@ -231,7 +231,9 @@ def main() -> None:
     parser.add_argument("--cache", default="eval/listener/cache")
     parser.add_argument("--out", default="eval/results")
     args = parser.parse_args()
-    records = [json.loads(p.read_text()) for p in sorted(Path(args.cache).glob("*.json"))]
+    records = [
+        json.loads(p.read_text(encoding="utf-8")) for p in sorted(Path(args.cache).glob("*.json"))
+    ]
     people = People(STUDENTS, PROFESSORS)
     default = (MATCH_MIN_SCORE, MATCH_MIN_MARGIN)
 
@@ -320,7 +322,9 @@ def main() -> None:
     stem = out / f"listener-{date.today().strftime('%Y%m%d')}"
     report = stem.with_suffix(".md")
     # The hand-written "## Reading" at the end of an earlier run's report is kept.
-    reading = report.read_text().partition("\n## Reading")[2] if report.exists() else ""
+    reading = (
+        report.read_text(encoding="utf-8").partition("\n## Reading")[2] if report.exists() else ""
+    )
     report.write_text("\n".join(md) + "\n" + (f"\n## Reading{reading}" if reading else ""))
     stem.with_suffix(".json").write_text(
         json.dumps(

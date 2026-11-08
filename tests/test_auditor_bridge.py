@@ -331,11 +331,14 @@ def test_fairness_statistics_use_reviewed_duration_without_confidence(benign):
 
 
 def test_audit_raises_issues_never_changes_scores_and_counts_the_shared_budget(inputs):
+    from classpartai.agents.listener import screen_transcript
+
+    screen_transcript(inputs)  # the Listener's screen, which the Auditor trusts for contributions
     agent = ScriptedDriver([READ, finish()])
     b = budget()
     draft = draft_of(inputs)
     audit = run(inputs, draft, factory_for({"get_session_scores": agent}), b)
-    # The deliberate grader-instruction turn is caught by the Auditor's guard, so its pass is
+    # The deliberate grader-instruction turn is flagged by the Listener's screen, so its pass is
     # refused and the issue goes to the professor; scores are untouched.
     flagged = {(i.studentId, i.criterionId, i.kind) for i in audit.issues}
     assert flagged == {

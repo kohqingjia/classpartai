@@ -169,6 +169,10 @@ def build_request(
                 "end_ms": max((t.endMs for t in own), default=0),
                 "speaking_duration_ms": duration,
                 "reviewed_turns": reviewed,
+                # The Listener's screen, passed on: the Auditor does not re-scan the transcript.
+                "listener_injection": "suspected_instruction"
+                if any(t.injection == "suspected_instruction" for t in own)
+                else None,
             }
         )
     has_contribution = {c["student_id"] for c in contributions if c["turn_ids"]}

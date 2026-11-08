@@ -12,7 +12,7 @@ from datetime import UTC, datetime, timedelta, timezone
 
 import streamlit as st
 
-from classpartai import config, usage
+from classpartai import config, experiments_ui, usage
 
 SGT = timezone(timedelta(hours=8))
 WINDOWS = {"Last 24 hours": 1, "Last 7 days": 7, "Last 30 days": 30, "All time": None}
@@ -81,7 +81,86 @@ def trace_table(events: list[dict]) -> list[dict]:
     ]
 
 
+ICONS = {"run": "🏁", "agent": "🤖", "tool": "🔧", "model": "✨", "embedding": "🧮", "error": "⚠️"}
+
+
+def node_kind(event: dict) -> str:
+    """run, agent, tool, model, embedding or error."""
+    return event["detail"].get("span_kind") or event["kind"]
+
+
+def build_tree(events: list[dict]) -> list[dict]:
+    """The run's events as a tree, flattened depth-first: ``{event, depth, children, tokens...}``.
+
+    An event hangs under the span named by its ``detail.parent_id``. One whose parent is missing
+    (a run from before spans existed, or a span that never ended) becomes a root, so nothing is
+    ever dropped. Each node carries the model calls, tokens and cost of everything beneath it."""
+    by_id = {e["detail"]["span_id"]: e for e in events if e["detail"].get("span_id")}
+    children: dict[str | None, list[dict]] = {}
+    for e in sorted(events, key=lambda e: e["ts"]):
+        parent = e["detail"].get("parent_id")
+        children.setdefault(parent if parent in by_id else None, []).append(e)
+
+    def rollup(event: dict) -> dict:
+        span_id = event["detail"].get("span_id")
+        # Only a span can have children: an event with no span ID must not look up ``None``,
+        # which is where the roots are filed.
+        kids = [rollup(k) for k in children.get(span_id, [])] if span_id else []
+        own = event["kind"] in ("model", "embedding")
+        return {
+            "event": event,
+            "children": kids,
+            "calls": int(own) + sum(k["calls"] for k in kids),
+            "input": (event["input_tokens"] or 0) * own + sum(k["input"] for k in kids),
+            "output": (event["output_tokens"] or 0) * own + sum(k["output"] for k in kids),
+            "cost": (event["cost_usd"] or 0.0) * own + sum(k["cost"] for k in kids),
+            "unpriced": (own and event["cost_usd"] is None) or any(k["unpriced"] for k in kids),
+            "failed": event["status"] == "error" or any(k["failed"] for k in kids),
+        }
+
+    flat: list[dict] = []
+
+    def walk(node: dict, depth: int) -> None:
+        flat.append({**node, "depth": depth})
+        for kid in node["children"]:
+            walk(kid, depth + 1)
+
+    for root in children.get(None, []):
+        walk(rollup(root), 0)
+    return flat
+
+
+def tree_rows(nodes: list[dict]) -> list[dict]:
+    if not nodes:
+        return []
+    start = datetime.fromisoformat(nodes[0]["event"]["ts"])
+    longest = max((n["event"]["latency_ms"] or 0 for n in nodes), default=1) or 1
+    rows = []
+    for n, node in enumerate(nodes, 1):
+        e = node["event"]
+        kind = node_kind(e)
+        rows.append(
+            {
+                "#": n,
+                "Span": "\u2003" * node["depth"] + f"{ICONS.get(kind, '•')} " + step_label(e),
+                "Kind": kind,
+                "Agent": e["agent"],
+                "Starts at": round((datetime.fromisoformat(e["ts"]) - start).total_seconds(), 1),
+                "Duration": round((e["latency_ms"] or 0) / longest * 100),
+                "Seconds": round((e["latency_ms"] or 0) / 1000, 2),
+                "Calls": node["calls"] or None,
+                "In": node["input"] or None,
+                "Out": node["output"] or None,
+                "Cost": None if node["unpriced"] and not node["cost"] else node["cost"] or None,
+                "Status": "failed" if node["failed"] and e["status"] != "error" else e["status"],
+            }
+        )
+    return rows
+
+
 def trace_view(events: list[dict], key: str) -> None:
+    """The run's trace: a tree (run, agent, tool, model call) with time, tokens and cost rolled
+    up at every level, and any step's input, output and error one click away."""
     if not events:
         st.info(
             "No steps recorded for this run. Runs from before monitoring was added have no trace.",
@@ -91,14 +170,15 @@ def trace_view(events: list[dict], key: str) -> None:
     for e in events:
         if e["status"] == "error":
             st.error(f"{e['agent']} · {step_label(e)}: {e['detail'].get('error', 'failed')}")
+    nodes = build_tree(events)
     st.dataframe(
-        trace_table(events),
+        tree_rows(nodes),
         hide_index=True,
         width="stretch",
         column_config={
             "Starts at": st.column_config.NumberColumn("Starts at (s)", format="%.1f"),
-            "Took": st.column_config.ProgressColumn(
-                "Duration", min_value=0, max_value=100, format="%d"
+            "Duration": st.column_config.ProgressColumn(
+                "Duration", min_value=0, max_value=100, format=" "
             ),
             "Seconds": st.column_config.NumberColumn("Seconds", format="%.2f"),
             "In": st.column_config.NumberColumn("Tokens in", format="%d"),
@@ -107,18 +187,51 @@ def trace_view(events: list[dict], key: str) -> None:
         },
     )
     st.caption(
-        "A coordinator step that runs another agent starts before, and lasts as long as, the "
-        "model calls inside it. Costs are estimates (see the pricing note on this page)."
+        "Indented rows ran inside the row above. Tokens, calls and cost on a run, agent or tool "
+        "row include everything inside it. Costs are estimates (see the pricing note)."
     )
-    with_detail = [(n, e) for n, e in enumerate(events, 1) if e["detail"]]
-    if with_detail:
-        picked = st.selectbox(
-            "Inspect a step",
-            with_detail,
-            format_func=lambda item: f"{item[0]:02d} · {item[1]['agent']} · {step_label(item[1])}",
-            key=f"{key}-inspect",
+    picked = st.selectbox(
+        "Inspect a step",
+        list(enumerate(nodes, 1)),
+        format_func=lambda item: (
+            f"{item[0]:02d} · {'  ' * item[1]['depth']}{step_label(item[1]['event'])}"
+        ),
+        key=f"{key}-inspect",
+    )
+    inspect(picked[1])
+
+
+def inspect(node: dict) -> None:
+    e = node["event"]
+    d = e["detail"]
+    kind = node_kind(e)
+    st.markdown(
+        f"**{ICONS.get(kind, '')} {step_label(e)}** · {kind} · {e['agent']} · {e['status']}"
+    )
+    cols = st.columns(4)
+    cols[0].metric("Took", seconds(e["latency_ms"]))
+    cols[1].metric("Model calls", node["calls"])
+    cols[2].metric("Tokens in / out", f"{tokens(node['input'])} / {tokens(node['output'])}")
+    cols[3].metric("Est. cost", money(node["cost"], not node["unpriced"], node["calls"] or 1))
+    if e["kind"] in ("model", "embedding"):
+        st.caption(
+            f"{e['model']} · {tokens(e['cached_tokens'])} cached input tokens · "
+            f"{tokens(e['reasoning_tokens'])} reasoning tokens. The chat API does not return the "
+            "model's reasoning text, only how many tokens it spent on it."
         )
-        st.json(picked[1]["detail"], expanded=True)
+    if d.get("error"):
+        st.error(d["error"])
+    for label, field in (("Input", "input"), ("Output", "output"), ("Arguments", "arguments")):
+        if d.get(field):
+            st.caption(label.upper())
+            st.code(d[field], language=None, wrap_lines=True)
+    extra = {
+        k: v
+        for k, v in d.items()
+        if k not in ("input", "output", "arguments", "error", "parent_id", "span_id", "span_kind")
+    }
+    if extra:
+        st.json(extra, expanded=False)
 
 
 def run_totals(events: list[dict]) -> dict:
@@ -180,8 +293,9 @@ def table_rows(groups: list[dict], label: str) -> list[dict]:
 def monitoring_view(records, go: Callable[..., None]) -> None:
     st.title("Monitoring")
     st.caption(
-        "What the agents used and what they did. Every model call is recorded with its tokens, "
-        "time and estimated cost, and kept in the app's database."
+        "One place for what the agents used, what they did and how the alternatives compare. "
+        "Every model call is recorded with its tokens, time and estimated cost, and kept in the "
+        "app's database."
     )
     window = st.segmented_control("Period", list(WINDOWS), default="Last 7 days", key="mon-window")
     days = WINDOWS[window or "Last 7 days"]
@@ -194,7 +308,17 @@ def monitoring_view(records, go: Callable[..., None]) -> None:
     for r in rows:
         r["day"] = local(r["ts"]).strftime("%Y-%m-%d")
 
-    st.subheader("Usage")
+    usage_tab, traces_tab, compare_tab = st.tabs(["Usage & cost", "Traces", "Before & after"])
+    with usage_tab:
+        usage_section(rows)
+        other_calls(rows)
+    with traces_tab:
+        traces_section(records, since, go)
+    with compare_tab:
+        experiments_ui.render()
+
+
+def usage_section(rows: list[dict]) -> None:
     overall = usage.summarise(rows)
     if not overall:
         st.info(
@@ -240,7 +364,8 @@ def monitoring_view(records, go: Callable[..., None]) -> None:
             "A model with no price shows 'no price', never $0. Local models cost nothing."
         )
 
-    st.subheader("Traces")
+
+def traces_section(records, since: str | None, go: Callable[..., None]) -> None:
     runs = records.runs_with_usage(since)
     if not runs:
         st.info(
@@ -293,6 +418,8 @@ def monitoring_view(records, go: Callable[..., None]) -> None:
                 key="mon-open",
             )
 
+
+def other_calls(rows: list[dict]) -> None:
     other = [r for r in rows if not r["run_id"]]
     if other:
         with st.expander(f"Calls outside a workflow run · {len(other)}"):

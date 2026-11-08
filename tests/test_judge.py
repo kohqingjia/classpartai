@@ -314,11 +314,14 @@ def test_judge_steps_are_reported_to_the_usage_ledger_under_the_judge(inputs, se
     events = []
     with usage.tracking(sink=events.append, session_id=session_id):
         run_judge(inputs, session_id, [("get_evidence", {"runId": "missing"}), *judge_steps()])
-    assert [(e["agent"], e["kind"], e["name"], e["status"]) for e in events] == [
+    assert [
+        (e["agent"], e["kind"], e["name"], e["status"]) for e in events if e["kind"] != "span"
+    ] == [
         ("judge", "tool", "get_evidence", "refused"),
         ("judge", "tool", "score_contribution", "ok"),
     ]
-    assert events[0]["detail"]["error"] and events[0]["session_id"] == session_id
+    steps = [e for e in events if e["kind"] != "span"]
+    assert steps[0]["detail"]["error"] and steps[0]["session_id"] == session_id
 
 
 # --- Approval digests -------------------------------------------------------------------------

@@ -1,6 +1,6 @@
 {
   "note": "Estimated USD per million tokens, used only for the Monitoring page. These are NOT read from OpenAI: check them against https://openai.com/api/pricing and edit before relying on them. A model not listed here shows as 'no price', never as zero. Local (Ollama) models cost 0.",
-  "asOf": "unverified draft",
+  "asOf": "gpt-5-mini checked 2026-11-08 against OpenAI's model page; every other entry is an unverified draft",
   "models": {
     "gpt-5-mini": { "input": 0.25, "cached_input": 0.025, "output": 2.0 },
     "gpt-5-nano": { "input": 0.05, "cached_input": 0.005, "output": 0.4 },

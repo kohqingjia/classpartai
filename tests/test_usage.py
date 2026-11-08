@@ -128,7 +128,8 @@ def test_the_agent_decorator_attributes_calls_and_then_restores_the_outer_agent(
     with usage.tracking(sink=events.append, agent="coordinator"):
         inner()
         usage.record_step(usage.begin(), "after")
-    assert [e["agent"] for e in events] == ["research", "coordinator"]
+    # The decorator also opens a span for the agent's work; the steps are the non-span events.
+    assert [e["agent"] for e in events if e["kind"] != "span"] == ["research", "coordinator"]
 
 
 def test_a_sink_that_fails_or_is_missing_never_breaks_the_run():
@@ -162,7 +163,8 @@ def test_the_driver_reports_tokens_model_latency_and_the_tools_the_model_asked_f
         200,
         600,
     )
-    assert event["reasoning_tokens"] == 150 and event["detail"] == {"calls": ["score_contribution"]}
+    assert event["reasoning_tokens"] == 150
+    assert event["detail"]["calls"] == ["score_contribution"]
     assert event["cost_usd"] == pytest.approx(0.000515)
 
 
@@ -175,8 +177,8 @@ def test_a_failed_call_is_recorded_with_its_reason_and_still_raises():
     assert "invalid api key" in events[0]["detail"]["error"] and events[0]["input_tokens"] is None
 
 
-def test_reasoning_effort_applies_to_the_judge_only(monkeypatch):
-    monkeypatch.setattr(config, "JUDGE_REASONING_EFFORT", "low")
+def test_reasoning_effort_is_set_per_agent_and_only_where_configured(monkeypatch):
+    monkeypatch.setattr(config, "REASONING_EFFORT", {"judge": "low"})
     client = FakeClient()
     with usage.tracking(agent="judge"):
         driver(client).next([])
@@ -184,7 +186,7 @@ def test_reasoning_effort_applies_to_the_judge_only(monkeypatch):
         driver(client).next([])
     driver(client).next([])
     assert [r.get("reasoning_effort") for r in client.requests] == ["low", None, None]
-    monkeypatch.setattr(config, "JUDGE_REASONING_EFFORT", None)
+    monkeypatch.setattr(config, "REASONING_EFFORT", {})
     with usage.tracking(agent="judge"):
         driver(client).next([])
     assert "reasoning_effort" not in client.requests[-1]
@@ -329,7 +331,7 @@ def scripted_workflow(records, session_id, coordinator_steps=None):
 def test_a_workflow_run_leaves_a_trace_of_every_step_under_its_run(records, session_id):
     run_id = scripted_workflow(records, session_id)
     trace = records.events(run_id=run_id)
-    steps = [(e["agent"], e["name"], e["status"]) for e in trace]
+    steps = [(e["agent"], e["name"], e["status"]) for e in trace if e["kind"] != "span"]
     # Ordered by when each started: the coordinator's step, then the Judge's inside it.
     assert steps[:2] == [
         ("coordinator", "propose_rubric_assessment", "ok"),
@@ -372,7 +374,7 @@ def test_the_runs_manifest_names_the_model(records, session_id):
     run_id = scripted_workflow(records, session_id)
     run = next(r for r in records.runs_with_usage() if r["id"] == run_id)
     assert run["manifest"]["model"] == config.OPENAI_MODEL
-    assert run["manifest"]["judgeReasoningEffort"] == config.JUDGE_REASONING_EFFORT
+    assert run["manifest"]["reasoningEffort"] == config.REASONING_EFFORT
     assert run["title"] and run["calls"] == 0  # scripted drivers make no priced API calls
 
 
@@ -389,3 +391,12 @@ def test_a_run_that_fails_keeps_the_reason_the_run_record_drops(records, session
     assert run["stop_reason"] == "provider_failure"
     (error,) = [e for e in records.events(run_id=run_id) if e["kind"] == "error"]
     assert "rate limited by the provider" in error["detail"]["error"]
+
+
+def test_calls_in_one_session_share_a_prompt_cache_key():
+    client = FakeClient()
+    driver(client).next([])  # no session running: no key
+    with usage.tracking(session_id="s1", agent="judge"):
+        driver(client).next([])
+    assert "prompt_cache_key" not in client.requests[0]
+    assert client.requests[1]["prompt_cache_key"] == "classpartai-s1"

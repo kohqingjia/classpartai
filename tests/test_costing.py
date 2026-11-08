@@ -33,7 +33,8 @@ def test_the_evaluation_page_renders(monkeypatch):
     monkeypatch.setattr(
         costing,
         "measured",
-        lambda path=None: {
+        lambda path=None, records=None: {
+            "source": "file",
             "run": {
                 **MEASURED["run"],
                 "id": "abcd1234",

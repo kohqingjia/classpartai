@@ -23,6 +23,7 @@ from pathlib import Path
 
 from pydantic import BaseModel
 
+from classpartai.agents.listener import screen_transcript
 from classpartai.assessment import AssessmentInputs
 from classpartai.evidence import AgentOutcome, EvidenceBundle
 from classpartai.participation.schema import DraftContent, ModelAudit, Proposal
@@ -165,6 +166,9 @@ class Records:
     # --- Sessions ---------------------------------------------------------------------------
 
     def create_session(self, inputs: AssessmentInputs) -> str:
+        screen_transcript(
+            inputs
+        )  # the Listener's injection screen, whatever the transcript's source
         session_id = new_id()
         with self.tx():
             self.db.execute(
@@ -231,7 +235,8 @@ class Records:
         row = self._one("SELECT inputs FROM sessions WHERE id = ?", (session_id,))
         if row is None:
             raise Unprocessable("Assessment session not found")
-        return AssessmentInputs.model_validate_json(row["inputs"])
+        # Sessions saved before the screen existed are screened as they are read.
+        return screen_transcript(AssessmentInputs.model_validate_json(row["inputs"]))
 
     def save_listener_run(self, session_id: str, diagnostics: dict) -> None:
         """Preserve the actual Listener response separately from reviewed assessment inputs."""
@@ -613,7 +618,7 @@ class Records:
             " SUM(e.output_tokens) AS output_tokens, SUM(e.cost_usd) AS cost_usd,"
             " SUM(e.cost_usd IS NULL) AS unpriced, SUM(e.status = 'error') AS errors"
             " FROM participation_runs r LEFT JOIN sessions s ON s.id = r.session_id"
-            " LEFT JOIN events e ON e.run_id = r.id AND e.kind = 'model'"
+            " LEFT JOIN events e ON e.run_id = r.id AND e.kind IN ('model', 'embedding')"
             " WHERE r.created_at >= ? GROUP BY r.id ORDER BY r.created_at DESC LIMIT ?",
             (since or "", limit),
         )

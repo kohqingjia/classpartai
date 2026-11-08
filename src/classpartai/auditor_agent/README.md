@@ -6,7 +6,7 @@ For your presentation, start with these **three files**:
 | --- | --- |
 | **`agent.py`** | The **prompt** tells the Auditor its goal. The model connection asks the LLM for tool calls. `AuditorAgent.run()` starts an audit. |
 | **`harness.py`** | The **harness** gives the model its tool menu, validates and executes calls, returns observations, handles recovery and enforces limits. Start at `run_audit()`. |
-| **`tools.py`** | The **tools** implement the individual checks: comparison, citation verification, injection detection, statistics and rejudge handoff. |
+| **`tools.py`** | The **tools** implement the individual checks: comparison, citation verification, statistics and rejudge handoff. Injection screening of the transcript belongs to the Listener (`classpartai/injection.py`); the Auditor re-runs it as a built-in guardrail, not a tool. |
 
 ```text
 auditor_agent/
@@ -286,7 +286,6 @@ order. Inspecting required findings and citations before passing is a safety inv
 | `get_session_scores(offset, limit)` | Read at most ten scoped findings/rationales per page. |
 | `compare_similar(finding_id, k)` | Same rubric criterion; up to five lexical token-Jaccard comparisons, not embeddings. Similar wording does not justify equal scores. |
 | `verify_citation(finding_id, evidence_id)` | Validate scoped source/version/page IDs and exact quote, then use a nested model call for supports/partly_supports/contradicts/fails_to_verify. Semantic support is model interpretation, not certainty. |
-| `detect_injection(target, target_id)` | Inspect original scoped text; distinguish suspected grader instructions and narrowly framed benign quoted examples. Heuristic, not an immunity guarantee. Original text remains unchanged. |
 | `score_stats()` | Descriptive speaking-duration correlations, sample sizes and exclusions. No loudness inference or claim of proven bias. |
 | `request_rejudge(issues)` | Validate targeted findings/evidence and create a handoff once; never call the Judge. |
 | `complete_audit(...)` | Propose pass/escalation; backend refuses unearned passes and unknown issue resolutions. |
@@ -466,7 +465,7 @@ uv run python -B -m classpartai.auditor_agent src/classpartai/auditor_agent/exam
 
 The actual `.env` has not been edited by the agent. A bounded live audit with the model override
 made **five model attempts and three outer tool steps**, choosing `get_session_scores`,
-`verify_citation` (including nested semantic review), and `detect_injection`. The run then received
+and `verify_citation` (including nested semantic review). The run then received
 **429 `rate_limit_exceeded`**, with `Retry-After: 2` seconds. It ended safely with professor review,
 not an audit pass. This demonstrates that the key/endpoint and available model can execute tools;
 it does not establish a completed or correct live assessment. Model availability and quotas are

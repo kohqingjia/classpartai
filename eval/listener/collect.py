@@ -172,7 +172,7 @@ def whisper_words(audio_path: str) -> dict:
 def add_words(out: Path, demos: Path) -> None:
     """``--add-words``: add a word-timestamped transcript to records already collected."""
     for path in sorted(out.glob("*.json")):
-        record = json.loads(path.read_text())
+        record = json.loads(path.read_text(encoding="utf-8"))
         record["whisper_words"] = whisper_words(str(demos / f"{record['id']}.wav"))
         print(f"{record['id']}: words in {record['whisper_words']['seconds']:.1f}s", flush=True)
         path.write_text(json.dumps(record, indent=1, default=str))
@@ -189,7 +189,7 @@ def add_word_matches(out: Path, demos: Path) -> None:
     tmp = SCRATCH / "clips"
     tmp.mkdir(parents=True, exist_ok=True)
     for path in sorted(out.glob("*.json")):
-        record = json.loads(path.read_text())
+        record = json.loads(path.read_text(encoding="utf-8"))
         segments = align_words(
             record["whisper_words"]["segments"], record["pipeline"]["diarization_turns"]
         )
@@ -215,7 +215,7 @@ def add_turn_matches(out: Path, demos: Path) -> None:
     tmp = SCRATCH / "clips"
     tmp.mkdir(parents=True, exist_ok=True)
     for path in sorted(out.glob("*.json")):
-        record = json.loads(path.read_text())
+        record = json.loads(path.read_text(encoding="utf-8"))
         segments = align_words(
             record["whisper_words"]["segments"], record["pipeline"]["diarization_turns"]
         )
@@ -269,7 +269,7 @@ def main() -> None:
         if args.only and script_path.stem not in args.only:
             continue
         print(f"{script_path.stem}", flush=True)
-        script = json.loads(script_path.read_text())
+        script = json.loads(script_path.read_text(encoding="utf-8"))
         with wave.open(str(wav), "rb") as audio:
             seconds = audio.getnframes() / audio.getframerate()
         record = {

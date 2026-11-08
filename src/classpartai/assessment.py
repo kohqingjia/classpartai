@@ -58,6 +58,8 @@ class Turn(Strict):
     endMs: int = Field(ge=0)
     speaker: Speaker
     text: Text
+    # Set by the Listener's injection screen (classpartai/injection.py); None = nothing found.
+    injection: Literal["suspected_instruction", "benign_quoted_example"] | None = None
 
 
 class Transcript(Strict):

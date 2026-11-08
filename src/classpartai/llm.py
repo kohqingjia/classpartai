@@ -121,6 +121,8 @@ class OpenAIChat:
             kwargs["tools"] = tools
         if json_mode:
             kwargs["response_format"] = {"type": "json_object"}
+        if self.provider == "openai" and ledger.cache_key():
+            kwargs["prompt_cache_key"] = ledger.cache_key()
         started = ledger.begin()
         try:
             response = self.client.chat.completions.create(**kwargs)
@@ -145,6 +147,8 @@ class OpenAIChat:
             provider=self.provider,
             usage=usage,
             calls=[c.name for c in calls],
+            input=messages[-1].get("content") if messages else None,
+            output=message.content or [f"{c.name}({c.arguments})" for c in calls],
         )
         tokens = getattr(usage, "total_tokens", None)
         return AssistantTurn(
