@@ -109,3 +109,19 @@ def test_feedback_and_judge_get_only_relevant_newest_evidence():
     cites_old = NS(citations=[NS(evidenceRunId="old-a")])
     kept = [r for r, _ in relevant_evidence(evidence, [cites_old], ["t1"])]
     assert kept == ["new-a", "old-a"]  # the cited old run stays; t2's run is someone else's
+
+
+def test_the_feedback_review_gets_only_the_evidence_the_draft_cites(inputs, monkeypatch):
+    """Pullfrog #79: the filter must apply to feedback_audit, the role that overflowed."""
+    from types import SimpleNamespace as NS
+
+    from classpartai.participation import roles
+
+    seen = {}
+    monkeypatch.setattr(roles, "role_result", lambda *a, **k: seen.setdefault("data", a[3]))
+    draft = compose_draft(Proposal.model_validate(full_proposal()), inputs, "d")
+    old = [
+        (f"old-{n}", NS(turnIds=["turn-001"], model_dump=lambda: {"big": "x"})) for n in range(7)
+    ]
+    roles.feedback_audit.__wrapped__(inputs, draft, old, None, None)
+    assert seen["data"]["evidence"] == []  # nothing cited: none of the old runs is sent

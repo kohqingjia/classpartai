@@ -314,9 +314,16 @@ def judge(
                 "conflicts": b.conflicts,
                 "passageIds": [c.passageId for c in b.citations],
             }
-            # The newest run per set of turns: re-runs repeat old ones, and the full list
-            # grows with every re-run toward the history limit. get_evidence still reads any.
+            # In full: the newest run per set of turns. Re-runs repeat old ones, and the full
+            # list grows with every re-run toward the history limit.
             for run_id, b in newest_per_turns(evidence)
+        ],
+        # Every other run, by ID and question only, so the Judge can still read it with
+        # get_evidence (Pullfrog #79: two investigations of the same turns can differ).
+        "olderEvidenceRuns": [
+            {"id": run_id, "question": b.question}
+            for run_id, b in evidence
+            if run_id not in {r for r, _ in newest_per_turns(evidence)}
         ],
     }
     earlier = lessons.for_agent("judge")

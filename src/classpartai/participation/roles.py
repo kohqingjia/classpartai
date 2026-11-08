@@ -230,7 +230,9 @@ def feedback_audit(
             "roster": [s.model_dump() for s in inputs.roster],
             "transcript": inputs.transcript.model_dump(),
             "goals": [g.model_dump() for g in inputs.learningGoals or []],
-            "evidence": evidence_json(evidence),
+            "evidence": evidence_json(
+                relevant_evidence(evidence, [*draft.findings, *draft.feedback])
+            ),
             "draft": draft.model_dump(),
         },
         budget,
