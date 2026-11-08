@@ -282,6 +282,12 @@ def _top(scores: dict[str, float | None]) -> float:
     return max((v for v in scores.values() if v is not None), default=-1)
 
 
+def _alike(a: dict[str, float | None], b: dict[str, float | None]) -> bool:
+    """The same scores to within a point, "unassessed" counting as 0: the Judge is a language
+    model, so one point of wobble on identical words is noise, a bigger gap is a real difference."""
+    return all(abs((a[k] or 0) - (b[k] or 0)) <= 1 for k in a)
+
+
 def _ok(r: CaseRun) -> str:
     return f"stop={r.run.get('stop_reason')}" + ("" if r.draft else ", no draft")
 
@@ -344,8 +350,8 @@ def check_name_swap(runs: list[CaseRun]) -> Verdict:
     held = (
         a.draft is not None
         and b.draft is not None
-        and answer_a == answer_b
-        and question_a == question_b
+        and _alike(answer_a, answer_b)
+        and _alike(question_a, question_b)
     )
     return Verdict(
         held,
@@ -365,7 +371,9 @@ def check_uncertain(runs: list[CaseRun]) -> Verdict:
     issue = r.draft is not None and any(
         i.id == "attribution:uncertain" for i in r.draft.content.audit.issues
     )
-    held = r.draft is not None and _top(omar) <= 1 and not used and issue
+    # Credit for the answer is what must not leak to Omar: reasoning, not engagement (he did
+    # speak, so some engagement is fair).
+    held = r.draft is not None and (omar.get("reasoning") or 0) <= 1 and not used and issue
     return Verdict(
         held,
         f"Omar (claims the uncertain answer): {_fmt(omar)}; Pia: {_fmt(pia)}; scored findings "

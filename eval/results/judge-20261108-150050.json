@@ -1,0 +1,635 @@
+{
+  "summary": {
+    "agreement": {
+      "overall": {
+        "n": 37,
+        "spearman": 0.72,
+        "kappa": 0.603,
+        "exact": 0.405,
+        "within_one": 0.919,
+        "mae": 0.676
+      },
+      "per_criterion": {
+        "reasoning": {
+          "n": 17,
+          "spearman": 0.92,
+          "kappa": 0.868,
+          "exact": 0.647,
+          "within_one": 1.0,
+          "mae": 0.353
+        },
+        "engagement": {
+          "n": 20,
+          "spearman": 0.603,
+          "kappa": 0.26,
+          "exact": 0.2,
+          "within_one": 0.85,
+          "mae": 0.95
+        }
+      },
+      "insufficient_agreement": 0.925
+    },
+    "trajectory": {
+      "finished": 1.0,
+      "first_try_valid": 1.0,
+      "score_calls": 1.0,
+      "flag_recall": 1.0,
+      "false_flag_rate": 0.0,
+      "refused_calls": 0.0,
+      "model_calls": 1.0,
+      "tool_calls": 1.0,
+      "tokens": 2549.0,
+      "seconds": 13.534
+    }
+  },
+  "rows": [
+    {
+      "id": "i01",
+      "finished": true,
+      "error": null,
+      "expected": {
+        "reasoning": null,
+        "engagement": 1
+      },
+      "predicted": {
+        "reasoning": 0.0,
+        "engagement": 3.0
+      },
+      "confidence": {
+        "reasoning": "high",
+        "engagement": "high"
+      },
+      "flagged": false,
+      "expect_flag": false,
+      "trajectory": [
+        "score_contribution"
+      ],
+      "refused_calls": 0,
+      "first_try_valid": true,
+      "score_calls": 1,
+      "model_calls": 1,
+      "tool_calls": 1,
+      "tokens": 2659,
+      "seconds": 13.281
+    },
+    {
+      "id": "i02",
+      "finished": true,
+      "error": null,
+      "expected": {
+        "reasoning": null,
+        "engagement": 2
+      },
+      "predicted": {
+        "reasoning": 1.0,
+        "engagement": 2.0
+      },
+      "confidence": {
+        "reasoning": "high",
+        "engagement": "high"
+      },
+      "flagged": false,
+      "expect_flag": false,
+      "trajectory": [
+        "score_contribution"
+      ],
+      "refused_calls": 0,
+      "first_try_valid": true,
+      "score_calls": 1,
+      "model_calls": 1,
+      "tool_calls": 1,
+      "tokens": 2204,
+      "seconds": 6.657
+    },
+    {
+      "id": "i03",
+      "finished": true,
+      "error": null,
+      "expected": {
+        "reasoning": 3,
+        "engagement": 2
+      },
+      "predicted": {
+        "reasoning": 3.0,
+        "engagement": 3.0
+      },
+      "confidence": {
+        "reasoning": "high",
+        "engagement": "high"
+      },
+      "flagged": false,
+      "expect_flag": false,
+      "trajectory": [
+        "score_contribution"
+      ],
+      "refused_calls": 0,
+      "first_try_valid": true,
+      "score_calls": 1,
+      "model_calls": 1,
+      "tool_calls": 1,
+      "tokens": 2416,
+      "seconds": 16.281
+    },
+    {
+      "id": "i04",
+      "finished": true,
+      "error": null,
+      "expected": {
+        "reasoning": 0,
+        "engagement": 1
+      },
+      "predicted": {
+        "reasoning": 1.0,
+        "engagement": 2.0
+      },
+      "confidence": {
+        "reasoning": "high",
+        "engagement": "high"
+      },
+      "flagged": false,
+      "expect_flag": false,
+      "trajectory": [
+        "score_contribution"
+      ],
+      "refused_calls": 0,
+      "first_try_valid": true,
+      "score_calls": 1,
+      "model_calls": 1,
+      "tool_calls": 1,
+      "tokens": 2798,
+      "seconds": 14.094
+    },
+    {
+      "id": "i05",
+      "finished": true,
+      "error": null,
+      "expected": {
+        "reasoning": 3,
+        "engagement": 2
+      },
+      "predicted": {
+        "reasoning": 3.0,
+        "engagement": 3.0
+      },
+      "confidence": {
+        "reasoning": "high",
+        "engagement": "high"
+      },
+      "flagged": false,
+      "expect_flag": false,
+      "trajectory": [
+        "score_contribution"
+      ],
+      "refused_calls": 0,
+      "first_try_valid": true,
+      "score_calls": 1,
+      "model_calls": 1,
+      "tool_calls": 1,
+      "tokens": 2188,
+      "seconds": 6.046
+    },
+    {
+      "id": "i06",
+      "finished": true,
+      "error": null,
+      "expected": {
+        "reasoning": 0,
+        "engagement": 1
+      },
+      "predicted": {
+        "reasoning": 1.0,
+        "engagement": 3.0
+      },
+      "confidence": {
+        "reasoning": "high",
+        "engagement": "high"
+      },
+      "flagged": false,
+      "expect_flag": false,
+      "trajectory": [
+        "score_contribution"
+      ],
+      "refused_calls": 0,
+      "first_try_valid": true,
+      "score_calls": 1,
+      "model_calls": 1,
+      "tool_calls": 1,
+      "tokens": 2548,
+      "seconds": 11.125
+    },
+    {
+      "id": "i07",
+      "finished": true,
+      "error": null,
+      "expected": {
+        "reasoning": 3,
+        "engagement": 2
+      },
+      "predicted": {
+        "reasoning": 3.0,
+        "engagement": 3.0
+      },
+      "confidence": {
+        "reasoning": "high",
+        "engagement": "high"
+      },
+      "flagged": false,
+      "expect_flag": false,
+      "trajectory": [
+        "score_contribution"
+      ],
+      "refused_calls": 0,
+      "first_try_valid": true,
+      "score_calls": 1,
+      "model_calls": 1,
+      "tool_calls": 1,
+      "tokens": 2631,
+      "seconds": 10.454
+    },
+    {
+      "id": "i08",
+      "finished": true,
+      "error": null,
+      "expected": {
+        "reasoning": 0,
+        "engagement": 1
+      },
+      "predicted": {
+        "reasoning": 1.0,
+        "engagement": 2.0
+      },
+      "confidence": {
+        "reasoning": "high",
+        "engagement": "high"
+      },
+      "flagged": false,
+      "expect_flag": false,
+      "trajectory": [
+        "score_contribution"
+      ],
+      "refused_calls": 0,
+      "first_try_valid": true,
+      "score_calls": 1,
+      "model_calls": 1,
+      "tool_calls": 1,
+      "tokens": 2359,
+      "seconds": 9.718
+    },
+    {
+      "id": "i09",
+      "finished": true,
+      "error": null,
+      "expected": {
+        "reasoning": 2,
+        "engagement": 1
+      },
+      "predicted": {
+        "reasoning": 2.0,
+        "engagement": 3.0
+      },
+      "confidence": {
+        "reasoning": "high",
+        "engagement": "high"
+      },
+      "flagged": false,
+      "expect_flag": false,
+      "trajectory": [
+        "score_contribution"
+      ],
+      "refused_calls": 0,
+      "first_try_valid": true,
+      "score_calls": 1,
+      "model_calls": 1,
+      "tool_calls": 1,
+      "tokens": 2621,
+      "seconds": 10.563
+    },
+    {
+      "id": "i10",
+      "finished": true,
+      "error": null,
+      "expected": {
+        "reasoning": 3,
+        "engagement": 2
+      },
+      "predicted": {
+        "reasoning": 3.0,
+        "engagement": 3.0
+      },
+      "confidence": {
+        "reasoning": "high",
+        "engagement": "high"
+      },
+      "flagged": false,
+      "expect_flag": false,
+      "trajectory": [
+        "score_contribution"
+      ],
+      "refused_calls": 0,
+      "first_try_valid": true,
+      "score_calls": 1,
+      "model_calls": 1,
+      "tool_calls": 1,
+      "tokens": 2754,
+      "seconds": 12.969
+    },
+    {
+      "id": "i11",
+      "finished": true,
+      "error": null,
+      "expected": {
+        "reasoning": 0,
+        "engagement": 1
+      },
+      "predicted": {
+        "reasoning": 1.0,
+        "engagement": 2.0
+      },
+      "confidence": {
+        "reasoning": "medium",
+        "engagement": "high"
+      },
+      "flagged": false,
+      "expect_flag": false,
+      "trajectory": [
+        "score_contribution"
+      ],
+      "refused_calls": 0,
+      "first_try_valid": true,
+      "score_calls": 1,
+      "model_calls": 1,
+      "tool_calls": 1,
+      "tokens": 2814,
+      "seconds": 24.375
+    },
+    {
+      "id": "i12",
+      "finished": true,
+      "error": null,
+      "expected": {
+        "reasoning": 2,
+        "engagement": 2
+      },
+      "predicted": {
+        "reasoning": 2.0,
+        "engagement": 3.0
+      },
+      "confidence": {
+        "reasoning": "high",
+        "engagement": "high"
+      },
+      "flagged": false,
+      "expect_flag": false,
+      "trajectory": [
+        "score_contribution"
+      ],
+      "refused_calls": 0,
+      "first_try_valid": true,
+      "score_calls": 1,
+      "model_calls": 1,
+      "tool_calls": 1,
+      "tokens": 2465,
+      "seconds": 14.953
+    },
+    {
+      "id": "i13",
+      "finished": true,
+      "error": null,
+      "expected": {
+        "reasoning": 2,
+        "engagement": 2
+      },
+      "predicted": {
+        "reasoning": 3.0,
+        "engagement": 3.0
+      },
+      "confidence": {
+        "reasoning": "high",
+        "engagement": "high"
+      },
+      "flagged": false,
+      "expect_flag": false,
+      "trajectory": [
+        "score_contribution"
+      ],
+      "refused_calls": 0,
+      "first_try_valid": true,
+      "score_calls": 1,
+      "model_calls": 1,
+      "tool_calls": 1,
+      "tokens": 2296,
+      "seconds": 9.015
+    },
+    {
+      "id": "i14",
+      "finished": true,
+      "error": null,
+      "expected": {
+        "reasoning": 3,
+        "engagement": 2
+      },
+      "predicted": {
+        "reasoning": 3.0,
+        "engagement": 3.0
+      },
+      "confidence": {
+        "reasoning": "high",
+        "engagement": "high"
+      },
+      "flagged": false,
+      "expect_flag": false,
+      "trajectory": [
+        "score_contribution"
+      ],
+      "refused_calls": 0,
+      "first_try_valid": true,
+      "score_calls": 1,
+      "model_calls": 1,
+      "tool_calls": 1,
+      "tokens": 2244,
+      "seconds": 10.828
+    },
+    {
+      "id": "i15",
+      "finished": true,
+      "error": null,
+      "expected": {
+        "reasoning": 3,
+        "engagement": 2
+      },
+      "predicted": {
+        "reasoning": 3.0,
+        "engagement": 3.0
+      },
+      "confidence": {
+        "reasoning": "high",
+        "engagement": "high"
+      },
+      "flagged": false,
+      "expect_flag": false,
+      "trajectory": [
+        "score_contribution"
+      ],
+      "refused_calls": 0,
+      "first_try_valid": true,
+      "score_calls": 1,
+      "model_calls": 1,
+      "tool_calls": 1,
+      "tokens": 2320,
+      "seconds": 20.36
+    },
+    {
+      "id": "i16",
+      "finished": true,
+      "error": null,
+      "expected": {
+        "reasoning": 0,
+        "engagement": 1
+      },
+      "predicted": {
+        "reasoning": 0.0,
+        "engagement": 1.0
+      },
+      "confidence": {
+        "reasoning": "high",
+        "engagement": "high"
+      },
+      "flagged": false,
+      "expect_flag": false,
+      "trajectory": [
+        "score_contribution"
+      ],
+      "refused_calls": 0,
+      "first_try_valid": true,
+      "score_calls": 1,
+      "model_calls": 1,
+      "tool_calls": 1,
+      "tokens": 2802,
+      "seconds": 17.844
+    },
+    {
+      "id": "i17",
+      "finished": true,
+      "error": null,
+      "expected": {
+        "reasoning": null,
+        "engagement": 1
+      },
+      "predicted": {
+        "reasoning": 1.0,
+        "engagement": 2.0
+      },
+      "confidence": {
+        "reasoning": "high",
+        "engagement": "high"
+      },
+      "flagged": false,
+      "expect_flag": false,
+      "trajectory": [
+        "score_contribution"
+      ],
+      "refused_calls": 0,
+      "first_try_valid": true,
+      "score_calls": 1,
+      "model_calls": 1,
+      "tool_calls": 1,
+      "tokens": 2556,
+      "seconds": 10.578
+    },
+    {
+      "id": "i18",
+      "finished": true,
+      "error": null,
+      "expected": {
+        "reasoning": 2,
+        "engagement": 3
+      },
+      "predicted": {
+        "reasoning": 2.0,
+        "engagement": 3.0
+      },
+      "confidence": {
+        "reasoning": "high",
+        "engagement": "high"
+      },
+      "flagged": true,
+      "expect_flag": true,
+      "trajectory": [
+        "score_contribution"
+      ],
+      "refused_calls": 0,
+      "first_try_valid": true,
+      "score_calls": 1,
+      "model_calls": 1,
+      "tool_calls": 1,
+      "tokens": 2745,
+      "seconds": 23.656
+    },
+    {
+      "id": "i19",
+      "finished": true,
+      "error": null,
+      "expected": {
+        "reasoning": 1,
+        "engagement": 1
+      },
+      "predicted": {
+        "reasoning": 0.0,
+        "engagement": 1.0
+      },
+      "confidence": {
+        "reasoning": "high",
+        "engagement": "high"
+      },
+      "flagged": false,
+      "expect_flag": false,
+      "trajectory": [
+        "score_contribution"
+      ],
+      "refused_calls": 0,
+      "first_try_valid": true,
+      "score_calls": 1,
+      "model_calls": 1,
+      "tool_calls": 1,
+      "tokens": 2965,
+      "seconds": 17.391
+    },
+    {
+      "id": "i20",
+      "finished": true,
+      "error": null,
+      "expected": {
+        "reasoning": 2,
+        "engagement": 2
+      },
+      "predicted": {
+        "reasoning": 2.0,
+        "engagement": 3.0
+      },
+      "confidence": {
+        "reasoning": "high",
+        "engagement": "high"
+      },
+      "flagged": false,
+      "expect_flag": false,
+      "trajectory": [
+        "score_contribution"
+      ],
+      "refused_calls": 0,
+      "first_try_valid": true,
+      "score_calls": 1,
+      "model_calls": 1,
+      "tool_calls": 1,
+      "tokens": 2595,
+      "seconds": 10.484
+    }
+  ],
+  "config": {
+    "model": "gpt-5-mini",
+    "evidence": "labels",
+    "items": "data/is469/eval_contributions.jsonl",
+    "labels": "data/is469/judge_labels.jsonl",
+    "unreviewed_labels": [],
+    "seed": 42
+  }
+}

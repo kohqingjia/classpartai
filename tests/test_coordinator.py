@@ -39,7 +39,7 @@ def test_coordinator_runs_the_whole_workflow(records, session_id):
             ("request_professor_review", {"summary": "Too early"}),  # refused: no draft yet
             ("propose_rubric_assessment", {"note": "First pass"}),
             *[
-                ("draft_student_feedback", {"studentId": s})
+                ("draft_student_feedback", {"studentIds": [s]})
                 for s in ("alex-tan", "priya-nair", "jordan-wong", "marcus-lee")
             ],
             ("audit_assessment", {"note": "Audit"}),
@@ -230,7 +230,7 @@ def test_a_rerun_scores_again_instead_of_reusing_the_last_runs_draft(records, se
     judge_driver = ScriptedDriver(judge_steps())
     coordinator = ScriptedDriver(
         [
-            ("draft_student_feedback", {"studentId": "alex-tan"}),  # refused: not scored yet
+            ("draft_student_feedback", {"studentIds": ["alex-tan"]}),  # refused: not scored yet
             ("audit_assessment", {"note": "Audit the old draft"}),  # refused too
             ("propose_rubric_assessment", {"note": "Score this run"}),
         ]
@@ -270,7 +270,7 @@ def test_the_coordinator_is_told_a_summary_not_the_whole_draft(records, session_
     coordinator = ScriptedDriver(
         [
             ("propose_rubric_assessment", {"note": "First pass"}),
-            ("draft_student_feedback", {"studentId": "alex-tan"}),
+            ("draft_student_feedback", {"studentIds": ["alex-tan"]}),
         ]
     )
     roles = factory_for(

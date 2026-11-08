@@ -56,7 +56,7 @@ The Coordinator is the one agent that decides the order of work. Its toolbox:
 
 It chooses each next move from what the last tool returned, not from a script. It has no tool to
 approve or send anything. One **shared budget** (72 model calls, 108 tool calls, 400,000 tokens,
-10 minutes) covers it and everything it calls; if the budget runs out the run stops safely with a
+15 minutes) covers it and everything it calls; if the budget runs out the run stops safely with a
 reason and no made-up result.
 
 ### Research: agentic RAG

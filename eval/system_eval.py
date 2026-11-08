@@ -18,6 +18,7 @@ import json
 import os
 import sys
 import tempfile
+import traceback
 from datetime import datetime
 from pathlib import Path
 
@@ -70,6 +71,7 @@ def main() -> None:
         except Exception as exc:  # report it, keep going with the other sessions
             errors.append({"id": seminar.id, "error": f"{type(exc).__name__}: {exc}"[:300]})
             print(f"  harness error: {errors[-1]['error']}", flush=True)
+            print(traceback.format_exc()[-900:], flush=True)
             continue
         results.append(result)
         print(

@@ -63,7 +63,7 @@ def whole_workflow(file: str, proposal: Proposal, extra: list = ()) -> dict:
         [
             *extra,
             ("propose_rubric_assessment", {"note": "First pass"}),
-            *[("draft_student_feedback", {"studentId": s.id}) for s in inputs.roster],
+            *[("draft_student_feedback", {"studentIds": [s.id]}) for s in inputs.roster],
             ("audit_assessment", {"note": "Audit"}),
             ("request_professor_review", {"summary": "Ready for review"}),
         ]

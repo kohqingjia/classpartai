@@ -191,6 +191,22 @@ uv run python eval/judge_eval.py                  # agreement with human scores,
 uv run python eval/judge_eval.py --evidence none  # the Judge without Research's findings
 ```
 
+### ④ Auditor agent
+
+The Auditor is Le Yong's agent design (read-only tools, a pass blocked until every finding is
+inspected and every citation verified, one targeted re-judge, failures go to the professor). It
+used to live in its own package (`auditor_agent/`) with a translation layer to the app; it is now
+one module, `participation/auditor.py`, written on the app's own types, so the Coordinator calls it
+directly with no conversion. The original package, README and examples are in git history:
+`git show 01c2ffb^:src/classpartai/auditor_agent/README.md`.
+
+| Original | Now, in `participation/auditor.py` |
+|---|---|
+| `contracts.py` tool and result schemas | `ScoresPage`, `CompareRequest`, `CitationRequest`, `RejudgeRequest`, `Completion`, `Issue` |
+| `tools.py` read-only tools | `AuditTools` |
+| `agent.py` loop | `run_agent` and `complete` |
+| bridge to the app (`auditor_bridge.py`) | `agent_audit`, `to_model_audit`, `persisted_agent_audit` |
+
 ### ② Research agent
 
 Needs `OPENAI_API_KEY` in `.env`, or `LLM_PROVIDER="ollama"` to run free on a local model (setup

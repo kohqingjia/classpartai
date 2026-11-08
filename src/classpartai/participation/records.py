@@ -40,6 +40,8 @@ SCHEMA = """
 CREATE TABLE IF NOT EXISTS lessons (
     session_id TEXT NOT NULL, agent TEXT NOT NULL, rule TEXT NOT NULL, advice TEXT NOT NULL,
     times INTEGER NOT NULL, updated_at TEXT NOT NULL, PRIMARY KEY (session_id, agent, rule));
+CREATE TABLE IF NOT EXISTS summaries (
+    session_id TEXT PRIMARY KEY, content TEXT NOT NULL, created_at TEXT NOT NULL);
 CREATE TABLE IF NOT EXISTS auditor_state (
     session_id TEXT PRIMARY KEY, version INTEGER NOT NULL, state TEXT NOT NULL,
     in_flight INTEGER NOT NULL DEFAULT 0);
@@ -156,6 +158,18 @@ class Records:
             f"SELECT agent, rule, advice, times FROM lessons WHERE {where} ORDER BY times DESC",
             tuple(args),
         )
+
+    def save_summary(self, session_id: str, content: dict) -> None:
+        """The seminar briefing (summary/bridge.py); a newer one replaces the last."""
+        with self.tx():
+            self.db.execute(
+                "INSERT OR REPLACE INTO summaries VALUES (?, ?, ?)",
+                (session_id, json.dumps(content), usage.now_iso()),
+            )
+
+    def summary_for(self, session_id: str) -> dict | None:
+        rows = self._all("SELECT content FROM summaries WHERE session_id = ?", (session_id,))
+        return json.loads(rows[0]["content"]) if rows else None
 
     def claim_auditor(self, session_id: str) -> tuple[int, dict]:
         """Atomically reserve the session audit; interrupted reservations fail closed."""

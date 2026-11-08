@@ -33,21 +33,13 @@ from classpartai.agents.listener import screen_transcript
 from classpartai.assessment import AssessmentInputs, Document
 from classpartai.config import REPO_ROOT
 from classpartai.participation.adversarial import CaseRun
+from classpartai.qualitative import QUESTIONS
 
 SEMINARS = REPO_ROOT / "data" / "demo-seminars"
 TEMPLATE = REPO_ROOT / "data" / "is469" / "week7_seminar.json"
 FALLBACK_DOCUMENTS = REPO_ROOT / "data" / "course_materials.json"
 PROFESSOR = "Prof Wynter"
 SILENT_PHRASE = "no observed contribution"
-
-# What a person reads each output for (AUDIT.md section 1, "Qualitative evaluation").
-QUESTIONS = [
-    "Is every claim in the findings and emails traceable to what the student said?",
-    "Is each score fair for what was actually said (not for how long or how confidently)?",
-    "Does any email invent something, or name or quote another student?",
-    "Is the tone constructive, and is silence described as not observed, not as poor?",
-    "Was the right thing flagged for the professor, and nothing flagged without reason?",
-]
 
 
 @dataclass
@@ -429,7 +421,7 @@ def feedback_quality(run: CaseRun) -> dict:
     return {
         "emails": len(scores),
         **{
-            k: round(sum(x[k] for x in scores) / len(scores), 2)
+            k: round(sum(int(x[k]) for x in scores) / len(scores), 2)
             for k in ("faithful", "constructive", "specific")
         },
     }

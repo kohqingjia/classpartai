@@ -1,6 +1,8 @@
 """The course evidence agent (agentic RAG over the session's authorised course passages).
 
-Ported from Le Yong's src/features/evidence/{schema,provider,retrieval,agent}.server.ts.
+The evidence types (EvidenceBundle, Investigation, ...) are used throughout the app; the agent in
+this file runs only with ``EVIDENCE_AGENT=course``. Its design follows the TypeScript evidence
+feature in src/features/evidence of the original repository.
 The agent chooses its own searches, fetches passages for context, and finishes with cited
 evidence or explicit gaps. Every citation must be an exact excerpt of a passage it actually
 retrieved. It never scores or contacts anyone.

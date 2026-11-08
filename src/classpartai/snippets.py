@@ -159,7 +159,7 @@ TOPICS: list[tuple[str, list[Snippet]]] = [
                 "The budget every run must fit in",
                 "src/classpartai/models.py",
                 ("WORKFLOW_LIMITS",),
-                "72 model calls, 108 tool calls, 400k tokens, 600 s. A run that hits a limit "
+                "72 model calls, 108 tool calls, 400k tokens, 900 s. A run that hits a limit "
                 "stops cleanly and leaves its draft for review.",
             ),
         ],
@@ -224,7 +224,7 @@ AGENTS: list[Agent] = [
         "Plans the whole assessment. Each turn it reads what its last tool returned and picks "
         "the next tool. There is no fixed order and no approve or send tool. Every model and "
         "tool call, its sub-agents' included, counts against one budget (72 model calls, 108 "
-        "tool calls, 400k tokens, 600 s).",
+        "tool calls, 400k tokens, 900 s).",
         "the ③ Run button",
         (
             Tool(

@@ -47,7 +47,10 @@ concepts.
    - web: external facts the course could not contain, such as a date, a company's figures or a \
 named study. Use search_web, if it is listed.
    - none: the student did not really answer ("I'm not sure", "can you repeat that?"), or gave a \
-pure opinion or logistics. Call submit_findings straight away with no claims.
+pure opinion or logistics. Decide this from the student's words alone, before any search: \
+call submit_findings straight away with no claims, no expected points and no stated points, and \
+say in the summary that the answer makes no claim to check. Searching the course for such an \
+answer only costs time.
 3. The expected answer. If there is a professor's question, search for what the course says \
 about it, and write at most 3 expected_points: what a good answer contains, one sentence each. \
 Grade evidence for each, worded exactly as you will submit it.
@@ -568,7 +571,13 @@ class ResearchAgent:
         elif assessment.get("failed") and question and expected_texts:
             notes.append("The coverage check could not run; missed points are the agent's own.")
         answers = _answers_question(
-            question, submitted.get("answers_question"), expected_texts, coverage, missed, notes
+            question,
+            submitted.get("answers_question"),
+            expected_texts,
+            coverage,
+            missed,
+            notes,
+            attempted=correctness(claims) in ("incorrect", "partially_correct"),
         )
         route = "+".join(tools.sources_searched) or "none"
         return EvidencePack(
@@ -601,10 +610,14 @@ class ResearchAgent:
         )
 
 
-def _answers_question(question, reported, expected, coverage, missed, notes) -> str | None:
+def _answers_question(
+    question, reported, expected, coverage, missed, notes, attempted=False
+) -> str | None:
     """Whether the answer addresses the question, from which expected points it states: all of
-    them is "yes", none is "no", anything between is "partly". Without expected points, the agent's
-    own label is used."""
+    them is "yes", none is "no", anything between is "partly". A wrong answer still addresses the
+    question (the course contradicted what the student said about it, so it is on topic): it is
+    "yes", and the Judge sees it is wrong from the verdict. A true statement about something else
+    is still "no". Without expected points, the agent's own label is used."""
     if not question:
         return None
     reported = reported if reported in ("yes", "partly", "no") else None
@@ -619,6 +632,11 @@ def _answers_question(question, reported, expected, coverage, missed, notes) -> 
         derived = "no"
     else:
         derived = "partly"
+    if attempted and derived != "yes":
+        notes.append(
+            "The answer is wrong about the topic asked, which still addresses the question."
+        )
+        derived = "yes"
     if reported and reported != derived:
         covered = sum(c == "covered" for c in coverage)
         notes.append(

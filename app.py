@@ -319,8 +319,10 @@ def fold_events(events, inputs: AssessmentInputs) -> dict:
                 view["active"] = stage
                 view["banner"] = f"Coordinator chose {STAGE_NAMES[stage]}"
             if detail["tool"] == "draft_student_feedback" and ok:
-                sid = json.loads(detail["arguments"]).get("studentId")
-                view["newest"] = next((s.displayName for s in inputs.roster if s.id == sid), None)
+                sids = json.loads(detail["arguments"]).get("studentIds") or [None]
+                view["newest"] = next(
+                    (s.displayName for s in inputs.roster if s.id == sids[-1]), None
+                )
     return view
 
 
@@ -1712,7 +1714,7 @@ elif view == "how":
         "refused with the reason. Then the Auditor checks support, attribution and uncertainty "
         "before anything reaches the professor.\n"
         "- **Bounded.** Every run has a budget (72 model calls, 108 tool calls, 400k tokens, "
-        "600 s) and stops cleanly when it runs out.\n"
+        "900 s) and stops cleanly when it runs out.\n"
         "- **Watched.** Every model call's tokens, time and estimated cost, and every step of "
         "every run, are recorded (Saurabh's usage ledger). The **Monitoring** page shows them."
     )
@@ -2379,6 +2381,10 @@ elif view == "session":
                             st.markdown(f":orange[:material/warning:] {issue_text(i)}")
                 if not open_issues:
                     st.success("No open issues.")
+            briefing_now = records.summary_for(session_id)
+            if briefing_now:
+                with st.expander("Seminar briefing (from the Summary pipeline)"):
+                    render_session_summary(briefing_now)
             with st.expander("Edit the draft (saves a new version)"):
                 st.caption(
                     "Saving findings or feedback invalidates prior approvals. Invalid scores, "

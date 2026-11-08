@@ -242,7 +242,8 @@ class AuditorSession:
     started, whether the one re-judge was used, and the objections that re-judge answers."""
 
     cases: int = 0
-    # After a re-judge was requested: {"findings": [keys], "objections": [Issue dicts]}.
+    # After a re-judge was requested: {"findings": [keys], "objections": [Issue dicts],
+    # "fingerprints": {key: hash of score, rationale and turns}}.
     pending: dict | None = None
     rejudge_used: bool = False
 
@@ -840,6 +841,7 @@ def run_agent(
     prior = [Issue.model_validate(i) for i in session.pending["objections"]] if revision else []
     pending_ids = {i.id for i in prior}
     tools = AuditTools(case, budget, factory, prior)
+    tools.seen |= unchanged_findings(case, session.pending if revision else None, prior)
     allow_rejudge = not session.rejudge_used
     instructions = f"{ROLE_POLICY}\n{PROMPT}\n{SCORE_PROMPT}"
     if not allow_rejudge:
@@ -1210,7 +1212,11 @@ def agent_audit(
                 session.rejudge_used = True
             audit = to_model_audit(result, case, draft, prior, revision)
             session.pending = (
-                {"findings": keys, "objections": [i.model_dump() for i in result.rejudge or []]}
+                {
+                    "findings": keys,
+                    "objections": [i.model_dump() for i in result.rejudge or []],
+                    "fingerprints": {key_of(f): fingerprint(f) for f in case.findings},
+                }
                 if result.verdict == "rejudge_requested"
                 else None
             )
@@ -1225,6 +1231,27 @@ def agent_audit(
         # was, rather than a reason to discard the agent's audit.
         return _with_feedback_review(audit, inputs, draft, evidence, budget, factory)
     return _review_required(f"Auditor agent did not complete: {reason}")
+
+
+def fingerprint(f: Finding) -> str:
+    return hashlib.sha256(json.dumps([f.score, f.justification, f.turnIds]).encode()).hexdigest()[
+        :12
+    ]
+
+
+def unchanged_findings(case: Case, pending: dict | None, prior: list[Issue]) -> set[str]:
+    """After a re-score, findings the re-judge left as they were and no objection named. They
+    were inspected in the first pass, so they do not need inspecting again; the Auditor still
+    sees the whole draft, and every citation is still checked."""
+    before = (pending or {}).get("fingerprints")
+    if not before:
+        return set()
+    named = {k for i in prior for k in i.findingIds}
+    return {
+        key_of(f)
+        for f in case.findings
+        if key_of(f) not in named and before.get(key_of(f)) == fingerprint(f)
+    }
 
 
 def capped(issues: list[ModelAuditIssue], limit: int) -> list[ModelAuditIssue]:

@@ -38,7 +38,12 @@ REASONING_EFFORT = {
     "coordinator": os.getenv("COORDINATOR_REASONING_EFFORT") or None,
     "feedback": os.getenv("FEEDBACK_REASONING_EFFORT") or None,
     "judge": JUDGE_REASONING_EFFORT,
+    # Research is the slowest agent and most of its output is hidden reasoning; unset = default.
+    # eval/research_eval.py --effort low is the experiment that shows what lowering it does.
+    "research": os.getenv("RESEARCH_REASONING_EFFORT") or None,
 }
+# The seminar briefing (summary/bridge.py), made when a session is handed over for review.
+SUMMARY = os.getenv("SUMMARY", "on").strip().lower() != "off"
 # Estimated prices for the Monitoring page (USD per million tokens; edit to match your plan).
 MODEL_PRICES = Path(os.getenv("MODEL_PRICES", REPO_ROOT / "data" / "model_prices.json"))
 
