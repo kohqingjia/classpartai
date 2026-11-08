@@ -1144,8 +1144,22 @@ def transcribe(wav: Path, roster: list[dict], professors: set[str], meta: dict) 
     """Run the Listener on a 16 kHz WAV and keep the result for step 2 (Who spoke?)."""
     voices().ensure()
     process_audio, note, lock = load_listener()
-    with lock, st.spinner("Transcribing and identifying speakers…"):
-        result = process_audio(str(wav))
+    # A click while a recording is being transcribed would queue a second full run behind it
+    if not lock.acquire(blocking=False):
+        wav.unlink(missing_ok=True)
+        raise RuntimeError(
+            "another recording is still being transcribed; wait a few minutes, then try again"
+        )
+    try:
+        with st.status("Transcribing and identifying speakers…", expanded=True) as status:
+            st.write(
+                "This takes a few minutes for a short recording. Keep this page open and "
+                "don't press Transcribe again."
+            )
+            result = process_audio(str(wav))
+            status.update(label="Transcribed", state="complete")
+    finally:
+        lock.release()
     ids = {r["displayName"]: r["id"] for r in roster}
     st.session_state.pending = {
         "diagnostics": json.loads(json.dumps({**result, "note": note}, default=str)),
