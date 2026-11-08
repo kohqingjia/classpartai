@@ -1192,8 +1192,8 @@ def await_transcription() -> None:
         )
         job["done"].wait()
         status.update(label="Transcribed", state="complete")
-    job = jobs.pop(key, job)
     if "error" in job:
+        jobs.pop(key, None)
         raise job["error"]
     pending, result = job["pending"], job["result"]
     ids = {r["displayName"]: r["id"] for r in pending["roster"]}
@@ -1202,6 +1202,7 @@ def await_transcription() -> None:
         "diagnostics": json.loads(json.dumps({**result, "note": pending["note"]}, default=str)),
         "transcript": listener.to_transcript(result, ids, "review-1", job["professors"]),
     }
+    jobs.pop(key, None)  # only once the result is saved: a stopped rerun can pick it up again
 
 
 def generate_summary_json(system_prompt, user_prompt):
