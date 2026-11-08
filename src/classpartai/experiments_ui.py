@@ -90,10 +90,13 @@ def research() -> Experiment | None:
         "Single-pass RAG",
         "Agentic RAG",
         metrics,
-        f"On {cfg.get('corpus', 'the course library')} the agent gives more correct verdicts and "
-        f"cleaner context, and costs {many['usd'] / one['usd']:.1f}x as much and takes "
-        f"{many['seconds'] / one['seconds']:.1f}x as long per answer. A grade follows from it, "
-        "so the extra cost is worth it here (agentic RAG has to earn its extra cost).",
+        f"On {cfg.get('corpus', 'the course library')} the agent costs "
+        f"{many['usd'] / one['usd']:.1f}x as much and takes "
+        f"{many['seconds'] / one['seconds']:.1f}x as long per answer. Its verdicts were more "
+        "often right in this run, but two later runs on the same 20 answers scored between "
+        "82% and 94% (see the reasoning-effort experiment), so on 20 items the accuracy gain "
+        "is within run-to-run variation. What the agent adds is an exact quote behind every "
+        "verdict, which is worth the cost when a grade follows from it.",
         "eval/results/research-is469-library.json",
     )
 
@@ -131,9 +134,16 @@ def research_effort() -> Experiment | None:
         "Default effort",
         "Low effort",
         metrics,
-        "Most of Research's output is hidden reasoning, and it dominates the time an assessment "
-        "takes. If the quality rows hold and the time and cost rows fall, low effort is worth "
-        "turning on (`RESEARCH_REASONING_EFFORT=low`); if verdicts get worse, it is not.",
+        f"Most of Research's output is hidden reasoning. At low effort an answer took "
+        f"{low['seconds']:.0f} s instead of {default['seconds']:.0f} s "
+        f"({default['seconds'] / low['seconds']:.1f}× faster) and cost "
+        f"${low['usd']:.3f} instead of ${default['usd']:.3f}. Correct verdicts went from "
+        f"{default['correctness_ok']:.0%} to {low['correctness_ok']:.0%}, context precision "
+        f"{default['context_precision']:.0%} to {low['context_precision']:.0%}, and the right "
+        f"passage {default['gold_hit']:.0%} to {low['gold_hit']:.0%}. With 20 answers and one "
+        "run each, a gap of a few answers is within what a single run varies by, so read this "
+        "as low effort being no worse and much cheaper, not as it being better. It is on with "
+        "`RESEARCH_REASONING_EFFORT=low`.",
         " and ".join(f"eval/results/{n}" for n in EFFORT_RUNS),
     )
 
@@ -293,7 +303,8 @@ def delta_text(m: Metric) -> str:
     if m.kind == "score":
         return f"{(m.after - m.before) * 100:+.0f} points"
     if m.before and m.after and not 0.67 < m.after / m.before < 1.5:
-        return f"{m.after / m.before:.1f}× the first"
+        ratio = m.after / m.before
+        return f"{ratio:.1f}× the first" if ratio > 1 else f"{1 / ratio:.1f}× lower"
     return f"{m.after - m.before:+,.2f}".rstrip("0").rstrip(".")
 
 

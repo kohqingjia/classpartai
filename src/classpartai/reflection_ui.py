@@ -18,13 +18,15 @@ WORKED = [
         "(`ambiguous`) instead of guessing, and an uncertain line can never set a score.",
     ),
     (
-        "Agentic retrieval that checks its own claims",
-        "On 20 labelled answers the Research agent was right 94% of the time against 88% for "
-        "single-pass RAG, and checked claims the single pass left unverified, at about six "
-        "times the cost (US$0.025 vs US$0.004 an answer; "
-        "`eval/results/research-is469-library.md`).",
-        "A grade follows from it, so the extra cost is worth it here; it would not be for a "
-        "chat answer. This is the course's own test: agentic RAG has to earn its cost.",
+        "Agentic retrieval checks each claim against the course notes",
+        "Research searches the course notes for what each student claimed and cites an exact "
+        "quote for every verdict, so a claim is marked supported, contradicted or unverified "
+        "with its evidence. On 20 labelled answers it got 82% to 94% of verdicts right across "
+        "three runs, against 88% for single-pass RAG (`eval/results/research-*.json`). It costs "
+        "about five times as much and takes about six times as long per answer.",
+        "The gain on 20 answers is within the variation between runs, so the case for it is "
+        "not that it is clearly more accurate. It is that every verdict comes with a quote the "
+        "professor can check, which matters when a grade follows from it.",
     ),
     (
         "Code is the authority, the model proposes",
@@ -58,12 +60,13 @@ WORKED = [
 DID_NOT = [
     (
         "Research is the slowest part of a run",
-        "An answer takes about 113 s and US$0.025 against 22 s and US$0.004 for single-pass "
-        "RAG. That is the price of the 6 extra points of correctness above, not a reason to "
-        "drop it.",
-        "Where the time goes is measured, so it can be cut without removing the checking: "
-        "a lower reasoning effort is run as an experiment (Experimentation tab) and judged on "
-        "quality before it is adopted.",
+        "At its default setting an answer takes about 2 minutes and US$0.02, against 18 "
+        "seconds and US$0.004 for single-pass RAG. Lowering its reasoning effort cut that to "
+        "about 50 seconds and US$0.009 with no drop in correct verdicts, context precision or "
+        "the right passage found (Experimentation tab).",
+        "Research is where most of an assessment's time goes, so this is the main saving "
+        "available. It is a prototype-sized test (20 answers, one run each), so the "
+        "setting is a recommendation to confirm on more data, not a guarantee.",
     ),
     (
         "The Judge matches a person on reasoning, less on engagement",

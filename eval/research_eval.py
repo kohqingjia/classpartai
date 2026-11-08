@@ -176,7 +176,9 @@ def markdown(report: dict, items: list[dict]) -> str:
 def write_results(report: dict, items: list[dict], out_dir: str | Path, stem: str) -> Path:
     out = Path(out_dir)
     out.mkdir(parents=True, exist_ok=True)
-    (out / f"{stem}.json").write_text(json.dumps(report, indent=2, ensure_ascii=False))
+    (out / f"{stem}.json").write_text(
+        json.dumps(report, indent=2, ensure_ascii=False), encoding="utf-8"
+    )
     (out / f"{stem}.md").write_text(markdown(report, items), encoding="utf-8")
     return out / stem
 

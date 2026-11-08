@@ -1,0 +1,44 @@
+{
+  "note": "Transcribed by hand from the terminal summary of the run: the script's save step failed on a Windows text-encoding error after the run finished (fixed since), so the per-item rows were not kept. Same 20 labelled answers, same course library, one run each.",
+  "single_pass": {
+    "summary": {
+      "routed_correctly": null,
+      "correctness_ok": 0.88,
+      "answers_question_ok": null,
+      "reasoning_ok": null,
+      "mistake_ok": null,
+      "context_precision": 0.88,
+      "gold_hit": 1.0,
+      "quoted": 1.0,
+      "llm_calls": 1.0,
+      "searches": 1.0,
+      "seconds": 18.48,
+      "tokens": 2884,
+      "usd": 0.004
+    }
+  },
+  "agentic": {
+    "summary": {
+      "routed_correctly": 0.9,
+      "correctness_ok": 0.82,
+      "answers_question_ok": 0.55,
+      "reasoning_ok": 0.83,
+      "mistake_ok": 1.0,
+      "context_precision": 0.88,
+      "gold_hit": 0.88,
+      "quoted": 0.98,
+      "llm_calls": 13.8,
+      "searches": 1.6,
+      "seconds": 120.14,
+      "tokens": 42686,
+      "usd": 0.0207
+    }
+  },
+  "config": {
+    "model": "gpt-5-mini",
+    "reasoning_effort": null,
+    "items": "data/is469/eval_contributions.jsonl",
+    "corpus": "var/library/documents.json",
+    "usd_total": 0.4952
+  }
+}
