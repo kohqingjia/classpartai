@@ -253,15 +253,18 @@ def handoff_checks(run: CaseRun) -> list[Check]:
             )
         )
     cited = bool(run.draft and any(f.citations for f in run.draft.content.findings))
-    needs_evidence = bool(spoke(run))  # nobody speaking leaves nothing for Research to check
-    out.append(
-        Check(
-            "Research's evidence was cited by the Judge",
-            cited or not needs_evidence,
-            f"{len(run.evidence_runs)} evidence runs; citations in findings: {cited}",
-            "handoff",
+    # Calling Research is the Coordinator's choice (a session of opinions and questions needs no
+    # course check), so only a hand-off that did happen is checked: Research ran, the Judge
+    # should then have cited what it found.
+    if run.evidence_runs:
+        out.append(
+            Check(
+                "Judge cited Research's evidence",
+                cited,
+                f"{len(run.evidence_runs)} evidence runs; citations in findings: {cited}",
+                "handoff",
+            )
         )
-    )
     out.append(
         Check(
             "Auditor reviewed the draft before review",

@@ -2,7 +2,8 @@
 
 ``eval/system_eval.py`` writes the outputs (each student's findings and email, per demo seminar).
 A reviewer answers ``QUESTIONS`` on each and tags a cause when something is wrong; that is saved
-here, one file per reviewer and run, under ``<data dir>/qualitative``. Two reviewers work
+here, one file per reviewer and run, under eval/results/qualitative-reviews so they can be committed
+and shown on the deployed app. Two reviewers work
 separately and the comparison shows where they disagree. The page is evaluation_ui's
 "Qualitative review".
 """
@@ -39,7 +40,7 @@ RESULTS = config.REPO_ROOT / "eval" / "results"
 
 
 def folder() -> Path:
-    return config.DATA_DIR / "qualitative"
+    return RESULTS / "qualitative-reviews"
 
 
 def latest_run() -> tuple[str, dict] | None:

@@ -5,7 +5,8 @@ mistake the last one made:
 
 - Rule checks (free, deterministic): the email names a classmate, calls a silent student
   anything but "no observed contribution", or judges the student's ability or motivation. A
-  broken rule sends the draft back for one correction. Only noted, never sent back: a turn ID
+  broken rule sends the draft back for one correction, including a "quotation" that is not the
+  student's exact words. Only noted, never sent back: a turn ID
   in the text (delivery rewrites it) and not referring to what the student actually said.
 - A rubric score from a second model (LLM-as-judge), when ``FEEDBACK_JUDGE`` is on: faithful to
   what was said, constructive, specific. A score of 1 on any of them is sent back like a broken
@@ -44,6 +45,19 @@ class Violation:
     hard: bool = True  # hard: the draft is sent back; soft: only noted
 
 
+QUOTED = re.compile(r'["“]([^"”]{12,})["”]')
+
+
+def quotes(text: str) -> list[str]:
+    """Passages in quotation marks long enough to be a quotation, not a term in scare quotes."""
+    return [m.group(1) for m in QUOTED.finditer(text)]
+
+
+def loose(text: str) -> str:
+    """Words only, lower case: so a quote still matches across punctuation or spacing."""
+    return " ".join(re.findall(r"[a-z0-9']+", text.lower().replace("’", "'")))
+
+
 def content_words(text: str) -> set[str]:
     return {w for w in re.findall(r"[a-z]{4,}", text.lower()) if w not in STOP}
 
@@ -80,6 +94,16 @@ def rule_checks(fb: Feedback, student_id: str, inputs: AssessmentInputs) -> list
                 "silence-not-stated",
                 f"A student with no observed turns gets an explicit '{SILENT_PHRASE.capitalize()}' "
                 "message, constructively, with no guess about their understanding.",
+            )
+        )
+    said = " ".join(own)
+    invented = [q for q in quotes(fb.strengths) if loose(q) not in loose(said)]
+    if invented:
+        found.append(
+            Violation(
+                "quote-not-in-their-words",
+                "A quotation marks passage must be the student's exact words. Quote only what "
+                "appears in their turns, or paraphrase without quotation marks.",
             )
         )
     if TRAIT.search(text):

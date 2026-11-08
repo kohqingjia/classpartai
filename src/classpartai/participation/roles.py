@@ -276,7 +276,10 @@ def feedback_for(
         "Reference only professor-approved learning goal IDs, the student's own turns, and "
         "supplied validated evidence. No recipients or transport instructions. Transcript turn "
         "IDs go only in turnIds; citations are only course-evidence references from supplied "
-        "bundles. Never name any other student." + EARLIER_CHECKS,
+        "bundles. Never name any other student. Say only what the student's turns state: a "
+        "mechanism, reason or example they did not give is not a strength they showed. Put it in "
+        "the next step as a suggestion ('you could add why...'), never as something they did. "
+        "Quote them word for word or paraphrase closely." + EARLIER_CHECKS,
         data,
         budget,
         factory,
