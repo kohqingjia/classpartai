@@ -10,6 +10,7 @@ so that page stays short. Slide references are the IS469 slides: topic · "term"
 - **The Judge is an agent too.** It starts with the rubric, each student's own turns and a summary of Research's evidence, scores many students per call with a confidence, and fetches more turns or a full evidence bundle only when it needs them. It flags what the professor should check, and a revision after the audit re-scores only the students the Auditor raised.
 - **Verify first, judge last.** Every score the Judge saves must pass deterministic validation (right students, cited turns that exist); a student who breaks a rule is refused with the reason. Then the Auditor checks support, attribution and uncertainty before anything reaches the professor.
 - **Bounded.** Every run has a budget (96 model calls, 108 tool calls, 500k tokens, 900 s) and stops cleanly when it runs out.
+- **Learns within a session.** When a check refuses a draft (a rule broken in an email, a score outside the rules, an audit call refused), the reason is kept as a *lesson* and handed to that agent on its next call, so the second student's email does not repeat the first one's mistake. Lessons last for one session.
 - **Watched.** Every model call's tokens, time and estimated cost, and every step of every run, are recorded (the usage ledger). The Monitoring page shows them.
 
 ## Mapped to IS469, in the course's words
@@ -22,8 +23,8 @@ so that page stays short. Slide references are the IS469 slides: topic · "term"
 | Judge | Scores each student on an explicit rubric with three tools; every score passes deterministic checks before it is saved; confidence and flags for the professor; a separate reasoning-effort setting (`JUDGE_REASONING_EFFORT`) | 6 · "LLM-as-judge" with an "explicit rubric" (S68); "Verify first, judge only what you can't check" (S66); 7 · "effort / thinking dial" (S41) |
 | Auditor | A second agent that checks the Judge with six read-only tools: compares similar answers, verifies every citation, checks scores against speaking time, can ask for one re-score, never changes a score; the Listener's injection flag and a rationale aimed at the grader are checked before the model runs | 6 · "programmatic check → verifiable reward → LLM-judge → human" (S66); 7 · "Reflexion & self-critique", "Verify-then-continue" (S37) |
 | Feedback writer | One structured model call per student, then rule checks (no classmate named, silence described as not observed, no judgement of ability); a broken rule is sent back once and becomes a lesson for the next email. Deliberately not an agent: it needs no tools | 7 · "Teardown test: a single … call behind a nice UI is NOT an agent" (S63) |
-| Approve and send | The professor approves one exact version (SHA-256 of content and recipients); code, not a model, sends it | 9 · "Excessive agency" (S48); "Six controls for agents" (S57, below) |
-| Monitoring and evals | Every model call's tokens, latency and cost, and a trace of every step; eval scripts for each agent | 7 · "Evaluate the trajectory" (S54), "Observability & tracing" (S57); 6 · "treat evaluation as a first-class artifact" (S76) |
+| Approve and send | The professor approves one exact version (SHA-256 of content and recipients); code, not a model, sends it | 9 · "Excessive agency" (S48); "Six controls for agents" (S57, on the How it works page) |
+| Monitoring and evals | Every model call's tokens, latency and cost, and a trace of every step that can be folded by agent; eval scripts for each agent; a whole-system run over the seven demo seminars; an Experimentation tab comparing alternatives | 7 · "Evaluate the trajectory" (S54), "Observability & tracing" (S57); 6 · "treat evaluation as a first-class artifact" (S76) |
 
 ## How it meets the project brief
 
@@ -31,9 +32,9 @@ so that page stays short. Slide references are the IS469 slides: topic · "term"
 |---|---|
 | Integrates at least two substantial topics | Six: transformers (2), evaluation (5-6), agents and harness (7), agentic RAG (8), ethics and guardrails (9), embeddings (1). See the table above |
 | End-to-end implementation with an evaluation pipeline | Recording → transcript → assessment → approval → email, in this app; `eval/` scripts for the Listener, Research, Judge, guardrails and cost |
-| Evidence of debugging and validation | Hundreds of automated tests on every pull request; the fixes listed under the Reflection & risks page, each with a regression test |
-| Quantitative metrics | Listener: wrong-speaker lines, word error rate. Research: correctness, context precision. Guardrails: attacks caught. Cost and latency per run. Task success of the seven demo runs. See Evaluation |
-| Qualitative analysis | Seven demo seminars in our own voices: everyone takes part, a silent student, nobody answers, a wrong claim, a student gaming the grader, one student dominating, a guest |
+| Evidence of debugging and validation | Over 300 automated tests on every pull request; each bug found by running the seven demo seminars got a regression test, and the Monitoring traces are how they were found |
+| Quantitative metrics | Listener: wrong-speaker lines, word error rate. Research: correctness, context precision. Judge: agreement with a person's scores (agreement score, exact match, within one point). Guardrails: attacks caught. Cost and latency per run. Task success of the seven demo runs, and the quality of each drafted email (scored by a second model). See Evaluation |
+| Qualitative analysis | Seven demo seminars in our own voices: everyone takes part, a silent student, nobody answers, a wrong claim, a student gaming the grader, one student dominating, a guest. A person reads each student's findings and email on the Evaluation page, answers five questions and tags a cause when something is wrong; a second reviewer repeats it and the page shows where they disagree |
 | Compares at least two alternatives | Single-pass RAG vs the Research agent; Listener before and after its fixes; Auditor tool descriptions, one change at a time; the software against a teaching assistant |
 | Reflection, and a direction for future work | The Reflection & risks page: what worked, what did not, what is next |
 | Risks and mitigations | Guardrails and Agentic controls (How it works); the Reflection & risks page |

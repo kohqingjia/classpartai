@@ -68,7 +68,7 @@ def test_the_evaluation_page_renders(monkeypatch):
     at = AppTest.from_function(page, default_timeout=30).run()
     assert not at.exception
     assert any("Teaching assistant" in getattr(h, "value", "") for h in at.get("html"))
-    assert any("Research" in s.value for s in at.subheader)
+    assert any("Cost" in s.value for s in at.subheader)
 
 
 def test_pooled_runs_charge_research_only_to_the_answers_it_read():

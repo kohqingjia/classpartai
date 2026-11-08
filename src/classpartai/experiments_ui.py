@@ -1,4 +1,4 @@
-"""Before and after, side by side: every comparison the team has run, from the committed results.
+"""Experimentation: every comparison the team has run, from the committed results.
 
 The dashboard's third tab. Each experiment is two systems on the same inputs, scored the same way:
 agentic RAG against single-pass RAG, the Listener before and after its fixes, the injection screen
@@ -12,6 +12,8 @@ import json
 from dataclasses import dataclass
 from pathlib import Path
 
+import altair as alt
+import pandas as pd
 import streamlit as st
 
 from classpartai.config import REPO_ROOT
@@ -50,7 +52,7 @@ def fmt(value: float, kind: str) -> str:
         "score": f"{value:.0%}",
         "usd": f"${value:,.4f}",
         "seconds": f"{value:,.0f} s",
-    }.get(kind, f"{value:,.2f}".rstrip("0").rstrip("."))
+    }.get(kind, f"{value:,.0f}" if abs(value) >= 100 else f"{value:,.2f}".rstrip("0").rstrip("."))
 
 
 def verdict(m: Metric) -> str:
@@ -149,8 +151,8 @@ def judge_markdown() -> str | None:
 
     rows = {"All criteria": agree["overall"], **agree["per_criterion"]}
     lines = [
-        "| Criterion | Scores compared | Rank agreement | Kappa | Exact match | Within 1 point "
-        "| Average error |",
+        "| Criterion | Scores compared | Same order | Agreement score | Exact match "
+        "| Within 1 point | Average error |",
         "|---|---|---|---|---|---|---|",
     ]
     for name, s in rows.items():
@@ -161,8 +163,10 @@ def judge_markdown() -> str | None:
     lines += [
         "",
         f"Model `{cfg.get('model', '?')}`, given the evidence a perfect Research agent would "
-        "report. Kappa is weighted by how far apart two scores are (1 is perfect agreement). "
-        "The answer key was written by one person, so this is agreement with that person.",
+        "report. Agreement score: 0 is no better than chance and 1 is identical scores; being "
+        "one point off costs less than being three off. Same order: whether the Judge ranks "
+        "answers the way the person does. The answer key was written by one person, so this is "
+        "agreement with that person.",
     ]
     return "\n".join(lines)
 
@@ -275,6 +279,106 @@ def all_experiments() -> list[Experiment]:
     return [e for e in (research(), research_effort(), listener(), guardrails(), injection()) if e]
 
 
+GOOD, BAD, SAME, MUTED = "#5cc2a6", "#ff8f94", "#d4d4d8", "#d4d4d8"
+
+
+def is_better(m: Metric) -> bool | None:
+    if m.before == m.after:
+        return None
+    return (m.after > m.before) == (m.better == "higher")
+
+
+def delta_text(m: Metric) -> str:
+    """How far the second system is from the first, in the unit the reader thinks in."""
+    if m.kind == "score":
+        return f"{(m.after - m.before) * 100:+.0f} points"
+    if m.before and m.after and not 0.67 < m.after / m.before < 1.5:
+        return f"{m.after / m.before:.1f}× the first"
+    return f"{m.after - m.before:+,.2f}".rstrip("0").rstrip(".")
+
+
+def quality_chart(e: Experiment) -> None:
+    """Each quality measure as two dots on one 0 to 100% line: where the first system scored and
+    where the second did, joined, green when the second is better and red when it is worse. A
+    bar would hide that the point is the gap between the two."""
+    scores = [m for m in e.metrics if m.kind == "score"]
+    if not scores:
+        return
+    rows = []
+    for m in scores:
+        better = is_better(m)
+        colour = SAME if better is None else GOOD if better else BAD
+        rows.append(
+            {
+                "Measure": m.name,
+                "low": min(m.before, m.after),
+                "high": max(m.before, m.after),
+                "first": m.before,
+                "second": m.after,
+                "colour": colour,
+            }
+        )
+    frame = pd.DataFrame(rows)
+    y = alt.Y(
+        "Measure:N",
+        sort=[m.name for m in scores],
+        title=None,
+        axis=alt.Axis(labelLimit=300, labelFontSize=14, labelOverlap=False),
+    )
+    x = alt.X(
+        "low:Q",
+        scale=alt.Scale(domain=[0, 1]),
+        title="Score",
+        axis=alt.Axis(format="%", labelFontSize=13),
+    )
+    base = alt.Chart(frame)
+    line = base.mark_rule(size=4).encode(
+        y=y, x=x, x2="high:Q", color=alt.Color("colour:N", scale=None)
+    )
+    first = base.mark_point(size=160, filled=False, strokeWidth=3, color=MUTED).encode(
+        y=y,
+        x=alt.X("first:Q"),
+        tooltip=[alt.Tooltip("Measure:N"), alt.Tooltip("first:Q", format=".0%", title=e.before)],
+    )
+    second = base.mark_point(size=190, filled=True, opacity=1).encode(
+        y=y,
+        x=alt.X("second:Q"),
+        color=alt.Color("colour:N", scale=None),
+        tooltip=[alt.Tooltip("Measure:N"), alt.Tooltip("second:Q", format=".0%", title=e.after)],
+    )
+    chart = (
+        (line + first + second)
+        .properties(height=58 * len(scores) + 30)
+        .configure(background="transparent")
+        .configure_axis(
+            labelColor="#f2f2f4",
+            titleColor="#f2f2f4",
+            gridColor="#45454b",
+            domainColor="#45454b",
+            tickColor="#45454b",
+        )
+        .configure_view(stroke=None)
+    )
+    st.altair_chart(chart, theme=None, width="stretch")
+    st.caption(f"Hollow dot: {e.before}. Filled dot: {e.after}. Green means the second is better.")
+
+
+def trade_cards(e: Experiment) -> None:
+    """Cost, time, tokens and counts as figures with the change beside them, not bars."""
+    others = [m for m in e.metrics if m.kind != "score"]
+    for start in range(0, len(others), 4):
+        cols = st.columns(4)
+        for col, m in zip(cols, others[start : start + 4], strict=False):
+            better = is_better(m)
+            col.metric(
+                m.name,
+                fmt(m.after, m.kind),
+                delta=f"{delta_text(m)} (was {fmt(m.before, m.kind)})",
+                delta_color="off" if better is None else "normal" if better else "inverse",
+                delta_arrow="off",
+            )
+
+
 def table(e: Experiment) -> list[dict]:
     return [
         {
@@ -302,20 +406,11 @@ def render() -> None:
     for e in experiments:
         with st.container(border=True):
             st.markdown(f"#### {e.title}")
-            st.markdown(f":gray[Before:] **{e.before}** · :gray[After:] **{e.after}**")
-            st.dataframe(table(e), hide_index=True, width="stretch")
-            scores = [m for m in e.metrics if m.kind == "score"]
-            costs = [m for m in e.metrics if m.kind in ("usd", "seconds") and m.before and m.after]
-            left, right = st.columns(2)
-            if scores:
-                left.caption("QUALITY (HIGHER IS BETTER)")
-                left.bar_chart(
-                    {m.name: {e.before: m.before, e.after: m.after} for m in scores},
-                    horizontal=True,
-                )
-            if costs and len(costs) >= 1:
-                right.caption("COST AND TIME, AFTER AS A MULTIPLE OF BEFORE (LOWER IS BETTER)")
-                right.bar_chart({m.name: m.after / m.before for m in costs}, horizontal=True)
+            st.markdown(f":gray[First:] **{e.before}** · :gray[Second:] **{e.after}**")
+            quality_chart(e)
+            trade_cards(e)
+            with st.expander("Exact numbers"):
+                st.dataframe(table(e), hide_index=True, width="stretch")
             st.markdown(e.reading)
             st.caption(f"Source: {e.source}")
     if not research_effort():

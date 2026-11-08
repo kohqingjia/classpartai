@@ -527,9 +527,18 @@ def test_judge_tab_shows_each_tool_the_agent_called_in_order(app):
 
 
 def steps_shown(at):
-    """Every step named in the trace tables on the page: the 'Step' column, or, in the span
-    tree, the 'Span' column without its indent and icon."""
+    """Every step named in the traces on the page: the 'Step' column of a table, the 'Span'
+    column of a span table, or the rows of the foldable trace tree (an iframe)."""
+    import json
+    import re
+
     steps = set()
+    for frame in at.get("iframe"):
+        found = re.search(r'id="data">(.*?)</script>', frame.proto.srcdoc, re.S)
+        if found:
+            steps |= {
+                r["label"] for r in json.loads(found.group(1)).get("rows", []) if "label" in r
+            }
     for df in at.dataframe:
         if "Step" in df.value.columns:
             steps |= set(df.value["Step"])
@@ -558,7 +567,7 @@ def test_monitoring_page_and_coordinator_tab_show_usage_and_the_runs_trace(app):
     metrics = {m.label: m.value for m in usage_tab.metric}
     assert metrics["Model calls"] == "1" and metrics["Tokens in"] == "100"
     assert metrics["Est. cost"].startswith("$")
-    assert [t.label for t in at.tabs[:3]] == ["Usage & cost", "Traces", "Before & after"]
+    assert [t.label for t in at.tabs[:3]] == ["Usage & cost", "Traces", "Experimentation"]
     runs_label = "Open a run's trace"
     assert any(s.label == runs_label for s in at.selectbox)
     assert "propose_rubric_assessment" in steps_shown(at)

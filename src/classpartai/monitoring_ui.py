@@ -215,6 +215,109 @@ def tree_rows(nodes: list[dict]) -> list[dict]:
     return rows
 
 
+TRACE_CSS = """
+body { font-size:14px; }
+.bar { display:flex; gap:8px; margin:0 0 10px; }
+.bar button { background:var(--card); color:var(--ink); border:1px solid var(--line);
+  border-radius:6px; padding:5px 10px; font:inherit; cursor:pointer; }
+.bar button:hover { border-color:var(--accent); }
+.grid { display:grid; align-items:center; gap:10px;
+  grid-template-columns:minmax(240px,1fr) 78px 150px 52px 130px 84px 78px; }
+.head { color:var(--muted); font-size:12px; text-transform:uppercase; letter-spacing:.04em;
+  padding:6px 10px; border-bottom:1px solid var(--line); }
+.rows { max-height:calc(100vh - 100px); overflow:auto; }
+.row { padding:5px 10px; border-bottom:1px solid var(--line); }
+.row:hover { background:color-mix(in srgb, var(--ink) 6%, transparent); }
+.name { display:flex; align-items:center; gap:6px; min-width:0; }
+.name .label { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.chev { width:20px; height:20px; flex:none; border:0; background:none; color:var(--ink);
+  cursor:pointer; font-size:13px; padding:0; border-radius:4px; }
+.chev:hover { background:color-mix(in srgb, var(--ink) 14%, transparent); }
+.chev.none { cursor:default; visibility:hidden; }
+.dot { width:14px; height:14px; border-radius:4px; flex:none; }
+.hidden { color:var(--muted); font-size:12px; flex:none; }
+.kind { color:var(--muted); }
+.dur { display:flex; align-items:center; gap:8px; }
+.track { flex:1; height:8px; background:color-mix(in srgb, var(--ink) 10%, transparent);
+  border-radius:4px; overflow:hidden; }
+.fill { height:100%; background:var(--accent); }
+.num { text-align:right; font-variant-numeric:tabular-nums; }
+.ok { color:var(--green); } .bad { color:var(--red); } .warn { color:var(--amber); }
+"""
+
+TRACE_JS = """
+const d=JSON.parse(document.getElementById('data').textContent);
+const rows=d.rows, collapsed=new Set(), root=document.getElementById('root');
+const COLOUR={run:'#b6b6bd',agent:'#5cc2a6',tool:'#f0c25e',model:'#e8935a',embedding:'#6aa8e8',error:'#ff8f94'};
+const el=(t,c,x)=>{const e=document.createElement(t);if(c)e.className=c;if(x!==undefined)e.textContent=x;return e;};
+const fmt=n=>n==null?'':n.toLocaleString();
+function below(i){let c=0;for(let j=i+1;j<rows.length&&rows[j].depth>rows[i].depth;j++)c++;return c;}
+function render(){
+  root.replaceChildren();
+  const bar=el('div','bar');
+  const fold=el('button','', 'Collapse agents'), open=el('button','', 'Expand all');
+  fold.onclick=()=>{collapsed.clear();rows.forEach((r,i)=>{if(r.hasKids&&r.depth===1)collapsed.add(i);});render();};
+  open.onclick=()=>{collapsed.clear();render();};
+  bar.append(fold,open);root.append(bar);
+  const head=el('div','grid head');
+  ['Step','Kind','Duration','Calls','Tokens in / out','Est. cost','Status'].forEach((h,k)=>head.append(el('div',k>2&&k<6?'num':'',h)));
+  root.append(head);
+  const body=el('div','rows');
+  let skip=null;
+  rows.forEach((r,i)=>{
+    if(skip!==null){if(r.depth>skip)return;skip=null;}
+    const row=el('div','grid row');
+    const name=el('div','name');name.style.paddingLeft=(r.depth*20)+'px';
+    const chev=el('button',r.hasKids?'chev':'chev none',collapsed.has(i)?'▸':'▾');
+    if(r.hasKids){chev.title=collapsed.has(i)?'Expand':'Collapse';chev.onclick=()=>{collapsed.has(i)?collapsed.delete(i):collapsed.add(i);render();};}
+    const dot=el('span','dot');dot.style.background=COLOUR[r.kind]||'#b6b6bd';
+    name.append(chev,dot,el('span','label',r.label));
+    if(collapsed.has(i)&&r.hasKids)name.append(el('span','hidden','+'+below(i)+' hidden'));
+    row.append(name,el('div','kind',r.kind));
+    const dur=el('div','dur'),track=el('div','track'),fill=el('div','fill');
+    fill.style.width=r.pct+'%';track.append(fill);
+    dur.append(track,el('span','num',r.seconds.toFixed(2)+' s'));
+    row.append(dur,el('div','num',r.calls?String(r.calls):''),
+      el('div','num',r.input||r.output?fmt(r.input)+' / '+fmt(r.output):''),
+      el('div','num',r.cost==null?'':'$'+r.cost.toFixed(5)));
+    row.append(el('div',r.status==='ok'?'ok':r.status==='error'||r.status==='failed'?'bad':'warn',r.status));
+    body.append(row);
+    if(collapsed.has(i)&&r.hasKids)skip=r.depth;
+  });
+  root.append(body);
+}
+render();
+"""  # noqa: E501
+
+
+def trace_tree_html(nodes: list[dict]) -> str:
+    """The trace as a tree whose own rows fold: an arrow on any step hides everything it ran, so
+    the next step after it is in view (like a trace viewer such as Arize Phoenix)."""
+    from classpartai.ui import _data_page
+
+    longest = max((n["event"]["latency_ms"] or 0 for n in nodes), default=1) or 1
+    rows = []
+    for node in nodes:
+        e = node["event"]
+        ms = e["latency_ms"] or 0
+        rows.append(
+            {
+                "depth": node["depth"],
+                "label": step_label(e),
+                "kind": node_kind(e),
+                "seconds": ms / 1000,
+                "pct": round(ms / longest * 100),
+                "calls": node["calls"] or 0,
+                "input": node["input"] or 0,
+                "output": node["output"] or 0,
+                "cost": None if node["unpriced"] and not node["cost"] else (node["cost"] or None),
+                "status": "failed" if node["failed"] and e["status"] != "error" else e["status"],
+                "hasKids": bool(node["children"]),
+            }
+        )
+    return _data_page(TRACE_CSS, {"rows": rows}, TRACE_JS)
+
+
 def trace_view(events: list[dict], key: str) -> None:
     """The run's trace: a tree (run, agent, tool, model call) with time, tokens and cost rolled
     up at every level, and any step's input, output and error one click away."""
@@ -228,24 +331,11 @@ def trace_view(events: list[dict], key: str) -> None:
         if e["status"] == "error":
             st.error(f"{e['agent']} · {step_label(e)}: {e['detail'].get('error', 'failed')}")
     nodes = build_tree(events)
-    st.dataframe(
-        tree_rows(nodes),
-        hide_index=True,
-        width="stretch",
-        column_config={
-            "Starts at": st.column_config.NumberColumn("Starts at (s)", format="%.1f"),
-            "Duration": st.column_config.ProgressColumn(
-                "Duration", min_value=0, max_value=100, format=" "
-            ),
-            "Seconds": st.column_config.NumberColumn("Seconds", format="%.2f"),
-            "In": st.column_config.NumberColumn("Tokens in", format="%d"),
-            "Out": st.column_config.NumberColumn("Tokens out", format="%d"),
-            "Cost": st.column_config.NumberColumn("Est. cost", format="$%.5f"),
-        },
-    )
+    st.iframe(trace_tree_html(nodes), height=min(120 + 34 * len(nodes), 640))
     st.caption(
-        "Indented rows ran inside the row above. Tokens, calls and cost on a run, agent or tool "
-        "row include everything inside it. Costs are estimates (see the pricing note)."
+        "Click an arrow to fold a step and everything it ran. Tokens, calls and cost on a run, "
+        "agent or tool row include everything inside it. Costs are estimates (see the pricing "
+        "note)."
     )
     picked = st.selectbox(
         "Inspect a step",
@@ -365,7 +455,7 @@ def monitoring_view(records, go: Callable[..., None]) -> None:
     for r in rows:
         r["day"] = local(r["ts"]).strftime("%Y-%m-%d")
 
-    usage_tab, traces_tab, compare_tab = st.tabs(["Usage & cost", "Traces", "Before & after"])
+    usage_tab, traces_tab, compare_tab = st.tabs(["Usage & cost", "Traces", "Experimentation"])
     with usage_tab:
         usage_section(rows)
         other_calls(rows)
@@ -405,10 +495,6 @@ def usage_section(rows: list[dict]) -> None:
         st.dataframe(
             table_rows(usage.summarise(rows, "model"), "Model"), hide_index=True, width="stretch"
         )
-        by_day = usage.summarise(rows, "day")
-        if len(by_day) > 1:
-            st.caption("TOKENS PER DAY")
-            token_chart(by_day, by_total=False)
         st.caption(
             f"Costs are estimates from {config.MODEL_PRICES.name} (USD per million tokens, edit it "
             "to match your plan), not an invoice: the OpenAI usage page is the source of truth. "

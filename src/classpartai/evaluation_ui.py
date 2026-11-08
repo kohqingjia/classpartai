@@ -248,75 +248,26 @@ def cost_section(records=None) -> None:
         )
 
 
-def research_section() -> None:
-    d = _load("research-is469-library.json")
-    if not d:
-        return
-    st.subheader("Research: single-pass RAG or the agent (Tasmin's Research agent)")
-    sp, ag = d["single_pass"]["summary"], d["agentic"]["summary"]
-    rate = costing.Assumptions().sgd_per_usd
-    sp, ag = ({**x, "sgd": x["usd"] * rate} for x in (sp, ag))
-    rows = [
-        ("Correct verdict", "correctness_ok", "{:.0%}"),
-        ("Context precision", "context_precision", "{:.0%}"),
-        ("Found the gold passage", "gold_hit", "{:.0%}"),
-        ("Quotes are exact", "quoted", "{:.0%}"),
-        ("Routed correctly (course or web)", "routed_correctly", "{:.0%}"),
-        ("Model calls per item", "llm_calls", "{:.1f}"),
-        ("Seconds per item", "seconds", "{:.0f}"),
-        ("S$ per item", "sgd", "{:.4f}"),
-    ]
-    fmt = lambda f, v: "—" if v is None else f.format(v)  # noqa: E731
-    md(
-        "| | Single pass | Agent |\n|---|---|---|\n"
-        + "\n".join(f"| {label} | {fmt(f, sp[k])} | {fmt(f, ag[k])} |" for label, k, f in rows)
-    )
-    cfg = d["config"]
-    caption(
-        f"{len(d['agentic']['rows'])} labelled IS469 contributions, model {cfg['model']}. "
-        "The agent is more often right and more precise, for about 6× the cost and 5× the time. "
-        "Full table: eval/results/research-is469-library.md"
-    )
-
-
 def listener_section() -> None:
     d = _load("listener-20261107.json")
     if not d:
         return
-    st.subheader("Listener: who spoke, before and after the fixes (Tina's pipeline)")
-
-    def row(label, t):
-        s, p = t["student"], t["professor"]
-        return (
-            f"| {label} | {t['wrong_person']} | {s['correct']}/{s['lines']} | "
-            f"{p['correct']}/{p['lines']} |"
-        )
-
-    md(
-        "| | Lines given to the wrong person | Student lines right | Professor lines right |\n"
-        "|---|---|---|---|\n"
-        + "\n".join(
-            [
-                row("Before (turn-level match)", d["A"]["totals"]),
-                row("Word timings + per-line check", d["default"]["W+veto"]["totals"]),
-                row("+ whole-turn check (shipped)", d["shipped"]["totals"]),
-            ]
-        )
-    )
+    st.subheader("Listener: who spoke")
+    t = d["shipped"]["totals"]
+    s_, p_ = t["student"], t["professor"]
     wer = next(iter(d["wer"].values()))
-    caption(
-        f"Seven demo recordings in our real voices. Word error rate {wer:.1%}. Full results "
-        "and how it decides: eval/results/listener-20261107.md and How it works."
+    md(
+        "| Lines given to the wrong person | Student lines right | Professor lines right "
+        "| Word error rate |\n|---|---|---|---|\n"
+        f"| {t['wrong_person']} | {s_['correct']}/{s_['lines']} | "
+        f"{p_['correct']}/{p_['lines']} | {wer:.1%} |"
     )
-
-
-def _case_history(files: list[Path]) -> dict[str, tuple[int, int]]:
-    """Per case, how many saved guardrail runs caught it, out of those that included it."""
-    seen: dict[str, list[bool]] = {}
-    for f in files:
-        for c in json.loads(f.read_text(encoding="utf-8"))["cases"]:
-            seen.setdefault(c["case"], []).append(bool(c["caught"]))
-    return {case: (sum(r), len(r)) for case, r in seen.items()}
+    caption(
+        "Seven demo recordings in our own voices, scored line by line against the script. A "
+        "line the Listener is unsure about is marked unknown or ambiguous and never scored, so "
+        "a miss costs a line of evidence, not a wrong name on a score. How it decides: How it "
+        "works."
+    )
 
 
 def guardrails_section() -> None:
@@ -336,14 +287,6 @@ def guardrails_section() -> None:
             for c in d["cases"]
         )
     )
-    history = _case_history(files)
-    if len(files) > 1:
-        md(
-            "Runs saved so far, per case (Judge scoring varies between runs, so one pass is not "
-            "proof):"
-            + chr(10) * 2
-            + chr(10).join(f"- {c}: caught in {k} of {n} runs" for c, (k, n) in history.items())
-        )
     caption(f"Full observations: eval/results/{Path(files[-1]).with_suffix('.md').name}")
 
 
@@ -386,7 +329,7 @@ def auditor_section() -> None:
     if not AUDITOR_OFFLINE.exists():
         return
     d = json.loads(AUDITOR_OFFLINE.read_text(encoding="utf-8"))
-    st.subheader("Auditor: do better tool descriptions help? (before the Auditor was merged)")
+    st.subheader("Auditor: do better tool descriptions help?")
     agg: dict = defaultdict(lambda: [0, 0, 0, 0])
     for r in d["runs"]:
         a = agg[r["variant"]]
@@ -416,7 +359,7 @@ def auditor_section() -> None:
 
 
 def judge_section() -> None:
-    st.subheader("Judge: agreement with human scores (Saurabh's Judge agent)")
+    st.subheader("Judge: agreement with human scores")
     table_md = judge_markdown()
     if table_md:
         md(table_md)
@@ -436,7 +379,6 @@ def evaluation_view(records=None) -> None:
     cost_section(records)
     system_section()
     qualitative_section()
-    research_section()
     judge_section()
     auditor_section()
     listener_section()
