@@ -20,7 +20,7 @@ from classpartai.voices import match_rows
 def app(tmp_path, monkeypatch):
     st.cache_resource.clear()
     # Imported workflow scripts use the explicit single-call audit role, not agent fallback.
-    # The tool-calling bridge is exercised independently in test_auditor_bridge.py.
+    # The Auditor agent itself is exercised in test_auditor.py.
     monkeypatch.setattr(config, "AUDITOR", "model")
     monkeypatch.setattr(config, "DATA_DIR", tmp_path)
     monkeypatch.setattr(agent_ui, "DATA_DIR", tmp_path)

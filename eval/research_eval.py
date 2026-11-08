@@ -193,7 +193,15 @@ def main() -> None:
     parser.add_argument("--max-usd", type=float, help="stop once this much has been spent")
     parser.add_argument("--out", default="eval/results")
     parser.add_argument("--name", help="file stem (default research-<time>)")
+    parser.add_argument(
+        "--effort",
+        choices=["minimal", "low", "medium", "high"],
+        help="reasoning effort for every call; the experiment compares low with the default "
+        "(see 'Research: reasoning effort' on the Experiments tab)",
+    )
     args = parser.parse_args()
+    if args.effort:
+        config.LLM_REASONING_EFFORT = args.effort
 
     config.set_seed()
     items = load_labelled(args.items)

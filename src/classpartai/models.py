@@ -186,7 +186,7 @@ WORKFLOW_LIMITS = {
     "modelCalls": 72,
     "toolCalls": 108,
     "tokens": 400000,
-    "seconds": 600,
+    "seconds": 900,
     "historyBytes": 100000,
 }
 

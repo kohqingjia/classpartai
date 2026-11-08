@@ -305,7 +305,7 @@ def scripted_workflow(records, session_id, coordinator_steps=None):
         or [
             ("propose_rubric_assessment", {"note": "First pass"}),
             *[
-                ("draft_student_feedback", {"studentId": s})
+                ("draft_student_feedback", {"studentIds": [s]})
                 for s in ("alex-tan", "priya-nair", "jordan-wong", "marcus-lee")
             ],
             ("audit_assessment", {"note": "Audit"}),
@@ -358,7 +358,7 @@ def test_refused_actions_are_traced_with_their_reason(records, session_id):
             ("request_professor_review", {"summary": "Too early"}),
             ("propose_rubric_assessment", {"note": "First pass"}),
             *[
-                ("draft_student_feedback", {"studentId": s})
+                ("draft_student_feedback", {"studentIds": [s]})
                 for s in ("alex-tan", "priya-nair", "jordan-wong", "marcus-lee")
             ],
             ("audit_assessment", {"note": "Audit"}),

@@ -555,7 +555,8 @@ def test_answer_quality_signals_for_a_wrong_but_reasoned_answer(store, schedule)
     assert pack.mistake == guess
     brief = pack.brief()
     assert "Reasoning: explained" in brief and "Mistake: reasonable_guess" in brief
-    assert pack.answers_question == "no"
+    # wrong about the topic asked is still an answer to it; the verdict says it is wrong
+    assert pack.answers_question == "yes"
 
     bare = run("Yes, the side that uses it most should pay.", lambda a: ("asserted", None))
     assert bare.reasoning == "asserted" and bare.mistake is None

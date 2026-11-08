@@ -27,6 +27,7 @@ from pydantic import BaseModel, ConfigDict, Field, ValidationError
 
 from classpartai import usage as ledger
 from classpartai.assessment import AssessmentInputs
+from classpartai.lessons import EARLIER_CHECKS, Lessons, slug
 from classpartai.models import WORKFLOW_LIMITS, HistoryItem, SharedBudget, tool
 from classpartai.participation.roles import ROLE_POLICY, DriverFactory, evidence_json
 from classpartai.participation.schema import AuditIssue, CitationRef, Finding, Proposal
@@ -123,7 +124,7 @@ JUDGE_INSTRUCTIONS = (
     "conflicts with the answer. Never invent "
     "totals; code calculates them. A refused student comes back with the reason: fix only that "
     "student. If a `revision` is given, re-score only the students in toScore and address the "
-    "listed issues; every other finding is kept."
+    "listed issues; every other finding is kept." + EARLIER_CHECKS
 )
 
 
@@ -159,8 +160,10 @@ def judge(
     factory: DriverFactory,
     session_id: str,
     revision: Revision | None = None,
+    lessons: Lessons | None = None,
 ) -> Proposal:
     """Run the Judge agent and return its validated findings (no feedback)."""
+    lessons = lessons or Lessons()
     instructions = f"{ROLE_POLICY}\n{JUDGE_INSTRUCTIONS}"
     driver = factory(instructions, JUDGE_TOOLS)
     if driver is None:
@@ -309,6 +312,9 @@ def judge(
             for run_id, b in evidence
         ],
     }
+    earlier = lessons.for_agent("judge")
+    if earlier:
+        opening["earlierChecks"] = earlier  # scores the rules refused earlier in this session
     if revision:
         opening["revision"] = {
             "note": revision.note,
@@ -412,6 +418,7 @@ def judge(
             else:
                 reason = "Malformed tool arguments; send valid JSON for this tool's schema"
             output = {"error": reason}
+            lessons.note("judge", slug(reason.split(":")[0]), reason)
             trace.update(
                 outcome="refused",
                 reason=reason,

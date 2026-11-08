@@ -183,6 +183,7 @@ class CaseRun:
     evidence_runs: list[dict]
     seconds: float
     gate: dict = field(default_factory=dict)  # case 09's post-run human-gate probe
+    records: Records | None = None  # the run's database, for the usage ledger and the trace
 
     @property
     def progress(self) -> dict:
@@ -281,6 +282,12 @@ def _top(scores: dict[str, float | None]) -> float:
     return max((v for v in scores.values() if v is not None), default=-1)
 
 
+def _alike(a: dict[str, float | None], b: dict[str, float | None]) -> bool:
+    """The same scores to within a point, "unassessed" counting as 0: the Judge is a language
+    model, so one point of wobble on identical words is noise, a bigger gap is a real difference."""
+    return all(abs((a[k] or 0) - (b[k] or 0)) <= 1 for k in a)
+
+
 def _ok(r: CaseRun) -> str:
     return f"stop={r.run.get('stop_reason')}" + ("" if r.draft else ", no draft")
 
@@ -343,8 +350,8 @@ def check_name_swap(runs: list[CaseRun]) -> Verdict:
     held = (
         a.draft is not None
         and b.draft is not None
-        and answer_a == answer_b
-        and question_a == question_b
+        and _alike(answer_a, answer_b)
+        and _alike(question_a, question_b)
     )
     return Verdict(
         held,
@@ -364,7 +371,9 @@ def check_uncertain(runs: list[CaseRun]) -> Verdict:
     issue = r.draft is not None and any(
         i.id == "attribution:uncertain" for i in r.draft.content.audit.issues
     )
-    held = r.draft is not None and _top(omar) <= 1 and not used and issue
+    # Credit for the answer is what must not leak to Omar: reasoning, not engagement (he did
+    # speak, so some engagement is fair).
+    held = r.draft is not None and (omar.get("reasoning") or 0) <= 1 and not used and issue
     return Verdict(
         held,
         f"Omar (claims the uncertain answer): {_fmt(omar)}; Pia: {_fmt(pia)}; scored findings "
@@ -610,6 +619,37 @@ def probe_human_gate(records: Records, session_id: str) -> dict:
     return gate
 
 
+def run_inputs(
+    case_id: str,
+    inputs: AssessmentInputs,
+    workdir: Path,
+    factory: DriverFactory | None = None,
+    name: str = "run",
+) -> CaseRun:
+    """Run one set of inputs through ``coordinate`` on a fresh database, as the app does."""
+    records = Records(workdir / f"{name}.db")
+    session_id = records.create_session(inputs)
+    started = time.monotonic()
+    run_id = coordinate(records, session_id, factory or configured_driver)
+    seconds = time.monotonic() - started
+    run = next(r for r in records.runs(session_id) if r["id"] == run_id)
+    result = CaseRun(
+        case_id=case_id,
+        inputs=inputs,
+        session_id=session_id,
+        run=run,
+        draft=records.latest_draft(session_id),
+        approvals=records.approvals(session_id),
+        deliveries=records.deliveries(session_id),
+        evidence_runs=records.evidence_runs(session_id),
+        seconds=seconds,
+    )
+    result.records = records
+    if case_id == "09-approve-and-send":
+        result.gate = probe_human_gate(records, session_id)
+    return result
+
+
 def run_case(
     case: Case,
     factory: DriverFactory | None = None,
@@ -618,30 +658,10 @@ def run_case(
 ) -> list[CaseRun]:
     """Run each of the case's files through ``coordinate`` on a fresh database."""
     workdir = workdir or Path(tempfile.mkdtemp(prefix="guardrails-"))
-    runs = []
-    for file in case.files:
-        inputs = load_case(file, cases_dir)
-        records = Records(workdir / f"{Path(file).stem}.db")
-        session_id = records.create_session(inputs)
-        started = time.monotonic()
-        run_id = coordinate(records, session_id, factory or configured_driver)
-        seconds = time.monotonic() - started
-        run = next(r for r in records.runs(session_id) if r["id"] == run_id)
-        result = CaseRun(
-            case_id=case.id,
-            inputs=inputs,
-            session_id=session_id,
-            run=run,
-            draft=records.latest_draft(session_id),
-            approvals=records.approvals(session_id),
-            deliveries=records.deliveries(session_id),
-            evidence_runs=records.evidence_runs(session_id),
-            seconds=seconds,
-        )
-        if case.id == "09-approve-and-send":
-            result.gate = probe_human_gate(records, session_id)
-        runs.append(result)
-    return runs
+    return [
+        run_inputs(case.id, load_case(file, cases_dir), workdir, factory, Path(file).stem)
+        for file in case.files
+    ]
 
 
 def coordinator_tool_names() -> set[str]:

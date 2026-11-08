@@ -3,11 +3,18 @@ from pathlib import Path
 
 import pytest
 
+from classpartai import config
 from classpartai.assessment import AssessmentInputs
 from classpartai.models import ModelCall, ModelTurn
 from classpartai.participation.records import Records
 
 DATA = Path(__file__).resolve().parents[1] / "data"
+
+
+@pytest.fixture(autouse=True)
+def no_seminar_briefing(monkeypatch):
+    """The Summary pipeline makes real model calls after a run; scripted tests make none."""
+    monkeypatch.setattr(config, "SUMMARY", False)
 
 
 class ScriptedDriver:

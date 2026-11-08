@@ -23,7 +23,7 @@ TOPIC_ROWS = [
         "Coordinator",
         "A model in a loop with six tools and a stop condition; it calls Research, the Judge "
         "and the Auditor as tools; one budget for everything (72 model calls, 400k tokens, "
-        "600 s); no approve or send tool",
+        "900 s); no approve or send tool",
         '7 · "an agent = an LLM … + a harness" (S3); "Perceive → Plan → Act → Observe" '
         '(S13); "The supervisor pattern" (S47); "human-in-the-loop checkpoints" (S48)',
     ),

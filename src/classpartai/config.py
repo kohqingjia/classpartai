@@ -38,7 +38,12 @@ REASONING_EFFORT = {
     "coordinator": os.getenv("COORDINATOR_REASONING_EFFORT") or None,
     "feedback": os.getenv("FEEDBACK_REASONING_EFFORT") or None,
     "judge": JUDGE_REASONING_EFFORT,
+    # Research is the slowest agent and most of its output is hidden reasoning; unset = default.
+    # eval/research_eval.py --effort low is the experiment that shows what lowering it does.
+    "research": os.getenv("RESEARCH_REASONING_EFFORT") or None,
 }
+# The seminar briefing (summary/bridge.py), made when a session is handed over for review.
+SUMMARY = os.getenv("SUMMARY", "on").strip().lower() != "off"
 # Estimated prices for the Monitoring page (USD per million tokens; edit to match your plan).
 MODEL_PRICES = Path(os.getenv("MODEL_PRICES", REPO_ROOT / "data" / "model_prices.json"))
 
@@ -57,10 +62,14 @@ RESEARCH_MAX_GRADES = int(os.getenv("RESEARCH_MAX_GRADES", "8"))
 # session, Research uses lighter budgets, since every call counts against the workflow's shared
 # budget.
 EVIDENCE_AGENT = os.getenv("EVIDENCE_AGENT", "research").strip().lower()
-# Which auditor answers the coordinator's audit_assessment: "agent" (Le Yong's Auditor agent in
-# auditor_agent/, through participation/auditor_bridge.py, the default; errors require professor
-# review without automatic fallback) or "model" (explicit single-call audit in roles.py).
+# Which auditor answers the coordinator's audit_assessment: "agent" (the Auditor agent in
+# participation/auditor.py, the default; errors require professor review without automatic
+# fallback) or "model" (explicit single-call audit in roles.py).
 AUDITOR = os.getenv("AUDITOR", "agent").strip().lower()
+# Score every feedback email with a second model against a small rubric (faithful, constructive,
+# specific) and send a weak one back for a correction. One extra model call per email, so off by
+# default; eval/system_eval.py turns it on.
+FEEDBACK_JUDGE = os.getenv("FEEDBACK_JUDGE", "false").strip().lower() in ("1", "true")
 RESEARCH_BRIDGE_MAX_STEPS = int(os.getenv("RESEARCH_BRIDGE_MAX_STEPS", "8"))
 RESEARCH_BRIDGE_MAX_COURSE_SEARCHES = int(os.getenv("RESEARCH_BRIDGE_MAX_COURSE_SEARCHES", "4"))
 RESEARCH_BRIDGE_MAX_GRADES = int(os.getenv("RESEARCH_BRIDGE_MAX_GRADES", "5"))

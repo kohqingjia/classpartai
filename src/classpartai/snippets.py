@@ -159,7 +159,7 @@ TOPICS: list[tuple[str, list[Snippet]]] = [
                 "The budget every run must fit in",
                 "src/classpartai/models.py",
                 ("WORKFLOW_LIMITS",),
-                "72 model calls, 108 tool calls, 400k tokens, 600 s. A run that hits a limit "
+                "72 model calls, 108 tool calls, 400k tokens, 900 s. A run that hits a limit "
                 "stops cleanly and leaves its draft for review.",
             ),
         ],
@@ -213,8 +213,7 @@ TOPICS: list[tuple[str, list[Snippet]]] = [
 
 COORD = "src/classpartai/participation/coordinator.py"
 RESEARCH = "src/classpartai/research/tools.py"
-AUDIT = "src/classpartai/auditor_agent/tools.py"
-AUDIT_LOOP = "src/classpartai/auditor_agent/harness.py"
+AUDIT = "src/classpartai/participation/auditor.py"
 JUDGE = "src/classpartai/participation/judge.py"
 
 AGENTS: list[Agent] = [
@@ -225,7 +224,7 @@ AGENTS: list[Agent] = [
         "Plans the whole assessment. Each turn it reads what its last tool returned and picks "
         "the next tool. There is no fixed order and no approve or send tool. Every model and "
         "tool call, its sub-agents' included, counts against one budget (72 model calls, 108 "
-        "tool calls, 400k tokens, 600 s).",
+        "tool calls, 400k tokens, 900 s).",
         "the ③ Run button",
         (
             Tool(
@@ -360,7 +359,7 @@ AGENTS: list[Agent] = [
     Agent(
         "Auditor",
         "agent",
-        "Le Yong; wired in as the audit step by QJ",
+        "Le Yong (design); merged into the app's own types and loop by Saurabh",
         "Checks the Judge's work before the professor sees it: are scores supported, are "
         "citations real, is anything an injection, is it fair? It raises issues and may ask "
         "for one targeted re-judge, but never changes a score itself.",
@@ -379,7 +378,7 @@ AGENTS: list[Agent] = [
                 "compare_similar",
                 "Finds the contributions most similar to one finding's, to check that similar "
                 "answers got similar scores.",
-                "a finding_id, k (1-5)",
+                "a findingId, k (1-5)",
                 "the most similar findings with their scores",
                 "",
                 AUDIT,
@@ -389,7 +388,7 @@ AGENTS: list[Agent] = [
                 "verify_citation",
                 "Fetches one piece of evidence a finding cites, checks the reference and "
                 "quote are real, and has a model judge whether it supports the rationale.",
-                "a finding_id, an evidence_id attached to it",
+                "a findingId, an evidenceId attached to it",
                 "supports / partly supports / contradicts / fails to verify, with the quote",
                 "Only evidence attached to that finding can be fetched.",
                 AUDIT,
@@ -416,11 +415,11 @@ AGENTS: list[Agent] = [
             Tool(
                 "complete_audit",
                 "Finishes the audit with a verdict and its issues.",
-                "verdict (audit passed / professor review required), issues, resolved issue IDs",
+                "verdict (audit passed / professor review required), issues, resolvedIssueIds",
                 "the audit, saved with the draft",
                 "A pass is blocked while required checks are missing; it says which.",
-                AUDIT_LOOP,
-                ("run_audit#complete_audit",),
+                AUDIT,
+                ("complete",),
             ),
         ),
     ),

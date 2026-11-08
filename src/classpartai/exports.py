@@ -1,10 +1,13 @@
-"""Download the server's test data (recordings, voices, the database) as one zip.
+"""Download the server's test data (recordings, voices, slides, the database) as one zip.
 
 The audio lives only on the deployed server's volume (``CLASSPARTAI_DATA_DIR``), so a teammate
 who wants to run the Listener or the evaluations on their own machine needs a way to get it.
 This builds the zip; app.py's "Download data" page offers it. The app has no login, so the
 page leaves the groups that hold people's voices or records unticked: anyone who can open the
 app can open this page.
+
+``RESTORE`` says where each folder of the zip belongs in a checkout; tools/unpack_download.py
+puts everything there.
 """
 
 import sqlite3
@@ -13,7 +16,20 @@ import zipfile
 from collections.abc import Callable
 from dataclasses import dataclass
 from pathlib import Path
-from typing import BinaryIO
+from typing import IO
+
+# Where each top-level name in the zip goes, relative to the repository, with the data folder
+# (var by default) written as "{data}".
+RESTORE = {
+    "recordings": "{data}/recordings",
+    "demo-seminars": "{data}/demo-seminars",
+    "library": "{data}/library",
+    "classlist.json": "{data}/classlist.json",
+    "assessments.db": "{data}/assessments.db",
+    "enrollments": "audio-service/enrollments",
+    "eval-listener": "eval/listener",
+    "eval-results": "eval/results",
+}
 
 
 @dataclass(frozen=True)
@@ -57,6 +73,17 @@ def groups(data_dir: Path, enrollment_dir: Path, repo_root: Path) -> list[Group]
             personal=True,
         ),
         Group(
+            "classlist",
+            "Class list (names, emails, roles)",
+            "Who is in the class. The voice samples are matched to these names.",
+            lambda: (
+                [(data_dir / "classlist.json", "classlist.json")]
+                if (data_dir / "classlist.json").is_file()
+                else []
+            ),
+            personal=True,
+        ),
+        Group(
             "library",
             "Course library",
             "The uploaded slides and readings, split into passages (documents.json).",
@@ -93,7 +120,7 @@ def snapshot(db: Path, target: Path) -> Path | None:
     return target
 
 
-def build_archive(selected: list[Group], data_dir: Path, out: BinaryIO) -> list[dict]:
+def build_archive(selected: list[Group], data_dir: Path, out: IO[bytes]) -> list[dict]:
     """Write the chosen groups into ``out`` as a zip; returns a row per group for the page."""
     rows = []
     with (

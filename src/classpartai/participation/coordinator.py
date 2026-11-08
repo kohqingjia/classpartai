@@ -20,9 +20,11 @@ from pydantic import BaseModel, BeforeValidator, ConfigDict, Field, ValidationEr
 
 from classpartai import config
 from classpartai import usage as ledger
+from classpartai.assessment import AssessmentInputs
 from classpartai.evidence import INSTRUCTIONS as EVIDENCE_INSTRUCTIONS
 from classpartai.evidence import TOOL_DEFINITIONS as EVIDENCE_TOOLS
 from classpartai.evidence import CourseIndex, Investigation, investigate
+from classpartai.lessons import Lessons
 from classpartai.models import (
     WORKFLOW_LIMITS,
     BudgetExceeded,
@@ -31,7 +33,7 @@ from classpartai.models import (
     configured_driver,
     tool,
 )
-from classpartai.participation.auditor_bridge import persisted_agent_audit
+from classpartai.participation.auditor import persisted_agent_audit
 from classpartai.participation.judge import Revision, judge
 from classpartai.participation.records import Draft, Records
 from classpartai.participation.roles import (
@@ -112,8 +114,9 @@ class Revise(Strict):
     note: Annotated[str, _shorten(1000)] = Field(min_length=3, max_length=1000)
 
 
-class Student(Strict):
-    studentId: str = Field(min_length=1, max_length=80)
+class Students(Strict):
+    # Several at once saves a Coordinator turn per student; each email is still its own call.
+    studentIds: list[str] = Field(min_length=1, max_length=12)
 
 
 class Review(Strict):
@@ -146,8 +149,9 @@ COORDINATOR_TOOLS = [
     ),
     tool(
         "draft_student_feedback",
-        "Ask the feedback role to draft for one roster student or request missing evidence",
-        Student,
+        "Ask the feedback role to draft one email for each listed roster student, or request "
+        "missing evidence. List every student who still needs one in a single call",
+        Students,
     ),
     tool(
         "request_professor_review",
@@ -195,6 +199,7 @@ def _coordinate(
 ) -> str:
     inputs = records.inputs(session_id)
     records.review_state(session_id)
+    lessons = Lessons(records, session_id)  # what the checks have found wrong so far (lessons.py)
     progress = WorkflowProgress()
     run_id = records.start_run(
         session_id,
@@ -415,6 +420,7 @@ def _coordinate(
                         factory,
                         session_id,
                         revision,
+                        lessons,
                     )
                     scored.feedback = draft.content.feedback if draft and judged else []
                     nxt = records.append_draft(
@@ -444,6 +450,7 @@ def _coordinate(
                         session_id=session_id,
                         draft_id=draft.id,
                         records=records,
+                        lessons=lessons,
                     )
                     nxt = records.append_draft(
                         session_id, _proposal(draft), "model", args.note, draft.version, audit
@@ -459,31 +466,37 @@ def _coordinate(
                         },
                     }
                 elif call.name == "draft_student_feedback":
-                    args = _arguments(Student, raw)
+                    args = _arguments(Students, raw)
                     action["arguments"] = args.model_dump_json()
                     if draft is None:
                         raise Unprocessable("Create findings before feedback")
                     if not judged:
                         raise Unprocessable(NOT_JUDGED)
-                    result = feedback_for(
-                        args.studentId,
-                        inputs,
-                        _proposal(draft),
-                        records.evidence_for(session_id),
-                        budget,
-                        factory,
-                        session_id,
-                    )
-                    if result.status == "needs_evidence":
-                        output = result.model_dump()
-                    else:
-                        if result.feedback.studentId != args.studentId:
+                    proposal = _proposal(draft)
+                    needs: list[dict] = []
+                    written: list[str] = []
+                    for student_id in dict.fromkeys(args.studentIds):
+                        result = feedback_for(
+                            student_id,
+                            inputs,
+                            proposal,
+                            records.evidence_for(session_id),
+                            budget,
+                            factory,
+                            session_id,
+                            lessons,
+                        )
+                        if result.status == "needs_evidence":
+                            needs.append(result.model_dump())
+                            continue
+                        if result.feedback.studentId != student_id:
                             raise Unprocessable("Feedback role returned a different student")
-                        proposal = _proposal(draft)
                         proposal.feedback = [
-                            *[f for f in proposal.feedback if f.studentId != args.studentId],
+                            *[f for f in proposal.feedback if f.studentId != student_id],
                             result.feedback,
                         ]
+                        written.append(student_id)
+                    if written:
                         nxt = records.append_draft(
                             session_id,
                             proposal,
@@ -494,7 +507,7 @@ def _coordinate(
                         progress.latestDraftId = nxt.id
                         output = {
                             "draftId": nxt.id,
-                            "feedbackStudentId": args.studentId,
+                            "feedbackStudentIds": written,
                             "studentsWithoutFeedback": [
                                 st.id
                                 for st in inputs.roster
@@ -504,6 +517,10 @@ def _coordinate(
                                 [i for i in nxt.content.audit.issues if i.disposition == "open"]
                             ),
                         }
+                        if needs:
+                            output["needsEvidence"] = needs
+                    else:
+                        output = needs[0] if len(needs) == 1 else {"needsEvidence": needs}
                 elif call.name == "request_professor_review":
                     args = _arguments(Review, raw)
                     action["arguments"] = args.model_dump_json()
@@ -601,6 +618,11 @@ def _coordinate(
         if tool_span:
             tool_span.end("error", error=error)
         ledger.record_error("coordinator", error)  # the reason, which the run record drops
+    if config.SUMMARY and stop_reason in (
+        "ready_for_professor_review",
+        "escalated_with_open_issues",
+    ):
+        briefing(records, session_id, inputs)
     progress.elapsedSeconds = round(time.monotonic() - started, 3)
     records.update_run(
         run_id,
@@ -610,6 +632,17 @@ def _coordinate(
     )
     emit("done", {"stopReason": stop_reason})
     return run_id
+
+
+def briefing(records: Records, session_id: str, inputs: AssessmentInputs) -> None:
+    """The Summary pipeline's seminar briefing, for the professor. Outside the Coordinator's
+    choices and its budget; if it fails the assessment is unaffected and the error is traced."""
+    from classpartai.summary.bridge import summarise_seminar
+
+    try:
+        records.save_summary(session_id, summarise_seminar(inputs))
+    except Exception as error:
+        ledger.record_error("summary", error)
 
 
 MAX_REVIEW_REFUSALS = 3  # the third refused request_professor_review escalates instead

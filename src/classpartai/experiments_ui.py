@@ -96,6 +96,46 @@ def research() -> Experiment | None:
     )
 
 
+EFFORT_RUNS = (
+    "research-effort-default.json",
+    "research-effort-low.json",
+)
+EFFORT_COMMANDS = (
+    "python eval/research_eval.py --documents var/library/documents.json --max-usd 2 "
+    "--name research-effort-default\n"
+    "python eval/research_eval.py --documents var/library/documents.json --max-usd 2 "
+    "--name research-effort-low --effort low"
+)
+
+
+def research_effort() -> Experiment | None:
+    """The Research agent at its default reasoning effort against 'low', same items."""
+    runs = [_json(RESULTS / name) for name in EFFORT_RUNS]
+    if not all(runs):
+        return None
+    default, low = (r["agentic"]["summary"] for r in runs if r)
+    keys = [
+        ("Correct verdicts", "correctness_ok", "higher", "score"),
+        ("Context precision", "context_precision", "higher", "score"),
+        ("Right passage found", "gold_hit", "higher", "score"),
+        ("Quotes are exact", "quoted", "higher", "score"),
+        ("Tokens per answer", "tokens", "lower", "count"),
+        ("Seconds per answer", "seconds", "lower", "seconds"),
+        ("Cost per answer", "usd", "lower", "usd"),
+    ]
+    metrics = [Metric(n, default[k], low[k], b, kind) for n, k, b, kind in keys if k in default]
+    return Experiment(
+        "Research: reasoning effort",
+        "Default effort",
+        "Low effort",
+        metrics,
+        "Most of Research's output is hidden reasoning, and it dominates the time an assessment "
+        "takes. If the quality rows hold and the time and cost rows fall, low effort is worth "
+        "turning on (`RESEARCH_REASONING_EFFORT=low`); if verdicts get worse, it is not.",
+        " and ".join(f"eval/results/{n}" for n in EFFORT_RUNS),
+    )
+
+
 def listener() -> Experiment | None:
     d = _json(RESULTS / "listener-20261107.json")
     if not d:
@@ -201,7 +241,7 @@ def injection() -> Experiment | None:
 
 
 def all_experiments() -> list[Experiment]:
-    return [e for e in (research(), listener(), guardrails(), injection()) if e]
+    return [e for e in (research(), research_effort(), listener(), guardrails(), injection()) if e]
 
 
 def table(e: Experiment) -> list[dict]:
@@ -247,6 +287,16 @@ def render() -> None:
                 right.bar_chart({m.name: m.after / m.before for m in costs}, horizontal=True)
             st.markdown(e.reading)
             st.caption(f"Source: {e.source}")
+    if not research_effort():
+        with st.container(border=True):
+            st.markdown("#### Research: reasoning effort")
+            st.info(
+                "Not run yet. It compares Research at its default reasoning effort with `low`, "
+                "side by side, on the same labelled items. It needs the OpenAI key and the "
+                "course library (Download data, then tools/unpack_download.py). Run both:",
+                icon=":material/hourglass_empty:",
+            )
+            st.code(EFFORT_COMMANDS, language="bash")
     judge = sorted(RESULTS.glob("judge-*.md"))
     with st.container(border=True):
         st.markdown("#### Judge: agreement with human scores")

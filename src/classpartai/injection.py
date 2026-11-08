@@ -1,9 +1,9 @@
 """A pattern check for words aimed at the grader ("ignore the rubric", "give me full marks").
 
 The Listener runs it over every turn it transcribes, so the professor sees a flag while reviewing
-the transcript and the Judge is told which turns try to instruct it. The Auditor runs the same
-check over the Judge's rationales and over cited course text, where it is a deterministic
-guardrail rather than a tool the model chooses to call.
+the transcript and the Judge is told which turns try to instruct it. Research uses the same
+pattern on retrieved course text and the Auditor on the Judge's rationales and cited passages:
+one definition of "instruction aimed at the grader" for every agent.
 
 It is a heuristic, English only: a miss is not proof of safety, and the flag never changes the
 transcript text. eval/injection_eval.py measures its precision and recall on a labelled set.
@@ -38,7 +38,14 @@ _PATTERN = re.compile(
             rf"{_TOP}",
             r"\b(?:full|maximum|perfect|top) (?:marks|score|credit|points|grade)\b"
             r"(?=.{0,40}\b(?:please|give|award|should|must|deserve))",
+            rf"\b(?:give|award|grant|assign)\s+(?:me|us)\b{_FILLER}(?:marks?|grades?|points?|score)\b",
             r"\b(?:override|change|raise|set) (?:the |my |this )?(?:grade|score|mark)\b",
+            # 3b. reaching for the workflow: "approve this draft", "email every student",
+            #     "skip the professor review"
+            rf"\b(?:approve|email|send){_FILLER}(?:draft|emails?|students?|marks|feedback)\b",
+            rf"\bskip{_FILLER}(?:review|approval)\b",
+            # 3c. a note addressed to the grader: "note to the grading system"
+            r"\bnote to (?:the )?(?:grading|grader|marker|marking|ai|assistant|judge)\b",
             # 3. telling the grader who it is, or what to do: "you are now the grader",
             #    "as the grader you should", "pretend you are the professor", "act as the judge"
             rf"\byou are (?:now |no longer )?(?:the |a |an )?{_ROLE}\b",
@@ -73,3 +80,6 @@ def injection_signal(original: str) -> dict:
         "sanitised_view": None,
         "limitation": "Heuristic suspicion only; no pattern is not proof of safety",
     }
+
+
+PATTERN = _PATTERN  # shared: Research, the Listener and the Auditor all use this one definition

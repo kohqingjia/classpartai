@@ -8,11 +8,11 @@ retrieved), the budgets, the R2 retry limit, and the trajectory log (Topic 7 §6
 from __future__ import annotations
 
 import json
-import re
 import time
 from collections.abc import Callable
 from dataclasses import asdict, dataclass, field
 
+from classpartai.injection import PATTERN
 from classpartai.llm import ChatModel, extract_json
 from classpartai.models import BudgetExceeded
 from classpartai.research.materials import lesson_for_date, week_materials
@@ -24,13 +24,7 @@ STANCE = ("supports", "contradicts", "neither")
 MAX_ATTEMPTS_PER_SOURCE = 3  # R2: the first search plus at most 2 rewrites, per claim and source
 
 # Retrieved text is untrusted (Topic 8 §8): flag text that reads like instructions to the grader.
-_INJECTION = re.compile(
-    r"ignore (all |any )?(previous|prior|above|the|your) (instructions|rules|rubric)"
-    r"|note to the (grading system|grader|marker)"
-    r"|disregard (the|your|all) (rules|instructions)|you are now|system prompt"
-    r"|give (me|them|everyone|this student) (full|top|maximum) (marks|score)",
-    re.IGNORECASE,
-)
+_INJECTION = PATTERN  # the one shared definition of an instruction aimed at the grader
 
 
 @dataclass

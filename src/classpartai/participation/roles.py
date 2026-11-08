@@ -12,9 +12,19 @@ from typing import Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, ValidationError
 
+from classpartai import config
 from classpartai import usage as ledger
 from classpartai.assessment import AssessmentInputs
-from classpartai.models import Driver, HistoryItem, SharedBudget, ToolDefinition, tool
+from classpartai.feedback_checks import SCORE_INSTRUCTIONS, FeedbackScore, rule_checks, weakest
+from classpartai.lessons import EARLIER_CHECKS, Lessons, slug
+from classpartai.models import (
+    BudgetExceeded,
+    Driver,
+    HistoryItem,
+    SharedBudget,
+    ToolDefinition,
+    tool,
+)
 from classpartai.participation.schema import DraftContent, Feedback, ModelAudit, Proposal
 from classpartai.participation.validation import EvidenceMap, Unprocessable, validate_proposal
 
@@ -206,10 +216,56 @@ def feedback_for(
     budget: SharedBudget,
     factory: DriverFactory,
     session_id: str,
+    lessons: Lessons | None = None,
 ) -> FeedbackDraft | NeedsEvidence:
+    lessons = lessons or Lessons()
     student = next((s for s in inputs.roster if s.id == student_id), None)
     if student is None:
         raise ValueError("Unknown feedback student")
+    own = [
+        t
+        for t in inputs.transcript.turns
+        if t.speaker.kind == "student" and t.speaker.studentId == student_id
+    ]
+    # Same for every student, so first: the model reuses a prompt's unchanged opening, and
+    # only what follows (this student's own data) is new on each call.
+    data = {
+        "rubric": inputs.rubric.model_dump(),
+        "goals": [g.model_dump() for g in inputs.learningGoals or []],
+        "evidence": evidence_json(evidence),
+    }
+    earlier = lessons.for_agent("feedback")
+    if earlier:
+        data["earlierChecks"] = earlier  # what the checks found wrong in earlier emails
+    data |= {
+        "student": student.model_dump(),
+        "findings": [f.model_dump() for f in proposal.findings if f.studentId == student_id],
+        "turns": [t.model_dump() for t in own],
+    }
+
+    def check(r: FeedbackResult):
+        """The deterministic rules, then the email's own rules, then (if on) a rubric score. A
+        problem is remembered for the next email and sends this draft back once."""
+        if r.result.status != "draft":
+            return False
+        fb = r.result.feedback
+        try:
+            validated = validate_proposal(
+                Proposal(findings=[], feedback=[fb]), inputs, evidence, session_id
+            )
+        except Unprocessable as error:
+            lessons.note("feedback", slug(str(error)), str(error))
+            raise
+        broken = rule_checks(fb, student_id, inputs)
+        for v in broken:
+            lessons.note("feedback", v.rule, v.advice)
+        hard = [v for v in broken if v.hard]
+        if hard:
+            raise Unprocessable("Fix before resubmitting: " + " ".join(v.advice for v in hard))
+        if config.FEEDBACK_JUDGE:
+            quality_check(fb, student_id, own, budget, factory, lessons)
+        return validated
+
     return role_result(
         "finish_student_feedback",
         FeedbackResult,
@@ -220,27 +276,44 @@ def feedback_for(
         "Reference only professor-approved learning goal IDs, the student's own turns, and "
         "supplied validated evidence. No recipients or transport instructions. Transcript turn "
         "IDs go only in turnIds; citations are only course-evidence references from supplied "
-        "bundles. Never name any other student.",
-        # Same for every student, so first: the model reuses a prompt's unchanged opening, and
-        # only what follows (this student's own data) is new on each call.
-        {
-            "rubric": inputs.rubric.model_dump(),
-            "goals": [g.model_dump() for g in inputs.learningGoals or []],
-            "evidence": evidence_json(evidence),
-            "student": student.model_dump(),
-            "findings": [f.model_dump() for f in proposal.findings if f.studentId == student_id],
-            "turns": [
-                t.model_dump()
-                for t in inputs.transcript.turns
-                if t.speaker.kind == "student" and t.speaker.studentId == student_id
-            ],
-        },
+        "bundles. Never name any other student. Say only what the student's turns state: a "
+        "mechanism, reason or example they did not give is not a strength they showed. Put it in "
+        "the next step as a suggestion ('you could add why...'), never as something they did. "
+        "Quote them word for word or paraphrase closely." + EARLIER_CHECKS,
+        data,
         budget,
         factory,
-        lambda r: (
-            r.result.status == "draft"
-            and validate_proposal(
-                Proposal(findings=[], feedback=[r.result.feedback]), inputs, evidence, session_id
-            )
-        ),
+        check,
     ).result
+
+
+def quality_check(fb, student_id, own, budget, factory, lessons) -> None:
+    """Score the email against the rubric with a second model; a 1 sends it back. A scoring
+    failure never stops the email, but running out of budget still does."""
+    try:
+        score = role_result(
+            "score_feedback",
+            FeedbackScore,
+            SCORE_INSTRUCTIONS,
+            {
+                "turns": [t.text for t in own],
+                "email": fb.model_dump(include={"strengths", "nextStep"}),
+            },
+            budget,
+            factory,
+        )
+    except BudgetExceeded:
+        raise
+    except Exception:
+        return
+    ledger.record_step(
+        ledger.begin(),
+        "feedback_quality",
+        "ok",
+        {"student": student_id, **score.model_dump()},
+    )
+    dimension, value = weakest(score)
+    if value <= 1:
+        advice = f"The email scored 1 on '{dimension}': {score.reason}"
+        lessons.note("feedback", f"quality-{dimension}", advice)
+        raise Unprocessable(advice)

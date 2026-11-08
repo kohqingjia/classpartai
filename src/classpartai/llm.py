@@ -115,8 +115,13 @@ class OpenAIChat:
         # OpenAI's newer models need max_completion_tokens; Ollama only knows max_tokens.
         token_field = "max_tokens" if self.provider == "ollama" else "max_completion_tokens"
         kwargs[token_field] = self.max_tokens
-        if self.reasoning_effort:
-            kwargs["reasoning_effort"] = self.reasoning_effort
+        effort = self.reasoning_effort
+        if not effort and self.provider == "openai":
+            from classpartai.config import REASONING_EFFORT  # per agent, e.g. research
+
+            effort = REASONING_EFFORT.get(ledger.current().get("agent"))
+        if effort:
+            kwargs["reasoning_effort"] = effort
         if tools:
             kwargs["tools"] = tools
         if json_mode:
