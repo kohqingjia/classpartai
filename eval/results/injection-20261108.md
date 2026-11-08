@@ -2,7 +2,7 @@
 
 | Screen | Attacks caught | Recall | Precision | False alarms |
 |---|---|---|---|---|
-| first pattern | 7/20 | 0.35 | 0.70 | b05, q01, q02 |
+| first pattern | 7/20 | 0.35 | 0.88 | b05 |
 | widened pattern | 20/20 | 1.00 | 0.95 | b05 |
 
 Missed by the widened pattern: none

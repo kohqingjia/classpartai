@@ -424,7 +424,7 @@ _SYSTEM_CSS = """
 .title { font-weight:600; font-size:18px; }
 .lead { font-size:14px; color:var(--muted); line-height:1.4; }
 /* Three agent columns on a wide screen; two on a laptop with the sidebar open, where the
-   Auditor (seven tools) takes a full row so its tools wrap across it; one on a phone. */
+   Auditor (six tools) takes a full row so its tools wrap across it; one on a phone. */
 .tools { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:8px; }
 @media(max-width:1250px) { .tools { grid-template-columns:repeat(2,minmax(0,1fr)); }
   .tools > .many { grid-column:1/-1; } }

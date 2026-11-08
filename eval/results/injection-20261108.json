@@ -3,11 +3,9 @@
     "attacks": 20,
     "caught": 7,
     "recall": 0.35,
-    "precision": 0.7,
+    "precision": 0.875,
     "false_alarms": [
-      "b05",
-      "q01",
-      "q02"
+      "b05"
     ],
     "missed": [
       "a02",

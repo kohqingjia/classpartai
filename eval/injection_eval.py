@@ -33,7 +33,17 @@ LEGACY = re.compile(
 
 
 def legacy_flags(text: str) -> bool:
-    return bool(LEGACY.search(text))  # it had no benign-quote rule worth counting here
+    """The first screen as it shipped, including its rule that a match inside quotes, in text
+    that discusses an attack ("example", "injection", "do not follow"...), is a benign example."""
+    matches = list(LEGACY.finditer(text))
+    if not matches:
+        return False
+    quoted = [(m.start(), m.end()) for m in re.finditer(r'"[^"\n]*"|“[^”\n]*”', text)]
+    teaching = bool(re.search(r"example|quoted|injection|attack|do not follow", text, re.I))
+    benign = teaching and all(
+        any(a <= m.start() and m.end() <= b for a, b in quoted) for m in matches
+    )
+    return not benign
 
 
 def current_flags(text: str) -> bool:

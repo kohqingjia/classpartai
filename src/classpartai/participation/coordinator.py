@@ -475,27 +475,41 @@ def _coordinate(
                     proposal = _proposal(draft)
                     needs: list[dict] = []
                     written: list[str] = []
-                    for student_id in dict.fromkeys(args.studentIds):
-                        result = feedback_for(
-                            student_id,
-                            inputs,
-                            proposal,
-                            records.evidence_for(session_id),
-                            budget,
-                            factory,
-                            session_id,
-                            lessons,
-                        )
-                        if result.status == "needs_evidence":
-                            needs.append(result.model_dump())
-                            continue
-                        if result.feedback.studentId != student_id:
-                            raise Unprocessable("Feedback role returned a different student")
-                        proposal.feedback = [
-                            *[f for f in proposal.feedback if f.studentId != student_id],
-                            result.feedback,
-                        ]
-                        written.append(student_id)
+                    try:
+                        for student_id in dict.fromkeys(args.studentIds):
+                            result = feedback_for(
+                                student_id,
+                                inputs,
+                                proposal,
+                                records.evidence_for(session_id),
+                                budget,
+                                factory,
+                                session_id,
+                                lessons,
+                            )
+                            if result.status == "needs_evidence":
+                                needs.append(result.model_dump())
+                                continue
+                            if result.feedback.studentId != student_id:
+                                raise Unprocessable("Feedback role returned a different student")
+                            proposal.feedback = [
+                                *[f for f in proposal.feedback if f.studentId != student_id],
+                                result.feedback,
+                            ]
+                            written.append(student_id)
+                    except Exception:
+                        # A later student failing must not throw away the emails already
+                        # written (and paid for) in this batch: keep them, then fail as before.
+                        if written:
+                            kept = records.append_draft(
+                                session_id,
+                                proposal,
+                                "model",
+                                "Individual feedback draft",
+                                draft.version,
+                            )
+                            progress.latestDraftId = kept.id
+                        raise
                     if written:
                         nxt = records.append_draft(
                             session_id,
