@@ -29,7 +29,12 @@ from classpartai import usage as ledger
 from classpartai.assessment import AssessmentInputs
 from classpartai.lessons import EARLIER_CHECKS, Lessons, slug
 from classpartai.models import WORKFLOW_LIMITS, HistoryItem, SharedBudget, tool
-from classpartai.participation.roles import ROLE_POLICY, DriverFactory, evidence_json
+from classpartai.participation.roles import (
+    ROLE_POLICY,
+    DriverFactory,
+    evidence_json,
+    newest_per_turns,
+)
 from classpartai.participation.schema import AuditIssue, CitationRef, Finding, Proposal
 from classpartai.participation.validation import (
     EvidenceMap,
@@ -309,7 +314,16 @@ def judge(
                 "conflicts": b.conflicts,
                 "passageIds": [c.passageId for c in b.citations],
             }
+            # In full: the newest run per set of turns. Re-runs repeat old ones, and the full
+            # list grows with every re-run toward the history limit.
+            for run_id, b in newest_per_turns(evidence)
+        ],
+        # Every other run, by ID and question only, so the Judge can still read it with
+        # get_evidence (Pullfrog #79: two investigations of the same turns can differ).
+        "olderEvidenceRuns": [
+            {"id": run_id, "question": b.question}
             for run_id, b in evidence
+            if run_id not in {r for r, _ in newest_per_turns(evidence)}
         ],
     }
     earlier = lessons.for_agent("judge")

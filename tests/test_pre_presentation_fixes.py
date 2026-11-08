@@ -92,3 +92,36 @@ def test_saved_reviews_are_in_the_results_download(tmp_path):
         if g.key == "results"
     )
     assert (saved, "eval-results/qualitative-reviews/system-1-ana.json") in group.files()
+
+
+def test_feedback_and_judge_get_only_relevant_newest_evidence():
+    """Demo 1 (run d1a03768): every past run's evidence went to every feedback call, so the
+    feedback review passed the 100 KB history limit and the run stopped."""
+    from types import SimpleNamespace as NS
+
+    from classpartai.participation.roles import newest_per_turns, relevant_evidence
+
+    def bundle(*turns):
+        return NS(turnIds=list(turns))
+
+    evidence = [("new-a", bundle("t1")), ("old-a", bundle("t1")), ("b", bundle("t2"))]
+    assert [r for r, _ in newest_per_turns(evidence)] == ["new-a", "b"]
+    cites_old = NS(citations=[NS(evidenceRunId="old-a")])
+    kept = [r for r, _ in relevant_evidence(evidence, [cites_old], ["t1"])]
+    assert kept == ["new-a", "old-a"]  # the cited old run stays; t2's run is someone else's
+
+
+def test_the_feedback_review_gets_only_the_evidence_the_draft_cites(inputs, monkeypatch):
+    """Pullfrog #79: the filter must apply to feedback_audit, the role that overflowed."""
+    from types import SimpleNamespace as NS
+
+    from classpartai.participation import roles
+
+    seen = {}
+    monkeypatch.setattr(roles, "role_result", lambda *a, **k: seen.setdefault("data", a[3]))
+    draft = compose_draft(Proposal.model_validate(full_proposal()), inputs, "d")
+    old = [
+        (f"old-{n}", NS(turnIds=["turn-001"], model_dump=lambda: {"big": "x"})) for n in range(7)
+    ]
+    roles.feedback_audit.__wrapped__(inputs, draft, old, None, None)
+    assert seen["data"]["evidence"] == []  # nothing cited: none of the old runs is sent
