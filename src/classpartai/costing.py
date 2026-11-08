@@ -110,12 +110,61 @@ def latest_complete(records) -> dict | None:
     return None
 
 
+def pooled(records, sessions: int = 7) -> dict | None:
+    """The newest finished run of each of the most recent sessions, added together, so the
+    estimate rests on several seminars rather than one. Research's cost per answer comes from
+    the runs that called Research (others reused earlier evidence); everything else is per
+    student, from every run."""
+    runs, seen = [], set()
+    for row in records.runs_with_usage(None, limit=200):
+        if row["stop_reason"] not in FINISHED or not row["calls"]:
+            continue
+        found = summarise_run(records, row["id"])
+        session = found["run"]["session"]
+        if session in seen:
+            continue
+        seen.add(session)
+        runs.append(found)
+        if len(runs) == sessions:
+            break
+    researched = [r["run"] for r in runs if "research" in r["run"]["byAgent"]]
+    if not researched:
+        return None
+    by_agent: dict = defaultdict(lambda: defaultdict(float))
+    for r in runs:
+        for agent, values in r["run"]["byAgent"].items():
+            for k, v in values.items():
+                by_agent[agent][k] += v
+    total = lambda key: sum(r["run"][key] or 0 for r in runs)  # noqa: E731
+    return {
+        "run": {
+            "id": ", ".join(r["run"]["id"][:8] for r in runs),
+            "session": f"{len(runs)} seminars (newest finished run of each)",
+            "sessions": [r["run"]["session"] for r in runs],
+            "status": "pooled",
+            "stopReason": FINISHED[0],
+            "model": runs[0]["run"]["model"],
+            "recordedAt": runs[0]["run"]["recordedAt"],
+            "audio_seconds": total("audio_seconds"),
+            "contributions": total("contributions"),
+            "researchContributions": sum(r["contributions"] for r in researched),
+            "students": total("students"),
+            "seconds": total("seconds"),
+            "modelCalls": total("modelCalls"),
+            "usd": round(total("usd"), 5),
+            "byAgent": {k: {n: round(v, 5) for n, v in a.items()} for k, a in by_agent.items()},
+        },
+        "prices": runs[0]["prices"],
+    }
+
+
 def measured(path: Path = MEASURED, listener: Path = LISTENER, records=None) -> dict | None:
-    """A measured run, plus the Listener's measured speed. With ``records``, the newest complete
-    run from the app's ledger wins; otherwise the committed run in eval/results."""
+    """A measured run, plus the Listener's measured speed. With ``records``, the app's ledger
+    wins (the recent seminars pooled, else the newest complete run); otherwise the committed run
+    in eval/results."""
     if not listener.exists():
         return None
-    from_ledger = latest_complete(records) if records is not None else None
+    from_ledger = (pooled(records) or latest_complete(records)) if records is not None else None
     found = from_ledger or (json.loads(path.read_text(encoding="utf-8")) if path.exists() else None)
     if found is None:
         return None
@@ -142,7 +191,8 @@ def estimate(m: dict, a: Assumptions) -> dict:
     by_agent = run.get("byAgent") or {}
     if by_agent:
         research_usd = by_agent.get("research", {}).get("usd", 0.0)
-        per_answer = research_usd / run["contributions"]
+        # Pooled runs: only the seminars that called Research count towards its cost per answer
+        per_answer = research_usd / run.get("researchContributions", run["contributions"])
         per_student = (run["usd"] - research_usd) / run["students"]
         model_usd = per_answer * a.contributions + per_student * a.students
     else:

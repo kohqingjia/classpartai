@@ -134,7 +134,18 @@ def cost_section(records=None) -> None:
     if m is None:
         st.info("No measured run yet: run eval/cost_measure.py on the server.")
         return
-    if m["source"] == "ledger":
+    if m["source"] == "ledger" and m["run"].get("status") == "pooled":
+        run = m["run"]
+        st.success(
+            f"Measured from the app's own ledger: the newest finished run of each of "
+            f"{len(run['sessions'])} seminars, added together ({run['contributions']} "
+            f"contributions, {run['students']} students, US\\${run['usd']:.2f}), so it follows "
+            f"the code as it is now. Research's cost per answer comes from the "
+            f"{run['researchContributions']} answers in the runs that called it; the others "
+            "reused earlier evidence.",
+            icon=":material/check_circle:",
+        )
+    elif m["source"] == "ledger":
         st.success(
             f"Measured from the app's own latest complete run (`{m['run']['id'][:8]}`, "
             f"{m['run']['recordedAt'][:10]}), so it follows the code as it is now.",
