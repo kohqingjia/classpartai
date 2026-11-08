@@ -112,32 +112,6 @@ def token_chart(groups: list[dict], by_total: bool = True) -> None:
 # --- A single run's trace ---------------------------------------------------------------------
 
 
-def trace_table(events: list[dict]) -> list[dict]:
-    """One row per step, in the order they started, with when each began and how long it took."""
-    if not events:
-        return []
-    start = local(events[0]["ts"])
-    longest = max((e["latency_ms"] or 0 for e in events), default=1) or 1
-    return [
-        {
-            "#": n,
-            "Starts at": round((local(e["ts"]) - start).total_seconds(), 1),
-            "Agent": e["agent"],
-            "Step": step_label(e),
-            "Type": {"model": "model call", "tool": "tool", "error": "error"}.get(
-                e["kind"], e["kind"]
-            ),
-            "Took": round((e["latency_ms"] or 0) / longest * 100),
-            "Seconds": round((e["latency_ms"] or 0) / 1000, 2),
-            "Status": e["status"],
-            "In": e["input_tokens"],
-            "Out": e["output_tokens"],
-            "Cost": e["cost_usd"],
-        }
-        for n, e in enumerate(events, 1)
-    ]
-
-
 ICONS = {"run": "🏁", "agent": "🤖", "tool": "🔧", "model": "✨", "embedding": "🧮", "error": "⚠️"}
 
 
@@ -185,34 +159,6 @@ def build_tree(events: list[dict]) -> list[dict]:
     for root in children.get(None, []):
         walk(rollup(root), 0)
     return flat
-
-
-def tree_rows(nodes: list[dict]) -> list[dict]:
-    if not nodes:
-        return []
-    start = datetime.fromisoformat(nodes[0]["event"]["ts"])
-    longest = max((n["event"]["latency_ms"] or 0 for n in nodes), default=1) or 1
-    rows = []
-    for n, node in enumerate(nodes, 1):
-        e = node["event"]
-        kind = node_kind(e)
-        rows.append(
-            {
-                "#": n,
-                "Span": "\u2003" * node["depth"] + f"{ICONS.get(kind, '•')} " + step_label(e),
-                "Kind": kind,
-                "Agent": e["agent"],
-                "Starts at": round((datetime.fromisoformat(e["ts"]) - start).total_seconds(), 1),
-                "Duration": round((e["latency_ms"] or 0) / longest * 100),
-                "Seconds": round((e["latency_ms"] or 0) / 1000, 2),
-                "Calls": node["calls"] or None,
-                "In": node["input"] or None,
-                "Out": node["output"] or None,
-                "Cost": None if node["unpriced"] and not node["cost"] else node["cost"] or None,
-                "Status": "failed" if node["failed"] and e["status"] != "error" else e["status"],
-            }
-        )
-    return rows
 
 
 TRACE_CSS = """
