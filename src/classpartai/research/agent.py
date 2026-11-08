@@ -632,7 +632,9 @@ def _answers_question(
         derived = "no"
     else:
         derived = "partly"
-    if attempted and derived != "yes":
+    # Only when the agent itself did not say the answer misses the question: a wrong claim about
+    # something else (an explicit "no") is off topic, not an attempt at this question.
+    if attempted and derived != "yes" and reported != "no":
         notes.append(
             "The answer is wrong about the topic asked, which still addresses the question."
         )

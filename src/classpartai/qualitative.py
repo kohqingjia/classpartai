@@ -40,6 +40,13 @@ RESULTS = config.REPO_ROOT / "eval" / "results"
 
 
 def folder() -> Path:
+    """Where reviews are saved: the data volume, which is writable and survives a redeploy (the
+    image's eval/results is read-only on the server)."""
+    return config.DATA_DIR / "qualitative-reviews"
+
+
+def committed_folder() -> Path:
+    """Reviews committed to the repository, shown alongside saved ones."""
     return RESULTS / "qualitative-reviews"
 
 
@@ -60,9 +67,12 @@ def path_for(stamp: str, reviewer: str) -> Path:
 
 
 def load(stamp: str, reviewer: str) -> dict:
-    path = path_for(stamp, reviewer)
-    if reviewer_slug(reviewer) and path.is_file():
-        return json.loads(path.read_text(encoding="utf-8"))
+    if not reviewer_slug(reviewer):
+        return {}
+    for base in (folder(), committed_folder()):
+        path = base / path_for(stamp, reviewer).name
+        if path.is_file():
+            return json.loads(path.read_text(encoding="utf-8"))
     return {}
 
 
@@ -78,11 +88,12 @@ def key(session: str, student: str) -> str:
 
 
 def reviewers(stamp: str) -> list[dict]:
-    if not folder().is_dir():
-        return []
-    return [
-        json.loads(p.read_text(encoding="utf-8")) for p in sorted(folder().glob(f"{stamp}-*.json"))
-    ]
+    """Every reviewer of a run; a saved review replaces a committed one with the same name."""
+    found: dict[str, Path] = {}
+    for base in (committed_folder(), folder()):
+        if base.is_dir():
+            found.update({p.name: p for p in base.glob(f"{stamp}-*.json")})
+    return [json.loads(found[n].read_text(encoding="utf-8")) for n in sorted(found)]
 
 
 def is_problem(question: int, answer: str) -> bool:

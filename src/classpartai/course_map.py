@@ -15,7 +15,8 @@ TOPIC_ROWS = [
         "Listener",
         "Whisper `base`, an encoder-decoder transformer, int8-quantised on CPU and decoded with "
         "beam search (5 beams); pyannote splits the voices; ECAPA voice embeddings compared by "
-        "cosine similarity, named only above 0.35 and 0.10 clear of the runner-up",
+        "cosine similarity, named only above 0.35 and 0.10 clear of the runner-up; each line "
+        "screened for words aimed at the grader",
         '2 · "Encoder", "Decoder" (S19); 5 · "Beam search" (S7); 4 · "Quantisation" '
         'int8 (S46); 1 · "Cosine similarity … measures the angle, not the magnitude" (S30)',
     ),
@@ -46,15 +47,18 @@ TOPIC_ROWS = [
     ),
     (
         "Auditor",
-        "A second agent that checks the Judge: compares similar answers, verifies every "
-        "citation, detects instructions aimed at the grader, can ask for one re-score, never "
-        "changes a score",
+        "A second agent that checks the Judge with six read-only tools: compares similar "
+        "answers, verifies every citation, checks scores against speaking time, can ask for one "
+        "re-score, never changes a score; the Listener's injection flag and a rationale aimed "
+        "at the grader are checked before the model runs",
         '6 · "programmatic check → verifiable reward → LLM-judge → human" (S66); 7 · '
         '"Reflexion & self-critique", "Verify-then-continue" (S37)',
     ),
     (
         "Feedback writer",
-        "One structured model call per student. Deliberately not an agent: it needs no tools",
+        "One structured model call per student, then rule checks (no classmate named, silence "
+        "described as not observed, no judgement of ability); a broken rule is sent back once "
+        "and becomes a lesson for the next email. Deliberately not an agent: it needs no tools",
         '7 · "Teardown test: a single … call behind a nice UI is NOT an agent" (S63)',
     ),
     (

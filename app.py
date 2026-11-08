@@ -1968,9 +1968,18 @@ elif view == "downloads":
             "This includes voices or student records. Keep the zip off shared drives and "
             "delete it when you are done."
         )
+    # Zips live in one folder; any older than an hour (another tab's, or a closed page's) and
+    # this tab's previous zip are deleted, so copies of recordings don't pile up on the server.
+    zips = Path(tempfile.gettempdir()) / "classpartai-exports"
+    zips.mkdir(exist_ok=True)
+    for old in zips.glob("*.zip"):
+        if time.time() - old.stat().st_mtime > 3600:
+            old.unlink(missing_ok=True)
     if picked and st.button("Prepare zip", type="primary"):
+        if previous := st.session_state.pop("export", None):
+            Path(previous["path"]).unlink(missing_ok=True)
         with st.spinner("Zipping…"):
-            tmp = tempfile.NamedTemporaryFile(suffix=".zip", delete=False)
+            tmp = tempfile.NamedTemporaryFile(suffix=".zip", delete=False, dir=zips)
             with tmp:
                 rows = exports.build_archive(picked, DATA_DIR, tmp)
             st.session_state["export"] = {"path": tmp.name, "rows": rows}

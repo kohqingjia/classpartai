@@ -283,6 +283,7 @@ class Result:
     rejudge: list[Issue] | None = None
     calls: int = 0
     steps: int = 0
+    seen: frozenset[str] = frozenset()  # findings the Auditor actually inspected
 
 
 class AuditStop(Exception):
@@ -417,8 +418,13 @@ class Case:
                 {"turnId": t.id, "text": t.text, "startMs": t.startMs, "endMs": t.endMs}
                 for t in own
             ]
-            # The Listener's screen, passed on: the Auditor does not re-scan the transcript.
-            if any(t.injection == "suspected_instruction" for t in own):
+            # The Listener's screen, passed on. A turn it never screened (a caller that skipped
+            # Records) is screened here, so the guard never depends on the flag being present.
+            if any(
+                (t.injection or injection_signal(t.text)["classification"])
+                == "suspected_instruction"
+                for t in own
+            ):
                 injected.add(student.id)
         bundles = dict(evidence)
         documents = {(d.id, p.id): p.text for d in inputs.documents for p in d.passages}
@@ -1027,6 +1033,7 @@ def run_agent(
         # Keep the original targeted objections when the return is inconclusive or failed.
         result.issues = keep_prior_objections(result.issues, prior)
     result.calls, result.steps = used_calls(), steps
+    result.seen = frozenset(tools.seen)
     return result
 
 
@@ -1159,7 +1166,8 @@ def to_model_audit(
         )
     notes.append("Deterministic checks remain authoritative; an audit pass is not approval.")
     return ModelAudit(
-        completed=not (case.excluded or case.limitations),
+        # An audit cut short by its own allowance did not finish its checks
+        completed=not (case.excluded or case.limitations) and result.stop != "budget_exhausted",
         issues=capped(issues, 100),
         resolvedIssueIds=resolved,
         resolutionReason=(
@@ -1215,7 +1223,10 @@ def agent_audit(
                 {
                     "findings": keys,
                     "objections": [i.model_dump() for i in result.rejudge or []],
-                    "fingerprints": {key_of(f): fingerprint(f) for f in case.findings},
+                    # Only what was actually inspected may count as inspected next round
+                    "fingerprints": {
+                        key_of(f): fingerprint(f) for f in case.findings if key_of(f) in result.seen
+                    },
                 }
                 if result.verdict == "rejudge_requested"
                 else None
