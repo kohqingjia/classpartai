@@ -220,8 +220,8 @@ def render() -> None:
         "reaches people, has a person in the chain: no model has a send tool, and only the "
         "professor's approval of an exact version releases one. Two channels remain and are "
         "named, not hidden: the model provider receives the transcript to do its work, and "
-        "Research's web search, when a search key is set, sends queries the model writes. "
-        "Web search is off on the live site, and web results are never cited as evidence."
+        "Research's web search (Tavily, on the live site) sends queries the model writes. "
+        "Web results are never cited as evidence for a score."
     )
 
     st.subheader("How it meets the project brief")
