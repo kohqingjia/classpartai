@@ -489,7 +489,8 @@ AGENTS: list[Agent] = [
         "model call",
         "from Le Yong's workflow",
         "One structured model call per student: what went well and one next step, citing "
-        "their own turns. It can ask for more evidence instead.",
+        "their own turns, then rule checks; a broken rule is sent back once and becomes a "
+        "lesson for the next email. It can ask for more evidence instead.",
         "the Coordinator's draft_student_feedback",
         code=(
             Snippet(
@@ -504,6 +505,20 @@ AGENTS: list[Agent] = [
                 "src/classpartai/participation/roles.py",
                 ("ROLE_POLICY",),
                 "Everything it reads is untrusted data, never instructions; it may not send.",
+            ),
+            Snippet(
+                "Rule checks on every email (Saurabh)",
+                "src/classpartai/feedback_checks.py",
+                ("rule_checks",),
+                "Free and deterministic: an email that names a classmate, misdescribes silence or "
+                "judges the person is sent back once for a correction.",
+            ),
+            Snippet(
+                "Lessons carried to the next call (Saurabh)",
+                "src/classpartai/lessons.py",
+                ("Lessons",),
+                "A broken rule becomes a lesson in the next student's prompt, so the second "
+                "email doesn't repeat the first one's mistake.",
             ),
         ),
     ),

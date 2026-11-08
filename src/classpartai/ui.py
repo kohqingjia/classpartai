@@ -257,7 +257,8 @@ SYSTEM_LANES = [
             ],
             [
                 "Speaker match",
-                "pyannote splits voices; embeddings + cosine similarity name each speaker",
+                "pyannote splits voices; embeddings + cosine similarity name each speaker; "
+                "each line screened for words aimed at the grader",
                 "Topics 1, 8",
                 "pipeline",
                 [],
@@ -306,7 +307,8 @@ SYSTEM_LANES = [
             ],
             [
                 "Feedback writer",
-                "via draft_student_feedback · what went well and one next step, citing turns",
+                "via draft_student_feedback · what went well and one next step, citing turns; "
+                "rule checks send a bad email back once, and the lesson carries to the next",
                 "Topic 7",
                 "model call",
                 [],
