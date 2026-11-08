@@ -29,6 +29,7 @@ import streamlit as st
 from dotenv import load_dotenv
 from groq import Groq
 from openai import OpenAI
+from streamlit.runtime.scriptrunner import get_script_run_ctx
 
 from classpartai import config, course_map, demo_seminars, exports, reflection_ui, usage
 from classpartai import snippets as code_snippets
@@ -1140,21 +1141,68 @@ def enrol_demo_voices() -> None:
             voices().enrol(person["personId"], person["name"], wav, demo=True)
 
 
+@st.cache_resource
+def listener_jobs() -> dict:
+    """Transcriptions by browser session. They run in their own thread, because a click while one
+    is running makes Streamlit stop the script that started it, and its result would be lost."""
+    return {}
+
+
+def _browser_session() -> str:
+    ctx = get_script_run_ctx()
+    return ctx.session_id if ctx else "local"
+
+
 def transcribe(wav: Path, roster: list[dict], professors: set[str], meta: dict) -> None:
     """Run the Listener on a 16 kHz WAV and keep the result for step 2 (Who spoke?)."""
-    voices().ensure()
-    process_audio, note, lock = load_listener()
-    with lock, st.spinner("Transcribing and identifying speakers…"):
-        result = process_audio(str(wav))
-    ids = {r["displayName"]: r["id"] for r in roster}
+    jobs, key = listener_jobs(), _browser_session()
+    if key in jobs:  # pressed again while transcribing: wait for that run, don't queue another
+        wav.unlink(missing_ok=True)
+    else:
+        voices().ensure()
+        process_audio, note, lock = load_listener()
+        job = {
+            "done": threading.Event(),
+            "pending": {"roster": roster, "audio": str(wav), "note": note, **meta},
+            "professors": professors,
+        }
+
+        def work():
+            try:
+                with lock:  # one recording at a time across all sessions
+                    job["result"] = process_audio(str(wav))
+            except Exception as exc:
+                job["error"] = exc
+            finally:
+                job["done"].set()
+
+        jobs[key] = job
+        threading.Thread(target=work, daemon=True).start()
+    await_transcription()
+
+
+def await_transcription() -> None:
+    """Show progress for this session's transcription, then keep its result for step 2."""
+    jobs, key = listener_jobs(), _browser_session()
+    job = jobs[key]
+    with st.status("Transcribing and identifying speakers…", expanded=True) as status:
+        st.write(
+            "This takes a few minutes for a short recording. Keep this page open; pressing "
+            "Transcribe again won't start another run."
+        )
+        job["done"].wait()
+        status.update(label="Transcribed", state="complete")
+    if "error" in job:
+        jobs.pop(key, None)
+        raise job["error"]
+    pending, result = job["pending"], job["result"]
+    ids = {r["displayName"]: r["id"] for r in pending["roster"]}
     st.session_state.pending = {
-        "diagnostics": json.loads(json.dumps({**result, "note": note}, default=str)),
-        "transcript": listener.to_transcript(result, ids, "review-1", professors),
-        "roster": roster,
-        "audio": str(wav),
-        "note": note,
-        **meta,
+        **pending,
+        "diagnostics": json.loads(json.dumps({**result, "note": pending["note"]}, default=str)),
+        "transcript": listener.to_transcript(result, ids, "review-1", job["professors"]),
     }
+    jobs.pop(key, None)  # only once the result is saved: a stopped rerun can pick it up again
 
 
 def generate_summary_json(system_prompt, user_prompt):
@@ -1292,6 +1340,13 @@ elif view == "new":
     title = col_title.text_input("Title", key="new-title")
     course = col_course.text_input("Course", "IS469 Gen AI with LLMs")
 
+    if _browser_session() in listener_jobs():  # a transcription this session started earlier
+        try:
+            await_transcription()
+            go("new", step=2)
+            st.rerun()
+        except Exception as exc:
+            st.error(f"Couldn't process the recording ({str(exc).splitlines()[0][:300]}).")
     if new_step == 1 or pending is None:  # step 2 only exists once a recording was processed
         if pending:
             st.info(
