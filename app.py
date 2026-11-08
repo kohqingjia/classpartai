@@ -1713,7 +1713,7 @@ elif view == "how":
         "validation (right students, cited turns that exist); a student who breaks a rule is "
         "refused with the reason. Then the Auditor checks support, attribution and uncertainty "
         "before anything reaches the professor.\n"
-        "- **Bounded.** Every run has a budget (72 model calls, 108 tool calls, 400k tokens, "
+        "- **Bounded.** Every run has a budget (96 model calls, 108 tool calls, 500k tokens, "
         "900 s) and stops cleanly when it runs out.\n"
         "- **Watched.** Every model call's tokens, time and estimated cost, and every step of "
         "every run, are recorded (Saurabh's usage ledger). The **Monitoring** page shows them."

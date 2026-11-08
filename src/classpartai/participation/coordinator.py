@@ -144,13 +144,15 @@ COORDINATOR_TOOLS = [
     tool(
         "audit_assessment",
         "Run deterministic and model review of support, contradictions and feedback; never "
-        "automatically lower scores",
+        "automatically lower scores. It reviews the draft as it is now: any later change "
+        "(feedback, a re-score) needs another audit",
         Revise,
     ),
     tool(
         "draft_student_feedback",
         "Ask the feedback role to draft one email for each listed roster student, or request "
-        "missing evidence. List every student who still needs one in a single call",
+        "missing evidence. Needs this run's scores from propose_rubric_assessment first. List "
+        "every student who still needs one in a single call",
         Students,
     ),
     tool(
@@ -169,9 +171,17 @@ COORDINATOR_POLICY = (
     "contradictions as well as deterministic validity. No-observation findings are not "
     "poor-understanding claims. Tool results must be inspected before choosing another action. "
     "There are no approval or delivery tools. Use request_professor_review when required drafts "
-    "and an audit exist; unresolved issues remain visible. Do not call all tools mechanically."
+    "and an audit exist; unresolved issues remain visible. Do not call all tools mechanically.\n"
+    "Dependencies that refusals and the budget enforce (measured on the demo runs): feedback "
+    "needs this run's scores, so propose_rubric_assessment comes before draft_student_feedback; "
+    "an audit covers the draft as it stands, so drafting feedback after an audit means auditing "
+    "again, and one audit after all feedback is the cheapest route to review; a student's claim "
+    "about course content (a definition, a mechanism, a comparison) can only be judged correct "
+    "or wrong with Research's evidence, so retrieve evidence for it before scoring. Each Research "
+    "call checks at most two answers (about ten model calls each): ask only for answers that "
+    "make such claims, and never again for an answer already checked."
 )
-PROMPT_VERSION = "participation-coordinator-v1"
+PROMPT_VERSION = "participation-coordinator-v2"
 
 
 def coordinate(
