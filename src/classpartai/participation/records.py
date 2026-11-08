@@ -265,6 +265,8 @@ class Records:
                 "DELETE FROM recipients WHERE session_id = ?",
                 "DELETE FROM listener_runs WHERE session_id = ?",
                 "DELETE FROM auditor_state WHERE session_id = ?",
+                "DELETE FROM lessons WHERE session_id = ?",
+                "DELETE FROM summaries WHERE session_id = ?",
                 "DELETE FROM sessions WHERE id = ?",
             ):
                 self.db.execute(sql, (session_id,) * sql.count("?"))

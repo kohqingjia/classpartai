@@ -55,6 +55,15 @@ def test_deleting_a_session_removes_everything_made_from_it(records, session_id)
         records.inputs(session_id)
 
 
+def test_deleting_a_session_also_removes_its_lessons_and_summary(records, session_id):
+    """Both tables were added after delete_session was written and were left behind."""
+    records.note_lesson(session_id, "feedback", "writes-a-turn-id", "Quote the words instead.")
+    records.save_summary(session_id, {"topics": ["chunking"]})
+    records.delete_session(session_id)
+    assert records.lessons(session_id) == []
+    assert records.summary_for(session_id) is None
+
+
 def test_a_session_whose_feedback_was_emailed_cannot_be_deleted(records, session_id):
     draft = ready(records, session_id)
     approval = records.approve_draft(session_id, draft.id, True, REASON, "prof")
