@@ -23,6 +23,7 @@ import uuid
 from datetime import datetime, timedelta, timezone
 from html import escape
 from pathlib import Path
+from typing import Any, cast
 
 import streamlit as st
 from dotenv import load_dotenv
@@ -156,6 +157,9 @@ button { transition:transform 160ms cubic-bezier(0.23,1,0.32,1),
   background-color 160ms cubic-bezier(0.23,1,0.32,1); }
 button:active:not(:disabled) { transform:scale(0.97); }
 [data-testid="stCaptionContainer"] { font-variant-numeric:tabular-nums; }
+/* Big numbers shrink with the window instead of being cut to "1,92…" */
+[data-testid="stMetricValue"] { font-size:clamp(1.35rem, 2.4vw, 2.25rem); }
+[data-testid="stMetricValue"] > div { overflow:visible; text-overflow:clip; white-space:normal; }
 @media (prefers-reduced-motion:reduce) { button:active:not(:disabled) { transform:none; } }
 </style>"""
 
@@ -442,7 +446,7 @@ def replay_section(session_id: str, inputs: AssessmentInputs) -> tuple[bool, Dra
             else col_pick.selectbox(
                 "Run to replay",
                 list(labels),
-                format_func=labels.get,
+                format_func=lambda key: labels[key],
                 label_visibility="collapsed",
                 key=f"replay-pick-{session_id}",
             )
@@ -644,9 +648,11 @@ def step_bar(view: str, current: int, done: set[int], reachable: set[int]) -> No
                     args=(view, st.session_state.session_id if view == "session" else None, n),
                 )
                 st.caption(STEP_AGENTS[n])
-    st.markdown(
-        f'<div class="next-hint"><b>Now:</b> {STEP_NOW[current]}</div>', unsafe_allow_html=True
-    )
+    hint = STEP_NOW[current]
+    live = live_runs().get(st.session_state.get("session_id") or "")
+    if view == "session" and current == 3 and live and not live["ended"]:
+        hint = "the agents are working. This page updates as they go; nothing is sent."
+    st.markdown(f'<div class="next-hint"><b>Now:</b> {hint}</div>', unsafe_allow_html=True)
     if current > 1 and current - 1 in reachable:
         st.button(
             f"← Back to {STEPS[current - 2]}",
@@ -733,7 +739,7 @@ def default_step(session: str) -> int:
 def show_flow(slot, active=None, done=(), notes=None, banner="") -> None:
     with slot.container():
         # flow_html passes everything as escaped JSON and draws it with textContent: no markup.
-        st.iframe(flow_html(active, set(done), set(), notes or {}, banner), height=165)
+        st.iframe(flow_html(active, frozenset(done), frozenset(), notes or {}, banner), height=165)
 
 
 def show_board(slot, cards, newest=None) -> None:
@@ -787,7 +793,7 @@ def show_transcript(turns, names: dict[str, str], player_key: str | None = None)
         sp = t.speaker
         stamp = f"{t.startMs // 60000}:{t.startMs // 1000 % 60:02d}"
         if sp.kind == "student":
-            who, avatar = names.get(sp.studentId, sp.studentId), ":material/person:"
+            who, avatar = names.get(sp.studentId) or sp.studentId, ":material/person:"
         elif sp.kind == "professor":
             who, avatar = sp.label, ":material/school:"
         else:
@@ -926,7 +932,7 @@ with st.sidebar:
         st.warning("No OPENAI_API_KEY: agent runs will be blocked.")
 
 view = st.session_state.view
-session_id = st.session_state.session_id
+session_id = cast(str, st.session_state.session_id)  # None only on pages that do not use it
 people = classlist.all()
 registry = voices().registry()
 voiced_profs = [p for p in classlist.professors() if p.person_id in registry]
@@ -1136,7 +1142,7 @@ def transcribe(wav: Path, roster: list[dict], professors: set[str], meta: dict) 
 
 def generate_summary_json(system_prompt, user_prompt):
     """Groq (Tina's setup) when GROQ_API_KEY is set, otherwise the app's OpenAI model."""
-    messages = [
+    messages: list[Any] = [
         {"role": "system", "content": system_prompt},
         {"role": "user", "content": user_prompt},
     ]
@@ -1171,7 +1177,10 @@ def generate_summary_json(system_prompt, user_prompt):
         usage.record_model_call(
             started, model=model, provider=provider, usage=getattr(response, "usage", None)
         )
-    return json.loads(response.choices[0].message.content)
+    content = response.choices[0].message.content
+    if content is None:
+        raise ValueError("The model returned no text")
+    return json.loads(content)
 
 
 # --- Home -------------------------------------------------------------------------------------
@@ -1266,7 +1275,7 @@ elif view == "new":
     title = col_title.text_input("Title", key="new-title")
     course = col_course.text_input("Course", "IS469 Gen AI with LLMs")
 
-    if new_step == 1:
+    if new_step == 1 or pending is None:  # step 2 only exists once a recording was processed
         if pending:
             st.info(
                 "An unsaved transcript is waiting in ② Who spoke?. Transcribing a new recording "
@@ -1468,17 +1477,19 @@ elif view == "new":
                     else course_library().documents()
                     or json.loads(config.COURSE_DOCUMENTS.read_text(encoding="utf-8"))
                 )
-                new_inputs = AssessmentInputs(
-                    formatVersion=1,
-                    provenance="reviewed",
-                    courseTitle=pending["course"] if not demo else sample.courseTitle,
-                    sessionTitle=pending["title"],
-                    roster=roster,
-                    transcript=transcript,
-                    rubric=sample.rubric.model_dump()
-                    if demo
-                    else json.loads((DATA / "default_rubric.json").read_text(encoding="utf-8")),
-                    documents=documents,
+                new_inputs = AssessmentInputs.model_validate(
+                    {
+                        "formatVersion": 1,
+                        "provenance": "reviewed",
+                        "courseTitle": pending["course"] if not demo else sample.courseTitle,
+                        "sessionTitle": pending["title"],
+                        "roster": roster,
+                        "transcript": transcript,
+                        "rubric": sample.rubric.model_dump()
+                        if demo
+                        else json.loads((DATA / "default_rubric.json").read_text(encoding="utf-8")),
+                        "documents": documents,
+                    }
                 )
                 recipients = None
                 if demo:
@@ -1927,7 +1938,9 @@ elif view == "downloads":
     st.markdown(
         '<p class="muted">The recordings, voice samples and database live only on this server. '
         "Choose what you need, prepare one zip and download it, for example to run the "
-        "Listener or the evaluations on your own machine.</p>",
+        "Listener or the evaluations on your own machine. Unpack it with "
+        "<code>python tools/unpack_download.py classpartai-data.zip</code>: it puts every folder "
+        "where the app and the evaluations look for it.</p>",
         unsafe_allow_html=True,
     )
     choices = exports.groups(DATA_DIR, ENROLLMENT_DIR, REPO_ROOT)
@@ -1943,7 +1956,7 @@ elif view == "downloads":
         tag = " · personal data" if group.personal else ""
         if st.checkbox(
             f"**{group.label}** ({count}{tag})",
-            value=group.key in ("demo-seminars", "results"),
+            value=group.key in ("demo-seminars", "library", "results"),
             key=f"export-{group.key}",
             help=group.note,
         ):
@@ -2106,9 +2119,10 @@ elif view == "session":
                             st.rerun()
 
                     st.fragment(run_every=2 if running else None)(agent_panel)()
-                    if name == "Listener" and recording_of(session_id):
+                    recording = recording_of(session_id)
+                    if name == "Listener" and recording:
                         with st.expander("Play any line of the recording"):
-                            recording_player(recording_of(session_id), f"seek-{session_id}")
+                            recording_player(recording, f"seek-{session_id}")
                             show_transcript(
                                 inputs.transcript.turns,
                                 {s.id: s.displayName for s in inputs.roster},
@@ -2133,14 +2147,14 @@ elif view == "session":
                             turn_ids = st.multiselect(
                                 "Turns (1–8)",
                                 list(turn_labels),
-                                format_func=turn_labels.get,
+                                format_func=turn_labels.__getitem__,
                                 max_selections=8,
                             )
                             crit = {c.id: c.title for c in inputs.rubric.criteria}
                             criterion_ids = st.multiselect(
                                 "Rubric criteria",
                                 list(crit),
-                                format_func=crit.get,
+                                format_func=crit.__getitem__,
                                 default=list(crit)[:1],
                             )
                             ready = bool(len(question.strip()) >= 5 and turn_ids and criterion_ids)
@@ -2187,6 +2201,8 @@ elif view == "session":
                                                 request, inputs, None, checkpoint
                                             )
                                     else:
+                                        if driver is None:
+                                            raise RuntimeError("Model configuration blocked")
                                         with usage.tracking(session_id=session_id):
                                             outcome = investigate(
                                                 request,
@@ -2263,7 +2279,7 @@ elif view == "session":
                 elif shown:
                     origin = "AI proposal" if shown.origin == "model" else "professor edit"
                     st.markdown(f"#### Version {shown.version} · {origin}")
-                    if shown.id != latest.id:
+                    if latest is not None and shown.id != latest.id:
                         st.caption(
                             f"From the replayed run. The current version is {latest.version}: "
                             "close the replay to see it. ④ Approve always uses the current one."
@@ -2472,7 +2488,7 @@ elif view == "session":
                 )
                 if col_save.button("Save", key=f"save-{s.id}"):
                     try:
-                        records.set_recipient(session_id, s.id, email)
+                        records.set_recipient(session_id, s.id, email or "")
                         st.rerun()
                     except Unprocessable as exc:
                         st.error(str(exc))

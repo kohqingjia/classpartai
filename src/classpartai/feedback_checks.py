@@ -3,10 +3,10 @@
 Two kinds, both feeding the session's lessons (lessons.py) so the next email does not repeat a
 mistake the last one made:
 
-- Rule checks (free, deterministic): the email names a classmate, writes a turn ID instead of
-  what was said, calls a silent student anything but "no observed contribution", or judges the
-  student's ability or motivation. A broken rule sends the draft back for one correction.
-  Whether the email refers to what the student actually said is only noted.
+- Rule checks (free, deterministic): the email names a classmate, calls a silent student
+  anything but "no observed contribution", or judges the student's ability or motivation. A
+  broken rule sends the draft back for one correction. Only noted, never sent back: a turn ID
+  in the text (delivery rewrites it) and not referring to what the student actually said.
 - A rubric score from a second model (LLM-as-judge), when ``FEEDBACK_JUDGE`` is on: faithful to
   what was said, constructive, specific. A score of 1 on any of them is sent back like a broken
   rule, and every score is written to the run's trace.
@@ -71,6 +71,7 @@ def rule_checks(fb: Feedback, student_id: str, inputs: AssessmentInputs) -> list
                 "writes-a-turn-id",
                 "Never write a turn ID in the text. Quote or paraphrase what the student said; "
                 "turn IDs go only in turnIds.",
+                hard=False,  # delivery already rewrites a leftover turn ID; a lesson is enough
             )
         )
     if not own and SILENT_PHRASE not in text.lower():

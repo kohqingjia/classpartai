@@ -45,3 +45,6 @@ audio-service/models/
 
 # App data (class list, emails, audit log) when run locally
 var/
+
+# Browser automation output
+.playwright-mcp/

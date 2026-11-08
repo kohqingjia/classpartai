@@ -87,9 +87,18 @@ until the team marks `data/is469/judge_labels.jsonl` rows `"reviewed": true`.
 If a run ends "needs review" with a stop reason, that is a safe stop, not a crash: the reason is on
 the Coordinator tab.
 
-## Getting the audio from the deployed server
+## Getting the data from the deployed server
 
-The recordings, voice samples and database live on the server's volume. After the next deploy,
-open **Download data** in the sidebar, tick what you need and download one zip. Voices and student
-records start unticked; the zip may contain students' voices and names, so keep it off shared
-drives.
+Open **Download data**, tick what you need, prepare the zip, then put everything in place:
+
+```bash
+uv run python tools/unpack_download.py classpartai-data.zip     # --force to overwrite
+```
+
+Tick **Course library** (the slides Research quotes: without it the evidence agents have nothing
+to cite), **Demo seminars**, and, for the Listener on your own machine, **Class list** and
+**Enrolled voice samples**. Voices, recordings, the class list and the database are personal data:
+keep the zip off shared drives.
+
+No voice samples yet? `uv run python tools/seed_demo_voices.py` enrols the five demo speakers from
+`data/voice-samples/` so the demo seminars can go through the Listener.
