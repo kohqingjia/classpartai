@@ -43,3 +43,7 @@ select = ["E", "F", "I", "B", "UP"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+filterwarnings = [
+    # Streamlit's own chart code on the newest pandas; nothing in this repo calls it.
+    "ignore:The inplace keyword in DataFrame.reset_index:DeprecationWarning",
+]
