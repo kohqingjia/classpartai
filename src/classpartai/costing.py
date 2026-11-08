@@ -119,15 +119,18 @@ def pooled(records, sessions: int = 7) -> dict | None:
     for row in records.runs_with_usage(None, limit=200):
         if row["stop_reason"] not in FINISHED or not row["calls"]:
             continue
-        found = summarise_run(records, row["id"])
-        session = found["run"]["session"]
-        if session in seen:
+        # By session ID: titles are not unique (Pullfrog #80)
+        if row["session_id"] in seen:
             continue
-        seen.add(session)
+        seen.add(row["session_id"])
+        found = summarise_run(records, row["id"])
         runs.append(found)
         if len(runs) == sessions:
             break
-    researched = [r["run"] for r in runs if "research" in r["run"]["byAgent"]]
+    # Research's cost per answer needs answers: a professor-only seminar can still call it
+    researched = [
+        r["run"] for r in runs if "research" in r["run"]["byAgent"] and r["run"]["contributions"]
+    ]
     if not researched:
         return None
     by_agent: dict = defaultdict(lambda: defaultdict(float))
@@ -148,6 +151,9 @@ def pooled(records, sessions: int = 7) -> dict | None:
             "audio_seconds": total("audio_seconds"),
             "contributions": total("contributions"),
             "researchContributions": sum(r["contributions"] for r in researched),
+            # Research's usd from the runs that count for it; any other Research spend is
+            # charged per student with everything else
+            "researchUsd": sum(r["byAgent"]["research"]["usd"] for r in researched),
             "students": total("students"),
             "seconds": total("seconds"),
             "modelCalls": total("modelCalls"),
@@ -190,9 +196,9 @@ def estimate(m: dict, a: Assumptions) -> dict:
     # speak little.
     by_agent = run.get("byAgent") or {}
     if by_agent:
-        research_usd = by_agent.get("research", {}).get("usd", 0.0)
+        research_usd = run.get("researchUsd", by_agent.get("research", {}).get("usd", 0.0))
         # Pooled runs: only the seminars that called Research count towards its cost per answer
-        per_answer = research_usd / run.get("researchContributions", run["contributions"])
+        per_answer = research_usd / (run.get("researchContributions") or run["contributions"])
         per_student = (run["usd"] - research_usd) / run["students"]
         model_usd = per_answer * a.contributions + per_student * a.students
     else:
