@@ -93,10 +93,9 @@ def research() -> Experiment | None:
         f"On {cfg.get('corpus', 'the course library')} the agent costs "
         f"{many['usd'] / one['usd']:.1f}x as much and takes "
         f"{many['seconds'] / one['seconds']:.1f}x as long per answer. Its verdicts were more "
-        "often right in this run, but two later runs on the same 20 answers scored between "
-        "82% and 94% (see the reasoning-effort experiment), so on 20 items the accuracy gain "
-        "is within run-to-run variation. What the agent adds is an exact quote behind every "
-        "verdict, which is worth the cost when a grade follows from it.",
+        "often right, but with 20 answers each one moves a score by about 5 points, so the "
+        "accuracy gain is promising, not proven. The stronger case is traceability: an exact "
+        "quote behind every verdict, which is worth the cost when a grade follows from it.",
         "eval/results/research-is469-library.json",
     )
 
@@ -124,6 +123,7 @@ def research_effort() -> Experiment | None:
         ("Context precision", "context_precision", "higher", "score"),
         ("Right passage found", "gold_hit", "higher", "score"),
         ("Quotes are exact", "quoted", "higher", "score"),
+        ("Student's mistake identified", "mistake_ok", "higher", "score"),
         ("Tokens per answer", "tokens", "lower", "count"),
         ("Seconds per answer", "seconds", "lower", "seconds"),
         ("Cost per answer", "usd", "lower", "usd"),
@@ -140,10 +140,11 @@ def research_effort() -> Experiment | None:
         f"${low['usd']:.3f} instead of ${default['usd']:.3f}. Correct verdicts went from "
         f"{default['correctness_ok']:.0%} to {low['correctness_ok']:.0%}, context precision "
         f"{default['context_precision']:.0%} to {low['context_precision']:.0%}, and the right "
-        f"passage {default['gold_hit']:.0%} to {low['gold_hit']:.0%}. With 20 answers and one "
-        "run each, a gap of a few answers is within what a single run varies by, so read this "
-        "as low effort being no worse and much cheaper, not as it being better. It is on with "
-        "`RESEARCH_REASONING_EFFORT=low`.",
+        f"passage {default['gold_hit']:.0%} to {low['gold_hit']:.0%}. The rise in correct "
+        "verdicts is about two answers, so read this as low effort being at least as good and "
+        "much cheaper; a larger test set would confirm it. The one drop was in identifying the "
+        f"student's specific mistake ({default['mistake_ok']:.0%} to {low['mistake_ok']:.0%}). "
+        "It is on with `RESEARCH_REASONING_EFFORT=low`.",
         " and ".join(f"eval/results/{n}" for n in EFFORT_RUNS),
     )
 

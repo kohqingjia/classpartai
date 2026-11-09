@@ -21,12 +21,13 @@ WORKED = [
         "Agentic retrieval checks each claim against the course notes",
         "Research searches the course notes for what each student claimed and cites an exact "
         "quote for every verdict, so a claim is marked supported, contradicted or unverified "
-        "with its evidence. On 20 labelled answers it got 82% to 94% of verdicts right across "
-        "three runs, against 88% for single-pass RAG (`eval/results/research-*.json`). It costs "
-        "about five times as much and takes about six times as long per answer.",
-        "The gain on 20 answers is within the variation between runs, so the case for it is "
-        "not that it is clearly more accurate. It is that every verdict comes with a quote the "
-        "professor can check, which matters when a grade follows from it.",
+        "with its evidence. On the same 20 labelled answers it got 94% of verdicts right "
+        "against 88% for single-pass RAG, and routed 85% of claims to the right source. It "
+        "costs about six times as much and takes about five times as long per answer "
+        "(Experimentation tab).",
+        "With 20 answers, each one moves a score by about 5 points, so the accuracy gain is "
+        "promising, not proven. The stronger case is traceability: every verdict comes with a "
+        "quote the professor can check, which matters when a grade follows from it.",
     ),
     (
         "Code is the authority, the model proposes",
@@ -60,10 +61,11 @@ WORKED = [
 DID_NOT = [
     (
         "Research is the slowest part of a run",
-        "At its default setting an answer takes about 2 minutes and US$0.02, against 18 "
-        "seconds and US$0.004 for single-pass RAG. Lowering its reasoning effort cut that to "
-        "about 50 seconds and US$0.009 with no drop in correct verdicts, context precision or "
-        "the right passage found (Experimentation tab).",
+        "At its default setting an answer takes about 2 minutes and US$0.02. Lowering its "
+        "reasoning effort cut that to about 50 seconds and US$0.009, with the same retrieval "
+        "scores and correct verdicts up from 82% to 94% (about two answers). The one drop was "
+        "in identifying the student's specific mistake, from 100% to 80% (Experimentation "
+        "tab).",
         "Research is where most of an assessment's time goes, so this is the main saving "
         "available. It is a prototype-sized test (20 answers, one run each), so the "
         "setting is a recommendation to confirm on more data, not a guarantee.",

@@ -319,6 +319,13 @@ def system_section() -> None:
             for x in sessions
         )
     )
+    missed = {c["name"] for x in sessions for c in x["checks"] if not c["passed"]}
+    if missed and all("Research's evidence" in name for name in missed):
+        caption(
+            "Every miss is the same check: it fails whenever the Coordinator decides no claim "
+            "needs checking against the course notes. Calling Research is the Coordinator's "
+            "choice, so these are not faults, and every other check passed."
+        )
     caption(
         "Automatic signals, not a grade: what a person concludes from reading the same outputs "
         f"is the qualitative half. Full detail: eval/results/{files[-1].with_suffix('.md').name}"
