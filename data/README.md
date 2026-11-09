@@ -31,10 +31,11 @@ Small datasets and evaluation sets live here. Large or licensed files go in `dat
 
 ### Demo seminars and voice samples (our own voices)
 
-- `demo-seminars/` (committed): the seven demo seminars, cloned with F5-TTS from our voice samples
-  (see `tools/demo_seminars/README.md` for how they are made). Each `NN-name.wav` (16 kHz mono, 41–95 s) has a `NN-name.json` with its title, the
-  case it tests and the script it was read from, line by line with start and end times. Upload a
-  `.wav` on New class session to run it through the Listener.
+- `demo-seminars/`: the scripts of the seven demo seminars, cloned with F5-TTS from our voice
+  samples (see `tools/demo_seminars/README.md` for how they are made). Each `NN-name.json` has the
+  title, the case it tests and the script it was read from, line by line with start and end times.
+  The audio (`NN-name.wav`, 16 kHz mono, 41–95 s) is in our own voices, so it is kept on the
+  server (`DATA_DIR/demo-seminars`), not in git.
 
   | File | Demo |
   |---|---|
@@ -46,9 +47,9 @@ Small datasets and evaluation sets live here. Large or licensed files go in `dat
   | `06-dominant` | 6 · Transformers: one student dominates |
   | `07-guest` | 7 · Fine-tuning: a guest who isn't on the class list |
 
-- `voice-samples/` (committed): the enrolment clip (18–28 s) for each speaker in the demos, used
-  to recognise who is speaking. `prof.wav` is Prof Wynter's, committed with her agreement. Copy them to `audio-service/enrollments/` to enrol the same people
-  locally.
+- `voice-samples/`: the enrolment clip (18–28 s) for each speaker in the demos, used to recognise
+  who is speaking. They are real voices, so they are not in git; put them here from the server to
+  enrol the same people locally.
 
 <!-- Add further datasets: name, URL, licence, and any preprocessing steps. -->
 

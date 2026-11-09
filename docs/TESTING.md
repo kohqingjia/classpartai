@@ -50,8 +50,10 @@ library) and **Le Yong's fixture**.
 3. Continue as in path A from step ② on.
 
 The seven scripted demo seminars (everyone speaks, one silent, nobody speaks, a misconception,
-an injection, one dominant speaker, a guest) are in `data/demo-seminars/` in the repo. The app
-reads them from `var/demo-seminars/`, so copy them once:
+an injection, one dominant speaker, a guest) have their scripts in `data/demo-seminars/`. The
+audio is in our own voices, so it is not in git: get the `.wav` files from the server's
+`DATA_DIR/demo-seminars`, put them next to the scripts, and copy the folder once, since the app
+reads it from `var/demo-seminars/`:
 
 ```bash
 cp -r data/demo-seminars var/demo-seminars     # PowerShell: Copy-Item -Recurse data\demo-seminars var\
@@ -101,4 +103,4 @@ to cite), **Demo seminars**, and, for the Listener on your own machine, **Class 
 keep the zip off shared drives.
 
 No voice samples yet? `uv run python tools/seed_demo_voices.py` enrols the five demo speakers from
-`data/voice-samples/` so the demo seminars can go through the Listener.
+`data/voice-samples/` (not in git: copy the clips there from the server first) so the demo seminars can go through the Listener.

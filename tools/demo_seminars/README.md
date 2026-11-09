@@ -13,7 +13,7 @@ Seven scripted mock classes, one per edge case, for the presentation (`scripts.j
 In each one the professor speaks the most.
 
 - **Voices:** every line except the guest's is cloned with F5-TTS from the voice samples we enrolled. That includes Prof Wynter, who agreed to her voice being used. The guest is macOS `say` and isn't enrolled, so the Listener must leave their lines unknown.
-- **Audio:** the finished demos are committed in `data/demo-seminars/`, with the team's agreement, and also live on the server in `DATA_DIR/demo-seminars`.
+- **Audio:** the finished demos live on the server in `DATA_DIR/demo-seminars`. They are in our own voices, so only their scripts are in git (`data/demo-seminars/*.json`).
 
 ## Make them
 
