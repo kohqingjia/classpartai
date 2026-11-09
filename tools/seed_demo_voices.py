@@ -2,8 +2,9 @@
 
     uv run python tools/seed_demo_voices.py
 
-Copies each clip in data/voice-samples/ into audio-service/enrollments and adds the person to the
-class list (var/classlist.json) with a placeholder email. Names match the speakers in the demo
+Copies each clip in data/voice-samples/ (not in git: copy them there from the server) into
+audio-service/enrollments and adds the person to the class list (var/classlist.json) with a
+placeholder email. Names match the speakers in the demo
 seminar scripts. In email test mode every message goes to one inbox, so the placeholders are
 never used. People already enrolled are left alone.
 """
