@@ -83,6 +83,9 @@ DID_NOT = [
 ]
 
 FUTURE = [
+    "**Other forms of class participation.** Seminar speech is only one way students take "
+    "part. The same agents could assess forum posts, in-class chat and written responses, "
+    "so quieter students who contribute in writing get credit too.",
     "**Compare Judges.** Run the single-call Judge, the tool-using Judge and a smaller model "
     "against the same reviewed key, on agreement with people and cost per point of "
     "agreement; have a second person score part of the key.",

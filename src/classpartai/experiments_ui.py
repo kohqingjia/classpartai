@@ -182,74 +182,6 @@ def judge_markdown() -> str | None:
     return "\n".join(lines)
 
 
-def listener() -> Experiment | None:
-    d = _json(RESULTS / "listener-20261107.json")
-    if not d:
-        return None
-    a, b = d["A"]["totals"], d["shipped"]["totals"]
-    metrics = [
-        Metric(
-            "Lines credited to the wrong person",
-            a["wrong_person"],
-            b["wrong_person"],
-            "lower",
-            "count",
-        ),
-        Metric(
-            "Student lines right",
-            a["student"]["correct"],
-            b["student"]["correct"],
-            "higher",
-            "count",
-        ),
-        Metric(
-            "Professor lines right",
-            a["professor"]["correct"],
-            b["professor"]["correct"],
-            "higher",
-            "count",
-        ),
-        Metric(
-            "Student speech left unattributed (s)",
-            a["seconds"]["unattributed"],
-            b["seconds"]["unattributed"],
-            "lower",
-            "seconds",
-        ),
-    ]
-    return Experiment(
-        "Listener: who spoke, before and after the fixes",
-        "Turn-level voice match",
-        "Words to turns, line and turn checks",
-        metrics,
-        "Checking each word against its speaker turn and each line against its own voice stops "
-        "words being credited to the wrong person. Seven scripted demo seminars; real classroom "
-        "audio is untested.",
-        "eval/results/listener-20261107.json",
-    )
-
-
-def guardrails() -> Experiment | None:
-    files = sorted(RESULTS.glob("guardrails-*.json"))
-    if len(files) < 2:
-        return None
-    old, new = _json(files[0]), _json(files[-1])
-    if not old or not new:
-        return None
-    return Experiment(
-        "Guardrails: attacks on the whole workflow",
-        "Single-call model audit",
-        "Auditor agent",
-        [
-            Metric("Attack cases caught (of 10)", old["caught"], new["caught"], "higher", "count"),
-            Metric("Cost of the suite", old["totalUsd"], new["totalUsd"], "lower", "usd"),
-        ],
-        "The same ten cases before and after the Auditor became an agent. Cases 05 and 06 "
-        "flipped between runs, so one run each is not enough to claim a gain.",
-        f"eval/results/{files[0].name}, {files[-1].name}",
-    )
-
-
 def injection() -> Experiment | None:
     d = (
         _json(sorted(RESULTS.glob("injection-*.json"))[-1])
@@ -287,7 +219,7 @@ def injection() -> Experiment | None:
 
 
 def all_experiments() -> list[Experiment]:
-    return [e for e in (research(), research_effort(), listener(), guardrails(), injection()) if e]
+    return [e for e in (research(), research_effort(), injection()) if e]
 
 
 GOOD, BAD, SAME, MUTED = "#5cc2a6", "#ff8f94", "#d4d4d8", "#d4d4d8"
