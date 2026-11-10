@@ -23,9 +23,9 @@ TOPICS = {
     "Listener": "Transformers",
     "Coordinator": "Agents",
     "Evidence / Research": "Agentic RAG",
-    "Judge": "LLM-as-judge",
-    "Auditor": "Evaluation",
-    "Feedback writer": "Agents",
+    "Judge": "Agents",
+    "Auditor": "Guardrails",
+    "Feedback writer": "LLM-as-judge",
     "Delivery": "Ethics",
 }
 DESCRIPTIONS = {

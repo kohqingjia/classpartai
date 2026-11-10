@@ -165,15 +165,22 @@ TOPICS: list[tuple[str, list[Snippet]]] = [
         ],
     ),
     (
-        "Evaluation: LLM-as-judge, verify first",
+        "Scoring: verify first, judge only what you can't check",
         [
             Snippet(
                 "The Judge: an agent with tools, then deterministic validation",
                 "src/classpartai/participation/judge.py",
                 ("JUDGE_TOOLS",),
-                "The Judge picks its next tool: rubric, evidence, a student's own turns, score, "
-                "flag, finish. Every score must pass validate_proposal; a refusal goes back to "
-                "the model with the reason.",
+                "The Judge decides when it needs more of a student's turns (get_contributions) or "
+                "an exact course passage (get_evidence), then scores (score_contribution). Every "
+                "score must pass validate_proposal; a refusal goes back with the reason.",
+            ),
+            Snippet(
+                "LLM-as-judge: a second model scores every feedback email",
+                "src/classpartai/feedback_checks.py",
+                ("SCORE_INSTRUCTIONS",),
+                "Faithful, constructive and specific, 1 to 3 each. A 1 on any of them sends the "
+                "email back once, alongside the rule checks; every score goes to the trace.",
             ),
             Snippet(
                 "The Auditor: a second model checks support",
@@ -453,7 +460,7 @@ AGENTS: list[Agent] = [
         "agent",
         "Le Yong (design); merged into the app's own types and loop by Saurabh",
         "Checks the Judge's work before the professor sees it: are scores supported, are "
-        "citations real, is anything an injection, is it fair? It raises issues and may ask "
+        "citations real, is it fair? It raises issues and may ask "
         "for one targeted re-judge, but never changes a score itself.",
         "the Coordinator's audit_assessment",
         (

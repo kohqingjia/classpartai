@@ -300,23 +300,24 @@ SYSTEM_LANES = [
                 "Judge",
                 "Agent 3 of 4, via propose_rubric_assessment · scores many students per call, "
                 "with a confidence; flags what the professor should check",
-                "LLM-as-judge",
+                "Agents",
                 "agent",
                 _tools("Judge"),
             ],
             [
                 "Auditor",
-                "Agent 4 of 4, via audit_assessment · checks support, citations, injection, "
-                "fairness; never changes a score",
-                "LLM-as-judge",
+                "Agent 4 of 4, via audit_assessment · checks support, citations and fairness; "
+                "never changes a score",
+                "Guardrails",
                 "agent",
                 _tools("Auditor"),
             ],
             [
                 "Feedback writer",
                 "via draft_student_feedback · what went well and one next step, citing turns; "
-                "rule checks send a bad email back once, and the lesson carries to the next",
-                "Agents",
+                "rule checks and a second model's score (LLM-as-judge) send a bad email back "
+                "once, and the lesson carries to the next",
+                "LLM-as-judge",
                 "model call",
                 [],
             ],
