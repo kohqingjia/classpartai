@@ -51,7 +51,7 @@ narwhals==2.27.1
 networkx==3.6.1
 numpy==2.4.6
 onnxruntime==1.31.0
-opentelemetry-api==1.45.1
+opentelemetry-api==1.45.2
 opentelemetry-exporter-http-transport==0.66b1
 opentelemetry-exporter-otlp==1.45.1
 opentelemetry-exporter-otlp-common==0.66b1
